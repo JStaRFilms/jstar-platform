@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Magnet - Creator Growth Engine</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+            --magnet-gold: #F6AD55;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, var(--magnet-gold), var(--warm-orange));
+            padding: 2rem;
+            border-radius: 1rem;
+            color: white;
+        }
+        
+        .header-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        
+        .conversion-rate {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        .rate-number {
+            font-size: 3rem;
+            font-weight: 700;
+        }
+        
+        .rate-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--bg-primary);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .trend-indicator {
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .trend-up { color: var(--success-green); }
+        .trend-down { color: var(--warm-orange); }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .funnel-stage {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            background: var(--bg-secondary);
+            border-radius: 0.5rem;
+            position: relative;
+        }
+        
+        .stage-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .stage-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .stage-stats {
+            text-align: right;
+        }
+        
+        .stage-number {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+        
+        .stage-rate {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        .lead-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .lead-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .lead-item:last-child { border-bottom: none; }
+        
+        .lead-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .lead-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--brand-blue);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        
+        .lead-details h4 {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .lead-meta {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .lead-score {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .score-hot {
+            background: rgba(255, 107, 107, 0.2);
+            color: var(--warm-orange);
+        }
+        
+        .score-warm {
+            background: rgba(246, 173, 85, 0.2);
+            color: var(--magnet-gold);
+        }
+        
+        .score-cold {
+            background: rgba(69, 183, 209, 0.2);
+            color: var(--brand-blue);
+        }
+        
+        .magnets-section {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .magnets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .magnet-card {
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .magnet-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-color: var(--magnet-gold);
+        }
+        
+        .magnet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .magnet-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary { background: var(--magnet-gold); color: white; }
+        .btn-secondary { background: var(--bg-secondary); border: 1px solid var(--border); }
+        
+        @media (max-width: 1024px) {
+            .main-grid { grid-template-columns: 1fr; }
+            .magnets-grid { grid-template-columns: 1fr; }
+        }
+        
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .header { flex-direction: column; gap: 1.5rem; text-align: center; }
+            .stats-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1 class="header-title">🧲 Client Magnet</h1>
+                <p style="font-size: 1.2rem; opacity: 0.9;">Attract perfect clients with magnetic lead generation</p>
+            </div>
+            <div class="conversion-rate">
+                <div class="rate-number">34.7%</div>
+                <div class="rate-label">Conversion Rate</div>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value">1,247</div>
+                        <div class="stat-label">Total Leads</div>
+                    </div>
+                    <div class="stat-icon" style="background: var(--magnet-gold);">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+                <div class="trend-indicator trend-up">
+                    <i class="fas fa-arrow-up"></i> +23% this month
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value">89</div>
+                        <div class="stat-label">Hot Leads</div>
+                    </div>
+                    <div class="stat-icon" style="background: var(--warm-orange);">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                </div>
+                <div class="trend-indicator trend-up">
+                    <i class="fas fa-arrow-up"></i> +45% this week
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value">$47.2K</div>
+                        <div class="stat-label">Pipeline Value</div>
+                    </div>
+                    <div class="stat-icon" style="background: var(--success-green);">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                </div>
+                <div class="trend-indicator trend-up">
+                    <i class="fas fa-arrow-up"></i> +67% growth
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value">12.3</div>
+                        <div class="stat-label">Avg Deal Size</div>
+                    </div>
+                    <div class="stat-icon" style="background: var(--brand-blue);">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
+                <div class="trend-indicator trend-up">
+                    <i class="fas fa-arrow-up"></i> +12% increase
+                </div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <div class="card">
+                <div class="card-title">
+                    Sales Funnel
+                    <button class="btn btn-secondary" style="padding: 0.5rem 1rem;">View Details</button>
+                </div>
+                
+                <div class="funnel-stage">
+                    <div class="stage-info">
+                        <div class="stage-icon" style="background: var(--brand-blue);">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 600;">Awareness</div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary);">Website visitors</div>
+                        </div>
+                    </div>
+                    <div class="stage-stats">
+                        <div class="stage-number">12,847</div>
+                        <div class="stage-rate">100%</div>
+                    </div>
+                </div>
+                
+                <div class="funnel-stage">
+                    <div class="stage-info">
+                        <div class="stage-icon" style="background: var(--creative-teal);">
+                            <i class="fas fa-hand-pointer"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 600;">Interest</div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary);">Lead magnet downloads</div>
+                        </div>
+                    </div>
+                    <div class="stage-stats">
+                        <div class="stage-number">3,421</div>
+                        <div class="stage-rate">26.6%</div>
+                    </div>
+                </div>
+                
+                <div class="funnel-stage">
+                    <div class="stage-info">
+                        <div class="stage-icon" style="background: var(--magnet-gold);">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 600;">Consideration</div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary);">Booked consultations</div>
+                        </div>
+                    </div>
+                    <div class="stage-stats">
+                        <div class="stage-number">847</div>
+                        <div class="stage-rate">24.7%</div>
+                    </div>
+                </div>
+                
+                <div class="funnel-stage">
+                    <div class="stage-info">
+                        <div class="stage-icon" style="background: var(--success-green);">
+                            <i class="fas fa-handshake"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 600;">Conversion</div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary);">Paying clients</div>
+                        </div>
+                    </div>
+                    <div class="stage-stats">
+                        <div class="stage-number">294</div>
+                        <div class="stage-rate">34.7%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    Hot Leads
+                    <button class="btn btn-primary" style="padding: 0.5rem 1rem;">Contact All</button>
+                </div>
+                
+                <div class="lead-list">
+                    <div class="lead-item">
+                        <div class="lead-info">
+                            <div class="lead-avatar">SM</div>
+                            <div class="lead-details">
+                                <h4>Sarah Martinez</h4>
+                                <div class="lead-meta">CEO • Tech Startup • $50K+ budget</div>
+                            </div>
+                        </div>
+                        <div class="lead-score score-hot">🔥 Hot</div>
+                    </div>
+                    
+                    <div class="lead-item">
+                        <div class="lead-info">
+                            <div class="lead-avatar">MJ</div>
+                            <div class="lead-details">
+                                <h4>Mike Johnson</h4>
+                                <div class="lead-meta">Founder • E-commerce • Urgent project</div>
+                            </div>
+                        </div>
+                        <div class="lead-score score-hot">🔥 Hot</div>
+                    </div>
+                    
+                    <div class="lead-item">
+                        <div class="lead-info">
+                            <div class="lead-avatar">AL</div>
+                            <div class="lead-details">
+                                <h4>Anna Lee</h4>
+                                <div class="lead-meta">Director • Marketing Agency • Ready to start</div>
+                            </div>
+                        </div>
+                        <div class="lead-score score-warm">⚡ Warm</div>
+                    </div>
+                    
+                    <div class="lead-item">
+                        <div class="lead-info">
+                            <div class="lead-avatar">RW</div>
+                            <div class="lead-details">
+                                <h4>Robert Wilson</h4>
+                                <div class="lead-meta">VP • Fortune 500 • Discovery call scheduled</div>
+                            </div>
+                        </div>
+                        <div class="lead-score score-hot">🔥 Hot</div>
+                    </div>
+                    
+                    <div class="lead-item">
+                        <div class="lead-info">
+                            <div class="lead-avatar">JD</div>
+                            <div class="lead-details">
+                                <h4>Jennifer Davis</h4>
+                                <div class="lead-meta">Owner • Local Business • Needs consultation</div>
+                            </div>
+                        </div>
+                        <div class="lead-score score-warm">⚡ Warm</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="magnets-section">
+            <h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-magnet"></i>
+                Active Lead Magnets
+            </h2>
+            
+            <div class="magnets-grid">
+                <div class="magnet-card">
+                    <div class="magnet-header">
+                        <div>
+                            <h3>"Ultimate AI Productivity Guide"</h3>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem;">PDF Download • 47 pages</p>
+                        </div>
+                        <div style="background: var(--success-green); color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem;">
+                            Active
+                        </div>
+                    </div>
+                    <p style="margin-bottom: 1rem;">Comprehensive guide to using AI tools for maximum productivity and efficiency.</p>
+                    <div class="magnet-stats">
+                        <div style="text-align: center;">
+                            <div style="font-weight: 600; color: var(--brand-blue);">2,347</div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary);">Downloads</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-weight: 600; color: var(--success-green);">34.2%</div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary);">Conversion</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-weight: 600; color: var(--warm-orange);">847</div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary);">Leads</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="magnet-card">
+                    <div class="magnet-header">
+                        <div>
+                            <h3>"Client Acquisition Masterclass"</h3>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem;">Video Training • 90 minutes</p>
+                        </div>
+                        <div style="background: var(--success-green); color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem;">
+                            Active
+                        </div>
+                    </div>
+                    <p style="margin-bottom: 1rem;">Step-by-step system for finding and closing high-value clients consistently.</p>
+                    <div class="magnet-stats">
+                        <div style="text-align: center;">
+                            <div style="font-weight: 600; color: var(--brand-blue);">1,892</div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary);">Views</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-weight: 600; color: var(--success-green);">42.7%</div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary);">Completion</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-weight: 600; color: var(--warm-orange);">634</div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary);">Leads</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="magnet-card">
+                    <div class="magnet-header">
+                        <div>
+                            <h3>"7-Day Business Growth Challenge"</h3>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem;">Email Course • Daily tasks</p>
+                        </div>
+                        <div style="background: var(--warm-orange); color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem;">
+                            Testing
+                        </div>
+                    </div>
+                    <p style="margin-bottom: 1rem;">Interactive challenge with daily actionable tasks to accelerate business growth.</p>
+                    <div class="magnet-stats">
+                        <div style="text-align: center;">
+                            <div style="font-weight: 600; color: var(--brand-blue);">543</div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary);">Signups</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-weight: 600; color: var(--success-green);">67.3%</div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary);">Participation</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-weight: 600; color: var(--warm-orange);">189</div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary);">Leads</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+            <button class="btn btn-primary">
+                <i class="fas fa-plus"></i> Create New Magnet
+            </button>
+            <button class="btn btn-secondary">
+                <i class="fas fa-chart-bar"></i> View Analytics
+            </button>
+            <button class="btn btn-secondary">
+                <i class="fas fa-cog"></i> Automation Settings
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Lead interaction
+        document.querySelectorAll('.lead-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const name = item.querySelector('h4').textContent;
+                alert(`Opening detailed profile for ${name}`);
+            });
+        });
+
+        // Magnet card interaction
+        document.querySelectorAll('.magnet-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const title = card.querySelector('h3').textContent;
+                alert(`Opening analytics for "${title}"`);
+            });
+        });
+
+        // Button interactions
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const action = this.textContent.trim();
+                alert(`${action} functionality would be implemented here!`);
+            });
+        });
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

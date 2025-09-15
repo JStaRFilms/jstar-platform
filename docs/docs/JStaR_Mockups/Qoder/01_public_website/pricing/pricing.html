@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing - J StaR Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        
+        .hero-section {
+            text-align: center;
+            padding: 4rem 0;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            color: white;
+            border-radius: 1rem;
+            margin-bottom: 4rem;
+        }
+        
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+        
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+        
+        .pricing-card {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .pricing-card.featured {
+            border-color: var(--brand-blue);
+            transform: scale(1.05);
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+        
+        .plan-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--brand-blue);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .plan-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+        }
+        
+        .plan-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .plan-description {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+        
+        .plan-price {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .plan-period {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+        
+        .features-list {
+            list-style: none;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+        }
+        
+        .feature-icon {
+            color: var(--success-green);
+            font-size: 1.1rem;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: var(--bg-primary);
+            border: 2px solid var(--border);
+            color: var(--text-primary);
+        }
+        
+        .faq-section {
+            margin: 4rem 0;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+        }
+        
+        .faq-grid {
+            display: grid;
+            gap: 1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .faq-item {
+            background: var(--bg-secondary);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .faq-question {
+            padding: 1.5rem;
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .faq-answer {
+            padding: 0 1.5rem;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .faq-answer.open {
+            max-height: 200px;
+            padding: 0 1.5rem 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero-section">
+            <h1 class="hero-title">Simple, Transparent Pricing</h1>
+            <p class="hero-subtitle">Choose the perfect plan to grow your business with AI-powered tools</p>
+        </div>
+
+        <div class="pricing-grid">
+            <!-- Starter Plan -->
+            <div class="pricing-card">
+                <div class="plan-icon">
+                    <i class="fas fa-rocket"></i>
+                </div>
+                <h3 class="plan-name">Starter</h3>
+                <p class="plan-description">Perfect for individuals and small businesses getting started</p>
+                <div class="plan-price">$29</div>
+                <div class="plan-period">per month</div>
+                
+                <ul class="features-list">
+                    <li class="feature-item">
+                        <i class="feature-icon fas fa-check"></i>
+                        <span>Basic JohnGPT Access</span>
+                    </li>
+                    <li class="feature-item">
+                        <i class="feature-icon fas fa-check"></i>
+                        <span>5 AI-Generated Posts/Month</span>
+                    </li>
+                    <li class="feature-item">
+                        <i class="feature-icon fas fa-check"></i>
+                        <span>Basic Analytics</span>
+                    </li>
+                    <li class="feature-item">
+                        <i class="feature-icon fas fa-check"></i>
+                        <span>Email Support</span>
+                    </li>
+                    <li class="feature-item">
+                        <i class="feature-icon fas fa-check"></i>
+                        <span>Portfolio Website</span>
+                    </li>
+                </ul>
+                
+                <button class="btn btn-secondary">Get Started</button>
+            </div>
+
+            <!-- Professional Plan -->
+            <div class="pricing-card featured">
+                <div class="plan-badge">Most Popular</div>
+                <div class="plan-icon">
+                    <i class="fas fa-crown"></i>
+                </div>
+                <h3 class="plan-name">Professional</h3>
+                <p class="plan-description">For growing businesses that need advanced AI tools</p>
+                <div class="plan-price">$79</div>
+                <div class="plan-period">per month</div>
+                
+                <ul class="features-list">
+                    <li class="feature-item">
+                        <i class="feature-icon fas fa-check"></i>
+                        <span>Full JohnGPT Suite</span>
+                    </li>
+                    <li class="feature-item">
+                        <i class="feature-icon fas fa-check"></i>
+                        <span>Unlimited AI Content</span>
+                    </li>
+                    <li class="feature-item">
+                        <i class="feature-icon fas fa-check"></i>
+                        <span>Virality OS Access</span>
+                    </li>
+                    <li class="feature-item">
+                        <i class="feature-icon fas fa-check"></i>
+                        <span>Client Magnet Tools</span>
+                    </li>
+                    <li class="feature-item">
+                        <i class="feature-icon fas fa-check"></i>
+                        <span>Advanced Analytics</span>
+                    </li>
+                    <li class="feature-item">
+                        <i class="feature-icon fas fa-check"></i>
+                        <span>Priority Support</span>
+                    </li>
+                </ul>
+                
+                <button class="btn btn-primary">Get Started</button>
+            </div>
+
+            <!-- Enterprise Plan -->
+            <div class="pricing-card">
+                <div class="plan-icon">
+                    <i class="fas fa-building"></i>
+                </div>
+                <h3 class="plan-name">Enterprise</h3>
+                <p class="plan-description">For large teams and organizations with custom needs</p>
+                <div class="plan-price">$199</div>
+                <div class="plan-period">per month</div>
+                
+                <ul class="features-list">
+                    <li class="feature-item">
+                        <i class="feature-icon fas fa-check"></i>
+                        <span>Everything in Professional</span>
+                    </li>
+                    <li class="feature-item">
+                        <i class="feature-icon fas fa-check"></i>
+                        <span>Custom AI Training</span>
+                    </li>
+                    <li class="feature-item">
+                        <i class="feature-icon fas fa-check"></i>
+                        <span>White-label Solutions</span>
+                    </li>
+                    <li class="feature-item">
+                        <i class="feature-icon fas fa-check"></i>
+                        <span>Dedicated Account Manager</span>
+                    </li>
+                    <li class="feature-item">
+                        <i class="feature-icon fas fa-check"></i>
+                        <span>Custom Integrations</span>
+                    </li>
+                    <li class="feature-item">
+                        <i class="feature-icon fas fa-check"></i>
+                        <span>24/7 Phone Support</span>
+                    </li>
+                </ul>
+                
+                <button class="btn btn-secondary">Contact Sales</button>
+            </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="faq-section">
+            <h2 class="section-title">Frequently Asked Questions</h2>
+            
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        <span>Can I change my plan anytime?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Yes! You can upgrade or downgrade your plan at any time. Changes will be reflected in your next billing cycle.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        <span>Is there a free trial available?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Yes! We offer a 14-day free trial for all plans. No credit card required to get started.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        <span>What payment methods do you accept?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>We accept all major credit cards, PayPal, and bank transfers for enterprise customers.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        <span>Do you offer refunds?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Yes, we offer a 30-day money-back guarantee if you're not satisfied with our service.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleFaq(element) {
+            const answer = element.nextElementSibling;
+            const icon = element.querySelector('i');
+            
+            answer.classList.toggle('open');
+            icon.classList.toggle('fa-chevron-down');
+            icon.classList.toggle('fa-chevron-up');
+        }
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

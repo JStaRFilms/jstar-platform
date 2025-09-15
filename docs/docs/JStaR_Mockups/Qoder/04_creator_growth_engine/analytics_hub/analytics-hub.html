@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Hub - J StaR Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 1rem;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-trend {
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+        }
+        
+        .trend-up { color: var(--success-green); }
+        .trend-down { color: var(--warm-orange); }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .chart-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .chart-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        
+        .chart-container {
+            height: 300px;
+            background: var(--bg-secondary);
+            border-radius: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .chart-line {
+            position: absolute;
+            bottom: 20px;
+            left: 10%;
+            right: 10%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--brand-blue), var(--creative-teal), var(--success-green));
+            border-radius: 2px;
+        }
+        
+        .chart-bars {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            display: flex;
+            align-items: end;
+            justify-content: space-around;
+            padding: 20px 10%;
+        }
+        
+        .chart-bar {
+            width: 12px;
+            background: var(--brand-blue);
+            border-radius: 6px;
+            opacity: 0.7;
+        }
+        
+        .performance-table {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+        
+        .table-header {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .table-content {
+            padding: 0;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .table th,
+        .table td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .table th {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        .table tbody tr:hover {
+            background: var(--bg-secondary);
+        }
+        
+        .platform-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .badge-twitter { background: #1DA1F2; color: white; }
+        .badge-linkedin { background: #0077B5; color: white; }
+        .badge-facebook { background: #1877F2; color: white; }
+        .badge-instagram { background: #E4405F; color: white; }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="page-title">Analytics Hub</h1>
+            <div>
+                <button class="btn">Export Report</button>
+            </div>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <div class="stat-value">2.4M</div>
+                <div class="stat-label">Total Impressions</div>
+                <div class="stat-trend trend-up">
+                    <i class="fas fa-arrow-up"></i>
+                    +18% this month
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <div class="stat-value">156K</div>
+                <div class="stat-label">Engagements</div>
+                <div class="stat-trend trend-up">
+                    <i class="fas fa-arrow-up"></i>
+                    +12% this month
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-value">847</div>
+                <div class="stat-label">New Followers</div>
+                <div class="stat-trend trend-up">
+                    <i class="fas fa-arrow-up"></i>
+                    +24% this month
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-value">6.4%</div>
+                <div class="stat-label">Engagement Rate</div>
+                <div class="stat-trend trend-down">
+                    <i class="fas fa-arrow-down"></i>
+                    -2% this month
+                </div>
+            </div>
+        </div>
+        
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h2 class="chart-title">Performance Overview</h2>
+                    <select class="btn">
+                        <option>Last 30 days</option>
+                        <option>Last 7 days</option>
+                        <option>Last 90 days</option>
+                    </select>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-bars">
+                        <div class="chart-bar" style="height: 60%;"></div>
+                        <div class="chart-bar" style="height: 80%;"></div>
+                        <div class="chart-bar" style="height: 45%;"></div>
+                        <div class="chart-bar" style="height: 90%;"></div>
+                        <div class="chart-bar" style="height: 70%;"></div>
+                        <div class="chart-bar" style="height: 95%;"></div>
+                        <div class="chart-bar" style="height: 85%;"></div>
+                        <div class="chart-bar" style="height: 75%;"></div>
+                    </div>
+                    <div class="chart-line"></div>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h2 class="chart-title">Platform Distribution</h2>
+                </div>
+                <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">📊</div>
+                    <div>Pie chart visualization would appear here</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="performance-table">
+            <div class="table-header">
+                <h2>Top Performing Content</h2>
+            </div>
+            <div class="table-content">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Content</th>
+                            <th>Platform</th>
+                            <th>Impressions</th>
+                            <th>Engagements</th>
+                            <th>Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>5 AI Tools Every Entrepreneur Needs</td>
+                            <td><span class="platform-badge badge-linkedin">LinkedIn</span></td>
+                            <td>45,230</td>
+                            <td>3,847</td>
+                            <td>8.5%</td>
+                        </tr>
+                        <tr>
+                            <td>The Future of Remote Work</td>
+                            <td><span class="platform-badge badge-twitter">Twitter</span></td>
+                            <td>32,150</td>
+                            <td>2,934</td>
+                            <td>9.1%</td>
+                        </tr>
+                        <tr>
+                            <td>Building a SaaS Startup</td>
+                            <td><span class="platform-badge badge-facebook">Facebook</span></td>
+                            <td>28,765</td>
+                            <td>2,156</td>
+                            <td>7.5%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

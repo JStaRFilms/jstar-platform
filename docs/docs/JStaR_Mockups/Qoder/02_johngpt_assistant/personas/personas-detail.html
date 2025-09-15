@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personas - JohnGPT Assistant</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+        
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .personas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+        }
+        
+        .persona-card {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .persona-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+        
+        .persona-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            margin: 0 auto 1.5rem;
+            border: 4px solid white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .creative .persona-avatar { background: var(--warm-orange); }
+        .systems .persona-avatar { background: var(--brand-blue); }
+        .faith .persona-avatar { background: var(--success-green); }
+        
+        .persona-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .persona-tagline {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            font-style: italic;
+        }
+        
+        .persona-description {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.7;
+        }
+        
+        .capabilities {
+            text-align: left;
+            margin-bottom: 2rem;
+        }
+        
+        .capabilities h4 {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+        
+        .capabilities ul {
+            list-style: none;
+        }
+        
+        .capabilities li {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .capabilities li::before {
+            content: '✓';
+            color: var(--success-green);
+            font-weight: 600;
+        }
+        
+        .persona-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #3A7BC8;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-primary);
+            border: 2px solid var(--border);
+            color: var(--text-primary);
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--brand-blue);
+            color: var(--brand-blue);
+        }
+        
+        .sample-prompts {
+            margin-top: 1.5rem;
+            text-align: left;
+        }
+        
+        .sample-prompts h5 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .prompt-sample {
+            background: var(--bg-primary);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            border-left: 3px solid var(--brand-blue);
+            margin-bottom: 0.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .personas-grid { grid-template-columns: 1fr; }
+            .persona-actions { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Meet Your AI Guides</h1>
+            <p>
+                Each persona brings unique expertise and personality to help you tackle different challenges. 
+                Switch between them anytime to get the most relevant guidance.
+            </p>
+        </div>
+
+        <div class="personas-grid">
+            <!-- Creative Director Persona -->
+            <div class="persona-card creative">
+                <div class="persona-avatar">🎬</div>
+                <h3 class="persona-name">Creative Director</h3>
+                <p class="persona-tagline">"Let's craft stories that captivate and convert"</p>
+                <p class="persona-description">
+                    Your go-to guide for all things creative. From video production to content strategy, 
+                    I bring years of filmmaking experience and a keen eye for visual storytelling.
+                </p>
+                
+                <div class="capabilities">
+                    <h4>I Excel At:</h4>
+                    <ul>
+                        <li>Video production planning & execution</li>
+                        <li>Content strategy & storytelling</li>
+                        <li>Creative concept development</li>
+                        <li>Brand visual identity</li>
+                        <li>Social media content optimization</li>
+                    </ul>
+                </div>
+                
+                <div class="sample-prompts">
+                    <h5>Sample Conversations:</h5>
+                    <div class="prompt-sample">
+                        "How can I create a viral video that stays authentic to my brand?"
+                    </div>
+                    <div class="prompt-sample">
+                        "Help me develop a visual style guide for my content"
+                    </div>
+                </div>
+                
+                <div class="persona-actions">
+                    <button class="btn btn-primary">
+                        <i class="fas fa-comments"></i>
+                        Start Chatting
+                    </button>
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-play"></i>
+                        View Examples
+                    </button>
+                </div>
+            </div>
+
+            <!-- Systems Mentor Persona -->
+            <div class="persona-card systems">
+                <div class="persona-avatar">⚙️</div>
+                <h3 class="persona-name">Systems Mentor</h3>
+                <p class="persona-tagline">"Building frameworks that scale your success"</p>
+                <p class="persona-description">
+                    I help you build robust systems and optimize workflows. Whether it's business processes, 
+                    technical architecture, or productivity systems, I focus on scalable solutions.
+                </p>
+                
+                <div class="capabilities">
+                    <h4>I Excel At:</h4>
+                    <ul>
+                        <li>Business process optimization</li>
+                        <li>Workflow automation strategies</li>
+                        <li>Technical system architecture</li>
+                        <li>Productivity & time management</li>
+                        <li>Data organization & analysis</li>
+                    </ul>
+                </div>
+                
+                <div class="sample-prompts">
+                    <h5>Sample Conversations:</h5>
+                    <div class="prompt-sample">
+                        "How do I automate my client onboarding process?"
+                    </div>
+                    <div class="prompt-sample">
+                        "Design a system for managing multiple projects efficiently"
+                    </div>
+                </div>
+                
+                <div class="persona-actions">
+                    <button class="btn btn-primary">
+                        <i class="fas fa-comments"></i>
+                        Start Chatting
+                    </button>
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-cog"></i>
+                        View Frameworks
+                    </button>
+                </div>
+            </div>
+
+            <!-- Faith Guide Persona -->
+            <div class="persona-card faith">
+                <div class="persona-avatar">✝️</div>
+                <h3 class="persona-name">Faith Guide</h3>
+                <p class="persona-tagline">"Aligning purpose with practice"</p>
+                <p class="persona-description">
+                    I help you integrate faith and purpose into your creative work. Together, we explore 
+                    how to serve others while building something meaningful and sustainable.
+                </p>
+                
+                <div class="capabilities">
+                    <h4>I Excel At:</h4>
+                    <ul>
+                        <li>Purpose-driven business strategy</li>
+                        <li>Ethical decision-making frameworks</li>
+                        <li>Work-life balance & priorities</li>
+                        <li>Servant leadership principles</li>
+                        <li>Community building & impact</li>
+                    </ul>
+                </div>
+                
+                <div class="sample-prompts">
+                    <h5>Sample Conversations:</h5>
+                    <div class="prompt-sample">
+                        "How do I balance profit with purpose in my business?"
+                    </div>
+                    <div class="prompt-sample">
+                        "Help me create systems that serve my community better"
+                    </div>
+                </div>
+                
+                <div class="persona-actions">
+                    <button class="btn btn-primary">
+                        <i class="fas fa-comments"></i>
+                        Start Chatting
+                    </button>
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-heart"></i>
+                        Explore Values
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Persona selection and chat initiation
+        document.querySelectorAll('.btn-primary').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const personaCard = this.closest('.persona-card');
+                const personaName = personaCard.querySelector('.persona-name').textContent;
+                alert(`Starting conversation with ${personaName}...`);
+            });
+        });
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

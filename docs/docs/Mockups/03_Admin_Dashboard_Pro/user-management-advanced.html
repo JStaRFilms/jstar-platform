@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management | J StaR Platform Admin</title>
+    <meta name="description" content="Advanced user management interface for the J StaR Platform">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'obsidian-bg': '#202020',
+                        'obsidian-sidebar': '#161618',
+                        'obsidian-text': '#dcddde',
+                        'obsidian-text-muted': '#888888',
+                        'obsidian-accent': '#7c3aed',
+                        'obsidian-link': '#8b5cf6'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --growth-green: #059669;
+            --obsidian-bg: #202020;
+            --obsidian-sidebar: #161618;
+            --obsidian-text: #dcddde;
+            --obsidian-text-muted: #888888;
+            --obsidian-accent: #7c3aed;
+            --obsidian-link: #8b5cf6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --transition-normal: 300ms;
+        }
+        
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 260px;
+            background: var(--obsidian-sidebar);
+            border-right: 1px solid #333;
+            transition: all var(--transition-normal) ease;
+            flex-shrink: 0;
+        }
+        
+        .main-content {
+            flex: 1;
+            background: var(--obsidian-bg);
+            color: var(--obsidian-text);
+            overflow-y: auto;
+        }
+        
+        .navbar-blur {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .dark .navbar-blur {
+            background: rgba(17, 24, 39, 0.9);
+        }
+        
+        .sidebar-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-radius: 0.5rem;
+            margin-bottom: 0.25rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .sidebar-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .sidebar-item.active {
+            background: rgba(124, 58, 237, 0.2);
+        }
+        
+        .sidebar-item svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-right: 0.75rem;
+        }
+        
+        .user-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: all 0.2s;
+        }
+        
+        .user-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--obsidian-link);
+        }
+        
+        .chart-container {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid #333;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+        }
+        
+        .action-button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+        
+        .action-button:hover {
+            background: rgba(124, 58, 235, 0.2);
+            border-color: var(--obsidian-link);
+        }
+        
+        .primary-button {
+            background: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .primary-button:hover {
+            transform: scale(1.05);
+        }
+        
+        .tier-indicator {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+        }
+        
+        .admin { background: linear-gradient(135deg, #EF4444 0%, #F87171 100%); }
+        .tier-1 { background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%); }
+        .tier-2 { background: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%); }
+        .tier-3 { background: linear-gradient(135deg, var(--faith-purple) 0%, var(--growth-green) 100%); }
+        .guest { background: linear-gradient(135deg, #6B7280 0%, #9CA3AF 100%); }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            color: var(--obsidian-text-muted);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            border-bottom: 1px solid #333;
+        }
+        
+        .data-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #333;
+        }
+        
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .data-table tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .status-active {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10B981;
+        }
+        
+        .status-pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: #F59E0B;
+        }
+        
+        .status-inactive {
+            background: rgba(156, 163, 175, 0.2);
+            color: #9CA3AF;
+        }
+        
+        .search-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            width: 100%;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: var(--obsidian-link);
+        }
+        
+        .filter-button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .filter-button:hover {
+            background: rgba(124, 58, 235, 0.2);
+            border-color: var(--obsidian-link);
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background: var(--obsidian-sidebar);
+            border: 1px solid #333;
+            border-radius: 0.75rem;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .form-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            color: var(--obsidian-text);
+            width: 100%;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--obsidian-link);
+        }
+        
+        .form-select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            color: var(--obsidian-text);
+            width: 100%;
+        }
+        
+        .form-select:focus {
+            outline: none;
+            border-color: var(--obsidian-link);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 navbar-blur border-b border-gray-200 dark:border-gray-700 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/" class="text-2xl font-bold bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">
+                        J StaR Films
+                    </a>
+                    <span class="mx-4 text-gray-300 dark:text-gray-600">/</span>
+                    <span class="text-gray-900 dark:text-white font-medium">Admin Dashboard</span>
+                    <span class="mx-4 text-gray-300 dark:text-gray-600">/</span>
+                    <span class="text-gray-900 dark:text-white font-medium">User Management</span>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="/" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Home</a>
+                    <a href="/about" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">About</a>
+                    <a href="/portfolio" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Portfolio</a>
+                    <a href="/services" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Services</a>
+                    <a href="/blog" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Blog</a>
+                    <a href="/store" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Store</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button onclick="document.documentElement.classList.toggle('dark')" 
+                            class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
+                            aria-label="Toggle theme">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </button>
+                    <div class="relative">
+                        <button class="flex items-center space-x-2">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-r from-jstar-blue to-faith-purple flex items-center justify-center text-white text-sm font-bold">
+                                JO
+                            </div>
+                            <span class="text-gray-900 dark:text-white font-medium">Admin</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Container -->
+    <div class="dashboard-container pt-16">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="p-4">
+                <div class="mb-6">
+                    <h2 class="text-lg font-bold mb-4">Admin Dashboard</h2>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                        Overview
+                    </div>
+                    <div class="sidebar-item active">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                        User Management
+                    </div>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        Analytics
+                    </div>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                        </svg>
+                        JohnGPT Settings
+                    </div>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        CMS
+                    </div>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                        Security Center
+                    </div>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        System Settings
+                    </div>
+                </div>
+                
+                <div class="border-t border-gray-700 pt-4">
+                    <div class="text-xs text-gray-500 uppercase tracking-wider mb-2">Quick Actions</div>
+                    <button class="w-full py-2 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold mb-2 flex items-center justify-center" id="add-user-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        Add User
+                    </button>
+                    <button class="w-full py-2 bg-gray-700 text-white rounded-lg font-semibold flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Export Users
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h1 class="text-2xl font-bold mb-2">User Management</h1>
+                        <p class="text-gray-400">Manage user accounts, permissions, and subscriptions</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <div class="relative">
+                            <input type="text" placeholder="Search users..." class="search-box pl-10">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <button class="filter-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                            </svg>
+                            Filter
+                        </button>
+                        <button class="action-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Export
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- User Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+                    <div class="user-card relative">
+                        <div class="tier-indicator admin text-white">ADMIN</div>
+                        <div class="text-gray-400 text-sm mb-1">Admin Users</div>
+                        <div class="text-2xl font-bold mb-2">1</div>
+                        <div class="text-gray-500 text-sm">Platform Owner</div>
+                    </div>
+                    
+                    <div class="user-card relative">
+                        <div class="tier-indicator tier-3 text-white">TIER 3</div>
+                        <div class="text-gray-400 text-sm mb-1">Tier 3 Users</div>
+                        <div class="text-2xl font-bold mb-2">142</div>
+                        <div class="text-green-500 text-sm flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                            </svg>
+                            8.2% growth
+                        </div>
+                    </div>
+                    
+                    <div class="user-card relative">
+                        <div class="tier-indicator tier-2 text-white">TIER 2</div>
+                        <div class="text-gray-400 text-sm mb-1">Tier 2 Users</div>
+                        <div class="text-2xl font-bold mb-2">387</div>
+                        <div class="text-green-500 text-sm flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                            </svg>
+                            12.4% growth
+                        </div>
+                    </div>
+                    
+                    <div class="user-card relative">
+                        <div class="tier-indicator tier-1 text-white">TIER 1</div>
+                        <div class="text-gray-400 text-sm mb-1">Tier 1 Users</div>
+                        <div class="text-2xl font-bold mb-2">456</div>
+                        <div class="text-green-500 text-sm flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                            </svg>
+                            5.7% growth
+                        </div>
+                    </div>
+                    
+                    <div class="user-card relative">
+                        <div class="tier-indicator guest text-white">GUEST</div>
+                        <div class="text-gray-400 text-sm mb-1">Guest Users</div>
+                        <div class="text-2xl font-bold mb-2">261</div>
+                        <div class="text-gray-500 text-sm">Not subscribed</div>
+                    </div>
+                </div>
+                
+                <!-- User Table -->
+                <div class="chart-container mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-bold">All Users</h2>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm text-gray-400">1,247 users</span>
+                            <button class="text-jstar-blue text-sm">View All</button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Email</th>
+                                    <th>Tier</th>
+                                    <th>Status</th>
+                                    <th>Subscription</th>
+                                    <th>Joined</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 rounded-full bg-gradient-to-r from-jstar-blue to-faith-purple flex items-center justify-center text-white text-xs font-bold mr-2">JO</div>
+                                            <div>
+                                                <div class="font-medium">John Oluleke-Oke</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>john@jstarfilms.com</td>
+                                    <td>
+                                        <span class="px-2 py-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs rounded-full">Admin</span>
+                                    </td>
+                                    <td><span class="status-badge status-active">Active</span></td>
+                                    <td>N/A</td>
+                                    <td>Jan 15, 2023</td>
+                                    <td>
+                                        <button class="text-jstar-blue hover:text-faith-purple mr-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                        </button>
+                                        <button class="text-gray-400 hover:text-white">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center text-white text-xs font-bold mr-2">AS</div>
+                                            <div>
+                                                <div class="font-medium">Alex Smith</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>alex@example.com</td>
+                                    <td>
+                                        <span class="px-2 py-1 bg-gradient-to-r from-jstar-blue to-faith-purple text-white text-xs rounded-full">Tier 2</span>
+                                    </td>
+                                    <td><span class="status-badge status-active">Active</span></td>
+                                    <td>Jun 15, 2024</td>
+                                    <td>Jun 15, 2024</td>
+                                    <td>
+                                        <button class="text-jstar-blue hover:text-faith-purple mr-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                        </button>
+                                        <button class="text-gray-400 hover:text-white">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold mr-2">MJ</div>
+                                            <div>
+                                                <div class="font-medium">Maria Johnson</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>maria@example.com</td>
+                                    <td>
+                                        <span class="px-2 py-1 bg-gradient-to-r from-faith-purple to-growth-green text-white text-xs rounded-full">Tier 3</span>
+                                    </td>
+                                    <td><span class="status-badge status-active">Active</span></td>
+                                    <td>Jun 14, 2024</td>
+                                    <td>Jun 14, 2024</td>
+                                    <td>
+                                        <button class="text-jstar-blue hover:text-faith-purple mr-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                        </button>
+                                        <button class="text-gray-400 hover:text-white">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 rounded-full bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center text-white text-xs font-bold mr-2">DR</div>
+                                            <div>
+                                                <div class="font-medium">David Roberts</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>david@example.com</td>
+                                    <td>
+                                        <span class="px-2 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs rounded-full">Tier 1</span>
+                                    </td>
+                                    <td><span class="status-badge status-pending">Pending</span></td>
+                                    <td>Jun 12, 2024</td>
+                                    <td>Jun 12, 2024</td>
+                                    <td>
+                                        <button class="text-jstar-blue hover:text-faith-purple mr-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                        </button>
+                                        <button class="text-gray-400 hover:text-white">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 rounded-full bg-gradient-to-r from-gray-500 to-gray-600 flex items-center justify-center text-white text-xs font-bold mr-2">TP</div>
+                                            <div>
+                                                <div class="font-medium">Thomas Parker</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>thomas@example.com</td>
+                                    <td>
+                                        <span class="px-2 py-1 bg-gradient-to-r from-gray-500 to-gray-600 text-white text-xs rounded-full">Guest</span>
+                                    </td>
+                                    <td><span class="status-badge status-inactive">Inactive</span></td>
+                                    <td>N/A</td>
+                                    <td>Jun 10, 2024</td>
+                                    <td>
+                                        <button class="text-jstar-blue hover:text-faith-purple mr-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                        </button>
+                                        <button class="text-gray-400 hover:text-white">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    <div class="flex justify-between items-center mt-4">
+                        <div class="text-sm text-gray-400">
+                            Showing 1 to 5 of 1,247 users
+                        </div>
+                        <div class="flex space-x-1">
+                            <button class="px-3 py-1 bg-gray-700 rounded">1</button>
+                            <button class="px-3 py-1 bg-gray-800 rounded">2</button>
+                            <button class="px-3 py-1 bg-gray-800 rounded">3</button>
+                            <button class="px-3 py-1 bg-gray-800 rounded">...</button>
+                            <button class="px-3 py-1 bg-gray-800 rounded">250</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tier Assignment Matrix -->
+                <div class="chart-container">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-bold">Tier Assignment Matrix</h2>
+                        <button class="text-jstar-blue text-sm">Configure</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Feature</th>
+                                    <th>Guest</th>
+                                    <th>Tier 1</th>
+                                    <th>Tier 2</th>
+                                    <th>Tier 3</th>
+                                    <th>Admin</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Public Website Access</td>
+                                    <td><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg></td>
+                                    <td><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg></td>
+                                    <td><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg></td>
+                                    <td><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg></td>
+                                    <td><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg></td>
+                                </tr>
+                                <tr>
+                                    <td>JohnGPT Basic</td>
+                                    <td><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></td>
+                                    <td><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg></td>
+                                    <td><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg></td>
+                                    <td><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg></td>
+                                    <td><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg></td>
+                                </tr>
+                                <tr>
+                                    <td>JohnGPT History</td>
+                                    <td><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></td>
+                                    <td><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg></td>
+                                    <td><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg></td>
+                                    <td><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg></td>
+                                    <td><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg></td>
+                                </tr>
+                                <tr>
+                                    <td>Creator Growth Engine</td>
+                                    <td><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></td>
+                                    <td><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></td>
+                                    <td><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg></td>
+                                    <td><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg></td>
+                                    <td><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg></td>
+                                </tr>
+                                <tr>
+                                    <td>Systems Launcher</td>
+                                    <td><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></td>
+                                    <td><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></td>
+                                    <td><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></td>
+                                    <td><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg></td>
+                                    <td><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg></td>
+                                </tr>
+                                <tr>
+                                    <td>Admin Dashboard</td>
+                                    <td><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></td>
+                                    <td><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></td>
+                                    <td><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></td>
+                                    <td><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></td>
+                                    <td><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add User Modal -->
+    <div class="modal" id="add-user-modal">
+        <div class="modal-content">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold">Add New User</h2>
+                    <button id="close-modal" class="text-gray-400 hover:text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <form class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Full Name</label>
+                        <input type="text" class="form-input" placeholder="Enter user's full name">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
+                        <input type="email" class="form-input" placeholder="Enter user's email">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Access Tier</label>
+                        <select class="form-select">
+                            <option value="">Select access tier</option>
+                            <option value="guest">Guest</option>
+                            <option value="tier1">Tier 1</option>
+                            <option value="tier2">Tier 2</option>
+                            <option value="tier3">Tier 3</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Subscription Status</label>
+                        <select class="form-select">
+                            <option value="active">Active</option>
+                            <option value="pending">Pending</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-3 pt-4">
+                        <button type="button" id="cancel-modal" class="px-4 py-2 border border-gray-600 rounded-lg text-gray-300 hover:bg-gray-700">
+                            Cancel
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold hover:opacity-90">
+                            Add User
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme management
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Sidebar item selection
+        document.querySelectorAll('.sidebar-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                
+                // In a real implementation, this would navigate to the selected section
+                const section = this.textContent.trim();
+                console.log('Navigating to:', section);
+            });
+        });
+        
+        // Modal functionality
+        const addUserButton = document.getElementById('add-user-button');
+        const closeModal = document.getElementById('close-modal');
+        const cancelModal = document.getElementById('cancel-modal');
+        const modal = document.getElementById('add-user-modal');
+        
+        addUserButton.addEventListener('click', function() {
+            modal.classList.add('active');
+        });
+        
+        closeModal.addEventListener('click', function() {
+            modal.classList.remove('active');
+        });
+        
+        cancelModal.addEventListener('click', function() {
+            modal.classList.remove('active');
+        });
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                modal.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Mobile Navigation Patterns - J StaR Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .container { 
+            max-width: 400px; 
+            margin: 0 auto; 
+            padding: 1rem; 
+        }
+        
+        .demo-section {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section-header {
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .section-subtitle {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+        
+        /* Tab Bar Navigation */
+        .tab-nav-demo {
+            padding: 0;
+        }
+        
+        .tab-bar {
+            display: flex;
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border);
+        }
+        
+        .tab-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.75rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-item.active {
+            color: var(--brand-blue);
+            background: rgba(74, 144, 226, 0.1);
+        }
+        
+        .tab-icon {
+            font-size: 1.1rem;
+        }
+        
+        .tab-label {
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+        
+        .tab-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--warm-orange);
+            color: white;
+            font-size: 0.6rem;
+            padding: 0.15rem 0.3rem;
+            border-radius: 0.5rem;
+            min-width: 16px;
+            text-align: center;
+        }
+        
+        /* Hamburger Menu */
+        .hamburger-demo {
+            position: relative;
+            height: 300px;
+        }
+        
+        .mobile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hamburger-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: var(--text-primary);
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+        
+        .slide-menu {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 80%;
+            height: 100%;
+            background: var(--bg-primary);
+            border-right: 1px solid var(--border);
+            transition: left 0.3s ease;
+            z-index: 10;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .slide-menu.open {
+            left: 0;
+        }
+        
+        .menu-header {
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            color: white;
+            padding: 1.5rem 1rem;
+        }
+        
+        .menu-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        
+        .profile-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .menu-items {
+            padding: 1rem 0;
+        }
+        
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .menu-item:hover {
+            background: var(--bg-secondary);
+            color: var(--brand-blue);
+        }
+        
+        .menu-item i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Drawer Navigation */
+        .drawer-demo {
+            position: relative;
+            height: 350px;
+        }
+        
+        .drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .drawer-btn {
+            background: none;
+            border: none;
+            font-size: 1rem;
+            color: var(--text-primary);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            border: 1px solid var(--border);
+        }
+        
+        .bottom-drawer {
+            position: absolute;
+            bottom: -80%;
+            left: 0;
+            right: 0;
+            height: 80%;
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border);
+            border-radius: 1rem 1rem 0 0;
+            transition: bottom 0.3s ease;
+            z-index: 10;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .bottom-drawer.open {
+            bottom: 0;
+        }
+        
+        .drawer-handle {
+            width: 40px;
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            margin: 0.75rem auto;
+        }
+        
+        .drawer-content {
+            padding: 1rem;
+        }
+        
+        .drawer-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+        
+        .drawer-action {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .drawer-action:hover {
+            transform: translateY(-2px);
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        .action-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        .drawer-action:hover .action-icon {
+            background: white;
+            color: var(--brand-blue);
+        }
+        
+        .action-label {
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-align: center;
+        }
+        
+        /* Floating Action Menu */
+        .fab-demo {
+            position: relative;
+            height: 300px;
+            background: var(--bg-secondary);
+        }
+        
+        .fab-main {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 5;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .fab-main.open {
+            transform: rotate(45deg);
+        }
+        
+        .fab-menu {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 4;
+        }
+        
+        .fab-item {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 48px;
+            height: 48px;
+            background: var(--bg-primary);
+            border: 2px solid var(--brand-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--brand-blue);
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            transform: scale(0);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .fab-menu.open .fab-item {
+            transform: scale(1);
+        }
+        
+        .fab-item:nth-child(1) { 
+            transform: translate(-70px, 0);
+            transition-delay: 0.1s;
+        }
+        
+        .fab-item:nth-child(2) { 
+            transform: translate(-50px, -50px);
+            transition-delay: 0.15s;
+        }
+        
+        .fab-item:nth-child(3) { 
+            transform: translate(0, -70px);
+            transition-delay: 0.2s;
+        }
+        
+        .fab-menu.open .fab-item:nth-child(1) { 
+            transform: translate(-70px, 0) scale(1);
+        }
+        
+        .fab-menu.open .fab-item:nth-child(2) { 
+            transform: translate(-50px, -50px) scale(1);
+        }
+        
+        .fab-menu.open .fab-item:nth-child(3) { 
+            transform: translate(0, -70px) scale(1);
+        }
+        
+        /* Swipe Navigation */
+        .swipe-demo {
+            position: relative;
+            height: 250px;
+            overflow: hidden;
+        }
+        
+        .swipe-container {
+            display: flex;
+            width: 300%;
+            height: 100%;
+            transition: transform 0.3s ease;
+        }
+        
+        .swipe-panel {
+            width: 33.333%;
+            padding: 2rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .panel-1 { background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal)); color: white; }
+        .panel-2 { background: linear-gradient(135deg, var(--creative-teal), var(--success-green)); color: white; }
+        .panel-3 { background: linear-gradient(135deg, var(--success-green), var(--warm-orange)); color: white; }
+        
+        .panel-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .panel-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .swipe-indicators {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .swipe-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .swipe-dot.active {
+            background: white;
+        }
+        
+        .swipe-controls {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            opacity: 0.7;
+            padding: 0.5rem;
+        }
+        
+        .swipe-prev { left: 10px; }
+        .swipe-next { right: 10px; }
+        
+        /* Overlay */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .demo-content {
+            padding: 1.5rem;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 2rem; text-align: center;">
+            Mobile Navigation Patterns
+        </h1>
+
+        <!-- Tab Bar Navigation -->
+        <div class="demo-section tab-nav-demo">
+            <div class="section-header">
+                <div class="section-title">Tab Bar Navigation</div>
+                <div class="section-subtitle">Bottom navigation with icons and labels</div>
+            </div>
+            
+            <div class="demo-content">
+                <p>Perfect for main app navigation with 3-5 primary sections</p>
+            </div>
+            
+            <div class="tab-bar">
+                <div class="tab-item active" onclick="selectTab(this)">
+                    <div style="position: relative;">
+                        <i class="tab-icon fas fa-home"></i>
+                    </div>
+                    <span class="tab-label">Home</span>
+                </div>
+                <div class="tab-item" onclick="selectTab(this)">
+                    <div style="position: relative;">
+                        <i class="tab-icon fas fa-search"></i>
+                    </div>
+                    <span class="tab-label">Search</span>
+                </div>
+                <div class="tab-item" onclick="selectTab(this)">
+                    <div style="position: relative;">
+                        <i class="tab-icon fas fa-bell"></i>
+                        <div class="tab-badge">3</div>
+                    </div>
+                    <span class="tab-label">Alerts</span>
+                </div>
+                <div class="tab-item" onclick="selectTab(this)">
+                    <div style="position: relative;">
+                        <i class="tab-icon fas fa-user"></i>
+                    </div>
+                    <span class="tab-label">Profile</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hamburger Menu -->
+        <div class="demo-section">
+            <div class="section-header">
+                <div class="section-title">Hamburger Side Menu</div>
+                <div class="section-subtitle">Slide-out navigation drawer</div>
+            </div>
+            
+            <div class="hamburger-demo">
+                <div class="mobile-header">
+                    <div class="logo">J StaR</div>
+                    <button class="hamburger-btn" onclick="toggleHamburger()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+                
+                <div style="padding: 2rem; text-align: center; color: var(--text-secondary);">
+                    <p>Tap the hamburger icon to see the slide menu</p>
+                </div>
+                
+                <div class="slide-menu" id="slideMenu">
+                    <div class="menu-header">
+                        <div class="menu-profile">
+                            <div class="profile-avatar">JD</div>
+                            <div>
+                                <div class="profile-name">John Doe</div>
+                                <div style="font-size: 0.85rem; opacity: 0.8;">john@example.com</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="menu-items">
+                        <div class="menu-item">
+                            <i class="fas fa-home"></i>
+                            <span>Dashboard</span>
+                        </div>
+                        <div class="menu-item">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Analytics</span>
+                        </div>
+                        <div class="menu-item">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </div>
+                        <div class="menu-item">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="overlay" id="hamburgerOverlay" onclick="toggleHamburger()"></div>
+            </div>
+        </div>
+
+        <!-- Bottom Drawer -->
+        <div class="demo-section">
+            <div class="section-header">
+                <div class="section-title">Bottom Sheet Drawer</div>
+                <div class="section-subtitle">Slide-up action menu</div>
+            </div>
+            
+            <div class="drawer-demo">
+                <div class="drawer-header">
+                    <div style="font-weight: 600;">Quick Actions</div>
+                    <button class="drawer-btn" onclick="toggleDrawer()">
+                        <i class="fas fa-ellipsis-h"></i> More
+                    </button>
+                </div>
+                
+                <div style="padding: 2rem; text-align: center; color: var(--text-secondary);">
+                    <p>Tap "More" to see the bottom drawer</p>
+                </div>
+                
+                <div class="bottom-drawer" id="bottomDrawer">
+                    <div class="drawer-handle"></div>
+                    <div class="drawer-content">
+                        <h3 style="margin-bottom: 1rem; text-align: center;">Quick Actions</h3>
+                        <div class="drawer-grid">
+                            <div class="drawer-action">
+                                <div class="action-icon">
+                                    <i class="fas fa-plus"></i>
+                                </div>
+                                <div class="action-label">Create</div>
+                            </div>
+                            <div class="drawer-action">
+                                <div class="action-icon">
+                                    <i class="fas fa-share"></i>
+                                </div>
+                                <div class="action-label">Share</div>
+                            </div>
+                            <div class="drawer-action">
+                                <div class="action-icon">
+                                    <i class="fas fa-download"></i>
+                                </div>
+                                <div class="action-label">Save</div>
+                            </div>
+                            <div class="drawer-action">
+                                <div class="action-icon">
+                                    <i class="fas fa-edit"></i>
+                                </div>
+                                <div class="action-label">Edit</div>
+                            </div>
+                            <div class="drawer-action">
+                                <div class="action-icon">
+                                    <i class="fas fa-trash"></i>
+                                </div>
+                                <div class="action-label">Delete</div>
+                            </div>
+                            <div class="drawer-action">
+                                <div class="action-icon">
+                                    <i class="fas fa-cog"></i>
+                                </div>
+                                <div class="action-label">Settings</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="overlay" id="drawerOverlay" onclick="toggleDrawer()"></div>
+            </div>
+        </div>
+
+        <!-- Floating Action Menu -->
+        <div class="demo-section">
+            <div class="section-header">
+                <div class="section-title">Floating Action Menu</div>
+                <div class="section-subtitle">Expandable FAB with sub-actions</div>
+            </div>
+            
+            <div class="fab-demo">
+                <div style="padding: 2rem; color: var(--text-secondary); text-align: center;">
+                    <p>Tap the + button to expand the action menu</p>
+                </div>
+                
+                <div class="fab-menu" id="fabMenu">
+                    <div class="fab-item" onclick="fabAction('message')">
+                        <i class="fas fa-comment"></i>
+                    </div>
+                    <div class="fab-item" onclick="fabAction('photo')">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <div class="fab-item" onclick="fabAction('note')">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                </div>
+                
+                <div class="fab-main" onclick="toggleFAB()">
+                    <i class="fas fa-plus"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Swipe Navigation -->
+        <div class="demo-section">
+            <div class="section-header">
+                <div class="section-title">Swipe Navigation</div>
+                <div class="section-subtitle">Horizontal scrolling panels</div>
+            </div>
+            
+            <div class="swipe-demo">
+                <div class="swipe-container" id="swipeContainer">
+                    <div class="swipe-panel panel-1">
+                        <div class="panel-icon">🏠</div>
+                        <div class="panel-title">Dashboard</div>
+                        <div>Main overview and stats</div>
+                    </div>
+                    <div class="swipe-panel panel-2">
+                        <div class="panel-icon">📊</div>
+                        <div class="panel-title">Analytics</div>
+                        <div>Performance insights</div>
+                    </div>
+                    <div class="swipe-panel panel-3">
+                        <div class="panel-icon">⚙️</div>
+                        <div class="panel-title">Settings</div>
+                        <div>App configuration</div>
+                    </div>
+                </div>
+                
+                <button class="swipe-controls swipe-prev" onclick="swipePanel(-1)">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="swipe-controls swipe-next" onclick="swipePanel(1)">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                
+                <div class="swipe-indicators">
+                    <div class="swipe-dot active" onclick="goToPanel(0)"></div>
+                    <div class="swipe-dot" onclick="goToPanel(1)"></div>
+                    <div class="swipe-dot" onclick="goToPanel(2)"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab navigation
+        function selectTab(tab) {
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+        }
+
+        // Hamburger menu
+        function toggleHamburger() {
+            const menu = document.getElementById('slideMenu');
+            const overlay = document.getElementById('hamburgerOverlay');
+            
+            menu.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+
+        // Bottom drawer
+        function toggleDrawer() {
+            const drawer = document.getElementById('bottomDrawer');
+            const overlay = document.getElementById('drawerOverlay');
+            
+            drawer.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+
+        // Floating Action Button
+        function toggleFAB() {
+            const fab = document.querySelector('.fab-main');
+            const menu = document.getElementById('fabMenu');
+            
+            fab.classList.toggle('open');
+            menu.classList.toggle('open');
+        }
+
+        function fabAction(action) {
+            alert(`${action} action triggered!`);
+            toggleFAB();
+        }
+
+        // Swipe navigation
+        let currentPanel = 0;
+        const totalPanels = 3;
+
+        function swipePanel(direction) {
+            currentPanel += direction;
+            if (currentPanel < 0) currentPanel = totalPanels - 1;
+            if (currentPanel >= totalPanels) currentPanel = 0;
+            
+            updateSwipePosition();
+        }
+
+        function goToPanel(index) {
+            currentPanel = index;
+            updateSwipePosition();
+        }
+
+        function updateSwipePosition() {
+            const container = document.getElementById('swipeContainer');
+            const translateX = -currentPanel * 33.333;
+            container.style.transform = `translateX(${translateX}%)`;
+            
+            // Update indicators
+            document.querySelectorAll('.swipe-dot').forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentPanel);
+            });
+        }
+
+        // Touch handling for swipe
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.getElementById('swipeContainer').addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+        });
+
+        document.getElementById('swipeContainer').addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].clientX;
+            handleSwipeGesture();
+        });
+
+        function handleSwipeGesture() {
+            const swipeThreshold = 50;
+            const swipeDistance = touchEndX - touchStartX;
+            
+            if (Math.abs(swipeDistance) > swipeThreshold) {
+                if (swipeDistance > 0) {
+                    swipePanel(-1); // Swipe right (previous panel)
+                } else {
+                    swipePanel(1); // Swipe left (next panel)
+                }
+            }
+        }
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+
+        // Close menus when clicking menu items
+        document.querySelectorAll('.menu-item, .drawer-action').forEach(item => {
+            item.addEventListener('click', function() {
+                const action = this.querySelector('span')?.textContent || this.querySelector('.action-label')?.textContent;
+                alert(`${action} clicked!`);
+                
+                // Close any open menus
+                document.getElementById('slideMenu').classList.remove('open');
+                document.getElementById('hamburgerOverlay').classList.remove('active');
+                document.getElementById('bottomDrawer').classList.remove('open');
+                document.getElementById('drawerOverlay').classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>

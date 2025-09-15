@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio | J StaR Films - Cinematic Video Production & App Development</title>
+    <meta name="description" content="Explore John Oluleke-Oke's portfolio of cinematic wedding films, event coverage, and custom app development projects.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --growth-green: #059669;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --transition-normal: 300ms;
+        }
+        
+        .portfolio-filter {
+            transition: all var(--transition-normal) ease;
+        }
+        
+        .portfolio-filter.active {
+            background: var(--gradient-brand);
+            color: white;
+        }
+        
+        .portfolio-item {
+            transition: all var(--transition-normal) ease;
+        }
+        
+        .portfolio-item:hover {
+            transform: translateY(-8px);
+        }
+        
+        .portfolio-image {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .portfolio-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity var(--transition-normal) ease;
+        }
+        
+        .portfolio-item:hover .portfolio-image::before {
+            opacity: 1;
+        }
+        
+        .portfolio-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all var(--transition-normal) ease;
+        }
+        
+        .portfolio-item:hover .portfolio-overlay {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .navbar-blur {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .dark .navbar-blur {
+            background: rgba(17, 24, 39, 0.9);
+        }
+        
+        /* Lightbox styles */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 100;
+            overflow: auto;
+        }
+        
+        .lightbox-content {
+            max-width: 90%;
+            max-height: 90%;
+            margin: 5% auto;
+            display: block;
+        }
+        
+        .lightbox-caption {
+            text-align: center;
+            color: white;
+            padding: 1rem;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 navbar-blur border-b border-gray-200 dark:border-gray-700 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/" class="text-2xl font-bold bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">
+                        J StaR Films
+                    </a>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#portfolio" class="text-jstar-blue font-semibold">Portfolio</a>
+                    <a href="#video" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Video</a>
+                    <a href="#apps" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Apps</a>
+                    <a href="#events" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Events</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button onclick="document.documentElement.classList.toggle('dark')" 
+                            class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
+                            aria-label="Toggle theme">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </button>
+                    <button class="px-4 py-2 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold text-sm">
+                        Contact Me
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-br from-gray-900 to-gray-800 py-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl md:text-6xl font-bold text-white mb-6">
+                My <span class="bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">Portfolio</span>
+            </h1>
+            <p class="text-xl text-gray-300 max-w-3xl mx-auto mb-12">
+                A showcase of cinematic storytelling, innovative app development, and memorable event coverage. 
+                Each project reflects my commitment to excellence and faith-inspired creativity.
+            </p>
+            <div class="flex flex-wrap justify-center gap-3">
+                <span class="px-3 py-1 bg-jstar-blue/20 text-jstar-blue rounded-full text-sm">50+ Projects</span>
+                <span class="px-3 py-1 bg-faith-purple/20 text-faith-purple rounded-full text-sm">1M+ Views</span>
+                <span class="px-3 py-1 bg-growth-green/20 text-growth-green rounded-full text-sm">Global Clients</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Portfolio Filters -->
+    <section class="py-8 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-16 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-wrap justify-center gap-3">
+                <button class="portfolio-filter active px-6 py-3 bg-gray-100 dark:bg-gray-700 rounded-full font-medium text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600">
+                    All Projects
+                </button>
+                <button class="portfolio-filter px-6 py-3 bg-gray-100 dark:bg-gray-700 rounded-full font-medium text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600">
+                    Wedding Films
+                </button>
+                <button class="portfolio-filter px-6 py-3 bg-gray-100 dark:bg-gray-700 rounded-full font-medium text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600">
+                    Event Coverage
+                </button>
+                <button class="portfolio-filter px-6 py-3 bg-gray-100 dark:bg-gray-700 rounded-full font-medium text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600">
+                    Apps
+                </button>
+                <button class="portfolio-filter px-6 py-3 bg-gray-100 dark:bg-gray-700 rounded-full font-medium text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600">
+                    Brand Videos
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Portfolio Grid -->
+    <section class="py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Portfolio Item 1 -->
+                <div class="portfolio-item bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg">
+                    <div class="portfolio-image">
+                        <div class="h-64 bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center">
+                            <div class="text-center text-white">
+                                <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                                <p class="font-medium">Wedding Highlight Film</p>
+                            </div>
+                        </div>
+                        <div class="portfolio-overlay">
+                            <h3 class="text-xl font-bold text-white mb-2">The Johnson Wedding</h3>
+                            <p class="text-gray-200 mb-4">Cinematic highlight film with drone footage</p>
+                            <button onclick="openLightbox('wedding1', 'The Johnson Wedding - Cinematic highlight film with drone footage and professional editing')" class="px-4 py-2 bg-white text-gray-900 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+                                View Project
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">The Johnson Wedding</h3>
+                            <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded text-xs font-medium">
+                                Wedding
+                            </span>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                            A cinematic highlight film capturing the joy and emotion of Sarah and Michael's special day, 
+                            featuring drone footage and professional color grading.
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded text-xs">Drone</span>
+                            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded text-xs">4K</span>
+                            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded text-xs">Color Grading</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Portfolio Item 2 -->
+                <div class="portfolio-item bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg">
+                    <div class="portfolio-image">
+                        <div class="h-64 bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center">
+                            <div class="text-center text-white">
+                                <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                    </svg>
+                                </div>
+                                <p class="font-medium">Conference App</p>
+                            </div>
+                        </div>
+                        <div class="portfolio-overlay">
+                            <h3 class="text-xl font-bold text-white mb-2">TechSummit 2023 App</h3>
+                            <p class="text-gray-200 mb-4">Custom mobile app for tech conference</p>
+                            <button onclick="openLightbox('app1', 'TechSummit 2023 App - Custom mobile application with schedule, networking, and real-time updates')" class="px-4 py-2 bg-white text-gray-900 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+                                View Project
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">TechSummit 2023 App</h3>
+                            <span class="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 rounded text-xs font-medium">
+                                App
+                            </span>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                            A custom mobile application developed for the annual TechSummit conference, 
+                            featuring schedules, networking tools, and real-time updates.
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded text-xs">React Native</span>
+                            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded text-xs">Firebase</span>
+                            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded text-xs">Real-time</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Portfolio Item 3 -->
+                <div class="portfolio-item bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg">
+                    <div class="portfolio-image">
+                        <div class="h-64 bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                            <div class="text-center text-white">
+                                <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                                <p class="font-medium">Corporate Event</p>
+                            </div>
+                        </div>
+                        <div class="portfolio-overlay">
+                            <h3 class="text-xl font-bold text-white mb-2">GlobalTech Annual Gala</h3>
+                            <p class="text-gray-200 mb-4">Full event coverage with highlight reel</p>
+                            <button onclick="openLightbox('event1', 'GlobalTech Annual Gala - Full event coverage including keynote speeches, networking sessions, and highlight reel')" class="px-4 py-2 bg-white text-gray-900 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+                                View Project
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">GlobalTech Annual Gala</h3>
+                            <span class="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 rounded text-xs font-medium">
+                                Event
+                            </span>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                            Comprehensive coverage of GlobalTech's annual gala event, including keynote speeches, 
+                            networking sessions, and a professionally edited highlight reel.
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded text-xs">Multi-Camera</span>
+                            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded text-xs">Live Streaming</span>
+                            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded text-xs">Highlight Reel</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Portfolio Item 4 -->
+                <div class="portfolio-item bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg">
+                    <div class="portfolio-image">
+                        <div class="h-64 bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center">
+                            <div class="text-center text-white">
+                                <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                                <p class="font-medium">Brand Story</p>
+                            </div>
+                        </div>
+                        <div class="portfolio-overlay">
+                            <h3 class="text-xl font-bold text-white mb-2">Hope Foundation Brand Video</h3>
+                            <p class="text-gray-200 mb-4">Emotional brand story for charity</p>
+                            <button onclick="openLightbox('brand1', 'Hope Foundation Brand Video - Emotional brand story showcasing the charity\'s mission and impact')" class="px-4 py-2 bg-white text-gray-900 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+                                View Project
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">Hope Foundation Brand Video</h3>
+                            <span class="px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 rounded text-xs font-medium">
+                                Brand
+                            </span>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                            An emotional brand story created for the Hope Foundation, showcasing their mission, 
+                            impact, and the lives they've changed through compelling storytelling.
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded text-xs">Narrative</span>
+                            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded text-xs">Interviews</span>
+                            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded text-xs">Motion Graphics</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Portfolio Item 5 -->
+                <div class="portfolio-item bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg">
+                    <div class="portfolio-image">
+                        <div class="h-64 bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center">
+                            <div class="text-center text-white">
+                                <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                    </svg>
+                                </div>
+                                <p class="font-medium">Fitness App</p>
+                            </div>
+                        </div>
+                        <div class="portfolio-overlay">
+                            <h3 class="text-xl font-bold text-white mb-2">FitLife Mobile App</h3>
+                            <p class="text-gray-200 mb-4">Health and fitness tracking application</p>
+                            <button onclick="openLightbox('app2', 'FitLife Mobile App - Health and fitness tracking application with workout plans and progress tracking')" class="px-4 py-2 bg-white text-gray-900 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+                                View Project
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">FitLife Mobile App</h3>
+                            <span class="px-2 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300 rounded text-xs font-medium">
+                                App
+                            </span>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                            A comprehensive health and fitness tracking application that helps users achieve 
+                            their wellness goals with personalized workout plans and progress tracking.
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded text-xs">React Native</span>
+                            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded text-xs">HealthKit</span>
+                            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded text-xs">Personalization</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Portfolio Item 6 -->
+                <div class="portfolio-item bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg">
+                    <div class="portfolio-image">
+                        <div class="h-64 bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center">
+                            <div class="text-center text-white">
+                                <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                                <p class="font-medium">Wedding Documentary</p>
+                            </div>
+                        </div>
+                        <div class="portfolio-overlay">
+                            <h3 class="text-xl font-bold text-white mb-2">The Martinez Wedding</h3>
+                            <p class="text-gray-200 mb-4">Full-length documentary style wedding film</p>
+                            <button onclick="openLightbox('wedding2', 'The Martinez Wedding - Full-length documentary style wedding film capturing the entire day')" class="px-4 py-2 bg-white text-gray-900 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+                                View Project
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">The Martinez Wedding</h3>
+                            <span class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 rounded text-xs font-medium">
+                                Wedding
+                            </span>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                            A full-length documentary style wedding film capturing every moment of 
+                            Elena and Carlos's beautiful ceremony and reception in stunning 4K.
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded text-xs">Documentary</span>
+                            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded text-xs">4K</span>
+                            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded text-xs">Cinematic</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Load More Button -->
+            <div class="text-center mt-12">
+                <button class="px-8 py-4 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-xl font-semibold hover:opacity-90 transition-opacity">
+                    Load More Projects
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lightbox -->
+    <div id="lightbox" class="lightbox">
+        <span class="absolute top-6 right-6 text-white text-3xl cursor-pointer" onclick="closeLightbox()">&times;</span>
+        <img id="lightbox-img" class="lightbox-content" src="" alt="">
+        <div id="lightbox-caption" class="lightbox-caption"></div>
+    </div>
+
+    <!-- CTA Section -->
+    <section class="py-16 bg-gradient-to-r from-jstar-blue to-faith-purple">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">
+                Ready to Create Something Amazing?
+            </h2>
+            <p class="text-xl text-white/90 mb-8">
+                Whether you need cinematic video production, custom app development, or AI-powered creator tools, 
+                let's bring your vision to life with purpose and excellence.
+            </p>
+            <a href="#contact" class="inline-block px-8 py-4 bg-white text-jstar-blue font-bold rounded-xl text-lg hover:bg-gray-100 transition-colors">
+                Start Your Project
+            </a>
+        </div>
+    </section>
+
+    <script>
+        // Theme management
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+
+        // Portfolio filtering
+        const filterButtons = document.querySelectorAll('.portfolio-filter');
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                // Add active class to clicked button
+                button.classList.add('active');
+                
+                // In a real implementation, this would filter the portfolio items
+                // For this demo, we'll just show an alert
+                console.log(`Filtering by: ${button.textContent.trim()}`);
+            });
+        });
+
+        // Lightbox functionality
+        function openLightbox(imageId, caption) {
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightbox-img');
+            const lightboxCaption = document.getElementById('lightbox-caption');
+            
+            // Set image source and caption
+            lightboxImg.src = `https://via.placeholder.com/1200x800/333333/FFFFFF?text=${imageId}`;
+            lightboxCaption.textContent = caption;
+            
+            // Show lightbox
+            lightbox.style.display = 'block';
+        }
+        
+        function closeLightbox() {
+            document.getElementById('lightbox').style.display = 'none';
+        }
+        
+        // Close lightbox when clicking outside the image
+        document.getElementById('lightbox').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeLightbox();
+            }
+        });
+        
+        // Close lightbox with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeLightbox();
+            }
+        });
+    </script>
+</body>
+</html>

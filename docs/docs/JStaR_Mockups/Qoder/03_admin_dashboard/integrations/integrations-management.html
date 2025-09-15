@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integrations Management - Admin Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        
+        .page-header {
+            margin-bottom: 2rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--bg-primary);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .tabs {
+            display: flex;
+            background: var(--bg-primary);
+            border-radius: 0.5rem;
+            border: 1px solid var(--border);
+            margin-bottom: 2rem;
+        }
+        
+        .tab {
+            padding: 1rem 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab.active {
+            color: var(--brand-blue);
+            border-bottom-color: var(--brand-blue);
+            background: var(--bg-secondary);
+        }
+        
+        .integrations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .integration-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .integration-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .integration-card.connected {
+            border-color: var(--success-green);
+            background: linear-gradient(135deg, rgba(69, 183, 209, 0.05), rgba(78, 205, 196, 0.05));
+        }
+        
+        .integration-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .integration-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-connected {
+            background: var(--success-green);
+            color: white;
+        }
+        
+        .status-available {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        
+        .status-error {
+            background: var(--warm-orange);
+            color: white;
+        }
+        
+        .integration-info h3 {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .integration-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+        
+        .integration-metrics {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .metric {
+            text-align: center;
+            padding: 0.75rem;
+            background: var(--bg-secondary);
+            border-radius: 0.5rem;
+        }
+        
+        .metric-number {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--brand-blue);
+        }
+        
+        .metric-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        .integration-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+            flex: 1;
+        }
+        
+        .btn-primary { background: var(--brand-blue); color: white; }
+        .btn-success { background: var(--success-green); color: white; }
+        .btn-danger { background: #E53E3E; color: white; }
+        .btn-secondary { background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary); }
+        
+        .coming-soon {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--warm-orange);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 1rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .integrations-grid { grid-template-columns: 1fr; }
+            .tabs { flex-wrap: wrap; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="page-header">
+            <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem;">Integrations Management</h1>
+            <p style="color: var(--text-secondary);">Manage third-party service connections and API integrations</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" style="color: var(--success-green);">8</div>
+                <div class="stat-label">Active Integrations</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color: var(--brand-blue);">12.4K</div>
+                <div class="stat-label">API Calls Today</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color: var(--creative-teal);">99.2%</div>
+                <div class="stat-label">Uptime</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color: var(--warm-orange);">2</div>
+                <div class="stat-label">Errors</div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active">All Services</button>
+            <button class="tab">Connected</button>
+            <button class="tab">Authentication</button>
+            <button class="tab">Storage</button>
+            <button class="tab">Analytics</button>
+        </div>
+
+        <div class="integrations-grid">
+            <!-- OpenAI Integration -->
+            <div class="integration-card connected">
+                <div class="integration-header">
+                    <div class="integration-logo" style="background: #10A37F;">🤖</div>
+                    <div class="status-badge status-connected">Connected</div>
+                </div>
+                <div class="integration-info">
+                    <h3>OpenAI GPT-4</h3>
+                    <p class="integration-description">
+                        Primary AI model for JohnGPT conversations and content generation.
+                    </p>
+                    <div class="integration-metrics">
+                        <div class="metric">
+                            <div class="metric-number">8.9K</div>
+                            <div class="metric-label">Requests Today</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-number">120ms</div>
+                            <div class="metric-label">Avg Response</div>
+                        </div>
+                    </div>
+                    <div class="integration-actions">
+                        <button class="btn btn-success">Configure</button>
+                        <button class="btn btn-secondary">Monitor</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stripe Integration -->
+            <div class="integration-card connected">
+                <div class="integration-header">
+                    <div class="integration-logo" style="background: #635BFF;">💳</div>
+                    <div class="status-badge status-connected">Connected</div>
+                </div>
+                <div class="integration-info">
+                    <h3>Stripe Payments</h3>
+                    <p class="integration-description">
+                        Payment processing for subscriptions and one-time purchases.
+                    </p>
+                    <div class="integration-metrics">
+                        <div class="metric">
+                            <div class="metric-number">$2.4K</div>
+                            <div class="metric-label">Revenue Today</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-number">47</div>
+                            <div class="metric-label">Transactions</div>
+                        </div>
+                    </div>
+                    <div class="integration-actions">
+                        <button class="btn btn-success">Settings</button>
+                        <button class="btn btn-secondary">Webhooks</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AWS S3 Integration -->
+            <div class="integration-card connected">
+                <div class="integration-header">
+                    <div class="integration-logo" style="background: #FF9900;">☁️</div>
+                    <div class="status-badge status-connected">Connected</div>
+                </div>
+                <div class="integration-info">
+                    <h3>AWS S3 Storage</h3>
+                    <p class="integration-description">
+                        File storage for user uploads, backups, and static assets.
+                    </p>
+                    <div class="integration-metrics">
+                        <div class="metric">
+                            <div class="metric-number">78%</div>
+                            <div class="metric-label">Storage Used</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-number">1.2TB</div>
+                            <div class="metric-label">Total Data</div>
+                        </div>
+                    </div>
+                    <div class="integration-actions">
+                        <button class="btn btn-success">Manage</button>
+                        <button class="btn btn-secondary">Backup</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SendGrid Integration -->
+            <div class="integration-card connected">
+                <div class="integration-header">
+                    <div class="integration-logo" style="background: #1A82E2;">📧</div>
+                    <div class="status-badge status-connected">Connected</div>
+                </div>
+                <div class="integration-info">
+                    <h3>SendGrid Email</h3>
+                    <p class="integration-description">
+                        Transactional emails, notifications, and marketing campaigns.
+                    </p>
+                    <div class="integration-metrics">
+                        <div class="metric">
+                            <div class="metric-number">1.2K</div>
+                            <div class="metric-label">Emails Sent</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-number">94.2%</div>
+                            <div class="metric-label">Delivery Rate</div>
+                        </div>
+                    </div>
+                    <div class="integration-actions">
+                        <button class="btn btn-success">Templates</button>
+                        <button class="btn btn-secondary">Analytics</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Google Analytics -->
+            <div class="integration-card connected">
+                <div class="integration-header">
+                    <div class="integration-logo" style="background: #4285F4;">📊</div>
+                    <div class="status-badge status-connected">Connected</div>
+                </div>
+                <div class="integration-info">
+                    <h3>Google Analytics</h3>
+                    <p class="integration-description">
+                        Website traffic analysis and user behavior tracking.
+                    </p>
+                    <div class="integration-metrics">
+                        <div class="metric">
+                            <div class="metric-number">3.2K</div>
+                            <div class="metric-label">Daily Users</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-number">4.7</div>
+                            <div class="metric-label">Pages/Session</div>
+                        </div>
+                    </div>
+                    <div class="integration-actions">
+                        <button class="btn btn-success">Dashboard</button>
+                        <button class="btn btn-secondary">Reports</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slack Integration -->
+            <div class="integration-card">
+                <div class="integration-header">
+                    <div class="integration-logo" style="background: #4A154B;">#</div>
+                    <div class="status-badge status-available">Available</div>
+                </div>
+                <div class="integration-info">
+                    <h3>Slack Notifications</h3>
+                    <p class="integration-description">
+                        Send system alerts and notifications to Slack channels.
+                    </p>
+                    <div class="integration-metrics">
+                        <div class="metric">
+                            <div class="metric-number">-</div>
+                            <div class="metric-label">Not Connected</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-number">-</div>
+                            <div class="metric-label">No Data</div>
+                        </div>
+                    </div>
+                    <div class="integration-actions">
+                        <button class="btn btn-primary">Connect</button>
+                        <button class="btn btn-secondary">Learn More</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GitHub Integration -->
+            <div class="integration-card">
+                <div class="integration-header">
+                    <div class="integration-logo" style="background: #181717;">
+                        <i class="fab fa-github"></i>
+                    </div>
+                    <div class="status-badge status-available">Available</div>
+                </div>
+                <div class="integration-info">
+                    <h3>GitHub Repository</h3>
+                    <p class="integration-description">
+                        Connect repository for automated deployments and version control.
+                    </p>
+                    <div class="integration-metrics">
+                        <div class="metric">
+                            <div class="metric-number">-</div>
+                            <div class="metric-label">Not Connected</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-number">-</div>
+                            <div class="metric-label">No Webhooks</div>
+                        </div>
+                    </div>
+                    <div class="integration-actions">
+                        <button class="btn btn-primary">Connect</button>
+                        <button class="btn btn-secondary">Docs</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Discord Integration -->
+            <div class="integration-card" style="position: relative;">
+                <div class="coming-soon">Coming Soon</div>
+                <div class="integration-header">
+                    <div class="integration-logo" style="background: #5865F2;">🎮</div>
+                    <div class="status-badge status-available">Planned</div>
+                </div>
+                <div class="integration-info">
+                    <h3>Discord Bot</h3>
+                    <p class="integration-description">
+                        JohnGPT bot for Discord servers with community features.
+                    </p>
+                    <div class="integration-metrics">
+                        <div class="metric">
+                            <div class="metric-number">Q1</div>
+                            <div class="metric-label">2025</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-number">Beta</div>
+                            <div class="metric-label">Phase</div>
+                        </div>
+                    </div>
+                    <div class="integration-actions">
+                        <button class="btn btn-secondary">Waitlist</button>
+                        <button class="btn btn-secondary">Preview</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        const tabs = document.querySelectorAll('.tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+            });
+        });
+
+        // Integration actions
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('btn')) {
+                const action = e.target.textContent;
+                alert(`${action} integration action triggered!`);
+            }
+        });
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

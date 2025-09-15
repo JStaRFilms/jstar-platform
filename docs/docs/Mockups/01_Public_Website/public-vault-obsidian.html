@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Public Vault | J StaR Creator Knowledge Base</title>
+    <meta name="description" content="Access curated creator resources, insights, and knowledge from John Oluleke-Oke's personal Obsidian vault. Articles, templates, and frameworks for content creators.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'obsidian-bg': '#202020',
+                        'obsidian-sidebar': '#161618',
+                        'obsidian-text': '#dcddde',
+                        'obsidian-text-muted': '#888888',
+                        'obsidian-accent': '#7c3aed',
+                        'obsidian-link': '#8b5cf6'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --growth-green: #059669;
+            --obsidian-bg: #202020;
+            --obsidian-sidebar: #161618;
+            --obsidian-text: #dcddde;
+            --obsidian-text-muted: #888888;
+            --obsidian-accent: #7c3aed;
+            --obsidian-link: #8b5cf6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --transition-normal: 300ms;
+        }
+        
+        .vault-container {
+            display: flex;
+            height: calc(100vh - 4rem);
+            margin-top: 4rem;
+        }
+        
+        .sidebar {
+            width: 240px;
+            background: var(--obsidian-sidebar);
+            border-right: 1px solid #333;
+            overflow-y: auto;
+            transition: all var(--transition-normal) ease;
+        }
+        
+        .main-content {
+            flex: 1;
+            background: var(--obsidian-bg);
+            color: var(--obsidian-text);
+            overflow-y: auto;
+        }
+        
+        .note-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .tag {
+            display: inline-block;
+            background: rgba(124, 58, 237, 0.2);
+            color: #c4b5fd;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tag:hover {
+            background: rgba(124, 58, 237, 0.3);
+        }
+        
+        .link {
+            color: var(--obsidian-link);
+            text-decoration: none;
+        }
+        
+        .link:hover {
+            text-decoration: underline;
+        }
+        
+        .navbar-blur {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .dark .navbar-blur {
+            background: rgba(17, 24, 39, 0.9);
+        }
+        
+        .search-box {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            width: 100%;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: var(--obsidian-link);
+        }
+        
+        .folder {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background 0.2s;
+        }
+        
+        .folder:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .folder.active {
+            background: rgba(124, 58, 237, 0.2);
+        }
+        
+        .folder-icon {
+            margin-right: 0.5rem;
+            color: #888;
+        }
+        
+        .note-item {
+            padding: 0.5rem 1rem 0.5rem 2rem;
+            cursor: pointer;
+            border-left: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .note-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .note-item.active {
+            border-left: 2px solid var(--obsidian-link);
+            background: rgba(124, 58, 237, 0.1);
+        }
+        
+        /* Markdown styling */
+        .markdown-content h1 {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: white;
+        }
+        
+        .markdown-content h2 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+        
+        .markdown-content p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        
+        .markdown-content ul, .markdown-content ol {
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+        }
+        
+        .markdown-content li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .markdown-content code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+        }
+        
+        .markdown-content pre {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin-bottom: 1rem;
+        }
+        
+        .markdown-content blockquote {
+            border-left: 4px solid var(--obsidian-link);
+            padding-left: 1rem;
+            margin-left: 0;
+            margin-bottom: 1rem;
+            color: var(--obsidian-text-muted);
+        }
+        
+        .graph-view {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .reference-item {
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            background: rgba(0, 0, 0, 0.2);
+            margin-bottom: 0.5rem;
+        }
+        
+        .reference-item:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 navbar-blur border-b border-gray-200 dark:border-gray-700 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/" class="text-2xl font-bold bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">
+                        J StaR Films
+                    </a>
+                    <span class="mx-4 text-gray-300 dark:text-gray-600">/</span>
+                    <span class="text-gray-900 dark:text-white font-medium">Public Vault</span>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="/" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Home</a>
+                    <a href="/about" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">About</a>
+                    <a href="/portfolio" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Portfolio</a>
+                    <a href="/services" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Services</a>
+                    <a href="/blog" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Blog</a>
+                    <a href="/store" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Store</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button onclick="document.documentElement.classList.toggle('dark')" 
+                            class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
+                            aria-label="Toggle theme">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </button>
+                    <button class="px-4 py-2 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold text-sm">
+                        Contact
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Obsidian-style Vault Interface -->
+    <div class="vault-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="p-4">
+                <div class="relative">
+                    <input type="text" placeholder="Search vault..." class="search-box">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute right-3 top-2.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+            </div>
+            
+            <div class="px-2">
+                <div class="folder active">
+                    <svg class="folder-icon h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+                    </svg>
+                    <span>Creator Resources</span>
+                </div>
+                
+                <div class="note-item active">
+                    <span>Content Strategy Framework</span>
+                </div>
+                
+                <div class="note-item">
+                    <span>YouTube Growth Playbook</span>
+                </div>
+                
+                <div class="note-item">
+                    <span>Wedding Cinematography Guide</span>
+                </div>
+                
+                <div class="folder">
+                    <svg class="folder-icon h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+                    </svg>
+                    <span>AI Tools Documentation</span>
+                </div>
+                
+                <div class="note-item">
+                    <span>JohnGPT User Guide</span>
+                </div>
+                
+                <div class="note-item">
+                    <span>Scripting Studio Workflow</span>
+                </div>
+                
+                <div class="folder">
+                    <svg class="folder-icon h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+                    </svg>
+                    <span>Business Frameworks</span>
+                </div>
+                
+                <div class="note-item">
+                    <span>Client Onboarding Process</span>
+                </div>
+                
+                <div class="note-item">
+                    <span>Pricing Strategy Template</span>
+                </div>
+            </div>
+            
+            <div class="px-4 py-3 border-t border-gray-800 mt-4">
+                <div class="text-xs text-gray-500 uppercase tracking-wider">Tags</div>
+                <div class="mt-2 flex flex-wrap">
+                    <span class="tag">#content-strategy</span>
+                    <span class="tag">#youtube-growth</span>
+                    <span class="tag">#cinematography</span>
+                    <span class="tag">#ai-tools</span>
+                    <span class="tag">#business</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="note-content">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <h1>Content Strategy Framework</h1>
+                        <div class="flex items-center text-sm text-gray-400">
+                            <span>Last updated: June 15, 2024</span>
+                            <span class="mx-2">•</span>
+                            <span>5 min read</span>
+                        </div>
+                    </div>
+                    <button class="p-2 rounded-lg hover:bg-gray-800 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="flex flex-wrap gap-2 mb-6">
+                    <span class="tag">#content-strategy</span>
+                    <span class="tag">#creator-tools</span>
+                    <span class="tag">#framework</span>
+                </div>
+                
+                <div class="markdown-content">
+                    <p>This framework is designed to help content creators develop a consistent and effective content strategy that drives engagement and growth. It's based on principles I've learned through years of creating content across different platforms and industries.</p>
+                    
+                    <h2>Core Principles</h2>
+                    
+                    <blockquote>
+                        "Great content isn't about perfection; it's about connection. Focus on delivering value and building relationships with your audience."
+                    </blockquote>
+                    
+                    <ol>
+                        <li><strong>Value First</strong>: Every piece of content should provide tangible value to your audience</li>
+                        <li><strong>Consistency Over Perfection</strong>: Regular posting beats sporadic perfection</li>
+                        <li><strong>Know Your Audience</strong>: Deep understanding of your audience's needs and pain points</li>
+                        <li><strong>Platform Optimization</strong>: Tailor content to each platform's unique strengths</li>
+                    </ol>
+                    
+                    <h2>The 4-Step Content Creation Process</h2>
+                    
+                    <h3>1. Research & Ideation</h3>
+                    <ul>
+                        <li>Monitor trending topics in your niche</li>
+                        <li>Analyze competitor content performance</li>
+                        <li>Review audience feedback and questions</li>
+                        <li>Brainstorm content ideas using the <code>[[Content Idea Matrix]]</code></li>
+                    </ul>
+                    
+                    <h3>2. Planning & Structuring</h3>
+                    <ul>
+                        <li>Define clear objectives for each piece of content</li>
+                        <li>Create content outlines using the <code>[[Content Template Framework]]</code></li>
+                        <li>Schedule content in your editorial calendar</li>
+                        <li>Prepare all necessary assets and resources</li>
+                    </ul>
+                    
+                    <h3>3. Creation & Optimization</h3>
+                    <ul>
+                        <li>Produce content following your established templates</li>
+                        <li>Optimize for platform-specific algorithms</li>
+                        <li>Incorporate relevant keywords and hashtags</li>
+                        <li>Ensure content is accessible and inclusive</li>
+                    </ul>
+                    
+                    <h3>4. Distribution & Engagement</h3>
+                    <ul>
+                        <li>Publish content according to your schedule</li>
+                        <li>Engage authentically with audience comments and messages</li>
+                        <li>Promote content through appropriate channels</li>
+                        <li>Analyze performance and gather insights</li>
+                    </ul>
+                    
+                    <h2>Content Types Matrix</h2>
+                    
+                    <p>Different content types serve different purposes in your overall strategy:</p>
+                    
+                    <table class="min-w-full divide-y divide-gray-700">
+                        <thead>
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Content Type</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Purpose</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Frequency</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-800">
+                            <tr>
+                                <td class="px-4 py-3 text-sm text-gray-300">Educational</td>
+                                <td class="px-4 py-3 text-sm text-gray-300">Establish expertise and provide value</td>
+                                <td class="px-4 py-3 text-sm text-gray-300">30% of content</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-3 text-sm text-gray-300">Entertaining</td>
+                                <td class="px-4 py-3 text-sm text-gray-300">Build connection and engagement</td>
+                                <td class="px-4 py-3 text-sm text-gray-300">25% of content</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-3 text-sm text-gray-300">Inspirational</td>
+                                <td class="px-4 py-3 text-sm text-gray-300">Create emotional connection</td>
+                                <td class="px-4 py-3 text-sm text-gray-300">20% of content</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-3 text-sm text-gray-300">Promotional</td>
+                                <td class="px-4 py-3 text-sm text-gray-300">Drive conversions and sales</td>
+                                <td class="px-4 py-3 text-sm text-gray-300">15% of content</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-3 text-sm text-gray-300">Community</td>
+                                <td class="px-4 py-3 text-sm text-gray-300">Foster engagement and loyalty</td>
+                                <td class="px-4 py-3 text-sm text-gray-300">10% of content</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <h2>Performance Tracking</h2>
+                    
+                    <p>Measure what matters to your content strategy:</p>
+                    
+                    <pre><code class="language-javascript">// Example metrics to track
+const contentMetrics = {
+  // Engagement metrics
+  likes: number,
+  comments: number,
+  shares: number,
+  saves: number,
+  
+  // Growth metrics
+  followers: number,
+  reach: number,
+  impressions: number,
+  
+  // Conversion metrics
+  clicks: number,
+  conversions: number,
+  revenue: number
+};</code></pre>
+                    
+                    <p>Use the <code>[[Content Performance Dashboard]]</code> template to track these metrics across platforms.</p>
+                    
+                    <h2>Related Resources</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        <div class="reference-item">
+                            <h4 class="font-semibold text-gray-200">YouTube Growth Playbook</h4>
+                            <p class="text-sm text-gray-400 mt-1">Comprehensive guide to growing your YouTube channel with proven strategies.</p>
+                            <div class="flex mt-2">
+                                <span class="tag text-xs">#youtube</span>
+                                <span class="tag text-xs">#growth</span>
+                            </div>
+                        </div>
+                        
+                        <div class="reference-item">
+                            <h4 class="font-semibold text-gray-200">Content Idea Matrix</h4>
+                            <p class="text-sm text-gray-400 mt-1">Framework for generating content ideas that resonate with your audience.</p>
+                            <div class="flex mt-2">
+                                <span class="tag text-xs">#ideation</span>
+                                <span class="tag text-xs">#framework</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="graph-view mt-12">
+                    <h3 class="font-semibold mb-4">Knowledge Graph</h3>
+                    <div class="text-center py-8 text-gray-500">
+                        <svg class="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        <p>Visual representation of how this note connects to other concepts in the vault</p>
+                        <p class="text-sm mt-2">Connected to 12 other notes</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme management
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Simulate note switching
+        document.querySelectorAll('.note-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.note-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                
+                // In a real implementation, this would load the selected note content
+                console.log('Loading note:', this.textContent.trim());
+            });
+        });
+        
+        // Simulate folder toggling
+        document.querySelectorAll('.folder').forEach(folder => {
+            folder.addEventListener('click', function() {
+                document.querySelectorAll('.folder').forEach(f => f.classList.remove('active'));
+                this.classList.add('active');
+                
+                // In a real implementation, this would load the folder contents
+                console.log('Opening folder:', this.textContent.trim());
+            });
+        });
+    </script>
+</body>
+</html>

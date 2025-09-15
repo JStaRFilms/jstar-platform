@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - Typography System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Brand Colors */
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            
+            /* Light Theme */
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --text-muted: #718096;
+            --border: #E2E8F0;
+            --shadow: rgba(0, 0, 0, 0.1);
+            
+            /* Typography Scale */
+            --text-xs: 0.75rem;     /* 12px */
+            --text-sm: 0.875rem;    /* 14px */
+            --text-base: 1rem;      /* 16px */
+            --text-lg: 1.125rem;    /* 18px */
+            --text-xl: 1.25rem;     /* 20px */
+            --text-2xl: 1.5rem;     /* 24px */
+            --text-3xl: 1.875rem;   /* 30px */
+            --text-4xl: 2.25rem;    /* 36px */
+            --text-5xl: 3rem;       /* 48px */
+            --text-6xl: 3.75rem;    /* 60px */
+            
+            /* Line Heights */
+            --leading-none: 1;
+            --leading-tight: 1.25;
+            --leading-snug: 1.375;
+            --leading-normal: 1.5;
+            --leading-relaxed: 1.625;
+            --leading-loose: 2;
+            
+            /* Font Weights */
+            --font-thin: 100;
+            --font-light: 300;
+            --font-normal: 400;
+            --font-medium: 500;
+            --font-semibold: 600;
+            --font-bold: 700;
+            --font-extrabold: 800;
+            --font-black: 900;
+            
+            /* Spacing */
+            --space-xs: 0.25rem;
+            --space-sm: 0.5rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            --space-2xl: 3rem;
+            --space-3xl: 4rem;
+            
+            /* Border Radius */
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            
+            /* Gradients */
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            --gradient-text: linear-gradient(135deg, #1A202C, #4A5568);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --text-muted: #A0AEC0;
+            --border: #4A5568;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --gradient-text: linear-gradient(135deg, #F7FAFC, #CBD5E0);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Inter', sans-serif;
+            line-height: var(--leading-normal);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            font-size: var(--text-base);
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: var(--brand-blue);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: var(--font-semibold);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            background: #3A7BC8;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--space-xl);
+        }
+
+        .page-title {
+            font-size: var(--text-5xl);
+            font-weight: var(--font-black);
+            text-align: center;
+            margin-bottom: var(--space-3xl);
+            background: var(--gradient-brand);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: var(--leading-tight);
+        }
+
+        .section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            margin-bottom: var(--space-xl);
+            box-shadow: 0 4px 6px var(--shadow);
+        }
+
+        .section-title {
+            font-size: var(--text-3xl);
+            font-weight: var(--font-bold);
+            color: var(--brand-blue);
+            margin-bottom: var(--space-lg);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: var(--space-sm);
+        }
+
+        .type-specimen {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--space-lg);
+            margin-bottom: var(--space-lg);
+            position: relative;
+        }
+
+        .type-label {
+            position: absolute;
+            top: var(--space-sm);
+            right: var(--space-sm);
+            background: var(--brand-blue);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: var(--text-xs);
+            font-weight: var(--font-medium);
+        }
+
+        .type-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--space-lg);
+        }
+
+        /* Heading Styles */
+        .heading-6xl {
+            font-size: var(--text-6xl);
+            font-weight: var(--font-black);
+            line-height: var(--leading-none);
+            margin-bottom: var(--space-md);
+        }
+
+        .heading-5xl {
+            font-size: var(--text-5xl);
+            font-weight: var(--font-black);
+            line-height: var(--leading-tight);
+            margin-bottom: var(--space-md);
+        }
+
+        .heading-4xl {
+            font-size: var(--text-4xl);
+            font-weight: var(--font-bold);
+            line-height: var(--leading-tight);
+            margin-bottom: var(--space-md);
+        }
+
+        .heading-3xl {
+            font-size: var(--text-3xl);
+            font-weight: var(--font-bold);
+            line-height: var(--leading-snug);
+            margin-bottom: var(--space-md);
+        }
+
+        .heading-2xl {
+            font-size: var(--text-2xl);
+            font-weight: var(--font-semibold);
+            line-height: var(--leading-snug);
+            margin-bottom: var(--space-md);
+        }
+
+        .heading-xl {
+            font-size: var(--text-xl);
+            font-weight: var(--font-semibold);
+            line-height: var(--leading-snug);
+            margin-bottom: var(--space-sm);
+        }
+
+        .heading-lg {
+            font-size: var(--text-lg);
+            font-weight: var(--font-medium);
+            line-height: var(--leading-snug);
+            margin-bottom: var(--space-sm);
+        }
+
+        /* Body Text Styles */
+        .body-xl {
+            font-size: var(--text-xl);
+            line-height: var(--leading-relaxed);
+            margin-bottom: var(--space-md);
+        }
+
+        .body-lg {
+            font-size: var(--text-lg);
+            line-height: var(--leading-relaxed);
+            margin-bottom: var(--space-md);
+        }
+
+        .body-base {
+            font-size: var(--text-base);
+            line-height: var(--leading-normal);
+            margin-bottom: var(--space-md);
+        }
+
+        .body-sm {
+            font-size: var(--text-sm);
+            line-height: var(--leading-normal);
+            margin-bottom: var(--space-sm);
+        }
+
+        .body-xs {
+            font-size: var(--text-xs);
+            line-height: var(--leading-normal);
+            margin-bottom: var(--space-sm);
+        }
+
+        /* Text Treatments */
+        .text-gradient {
+            background: var(--gradient-brand);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .text-shadow {
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .text-primary {
+            color: var(--text-primary);
+        }
+
+        .text-secondary {
+            color: var(--text-secondary);
+        }
+
+        .text-muted {
+            color: var(--text-muted);
+        }
+
+        .text-brand {
+            color: var(--brand-blue);
+        }
+
+        .text-success {
+            color: var(--success-green);
+        }
+
+        .text-warning {
+            color: var(--warm-orange);
+        }
+
+        /* Font Weights */
+        .font-light { font-weight: var(--font-light); }
+        .font-normal { font-weight: var(--font-normal); }
+        .font-medium { font-weight: var(--font-medium); }
+        .font-semibold { font-weight: var(--font-semibold); }
+        .font-bold { font-weight: var(--font-bold); }
+        .font-extrabold { font-weight: var(--font-extrabold); }
+        .font-black { font-weight: var(--font-black); }
+
+        /* Line Heights */
+        .leading-tight { line-height: var(--leading-tight); }
+        .leading-snug { line-height: var(--leading-snug); }
+        .leading-normal { line-height: var(--leading-normal); }
+        .leading-relaxed { line-height: var(--leading-relaxed); }
+        .leading-loose { line-height: var(--leading-loose); }
+
+        /* Special Components */
+        .hero-text {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: var(--font-black);
+            line-height: var(--leading-tight);
+            background: var(--gradient-brand);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            margin-bottom: var(--space-lg);
+        }
+
+        .subtitle {
+            font-size: var(--text-xl);
+            font-weight: var(--font-normal);
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: var(--space-2xl);
+            line-height: var(--leading-relaxed);
+        }
+
+        .quote {
+            font-size: var(--text-lg);
+            font-style: italic;
+            color: var(--text-secondary);
+            border-left: 4px solid var(--brand-blue);
+            padding-left: var(--space-lg);
+            margin: var(--space-lg) 0;
+            line-height: var(--leading-relaxed);
+        }
+
+        .code {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background: var(--bg-secondary);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: var(--brand-blue);
+            border: 1px solid var(--border);
+        }
+
+        .code-block {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background: var(--bg-secondary);
+            padding: var(--space-md);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            overflow-x: auto;
+            font-size: var(--text-sm);
+            line-height: var(--leading-relaxed);
+        }
+
+        .stat-number {
+            font-size: var(--text-4xl);
+            font-weight: var(--font-extrabold);
+            color: var(--brand-blue);
+            line-height: var(--leading-none);
+        }
+
+        .stat-label {
+            font-size: var(--text-sm);
+            font-weight: var(--font-medium);
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .brand-voice-demo {
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            color: white;
+            padding: var(--space-xl);
+            border-radius: var(--radius-lg);
+            margin: var(--space-lg) 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: var(--space-md);
+            }
+            
+            .page-title {
+                font-size: var(--text-4xl);
+            }
+            
+            .type-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .heading-6xl {
+                font-size: var(--text-4xl);
+            }
+            
+            .heading-5xl {
+                font-size: var(--text-3xl);
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()">🌓 Toggle Theme</button>
+    
+    <div class="container">
+        <h1 class="page-title">Typography System</h1>
+        <p class="subtitle">Complete text hierarchy and styling for the J StaR Personal Platform</p>
+        
+        <div class="section">
+            <h2 class="section-title">🎯 Headings Hierarchy</h2>
+            <div class="type-specimen">
+                <div class="type-label">H1 - Hero</div>
+                <h1 class="heading-6xl">Creative Operating System</h1>
+                <p class="text-muted">60px • 900 weight • Line height: 1.0</p>
+            </div>
+            
+            <div class="type-specimen">
+                <div class="type-label">H1 - Page Title</div>
+                <h1 class="heading-5xl">Welcome to J StaR Films</h1>
+                <p class="text-muted">48px • 900 weight • Line height: 1.25</p>
+            </div>
+            
+            <div class="type-specimen">
+                <div class="type-label">H2 - Section</div>
+                <h2 class="heading-4xl">About Our Services</h2>
+                <p class="text-muted">36px • 700 weight • Line height: 1.25</p>
+            </div>
+            
+            <div class="type-specimen">
+                <div class="type-label">H3 - Subsection</div>
+                <h3 class="heading-3xl">Video Production Excellence</h3>
+                <p class="text-muted">30px • 700 weight • Line height: 1.375</p>
+            </div>
+            
+            <div class="type-specimen">
+                <div class="type-label">H4 - Component</div>
+                <h4 class="heading-2xl">Project Highlights</h4>
+                <p class="text-muted">24px • 600 weight • Line height: 1.375</p>
+            </div>
+            
+            <div class="type-specimen">
+                <div class="type-label">H5 - Card Title</div>
+                <h5 class="heading-xl">Client Testimonials</h5>
+                <p class="text-muted">20px • 600 weight • Line height: 1.375</p>
+            </div>
+            
+            <div class="type-specimen">
+                <div class="type-label">H6 - Small Header</div>
+                <h6 class="heading-lg">Quick Facts</h6>
+                <p class="text-muted">18px • 500 weight • Line height: 1.375</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">📖 Body Text Hierarchy</h2>
+            <div class="type-grid">
+                <div class="type-specimen">
+                    <div class="type-label">Body XL</div>
+                    <p class="body-xl">
+                        This is extra large body text, perfect for introductions, hero subtitles, and important callouts that need more prominence than regular text.
+                    </p>
+                    <p class="text-muted">20px • 400 weight • Line height: 1.625</p>
+                </div>
+                
+                <div class="type-specimen">
+                    <div class="type-label">Body Large</div>
+                    <p class="body-lg">
+                        Large body text is ideal for lead paragraphs, important descriptions, and content that deserves extra attention while remaining highly readable.
+                    </p>
+                    <p class="text-muted">18px • 400 weight • Line height: 1.625</p>
+                </div>
+                
+                <div class="type-specimen">
+                    <div class="type-label">Body Base</div>
+                    <p class="body-base">
+                        This is the standard body text size used for most content across the platform. It provides excellent readability and is optimized for long-form reading experiences.
+                    </p>
+                    <p class="text-muted">16px • 400 weight • Line height: 1.5</p>
+                </div>
+                
+                <div class="type-specimen">
+                    <div class="type-label">Body Small</div>
+                    <p class="body-sm">
+                        Small body text is perfect for secondary information, captions, metadata, and supporting details that complement the main content.
+                    </p>
+                    <p class="text-muted">14px • 400 weight • Line height: 1.5</p>
+                </div>
+                
+                <div class="type-specimen">
+                    <div class="type-label">Caption</div>
+                    <p class="body-xs">
+                        Caption text for image descriptions, fine print, legal text, and other minimal information that needs to be present but unobtrusive.
+                    </p>
+                    <p class="text-muted">12px • 400 weight • Line height: 1.5</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">🎨 Text Treatments</h2>
+            <div class="type-grid">
+                <div class="type-specimen">
+                    <div class="type-label">Gradient Text</div>
+                    <h2 class="heading-3xl text-gradient">Brand Gradient</h2>
+                    <p class="text-muted">Perfect for hero titles and brand emphasis</p>
+                </div>
+                
+                <div class="type-specimen">
+                    <div class="type-label">Color Variants</div>
+                    <p class="body-lg text-primary">Primary text color</p>
+                    <p class="body-lg text-secondary">Secondary text color</p>
+                    <p class="body-lg text-muted">Muted text color</p>
+                    <p class="body-lg text-brand">Brand blue color</p>
+                    <p class="body-lg text-success">Success green color</p>
+                    <p class="body-lg text-warning">Warning orange color</p>
+                </div>
+                
+                <div class="type-specimen">
+                    <div class="type-label">Font Weights</div>
+                    <p class="body-lg font-light">Light weight (300)</p>
+                    <p class="body-lg font-normal">Normal weight (400)</p>
+                    <p class="body-lg font-medium">Medium weight (500)</p>
+                    <p class="body-lg font-semibold">Semibold weight (600)</p>
+                    <p class="body-lg font-bold">Bold weight (700)</p>
+                    <p class="body-lg font-extrabold">Extrabold weight (800)</p>
+                </div>
+                
+                <div class="type-specimen">
+                    <div class="type-label">Line Heights</div>
+                    <p class="body-base leading-tight">Tight line height for compact text that needs to fit in smaller spaces without sacrificing too much readability.</p>
+                    <p class="body-base leading-normal">Normal line height for standard reading comfort and optimal text flow in most situations.</p>
+                    <p class="body-base leading-relaxed">Relaxed line height for improved readability in long-form content and better visual breathing room.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">🎭 Brand Voice Examples</h2>
+            <div class="brand-voice-demo">
+                <h3 class="heading-2xl" style="color: white; margin-bottom: var(--space-lg);">
+                    Hey there, creative soul! 👋
+                </h3>
+                <p class="body-lg" style="color: rgba(255,255,255,0.9); margin-bottom: var(--space-md);">
+                    Welcome to my corner of the digital universe where faith meets creativity, and dreams get the systems they deserve. I'm John (but you can call me J StaR), and I'm here to help you build something extraordinary.
+                </p>
+                <p class="body-base" style="color: rgba(255,255,255,0.8);">
+                    <strong>Friendly</strong> • <strong>Humorous</strong> • <strong>Practical</strong> • <strong>Faith-Grounded</strong>
+                </p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">🛠️ Special Components</h2>
+            <div class="type-grid">
+                <div class="type-specimen">
+                    <div class="type-label">Hero Text</div>
+                    <h1 class="hero-text">Transform Your Vision</h1>
+                    <p class="text-muted">Responsive hero text (clamp: 2.5rem to 4rem)</p>
+                </div>
+                
+                <div class="type-specimen">
+                    <div class="type-label">Statistics</div>
+                    <div style="text-align: center;">
+                        <div class="stat-number">500+</div>
+                        <div class="stat-label">Projects Completed</div>
+                    </div>
+                </div>
+                
+                <div class="type-specimen">
+                    <div class="type-label">Quote/Testimonial</div>
+                    <blockquote class="quote">
+                        "John's work transformed our entire approach to content creation. His systems thinking combined with creative excellence is exactly what we needed."
+                    </blockquote>
+                    <p class="text-muted">Testimonial formatting with brand accent</p>
+                </div>
+                
+                <div class="type-specimen">
+                    <div class="type-label">Code Elements</div>
+                    <p class="body-base">
+                        Install with <span class="code">npm install @jstar/platform</span> and get started.
+                    </p>
+                    <div class="code-block">
+// Example configuration
+const config = {
+  theme: 'jstar-creative',
+  ai: {
+    provider: 'ollama',
+    model: 'llama3'
+  }
+};</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">📱 Responsive Behavior</h2>
+            <div class="type-specimen">
+                <p class="body-lg">
+                    Typography scales responsively across devices:
+                </p>
+                <ul style="margin: var(--space-md) 0; padding-left: var(--space-lg); line-height: var(--leading-relaxed);">
+                    <li><strong>Desktop:</strong> Full scale typography with maximum impact</li>
+                    <li><strong>Tablet:</strong> Slightly reduced sizing maintaining readability</li>
+                    <li><strong>Mobile:</strong> Optimized sizing using clamp() functions for perfect mobile reading</li>
+                    <li><strong>Accessibility:</strong> Respects user font size preferences</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">✅ Best Practices</h2>
+            <div class="type-grid">
+                <div class="type-specimen">
+                    <h3 class="heading-lg text-brand">Hierarchy</h3>
+                    <ul style="line-height: var(--leading-relaxed); color: var(--text-secondary);">
+                        <li>Use only one H1 per page</li>
+                        <li>Don't skip heading levels</li>
+                        <li>Maintain consistent spacing</li>
+                        <li>Consider semantic meaning</li>
+                    </ul>
+                </div>
+                
+                <div class="type-specimen">
+                    <h3 class="heading-lg text-brand">Readability</h3>
+                    <ul style="line-height: var(--leading-relaxed); color: var(--text-secondary);">
+                        <li>Optimal line length: 45-75 characters</li>
+                        <li>Use relaxed line height for body text</li>
+                        <li>Ensure sufficient color contrast</li>
+                        <li>Test on multiple screen sizes</li>
+                    </ul>
+                </div>
+                
+                <div class="type-specimen">
+                    <h3 class="heading-lg text-brand">Brand Voice</h3>
+                    <ul style="line-height: var(--leading-relaxed); color: var(--text-secondary);">
+                        <li>Keep tone friendly and approachable</li>
+                        <li>Use humor appropriately</li>
+                        <li>Stay practical and actionable</li>
+                        <li>Integrate faith perspective naturally</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

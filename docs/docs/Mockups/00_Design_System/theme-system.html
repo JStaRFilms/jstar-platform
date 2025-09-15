@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - Theme System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-300">
+    <!-- Theme Controls -->
+    <div class="fixed top-4 right-4 z-50 flex space-x-2">
+        <button onclick="setTheme('light')" 
+                class="p-2 rounded-full bg-yellow-500 text-white hover:bg-yellow-600 transition-all duration-300">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        </button>
+        <button onclick="setTheme('dark')" 
+                class="p-2 rounded-full bg-gray-800 text-white hover:bg-gray-700 transition-all duration-300">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            </svg>
+        </button>
+        <button onclick="setTheme('auto')" 
+                class="p-2 rounded-full bg-jstar-blue text-white hover:bg-faith-purple transition-all duration-300">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364-.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+            </svg>
+        </button>
+    </div>
+
+    <div class="max-w-6xl mx-auto p-6">
+        <!-- Header -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-bold bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent mb-4">
+                Theme System
+            </h1>
+            <p class="text-lg text-gray-600 dark:text-gray-400">
+                Advanced dark/light mode with system preference support (FR002)
+            </p>
+        </header>
+
+        <!-- Current Theme Display -->
+        <section class="mb-12">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-200 dark:border-gray-700">
+                <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Current Theme</h2>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div id="theme-indicator" class="w-4 h-4 rounded-full bg-jstar-blue"></div>
+                        <span id="theme-name" class="text-lg font-semibold text-gray-900 dark:text-white">Auto (System)</span>
+                    </div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                        System Preference: <span id="system-theme" class="font-medium">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Theme Previews -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Theme Previews</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Light Theme Preview -->
+                <div class="border border-gray-200 rounded-2xl overflow-hidden shadow-lg">
+                    <div class="bg-gray-100 p-3 border-b border-gray-200">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                            <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                            <span class="ml-2 text-sm font-medium text-gray-700">Light Theme</span>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-900">JohnGPT Assistant</h3>
+                            <div class="w-8 h-8 bg-gradient-to-r from-jstar-blue to-faith-purple rounded-full"></div>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="bg-gray-100 rounded-lg p-3">
+                                <p class="text-gray-800 text-sm">How can I help you create viral content today? 😊</p>
+                            </div>
+                            <div class="bg-jstar-blue text-white rounded-lg p-3 ml-8">
+                                <p class="text-sm">Generate YouTube title ideas for cooking content</p>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex space-x-2">
+                            <input type="text" placeholder="Ask me anything..." 
+                                   class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                            <button class="px-4 py-2 bg-jstar-blue text-white rounded-lg text-sm">Send</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dark Theme Preview -->
+                <div class="border border-gray-700 rounded-2xl overflow-hidden shadow-lg bg-gray-800">
+                    <div class="bg-gray-900 p-3 border-b border-gray-700">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                            <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                            <span class="ml-2 text-sm font-medium text-gray-300">Dark Theme</span>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800 p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-white">JohnGPT Assistant</h3>
+                            <div class="w-8 h-8 bg-gradient-to-r from-jstar-blue to-faith-purple rounded-full"></div>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="bg-gray-700 rounded-lg p-3">
+                                <p class="text-gray-200 text-sm">How can I help you create viral content today? 😊</p>
+                            </div>
+                            <div class="bg-jstar-blue text-white rounded-lg p-3 ml-8">
+                                <p class="text-sm">Generate YouTube title ideas for cooking content</p>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex space-x-2">
+                            <input type="text" placeholder="Ask me anything..." 
+                                   class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 text-white rounded-lg text-sm">
+                            <button class="px-4 py-2 bg-jstar-blue text-white rounded-lg text-sm">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Color Contrast Testing -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Accessibility Compliance</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Contrast Ratios -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Contrast Ratios</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 bg-jstar-blue text-white rounded-lg">
+                            <span>Primary Button</span>
+                            <span class="text-xs bg-white/20 px-2 py-1 rounded">4.5:1 ✓</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg">
+                            <span>Body Text</span>
+                            <span class="text-xs bg-gray-400 dark:bg-gray-600 px-2 py-1 rounded">7:1 ✓</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-lg">
+                            <span>Secondary Text</span>
+                            <span class="text-xs bg-gray-400 dark:bg-gray-600 px-2 py-1 rounded">4.6:1 ✓</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Theme Persistence -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Theme Features</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-700 dark:text-gray-300">System Preference</span>
+                            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-700 dark:text-gray-300">Local Storage</span>
+                            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-700 dark:text-gray-300">Smooth Transitions</span>
+                            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-700 dark:text-gray-300">Component Sync</span>
+                            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Implementation Code -->
+        <section>
+            <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Implementation</h2>
+            <div class="bg-gray-900 rounded-2xl p-6 shadow-lg">
+                <div class="text-green-400 text-sm font-mono mb-2">// Theme System Implementation</div>
+                <pre class="text-gray-300 text-sm overflow-x-auto"><code>// Auto-apply theme based on system preference
+if (localStorage.theme === 'dark' || 
+    (!('theme' in localStorage) && 
+     window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    document.documentElement.classList.add('dark')
+} else {
+    document.documentElement.classList.remove('dark')
+}
+
+// Theme switching function
+function setTheme(theme) {
+    if (theme === 'auto') {
+        localStorage.removeItem('theme')
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark')
+        } else {
+            document.documentElement.classList.remove('dark')
+        }
+    } else if (theme === 'dark') {
+        localStorage.theme = 'dark'
+        document.documentElement.classList.add('dark')
+    } else {
+        localStorage.theme = 'light'
+        document.documentElement.classList.remove('dark')
+    }
+    updateThemeIndicator()
+}</code></pre>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Theme management functions
+        function setTheme(theme) {
+            if (theme === 'auto') {
+                localStorage.removeItem('theme')
+                if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.documentElement.classList.add('dark')
+                } else {
+                    document.documentElement.classList.remove('dark')
+                }
+            } else if (theme === 'dark') {
+                localStorage.theme = 'dark'
+                document.documentElement.classList.add('dark')
+            } else {
+                localStorage.theme = 'light'
+                document.documentElement.classList.remove('dark')
+            }
+            updateThemeIndicator()
+        }
+
+        function updateThemeIndicator() {
+            const indicator = document.getElementById('theme-indicator')
+            const name = document.getElementById('theme-name')
+            const systemTheme = document.getElementById('system-theme')
+            
+            const isDark = document.documentElement.classList.contains('dark')
+            const stored = localStorage.theme
+            
+            if (!stored) {
+                indicator.className = 'w-4 h-4 rounded-full bg-jstar-blue'
+                name.textContent = 'Auto (System)'
+            } else if (stored === 'dark') {
+                indicator.className = 'w-4 h-4 rounded-full bg-gray-800'
+                name.textContent = 'Dark'
+            } else {
+                indicator.className = 'w-4 h-4 rounded-full bg-yellow-500'
+                name.textContent = 'Light'
+            }
+            
+            systemTheme.textContent = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'Dark' : 'Light'
+        }
+
+        // Initialize theme on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark')
+            } else {
+                document.documentElement.classList.remove('dark')
+            }
+            updateThemeIndicator()
+        })
+
+        // Listen for system theme changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+            if (!('theme' in localStorage)) {
+                if (e.matches) {
+                    document.documentElement.classList.add('dark')
+                } else {
+                    document.documentElement.classList.remove('dark')
+                }
+            }
+            updateThemeIndicator()
+        })
+    </script>
+</body>
+</html>

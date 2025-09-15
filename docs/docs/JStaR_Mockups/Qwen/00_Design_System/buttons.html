@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Button Styles - J StaR Platform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'jstar-blue': '#2563EB',
+            'faith-purple': '#8B5CF6'
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+  <div class="max-w-4xl mx-auto p-6">
+    <h1 class="text-2xl font-bold mb-2 text-gray-900 dark:text-white">Button System</h1>
+    <p class="text-gray-600 dark:text-gray-400 mb-8"><!-- PRD: Tier Permissions -->Tier-specific styling per user access level</p>
+    
+    <!-- THEME TOGGLE -->
+    <div class="fixed top-4 right-4 z-50">
+      <button onclick="document.documentElement.classList.toggle('dark')" 
+              class="p-2 rounded-full bg-jstar-blue text-white">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- GUEST TIER (FR001) -->
+    <section class="mb-12">
+      <div class="flex items-center mb-4">
+        <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">GUEST TIER</span>
+        <h2 class="text-xl font-semibold ml-3 text-gray-800 dark:text-white">Public Actions</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <button class="bg-jstar-blue hover:bg-faith-purple text-white font-medium py-2 px-4 rounded-full transition">
+          View Portfolio
+        </button>
+        <button class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-full transition dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white">
+          Learn More (Disabled)
+        </button>
+        <button class="border-2 border-jstar-blue text-jstar-blue hover:bg-jstar-blue/10 font-medium py-2 px-4 rounded-full transition">
+          Contact Me
+        </button>
+      </div>
+      <p class="text-sm text-gray-500 mt-2 dark:text-gray-400"><!-- FR007 -->*Solid blue = primary action for guests</p>
+    </section>
+
+    <!-- TIER 1+ (FR016) -->
+    <section class="mb-12">
+      <div class="flex items-center mb-4">
+        <span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded">TIER 1+</span>
+        <h2 class="text-xl font-semibold ml-3 text-gray-800 dark:text-white">JohnGPT Access</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <button class="bg-gradient-to-r from-jstar-blue to-faith-purple hover:from-faith-purple hover:to-jstar-blue text-white font-medium py-2 px-4 rounded-full transition">
+          Launch JohnGPT
+        </button>
+        <button class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-full transition dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white">
+          Virality OS (Upgrade)
+        </button>
+        <button class="border-2 border-faith-purple text-faith-purple hover:bg-faith-purple/10 font-medium py-2 px-4 rounded-full transition">
+          Save Conversation
+        </button>
+      </div>
+      <p class="text-sm text-gray-500 mt-2 dark:text-gray-400"><!-- FR017 -->*Gradient = premium features for subscribers</p>
+    </section>
+
+    <!-- ADMIN TIER (FR024) -->
+    <section>
+      <div class="flex items-center mb-4">
+        <span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded">ADMIN</span>
+        <h2 class="text-xl font-semibold ml-3 text-gray-800 dark:text-white">Danger Actions</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <button class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-full transition">
+          Delete User
+        </button>
+        <button class="bg-gray-800 hover:bg-gray-900 text-white font-medium py-2 px-4 rounded-full transition dark:bg-white dark:hover:bg-gray-100 dark:text-gray-900">
+          Dev Mode
+        </button>
+        <button class="border-2 border-red-500 text-red-500 hover:bg-red-500/10 font-medium py-2 px-4 rounded-full transition">
+          Reset System
+        </button>
+      </div>
+      <p class="text-sm text-gray-500 mt-2 dark:text-gray-400"><!-- FR026 -->*Red = destructive admin actions</p>
+    </section>
+
+    <!-- STATES DEMO -->
+    <section class="mt-12 pt-6 border-t border-gray-200 dark:border-gray-700">
+      <h2 class="text-xl font-semibold mb-3 text-gray-800 dark:text-white">Button States</h2>
+      <div class="flex space-x-4">
+        <button class="bg-jstar-blue text-white font-medium py-2 px-4 rounded-full opacity-50 cursor-not-allowed">
+          Loading...
+        </button>
+        <button class="bg-jstar-blue text-white font-medium py-2 px-4 rounded-full hover:scale-105 transition-transform">
+          Hover State
+        </button>
+        <button class="bg-jstar-blue text-white font-medium py-2 px-4 rounded-full active:scale-95 transition-transform">
+          Active State
+        </button>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

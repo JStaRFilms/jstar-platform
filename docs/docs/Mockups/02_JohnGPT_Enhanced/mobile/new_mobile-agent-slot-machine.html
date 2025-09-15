@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JOHNGPT | Agent Slot Machine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #171717;
+            --bg-secondary: #000000;
+            --bg-tertiary: #262626;
+            --text-primary: #f5f5f5;
+            --text-secondary: #a3a3a3;
+            --accent-purple: #8B5CF6;
+            --accent-blue: #3B82F6;
+        }
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #333; /* Mock background for the phone frame */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        ::-webkit-scrollbar { display: none; } /* Hide scrollbar for clean look */
+        
+        /* Tab underline animation */
+        .tab-indicator {
+            position: absolute;
+            bottom: 0;
+            height: 3px;
+            background-color: var(--accent-purple);
+            border-radius: 3px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body>
+    <div id="mobile-frame" class="w-full max-w-sm h-full sm:h-[90vh] sm:max-h-[800px] bg-neutral-900 flex flex-col shadow-2xl sm:rounded-3xl overflow-hidden">
+        
+        <!-- Header -->
+        <header class="flex-shrink-0 flex items-center p-4 bg-black/50 backdrop-blur-sm border-b border-neutral-800">
+            <button class="p-2 -ml-2 text-neutral-400 hover:text-white transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
+            </button>
+            <div class="text-center w-full">
+                <h1 class="text-lg font-semibold text-white">Agent Slot Machine</h1>
+            </div>
+            <div class="w-6"></div> <!-- Spacer -->
+        </header>
+
+        <!-- Prompt Input Section -->
+        <div class="flex-shrink-0 p-4 space-y-3 bg-neutral-800/40 border-b border-neutral-800">
+            <textarea rows="3" class="w-full bg-neutral-800 border border-neutral-700 rounded-xl resize-none p-3 text-white text-sm focus:ring-2 focus:ring-accent-purple focus:outline-none" placeholder="Enter your prompt here...">Create a framework for YouTube video scripts...</textarea>
+            <button class="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-accent-blue to-accent-purple text-white rounded-xl font-semibold hover:opacity-90 active:scale-[0.98] transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                Run Comparison
+            </button>
+        </div>
+        
+        <!-- Tab Navigation -->
+        <nav class="flex-shrink-0 relative flex justify-around bg-black/30 border-b border-neutral-800">
+            <button id="tab-gemini" class="flex-1 text-center py-3 font-medium text-sm text-white transition-colors">Gemini Pro</button>
+            <button id="tab-gpt" class="flex-1 text-center py-3 font-medium text-sm text-neutral-400 transition-colors">GPT-4o</button>
+            <button id="tab-llama" class="flex-1 text-center py-3 font-medium text-sm text-neutral-400 transition-colors">Llama 3</button>
+            <div id="tab-indicator" class="tab-indicator"></div>
+        </nav>
+
+        <!-- Results Panes -->
+        <main id="results-container" class="flex-1 flex overflow-x-scroll snap-x snap-mandatory">
+            <!-- Gemini Pro Result Pane -->
+            <div id="pane-gemini" class="w-full flex-shrink-0 snap-center overflow-y-auto p-4 space-y-4">
+                 <div class="bg-neutral-800/60 p-4 rounded-xl border border-neutral-700/80">
+                    <h3 class="font-bold text-white mb-2">YouTube Script Framework</h3>
+                    <div class="space-y-3 text-sm text-neutral-300">
+                        <div>
+                            <h4 class="font-semibold text-blue-400">1. Opening Hook (0-15s)</h4>
+                            <p>Start with a bold statement or a provocative question to grab attention.</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-blue-400">2. Problem Validation (15-45s)</h4>
+                            <p>Empathize with your audience's struggles to show you understand them.</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-blue-400">3. Main Content</h4>
+                            <p>Deliver on your promise with actionable insights and step-by-step instructions.</p>
+                        </div>
+                    </div>
+                 </div>
+                 <div class="bg-neutral-800/60 p-3 rounded-xl border border-neutral-700/80">
+                    <h3 class="font-semibold text-white text-sm mb-2">Analysis</h3>
+                    <p class="text-sm text-neutral-400">Structured, empathetic approach. Best for tutorial content.</p>
+                    <div class="mt-2 pt-2 border-t border-neutral-700/50 text-xs text-neutral-500">Response Time: 2.4s</div>
+                 </div>
+            </div>
+
+            <!-- GPT-4o Result Pane -->
+            <div id="pane-gpt" class="w-full flex-shrink-0 snap-center overflow-y-auto p-4 space-y-4">
+                <div class="bg-neutral-800/60 p-4 rounded-xl border border-neutral-700/80">
+                    <h3 class="font-bold text-white mb-2">YouTube Script Structure</h3>
+                    <div class="space-y-3 text-sm text-neutral-300">
+                        <div>
+                            <h4 class="font-semibold text-green-400">1. The Curiosity Gap (0-10s)</h4>
+                            <p>Pose a question or present a scenario that creates immediate intrigue.</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-green-400">2. Relatability Bridge (10-30s)</h4>
+                            <p>Connect with your audience by sharing a personal, relatable experience.</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-green-400">3. Engagement Catalyst</h4>
+                            <p>End with a thought-provoking question that encourages interaction.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-neutral-800/60 p-3 rounded-xl border border-neutral-700/80">
+                    <h3 class="font-semibold text-white text-sm mb-2">Analysis</h3>
+                    <p class="text-sm text-neutral-400">Psychologically-driven. Excellent for vlogs and discussion videos.</p>
+                    <div class="mt-2 pt-2 border-t border-neutral-700/50 text-xs text-neutral-500">Response Time: 3.1s</div>
+                </div>
+            </div>
+
+            <!-- Llama 3 Result Pane -->
+            <div id="pane-llama" class="w-full flex-shrink-0 snap-center overflow-y-auto p-4 space-y-4">
+                <div class="bg-neutral-800/60 p-4 rounded-xl border border-neutral-700/80">
+                    <h3 class="font-bold text-white mb-2">Video Script Template</h3>
+                    <div class="space-y-3 text-sm text-neutral-300">
+                        <div>
+                            <h4 class="font-semibold text-purple-400">1. The Promise Hook (0-12s)</h4>
+                            <p>Make a specific, valuable promise about what viewers will learn or achieve.</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-purple-400">2. Credibility Establisher (12-30s)</h4>
+                            <p>Briefly establish your authority or share a success story to build trust.</p>
+                        </div>
+                         <div>
+                            <h4 class="font-semibold text-purple-400">3. Community Connector</h4>
+                            <p>Invite viewers to join a community or engage with related content.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-neutral-800/60 p-3 rounded-xl border border-neutral-700/80">
+                    <h3 class="font-semibold text-white text-sm mb-2">Analysis</h3>
+                    <p class="text-sm text-neutral-400">Value-focused and trust-building. Ideal for business/educational content.</p>
+                    <div class="mt-2 pt-2 border-t border-neutral-700/50 text-xs text-neutral-500">Response Time: 2.8s</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const tabs = [
+            document.getElementById('tab-gemini'),
+            document.getElementById('tab-gpt'),
+            document.getElementById('tab-llama')
+        ];
+        const panes = [
+            document.getElementById('pane-gemini'),
+            document.getElementById('pane-gpt'),
+            document.getElementById('pane-llama')
+        ];
+        const indicator = document.getElementById('tab-indicator');
+        const resultsContainer = document.getElementById('results-container');
+        let currentTabIndex = 0;
+
+        function updateIndicator(tabElement) {
+            indicator.style.width = `${tabElement.offsetWidth}px`;
+            indicator.style.left = `${tabElement.offsetLeft}px`;
+        }
+
+        function switchTab(index) {
+            if (index === currentTabIndex) return;
+
+            tabs[currentTabIndex].classList.remove('text-white');
+            tabs[currentTabIndex].classList.add('text-neutral-400');
+            
+            tabs[index].classList.remove('text-neutral-400');
+            tabs[index].classList.add('text-white');
+            
+            updateIndicator(tabs[index]);
+            currentTabIndex = index;
+        }
+
+        tabs.forEach((tab, index) => {
+            tab.addEventListener('click', () => {
+                resultsContainer.scrollTo({
+                    left: panes[index].offsetLeft,
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        resultsContainer.addEventListener('scroll', () => {
+            const scrollLeft = resultsContainer.scrollLeft;
+            const containerWidth = resultsContainer.offsetWidth;
+            const newIndex = Math.round(scrollLeft / containerWidth);
+            switchTab(newIndex);
+        });
+
+        // Initial setup
+        window.addEventListener('load', () => {
+            switchTab(0);
+        });
+        window.addEventListener('resize', () => {
+             updateIndicator(tabs[currentTabIndex]);
+        });
+    </script>
+</body>
+</html>

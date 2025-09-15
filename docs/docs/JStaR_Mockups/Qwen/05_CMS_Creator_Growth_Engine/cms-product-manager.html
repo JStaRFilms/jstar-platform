@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Manager - J StaR CMS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'jstar-blue': '#2563EB',
+            'faith-purple': '#8B5CF6',
+            'growth-green': '#059669',
+            'warning-yellow': '#F59E0B'
+          }
+        }
+      }
+    }
+    
+    function filterProducts(tier) {
+      document.querySelectorAll('.product-row').forEach(row => {
+        if (tier === 'all' || row.dataset.tier === tier) {
+          row.style.display = 'table-row';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+      
+      document.querySelectorAll('.tier-filter').forEach(btn => {
+        btn.classList.remove('bg-jstar-blue', 'text-white');
+        btn.classList.add('bg-gray-200', 'text-gray-800', 'dark:bg-gray-700', 'dark:text-gray-300');
+      });
+      
+      event.target.classList.remove('bg-gray-200', 'text-gray-800', 'dark:bg-gray-700', 'dark:text-gray-300');
+      event.target.classList.add('bg-jstar-blue', 'text-white');
+    }
+    
+    function searchProducts() {
+      const searchTerm = document.getElementById('search-products').value.toLowerCase();
+      document.querySelectorAll('.product-row').forEach(row => {
+        const content = row.textContent.toLowerCase();
+        if (content.includes(searchTerm)) {
+          row.style.display = 'table-row';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+    
+    function saveProduct(productId) {
+      const saveBtn = document.querySelector(`#product-${productId} .save-btn`);
+      const originalText = saveBtn.innerHTML;
+      saveBtn.innerHTML = '<svg class="animate-spin h-5 w-5 mr-2 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Saving...';
+      
+      setTimeout(() => {
+        saveBtn.innerHTML = originalText;
+        const successMsg = document.getElementById('product-saved');
+        successMsg.classList.remove('hidden');
+        
+        setTimeout(() => {
+          successMsg.classList.add('hidden');
+        }, 3000);
+      }, 1500);
+    }
+    
+    function togglePricing(productId) {
+      const pricingSection = document.querySelector(`#product-${productId} .pricing-section`);
+      pricingSection.classList.toggle('hidden');
+      
+      const toggleBtn = document.querySelector(`#product-${productId} .toggle-pricing`);
+      if (pricingSection.classList.contains('hidden')) {
+        toggleBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg> Show Pricing';
+      } else {
+        toggleBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" /></svg> Hide Pricing';
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+  <!-- PRD: FR033 (Product Management) -->
+  <div class="flex">
+    <!-- SIDEBAR -->
+    <div class="w-64 min-h-screen bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 hidden md:block">
+      <div class="p-5 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-jstar-blue to-faith-purple flex items-center justify-center mr-3">
+            <span class="text-white font-bold">J</span>
+          </div>
+          <div>
+            <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Admin • J StaR Films</p>
+          </div>
+        </div>
+      </div>
+      
+      <nav class="mt-5">
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
+          Dashboard
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          User Management
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 bg-jstar-blue/10 dark:bg-jstar-blue/20 border-l-4 border-jstar-blue text-jstar-blue dark:text-white font-medium">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          Content Management
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          </svg>
+          JohnGPT Settings
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v3m-6 5h6" />
+          </svg>
+          Analytics
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          Settings
+        </a>
+      </nav>
+      
+      <div class="absolute bottom-0 w-64 p-5 border-t border-gray-200 dark:border-gray-700">
+        <a href="#" class="flex items-center text-gray-700 dark:text-gray-300 hover:text-jstar-blue">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0 0l-3-3m3 3l3-3" />
+          </svg>
+          Sign Out
+        </a>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="flex-1">
+      <!-- TOP BAR -->
+      <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between px-6 py-4">
+          <div class="md:hidden">
+            <button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+          
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Product Manager</h1>
+          
+          <div class="flex items-center space-x-4">
+            <div class="relative">
+              <input type="text" id="search-products" onkeyup="searchProducts()"
+                     class="bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue"
+                     placeholder="Search products...">
+              <div class="absolute left-3 top-2.5 text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            </div>
+            
+            <button class="px-4 py-2 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              New Product
+            </button>
+            
+            <div class="relative">
+              <button class="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+              </button>
+              <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+            </div>
+            
+            <div class="hidden md:flex items-center">
+              <div class="w-8 h-8 rounded-full bg-jstar-blue flex items-center justify-center text-white mr-3">
+                J
+              </div>
+              <div>
+                <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Admin</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRODUCT MANAGEMENT CONTENT -->
+      <div class="p-6">
+        <!-- THEME TOGGLE -->
+        <div class="fixed top-4 right-4 z-50">
+          <button onclick="document.documentElement.classList.toggle('dark')" 
+                  class="p-2 rounded-full bg-jstar-blue text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Manage Digital Products</h2>
+          <div class="mt-3 sm:mt-0 flex space-x-2">
+            <div class="flex space-x-1">
+              <button onclick="filterProducts('all')" class="tier-filter px-3 py-1 bg-jstar-blue text-white rounded-lg font-medium">All</button>
+              <button onclick="filterProducts('tier1')" class="tier-filter px-3 py-1 bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300 rounded-lg font-medium">Tier 1</button>
+              <button onclick="filterProducts('tier2')" class="tier-filter px-3 py-1 bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300 rounded-lg font-medium">Tier 2</button>
+              <button onclick="filterProducts('tier3')" class="tier-filter px-3 py-1 bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300 rounded-lg font-medium">Tier 3</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- SUCCESS MESSAGE -->
+        <div id="product-saved" class="hidden fixed bottom-6 right-6 bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg z-50">
+          <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <span>Product updated successfully</span>
+          </div>
+        </div>
+        
+        <!-- PRODUCT TABLE -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50 dark:bg-gray-900/50">
+                <tr>
+                  <th class="py-3 px-4 text-left font-semibold text-gray-900 dark:text-white">Product</th>
+                  <th class="py-3 px-4 text-left font-semibold text-gray-900 dark:text-white">Type</th>
+                  <th class="py-3 px-4 text-left font-semibold text-gray-900 dark:text-white">Tier</th>
+                  <th class="py-3 px-4 text-left font-semibold text-gray-900 dark:text-white">Price</th>
+                  <th class="py-3 px-4 text-left font-semibold text-gray-900 dark:text-white">Sales</th>
+                  <th class="py-3 px-4 text-left font-semibold text-gray-900 dark:text-white">Status</th>
+                  <th class="py-3 px-4"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- PRODUCT 1 -->
+                <tr id="product-1" class="product-row border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900/50" data-tier="tier3">
+                  <td class="py-4 px-4">
+                    <div class="flex items-center">
+                      <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-jstar-blue to-faith-purple flex items-center justify-center mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p class="font-medium text-gray-900 dark:text-white">Creator Growth Engine Suite</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Complete system for creators</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="py-4 px-4 text-gray-700 dark:text-gray-300">Subscription</td>
+                  <td class="py-4 px-4">
+                    <span class="inline-block px-2 py-1 bg-green-100 text-green-800 text-xs rounded">Tier 3</span>
+                  </td>
+                  <td class="py-4 px-4 text-gray-700 dark:text-gray-300">$299/mo</td>
+                  <td class="py-4 px-4 text-gray-700 dark:text-gray-300">59 sales</td>
+                  <td class="py-4 px-4">
+                    <span class="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                    <span class="text-gray-700 dark:text-gray-300">Active</span>
+                  </td>
+                  <td class="py-4 px-4">
+                    <div class="relative">
+                      <button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                        </svg>
+                      </button>
+                      <div class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-10">
+                        <div class="py-1">
+                          <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">View Details</a>
+                          <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">Edit Product</a>
+                          <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">View Sales</a>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                
+                <!-- PRODUCT 2 -->
+                <tr id="product-2" class="product-row border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900/50" data-tier="tier2">
+                  <td class="py-4 px-4">
+                    <div class="flex items-center">
+                      <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-faith-purple to-jstar-blue flex items-center justify-center mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p class="font-medium text-gray-900 dark:text-white">Systems Launcher Toolkit</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Templates & workflows</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="py-4 px-4 text-gray-700 dark:text-gray-300">Digital Product</td>
+                  <td class="py-4 px-4">
+                    <span class="inline-block px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded">Tier 2</span>
+                  </td>
+                  <td class="py-4 px-4 text-gray-700 dark:text-gray-300">$99 one-time</td>
+                  <td class="py-4 px-4 text-gray-700 dark:text-gray-300">128 sales</td>
+                  <td class="py-4 px-4">
+                    <span class="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                    <span class="text-gray-700 dark:text-gray-300">Active</span>
+                  </td>
+                  <td class="py-4 px-4">
+                    <div class="relative">
+                      <button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                
+                <!-- PRODUCT 3 -->
+                <tr id="product-3" class="product-row border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900/50" data-tier="tier1">
+                  <td class="py-4 px-4">
+                    <div class="flex items-center">
+                      <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-jstar-blue to-growth-green flex items-center justify-center mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p class="font-medium text-gray-900 dark:text-white">JohnGPT Access</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">AI creative assistant</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="py-4 px-4 text-gray-700 dark:text-gray-300">Subscription</td>
+                  <td class="py-4 px-4">
+                    <span class="inline-block px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">Tier 1</span>
+                  </td>
+                  <td class="py-4 px-4 text-gray-700 dark:text-gray-300">$49/mo</td>
+                  <td class="py-4 px-4 text-gray-700 dark:text-gray-300">197 sales</td>
+                  <td class="py-4 px-4">
+                    <span class="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                    <span class="text-gray-700 dark:text-gray-300">Active</span>
+                  </td>
+                  <td class="py-4 px-4">
+                    <div class="relative">
+                      <button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                
+                <!-- PRODUCT 4 -->
+                <tr id="product-4" class="product-row border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900/50" data-tier="tier3">
+                  <td class="py-4 px-4">
+                    <div class="flex items-center">
+                      <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-growth-green to-jstar-blue flex items-center justify-center mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p class="font-medium text-gray-900 dark:text-white">Virality Score Calculator</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">YouTube optimization tool</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="py-4 px-4 text-gray-700 dark:text-gray-300">Digital Product</td>
+                  <td class="py-4 px-4">
+                    <span class="inline-block px-2 py-1 bg-green-100 text-green-800 text-xs rounded">Tier 3</span>
+                  </td>
+                  <td class="py-4 px-4 text-gray-700 dark:text-gray-300">$49 one-time</td>
+                  <td class="py-4 px-4 text-gray-700 dark:text-gray-300">87 sales</td>
+                  <td class="py-4 px-4">
+                    <span class="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                    <span class="text-gray-700 dark:text-gray-300">Active</span>
+                  </td>
+                  <td class="py-4 px-4">
+                    <div class="relative">
+                      <button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                
+                <!-- PRODUCT 5 -->
+                <tr id="product-5" class="product-row border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900/50" data-tier="all">
+                  <td class="py-4 px-4">
+                    <div class="flex items-center">
+                      <div class="w-12 h-12 rounded-lg bg-yellow-500 flex items-center justify-center mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13.494m-3-8.75a3 3 0 11-6 0 3 3 0 016 0zm8.75 0a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p class="font-medium text-gray-900 dark:text-white">10 Viral YouTube Title Formulas</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Free resource</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="py-4 px-4 text-gray-700 dark:text-gray-300">Lead Magnet</td>
+                  <td class="py-4 px-4">
+                    <span class="inline-block px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded">Free</span>
+                  </td>
+                  <td class="py-4 px-4 text-gray-700 dark:text-gray-300">Free</td>
+                  <td class="py-4 px-4 text-gray-700 dark:text-gray-300">2,417 downloads</td>
+                  <td class="py-4 px-4">
+                    <span class="inline-block w-2 h-2 bg-yellow-500 rounded-full mr-2"></span>
+                    <span class="text-gray-700 dark:text-gray-300">Lead Magnet</span>
+                  </td>
+                  <td class="py-4 px-4">
+                    <div class="relative">
+                      <button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <!-- TABLE FOOTER -->
+          <div class="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center justify-between">
+            <p class="text-sm text-gray-700 dark:text-gray-300 mb-3 sm:mb-0">
+              Showing <span class="font-medium">1</span> to <span class="font-medium">5</span> of <span class="font-medium">15</span> products
+            </p>
+            <div class="flex space-x-1">
+              <button class="px-3 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-700/50">Previous</button>
+              <button class="px-3 py-1 bg-jstar-blue text-white rounded-lg text-sm">1</button>
+              <button class="px-3 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-700/50">2</button>
+              <button class="px-3 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-700/50">3</button>
+              <button class="px-3 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-700/50">Next</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- PRODUCT EDITOR -->
+        <div class="mt-8 bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+          <div class="flex justify-between items-start mb-6">
+            <div>
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white">Edit Product: Creator Growth Engine Suite</h3>
+              <p class="text-gray-600 dark:text-gray-400">Configure settings for your digital product</p>
+            </div>
+            <button class="text-jstar-blue hover:text-faith-purple font-medium">
+              View Product Page →
+            </button>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <div class="mb-6">
+                <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Product Name</label>
+                <input type="text" value="Creator Growth Engine Suite"
+                       class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+              </div>
+              
+              <div class="mb-6">
+                <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Description</label>
+                <textarea rows="3" 
+                          class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">The complete system for filmmakers, developers, and faith-driven creators to multiply their impact. Includes all tools, templates, and AI systems you need to grow.</textarea>
+              </div>
+              
+              <div class="mb-6">
+                <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Product Type</label>
+                <select class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                  <option>Subscription</option>
+                  <option>Digital Product</option>
+                  <option>Service</option>
+                  <option>Lead Magnet</option>
+                </select>
+              </div>
+              
+              <div class="mb-6">
+                <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Access Tier</label>
+                <select class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                  <option>Tier 3 (Full Access)</option>
+                  <option>Tier 2 (Creator)</option>
+                  <option>Tier 1 (JohnGPT)</option>
+                  <option>Free (Lead Magnet)</option>
+                </select>
+              </div>
+            </div>
+            
+            <div>
+              <div class="mb-6">
+                <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Pricing</label>
+                <button onclick="togglePricing(1)" class="toggle-pricing w-full text-left px-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                  </svg>
+                  Show Pricing
+                </button>
+                
+                <div class="pricing-section hidden mt-2">
+                  <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
+                    <div class="mb-4">
+                      <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Price</label>
+                      <div class="flex">
+                        <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-400">$</span>
+                        <input type="text" value="299" 
+                               class="flex-1 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-r-lg rounded-l-none px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                        <span class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-400">/mo</span>
+                      </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                      <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Trial Period (days)</label>
+                      <input type="number" value="7" 
+                             class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                    </div>
+                    
+                    <div class="mb-4">
+                      <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Discounts</label>
+                      <div class="space-y-2">
+                        <div class="flex space-x-2">
+                          <input type="text" placeholder="Discount code" 
+                                 class="flex-1 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                          <input type="text" placeholder="10%" 
+                                 class="w-20 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                        </div>
+                        <div class="flex space-x-2">
+                          <input type="text" placeholder="Annual discount" 
+                                 class="flex-1 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                          <input type="text" placeholder="20%" 
+                                 class="w-20 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="mb-6">
+                <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Product Content</label>
+                <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
+                  <div class="flex justify-between items-center mb-2">
+                    <span class="text-gray-700 dark:text-gray-300">YouTube Virality OS</span>
+                    <span class="text-jstar-blue hover:text-faith-purple font-medium">Edit</span>
+                  </div>
+                  <div class="flex justify-between items-center mb-2">
+                    <span class="text-gray-700 dark:text-gray-300">Client Magnet System</span>
+                    <span class="text-jstar-blue hover:text-faith-purple font-medium">Edit</span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-gray-700 dark:text-gray-300">Systems Launcher Toolkit</span>
+                    <span class="text-jstar-blue hover:text-faith-purple font-medium">Edit</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="mb-6">
+                <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Product Status</label>
+                <div class="flex space-x-4">
+                  <label class="flex items-center">
+                    <input type="radio" name="status" checked class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300">
+                    <span class="ml-2 text-gray-700 dark:text-gray-300">Active</span>
+                  </label>
+                  <label class="flex items-center">
+                    <input type="radio" name="status" class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300">
+                    <span class="ml-2 text-gray-700 dark:text-gray-300">Draft</span>
+                  </label>
+                  <label class="flex items-center">
+                    <input type="radio" name="status" class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300">
+                    <span class="ml-2 text-gray-700 dark:text-gray-300">Archived</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="flex justify-end mt-6">
+            <button onclick="saveProduct(1)" class="save-btn px-6 py-2 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium">
+              Save Product
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

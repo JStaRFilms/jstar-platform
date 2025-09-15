@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Obsidian Integration | JohnGPT Creator Assistant</title>
+    <meta name="description" content="Save JohnGPT conversations directly to your Obsidian vault with markdown compatibility.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'obsidian-bg': '#202020',
+                        'obsidian-sidebar': '#161618',
+                        'obsidian-text': '#dcddde',
+                        'obsidian-text-muted': '#888888',
+                        'obsidian-accent': '#7c3aed',
+                        'obsidian-link': '#8b5cf6'
+                    },
+                    fontFamily: {
+                        'mono': ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --growth-green: #059669;
+            --obsidian-bg: #202020;
+            --obsidian-sidebar: #161618;
+            --obsidian-text: #dcddde;
+            --obsidian-text-muted: #888888;
+            --obsidian-accent: #7c3aed;
+            --obsidian-link: #8b5cf6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --transition-normal: 300ms;
+        }
+        
+        .integration-container {
+            display: flex;
+            height: calc(100vh - 4rem);
+            margin-top: 4rem;
+        }
+        
+        .sidebar {
+            width: 280px;
+            background: var(--obsidian-sidebar);
+            border-right: 1px solid #333;
+            overflow-y: auto;
+            transition: all var(--transition-normal) ease;
+        }
+        
+        .main-content {
+            flex: 1;
+            background: var(--obsidian-bg);
+            color: var(--obsidian-text);
+            overflow-y: auto;
+        }
+        
+        .navbar-blur {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .dark .navbar-blur {
+            background: rgba(17, 24, 39, 0.9);
+        }
+        
+        .search-box {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            width: 100%;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: var(--obsidian-link);
+        }
+        
+        .conversation-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-radius: 0.5rem;
+            margin-bottom: 0.25rem;
+            transition: all 0.2s;
+        }
+        
+        .conversation-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .conversation-item.active {
+            background: rgba(124, 58, 237, 0.2);
+        }
+        
+        .vault-path {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            color: var(--obsidian-text);
+            width: 100%;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .vault-path:focus {
+            outline: none;
+            border-color: var(--obsidian-link);
+        }
+        
+        .export-card {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid #333;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+        }
+        
+        .export-option {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #333;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 1rem;
+        }
+        
+        .export-option:hover {
+            background: rgba(124, 58, 237, 0.1);
+            border-color: var(--obsidian-link);
+        }
+        
+        .export-option.active {
+            background: rgba(124, 58, 237, 0.2);
+            border-color: var(--obsidian-link);
+        }
+        
+        .action-button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+        
+        .action-button:hover {
+            background: rgba(124, 58, 235, 0.2);
+            border-color: var(--obsidian-link);
+        }
+        
+        .save-button {
+            background: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .save-button:hover {
+            transform: scale(1.05);
+        }
+        
+        .save-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .markdown-preview {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+        
+        .markdown-preview h1 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: white;
+        }
+        
+        .markdown-preview h2 {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+        
+        .markdown-preview p {
+            margin-bottom: 1rem;
+        }
+        
+        .markdown-preview ul, .markdown-preview ol {
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+        }
+        
+        .markdown-preview li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .markdown-preview code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+        }
+        
+        .markdown-preview pre {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin-bottom: 1rem;
+        }
+        
+        .markdown-preview blockquote {
+            border-left: 4px solid var(--obsidian-link);
+            padding-left: 1rem;
+            margin-left: 0;
+            margin-bottom: 1rem;
+            color: var(--obsidian-text-muted);
+        }
+        
+        .tag {
+            display: inline-block;
+            background: rgba(124, 58, 237, 0.2);
+            color: #c4b5fd;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 navbar-blur border-b border-gray-200 dark:border-gray-700 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/" class="text-2xl font-bold bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">
+                        J StaR Films
+                    </a>
+                    <span class="mx-4 text-gray-300 dark:text-gray-600">/</span>
+                    <span class="text-gray-900 dark:text-white font-medium">JohnGPT</span>
+                    <span class="mx-4 text-gray-300 dark:text-gray-600">/</span>
+                    <span class="text-gray-900 dark:text-white font-medium">Obsidian Integration</span>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="/" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Home</a>
+                    <a href="/about" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">About</a>
+                    <a href="/portfolio" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Portfolio</a>
+                    <a href="/services" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Services</a>
+                    <a href="/blog" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Blog</a>
+                    <a href="/store" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Store</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button onclick="document.documentElement.classList.toggle('dark')" 
+                            class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
+                            aria-label="Toggle theme">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </button>
+                    <button class="px-4 py-2 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold text-sm">
+                        Sign In
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Obsidian Integration Interface -->
+    <div class="integration-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="p-4">
+                <button class="w-full py-3 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold mb-4 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    New Export
+                </button>
+                
+                <div class="relative mb-4">
+                    <input type="text" placeholder="Search conversations..." class="search-box">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute right-3 top-2.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                
+                <div class="text-xs text-gray-500 uppercase tracking-wider mb-2">Recent Exports</div>
+                <div class="conversation-item active">
+                    <div class="flex justify-between">
+                        <span class="truncate">YouTube Script Framework</span>
+                        <span class="text-xs text-gray-500">Today</span>
+                    </div>
+                    <div class="text-xs text-gray-500 truncate mt-1">Saved to Obsidian Vault</div>
+                </div>
+                
+                <div class="conversation-item">
+                    <div class="flex justify-between">
+                        <span class="truncate">Wedding Pricing Strategy</span>
+                        <span class="text-xs text-gray-500">Jun 12</span>
+                    </div>
+                    <div class="text-xs text-gray-500 truncate mt-1">Saved to Obsidian Vault</div>
+                </div>
+                
+                <div class="conversation-item">
+                    <div class="flex justify-between">
+                        <span class="truncate">App Feature Prioritization</span>
+                        <span class="text-xs text-gray-500">Jun 8</span>
+                    </div>
+                    <div class="text-xs text-gray-500 truncate mt-1">Saved to Obsidian Vault</div>
+                </div>
+                
+                <div class="text-xs text-gray-500 uppercase tracking-wider mt-6 mb-2">Export Templates</div>
+                <div class="conversation-item">
+                    <div class="flex justify-between">
+                        <span class="truncate">Meeting Notes</span>
+                        <span class="text-xs text-gray-500">Template</span>
+                    </div>
+                </div>
+                
+                <div class="conversation-item">
+                    <div class="flex justify-between">
+                        <span class="truncate">Project Planning</span>
+                        <span class="text-xs text-gray-500">Template</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h1 class="text-2xl font-bold mb-2">Obsidian Integration</h1>
+                        <p class="text-gray-400">Save conversations directly to your Obsidian vault in markdown format</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="action-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            Settings
+                        </button>
+                        <button class="action-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                            </svg>
+                            Export Log
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Export Configuration -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <div class="export-card">
+                        <h2 class="text-lg font-bold mb-4">Export Configuration</h2>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Vault Path</label>
+                            <input type="text" class="vault-path" value="J StaR Platform/Conversations/">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-300 mb-2">File Name</label>
+                            <input type="text" class="vault-path" value="YouTube Script Framework - 2024-06-15.md">
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Export Format</label>
+                            <div class="export-option active">
+                                <div class="font-medium">Full Conversation</div>
+                                <div class="text-sm text-gray-400 mt-1">Complete conversation with all messages and metadata</div>
+                            </div>
+                            <div class="export-option">
+                                <div class="font-medium">Selected Messages Only</div>
+                                <div class="text-sm text-gray-400 mt-1">Export only selected messages from the conversation</div>
+                            </div>
+                            <div class="export-option">
+                                <div class="font-medium">Summary with Key Points</div>
+                                <div class="text-sm text-gray-400 mt-1">AI-generated summary with main insights and action items</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center mb-4">
+                            <input id="include-tags" type="checkbox" class="w-4 h-4 text-jstar-blue border-gray-300 rounded focus:ring-jstar-blue">
+                            <label for="include-tags" class="ml-2 block text-sm text-gray-300">
+                                Include conversation tags
+                            </label>
+                        </div>
+                        
+                        <div class="flex items-center mb-6">
+                            <input id="include-metadata" type="checkbox" class="w-4 h-4 text-jstar-blue border-gray-300 rounded focus:ring-jstar-blue" checked>
+                            <label for="include-metadata" class="ml-2 block text-sm text-gray-300">
+                                Include metadata (date, persona, model)
+                            </label>
+                        </div>
+                        
+                        <button class="save-button w-full" id="save-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                            </svg>
+                            Save to Obsidian Vault
+                        </button>
+                    </div>
+                    
+                    <div class="export-card">
+                        <h2 class="text-lg font-bold mb-4">Preview</h2>
+                        <div class="markdown-preview">
+                            <h1>YouTube Script Framework</h1>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="tag">#youtube</span>
+                                <span class="tag">#content-strategy</span>
+                                <span class="tag">#scripting</span>
+                            </div>
+                            <p><strong>Date:</strong> June 15, 2024</p>
+                            <p><strong>Persona:</strong> Creative Director</p>
+                            <p><strong>Model:</strong> GPT-4o</p>
+                            
+                            <h2>John Oluleke-Oke</h2>
+                            <p>I'm working on a YouTube growth strategy. I want to visualize the connection between content types, audience segments, and growth tactics.</p>
+                            
+                            <h2>JohnGPT (Creative Director)</h2>
+                            <p>Great! I've created some elements on the canvas to help you visualize this strategy. You can:</p>
+                            
+                            <ul>
+                                <li>Drag ideas from our conversation to the canvas</li>
+                                <li>Create mind maps and connection diagrams</li>
+                                <li>Organize your thoughts visually</li>
+                                <li>Export your canvas to Obsidian or as an image</li>
+                            </ul>
+                            
+                            <h2>JohnGPT (Creative Director)</h2>
+                            <p>Here's a comprehensive framework for YouTube video scripts:</p>
+                            
+                            <h3>1. Opening Hook (0:00-0:15)</h3>
+                            <p>Start with a bold statement, surprising fact, or provocative question that directly relates to your viewer's main pain point.</p>
+                            
+                            <h3>2. Problem Validation (0:15-0:45)</h3>
+                            <p>Acknowledge and empathize with your audience's struggles. Show you understand their specific challenges.</p>
+                            
+                            <h3>3. Solution Preview (0:45-1:15)</h3>
+                            <p>Tease the value you'll provide. Create anticipation for the transformation you'll offer.</p>
+                            
+                            <h3>4. Main Content (1:15-8:00)</h3>
+                            <p>Deliver on your promise with actionable insights, step-by-step instructions, or compelling storytelling.</p>
+                            
+                            <h3>5. Call-to-Action (8:00-8:30)</h3>
+                            <p>Guide viewers to the next step - subscribe, comment, watch another video, or visit a link.</p>
+                            
+                            <hr>
+                            <p><em>Exported from JohnGPT on June 15, 2024</em></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Export History -->
+                <div class="export-card">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-bold">Recent Exports</h2>
+                        <button class="text-sm text-jstar-blue hover:text-faith-purple">View All</button>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-700">
+                            <thead>
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">File Name</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Path</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Date</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-800">
+                                <tr>
+                                    <td class="px-4 py-3 text-sm text-gray-300">YouTube Script Framework - 2024-06-15.md</td>
+                                    <td class="px-4 py-3 text-sm text-gray-400">J StaR Platform/Conversations/</td>
+                                    <td class="px-4 py-3 text-sm text-gray-400">Jun 15, 2024</td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <span class="px-2 py-1 text-xs rounded-full bg-green-900/30 text-green-400">Success</span>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <button class="text-jstar-blue hover:text-faith-purple mr-3">Open</button>
+                                        <button class="text-gray-400 hover:text-white">Delete</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-3 text-sm text-gray-300">Wedding Pricing Strategy - 2024-06-12.md</td>
+                                    <td class="px-4 py-3 text-sm text-gray-400">J StaR Platform/Conversations/</td>
+                                    <td class="px-4 py-3 text-sm text-gray-400">Jun 12, 2024</td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <span class="px-2 py-1 text-xs rounded-full bg-green-900/30 text-green-400">Success</span>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <button class="text-jstar-blue hover:text-faith-purple mr-3">Open</button>
+                                        <button class="text-gray-400 hover:text-white">Delete</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-3 text-sm text-gray-300">App Feature Prioritization - 2024-06-08.md</td>
+                                    <td class="px-4 py-3 text-sm text-gray-400">J StaR Platform/Conversations/</td>
+                                    <td class="px-4 py-3 text-sm text-gray-400">Jun 8, 2024</td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <span class="px-2 py-1 text-xs rounded-full bg-green-900/30 text-green-400">Success</span>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <button class="text-jstar-blue hover:text-faith-purple mr-3">Open</button>
+                                        <button class="text-gray-400 hover:text-white">Delete</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme management
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Conversation item selection
+        document.querySelectorAll('.conversation-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.conversation-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // Export option selection
+        document.querySelectorAll('.export-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.export-option').forEach(o => o.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // Save button functionality
+        const saveButton = document.getElementById('save-button');
+        saveButton.addEventListener('click', function() {
+            // Disable button during "processing"
+            this.disabled = true;
+            const originalText = this.innerHTML;
+            this.innerHTML = '<svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Saving...';
+            
+            // Simulate processing time
+            setTimeout(() => {
+                this.disabled = false;
+                this.innerHTML = originalText;
+                
+                // Show success message
+                alert('Conversation successfully saved to your Obsidian vault!');
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

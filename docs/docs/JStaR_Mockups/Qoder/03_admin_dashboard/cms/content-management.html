@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Management - Admin Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .page-title { font-size: 2rem; font-weight: 700; }
+        
+        .tabs {
+            display: flex;
+            background: var(--bg-primary);
+            border-radius: 0.5rem;
+            border: 1px solid var(--border);
+            margin-bottom: 2rem;
+        }
+        
+        .tab {
+            padding: 1rem 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            color: var(--brand-blue);
+            border-bottom-color: var(--brand-blue);
+            background: var(--bg-secondary);
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 2rem;
+        }
+        
+        .main-content {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 2rem;
+        }
+        
+        .sidebar {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            height: fit-content;
+        }
+        
+        .content-list {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .content-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .content-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .content-item.selected {
+            border-color: var(--brand-blue);
+            background: rgba(74, 144, 226, 0.1);
+        }
+        
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .content-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .content-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .content-excerpt {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+        
+        .content-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .tag {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-published {
+            background: rgba(69, 183, 209, 0.2);
+            color: var(--success-green);
+        }
+        
+        .status-draft {
+            background: rgba(255, 107, 107, 0.2);
+            color: var(--warm-orange);
+        }
+        
+        .status-scheduled {
+            background: rgba(78, 205, 196, 0.2);
+            color: var(--creative-teal);
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+        
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+        
+        .editor-toolbar {
+            display: flex;
+            gap: 0.5rem;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-bottom: none;
+            border-radius: 0.5rem 0.5rem 0 0;
+            flex-wrap: wrap;
+        }
+        
+        .toolbar-btn {
+            padding: 0.5rem;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+        }
+        
+        .toolbar-btn:hover {
+            background: var(--bg-primary);
+            color: var(--brand-blue);
+        }
+        
+        .editor-area {
+            border: 1px solid var(--border);
+            border-radius: 0 0 0.5rem 0.5rem;
+            min-height: 400px;
+            padding: 1.5rem;
+            background: var(--bg-primary);
+            font-family: inherit;
+            resize: vertical;
+        }
+        
+        .sidebar-section {
+            margin-bottom: 2rem;
+        }
+        
+        .sidebar-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+        
+        @media (max-width: 1024px) {
+            .content-grid { grid-template-columns: 1fr; }
+            .sidebar { order: -1; }
+        }
+        
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .page-header { flex-direction: column; gap: 1rem; align-items: stretch; }
+            .tabs { overflow-x: auto; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">Content Management</h1>
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-secondary">
+                    <i class="fas fa-eye"></i> Preview Site
+                </button>
+                <button class="btn btn-primary">
+                    <i class="fas fa-plus"></i> New Content
+                </button>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active">All Content</button>
+            <button class="tab">Blog Posts</button>
+            <button class="tab">Pages</button>
+            <button class="tab">Portfolio</button>
+            <button class="tab">Media</button>
+        </div>
+
+        <div class="content-grid">
+            <div class="main-content">
+                <div class="content-list">
+                    <div class="content-item selected">
+                        <div class="content-header">
+                            <div>
+                                <div class="content-title">The Art of Cinematic Storytelling in Business</div>
+                                <div class="content-meta">
+                                    <span><i class="fas fa-calendar"></i> Dec 15, 2024</span>
+                                    <span><i class="fas fa-user"></i> John Doe</span>
+                                    <span><i class="fas fa-eye"></i> 1,247 views</span>
+                                </div>
+                            </div>
+                            <span class="status-badge status-published">Published</span>
+                        </div>
+                        <div class="content-excerpt">
+                            How applying filmmaking principles to business content can transform your brand narrative and create deeper connections...
+                        </div>
+                        <div class="content-tags">
+                            <span class="tag">creativity</span>
+                            <span class="tag">business</span>
+                            <span class="tag">storytelling</span>
+                        </div>
+                    </div>
+
+                    <div class="content-item">
+                        <div class="content-header">
+                            <div>
+                                <div class="content-title">Building AI Tools That Actually Help Creators</div>
+                                <div class="content-meta">
+                                    <span><i class="fas fa-calendar"></i> Dec 10, 2024</span>
+                                    <span><i class="fas fa-user"></i> John Doe</span>
+                                    <span><i class="fas fa-eye"></i> 892 views</span>
+                                </div>
+                            </div>
+                            <span class="status-badge status-published">Published</span>
+                        </div>
+                        <div class="content-excerpt">
+                            My journey creating JohnGPT and lessons learned about making AI assistants that enhance creativity rather than replace it...
+                        </div>
+                        <div class="content-tags">
+                            <span class="tag">ai</span>
+                            <span class="tag">development</span>
+                            <span class="tag">tools</span>
+                        </div>
+                    </div>
+
+                    <div class="content-item">
+                        <div class="content-header">
+                            <div>
+                                <div class="content-title">Faith-Driven Entrepreneurship Guide</div>
+                                <div class="content-meta">
+                                    <span><i class="fas fa-calendar"></i> Draft</span>
+                                    <span><i class="fas fa-user"></i> John Doe</span>
+                                    <span><i class="fas fa-edit"></i> Last edited 2h ago</span>
+                                </div>
+                            </div>
+                            <span class="status-badge status-draft">Draft</span>
+                        </div>
+                        <div class="content-excerpt">
+                            A comprehensive guide on building a business that aligns with your faith and values while achieving sustainable success...
+                        </div>
+                        <div class="content-tags">
+                            <span class="tag">faith</span>
+                            <span class="tag">business</span>
+                            <span class="tag">guide</span>
+                        </div>
+                    </div>
+
+                    <div class="content-item">
+                        <div class="content-header">
+                            <div>
+                                <div class="content-title">About Page Redesign</div>
+                                <div class="content-meta">
+                                    <span><i class="fas fa-calendar"></i> Scheduled for Dec 20</span>
+                                    <span><i class="fas fa-user"></i> John Doe</span>
+                                    <span><i class="fas fa-clock"></i> 5 days to publish</span>
+                                </div>
+                            </div>
+                            <span class="status-badge status-scheduled">Scheduled</span>
+                        </div>
+                        <div class="content-excerpt">
+                            Updated about page with new timeline, improved storytelling, and better visual hierarchy...
+                        </div>
+                        <div class="content-tags">
+                            <span class="tag">page</span>
+                            <span class="tag">design</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Editor Section (appears when editing) -->
+                <div style="margin-top: 2rem; display: none;" id="editor-section">
+                    <h3 style="margin-bottom: 1rem;">Edit Content</h3>
+                    <div class="editor-toolbar">
+                        <button class="toolbar-btn" title="Bold"><i class="fas fa-bold"></i></button>
+                        <button class="toolbar-btn" title="Italic"><i class="fas fa-italic"></i></button>
+                        <button class="toolbar-btn" title="Underline"><i class="fas fa-underline"></i></button>
+                        <button class="toolbar-btn" title="Link"><i class="fas fa-link"></i></button>
+                        <button class="toolbar-btn" title="Image"><i class="fas fa-image"></i></button>
+                        <button class="toolbar-btn" title="Code"><i class="fas fa-code"></i></button>
+                        <button class="toolbar-btn" title="List"><i class="fas fa-list"></i></button>
+                        <button class="toolbar-btn" title="Quote"><i class="fas fa-quote-left"></i></button>
+                    </div>
+                    <textarea class="editor-area" placeholder="Start writing your content...">
+The Art of Cinematic Storytelling in Business
+
+How applying filmmaking principles to business content can transform your brand narrative and create deeper connections with your audience.
+
+## The Power of Visual Narrative
+
+In today's content-saturated world, businesses that master the art of visual storytelling stand out from the crowd. By applying proven cinematographic techniques...
+                    </textarea>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Content Actions</div>
+                    <div style="display: grid; gap: 0.5rem;">
+                        <button class="btn btn-primary btn-small">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                        <button class="btn btn-secondary btn-small">
+                            <i class="fas fa-eye"></i> Preview
+                        </button>
+                        <button class="btn btn-secondary btn-small">
+                            <i class="fas fa-share"></i> Publish
+                        </button>
+                        <button class="btn btn-secondary btn-small">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Publishing</div>
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <select class="form-select">
+                            <option>Published</option>
+                            <option>Draft</option>
+                            <option>Scheduled</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Publish Date</label>
+                        <input type="datetime-local" class="form-input" value="2024-12-15T10:00">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Author</label>
+                        <select class="form-select">
+                            <option>John Doe</option>
+                            <option>Guest Author</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Categories & Tags</div>
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select class="form-select">
+                            <option>Blog Posts</option>
+                            <option>Portfolio</option>
+                            <option>Pages</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tags</label>
+                        <input type="text" class="form-input" placeholder="creativity, business, storytelling" value="creativity, business, storytelling">
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">SEO Settings</div>
+                    <div class="form-group">
+                        <label class="form-label">Meta Title</label>
+                        <input type="text" class="form-input" placeholder="SEO title..." value="The Art of Cinematic Storytelling in Business">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Meta Description</label>
+                        <textarea class="form-input" rows="3" placeholder="SEO description...">Transform your brand with cinematic storytelling techniques. Learn how filmmaking principles create deeper audience connections.</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        const tabs = document.querySelectorAll('.tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+            });
+        });
+
+        // Content item selection
+        const contentItems = document.querySelectorAll('.content-item');
+        contentItems.forEach(item => {
+            item.addEventListener('click', () => {
+                contentItems.forEach(i => i.classList.remove('selected'));
+                item.classList.add('selected');
+            });
+        });
+
+        // Toolbar actions
+        document.querySelectorAll('.toolbar-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const action = btn.title;
+                alert(`${action} action triggered!`);
+            });
+        });
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

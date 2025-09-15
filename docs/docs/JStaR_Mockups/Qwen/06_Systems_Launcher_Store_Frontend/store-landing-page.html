@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>J StaR Films Store</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'jstar-blue': '#2563EB',
+            'faith-purple': '#8B5CF6',
+            'growth-green': '#059669',
+            'warning-yellow': '#F59E0B'
+          }
+        }
+      }
+    }
+    
+    function filterProducts(tier) {
+      document.querySelectorAll('.product-card').forEach(card => {
+        if (tier === 'all' || card.dataset.tier === tier) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+      
+      document.querySelectorAll('.tier-filter').forEach(btn => {
+        btn.classList.remove('bg-jstar-blue', 'text-white');
+        btn.classList.add('bg-gray-200', 'text-gray-800', 'dark:bg-gray-700', 'dark:text-gray-300');
+      });
+      
+      event.target.classList.remove('bg-gray-200', 'text-gray-800', 'dark:bg-gray-700', 'dark:text-gray-300');
+      event.target.classList.add('bg-jstar-blue', 'text-white');
+    }
+    
+    function showProductDetails(productId) {
+      document.getElementById('product-details').classList.remove('hidden');
+      document.getElementById('product-details').scrollIntoView({ behavior: 'smooth' });
+      
+      // In real app, this would load product details via API
+      const product = document.getElementById(productId);
+      const productName = product.querySelector('h3').textContent;
+      const productDescription = product.querySelector('p').textContent;
+      const productPrice = product.querySelector('.product-price').textContent;
+      const productTier = product.dataset.tier;
+      
+      document.getElementById('detail-product-name').textContent = productName;
+      document.getElementById('detail-product-description').textContent = productDescription;
+      document.getElementById('detail-product-price').textContent = productPrice;
+      document.getElementById('detail-product-tier').textContent = productTier.replace('tier', 'Tier ');
+    }
+    
+    function closeProductDetails() {
+      document.getElementById('product-details').classList.add('hidden');
+    }
+    
+    function addToCart() {
+      const cartBtn = document.getElementById('cart-btn');
+      const originalText = cartBtn.innerHTML;
+      cartBtn.innerHTML = '<svg class="animate-spin h-5 w-5 mr-2 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Adding...';
+      
+      setTimeout(() => {
+        cartBtn.innerHTML = originalText;
+        const successMsg = document.getElementById('product-added');
+        successMsg.classList.remove('hidden');
+        
+        setTimeout(() => {
+          successMsg.classList.add('hidden');
+        }, 3000);
+      }, 1500);
+    }
+    
+    // Simulate user tier (in real app this would come from auth)
+    const userTier = 'tier1';
+  </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+  <!-- PRD: FR044 (Store Frontend) -->
+  <div class="flex flex-col min-h-screen">
+    <!-- HEADER -->
+    <header class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center py-4">
+          <div class="flex items-center">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-jstar-blue to-faith-purple flex items-center justify-center mr-3">
+              <span class="text-white font-bold">J</span>
+            </div>
+            <h1 class="text-xl font-bold text-gray-900 dark:text-white">J StaR Films Store</h1>
+          </div>
+          
+          <div class="flex items-center space-x-4">
+            <div class="relative">
+              <input type="text" placeholder="Search products..." 
+                     class="bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+              <div class="absolute left-3 top-2.5 text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            </div>
+            
+            <button id="cart-btn" onclick="addToCart()"
+                    class="relative p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              <span class="absolute top-0 right-0 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">0</span>
+            </button>
+            
+            <div class="flex items-center space-x-2">
+              <div class="w-8 h-8 rounded-full bg-jstar-blue flex items-center justify-center text-white">
+                J
+              </div>
+              <div class="hidden md:block">
+                <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Tier 1</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- NAVIGATION -->
+        <nav class="border-t border-gray-200 dark:border-gray-700">
+          <div class="flex space-x-8 py-3">
+            <a href="#" class="border-jstar-blue text-jstar-blue whitespace-nowrap pb-3 px-1 border-b-2 font-medium text-sm">
+              All Products
+            </a>
+            <a href="#" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300 whitespace-nowrap pb-3 px-1 border-b-2 font-medium text-sm">
+              Digital Products
+            </a>
+            <a href="#" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300 whitespace-nowrap pb-3 px-1 border-b-2 font-medium text-sm">
+              Subscriptions
+            </a>
+            <a href="#" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300 whitespace-nowrap pb-3 px-1 border-b-2 font-medium text-sm">
+              Free Resources
+            </a>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1">
+      <!-- HERO SECTION -->
+      <section class="bg-gradient-to-r from-jstar-blue to-faith-purple text-white py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 class="text-3xl md:text-4xl font-bold mb-4">Multiply Your Impact as a Creator</h2>
+          <p class="text-xl mb-8 max-w-2xl mx-auto">
+            Tools, templates, and systems designed for filmmakers, developers, and faith-driven creators
+          </p>
+          <button class="px-6 py-3 bg-white text-jstar-blue font-bold rounded-lg hover:bg-gray-100 transition">
+            Browse All Products
+          </button>
+        </div>
+      </section>
+      
+      <!-- TIER FILTERS -->
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex flex-wrap gap-2 mb-8">
+          <button onclick="filterProducts('all')" class="tier-filter px-3 py-1 bg-jstar-blue text-white rounded-lg font-medium">All Products</button>
+          <button onclick="filterProducts('tier1')" class="tier-filter px-3 py-1 bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300 rounded-lg font-medium">Tier 1</button>
+          <button onclick="filterProducts('tier2')" class="tier-filter px-3 py-1 bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300 rounded-lg font-medium">Tier 2</button>
+          <button onclick="filterProducts('tier3')" class="tier-filter px-3 py-1 bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300 rounded-lg font-medium">Tier 3</button>
+        </div>
+        
+        <!-- PRODUCT GRID -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <!-- PRODUCT 1 -->
+          <div id="product-1" class="product-card bg-white dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition" data-tier="tier3">
+            <div class="p-4">
+              <div class="w-16 h-16 rounded-lg bg-gradient-to-br from-jstar-blue to-faith-purple flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+              </div>
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2 text-center">Creator Growth Engine Suite</h3>
+              <p class="text-gray-600 dark:text-gray-400 text-center mb-4">Complete system for filmmakers, developers, and faith-driven creators</p>
+              <div class="flex justify-center items-center mb-4">
+                <span class="product-price font-bold text-2xl text-gray-900 dark:text-white">$299/mo</span>
+                <span class="ml-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Tier 3</span>
+              </div>
+              <button onclick="showProductDetails('product-1')"
+                      class="w-full px-4 py-2 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium">
+                View Details
+              </button>
+            </div>
+          </div>
+          
+          <!-- PRODUCT 2 -->
+          <div id="product-2" class="product-card bg-white dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition" data-tier="tier2">
+            <div class="p-4">
+              <div class="w-16 h-16 rounded-lg bg-gradient-to-br from-faith-purple to-jstar-blue flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                </svg>
+              </div>
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2 text-center">Systems Launcher Toolkit</h3>
+              <p class="text-gray-600 dark:text-gray-400 text-center mb-4">Templates & workflows for content creation and client acquisition</p>
+              <div class="flex justify-center items-center mb-4">
+                <span class="product-price font-bold text-2xl text-gray-900 dark:text-white">$99 one-time</span>
+                <span class="ml-2 text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">Tier 2</span>
+              </div>
+              <button onclick="showProductDetails('product-2')"
+                      class="w-full px-4 py-2 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium">
+                View Details
+              </button>
+            </div>
+          </div>
+          
+          <!-- PRODUCT 3 -->
+          <div id="product-3" class="product-card bg-white dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition" data-tier="tier1">
+            <div class="p-4">
+              <div class="w-16 h-16 rounded-lg bg-gradient-to-br from-jstar-blue to-growth-green flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                </svg>
+              </div>
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2 text-center">JohnGPT Access</h3>
+              <p class="text-gray-600 dark:text-gray-400 text-center mb-4">AI-powered creative assistant for YouTube, app development, and faith-based content</p>
+              <div class="flex justify-center items-center mb-4">
+                <span class="product-price font-bold text-2xl text-gray-900 dark:text-white">$49/mo</span>
+                <span class="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Tier 1</span>
+              </div>
+              <button onclick="showProductDetails('product-3')"
+                      class="w-full px-4 py-2 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium">
+                View Details
+              </button>
+            </div>
+          </div>
+          
+          <!-- PRODUCT 4 -->
+          <div id="product-4" class="product-card bg-white dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition" data-tier="tier3">
+            <div class="p-4">
+              <div class="w-16 h-16 rounded-lg bg-gradient-to-br from-growth-green to-jstar-blue flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                </svg>
+              </div>
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2 text-center">Virality Score Calculator</h3>
+              <p class="text-gray-600 dark:text-gray-400 text-center mb-4">YouTube optimization tool for maximizing content reach</p>
+              <div class="flex justify-center items-center mb-4">
+                <span class="product-price font-bold text-2xl text-gray-900 dark:text-white">$49 one-time</span>
+                <span class="ml-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Tier 3</span>
+              </div>
+              <button onclick="showProductDetails('product-4')"
+                      class="w-full px-4 py-2 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium">
+                View Details
+              </button>
+            </div>
+          </div>
+          
+          <!-- PRODUCT 5 -->
+          <div id="product-5" class="product-card bg-white dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition" data-tier="all">
+            <div class="p-4">
+              <div class="w-16 h-16 rounded-lg bg-yellow-500 flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13.494m-3-8.75a3 3 0 11-6 0 3 3 0 016 0zm8.75 0a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2 text-center">10 Viral YouTube Title Formulas</h3>
+              <p class="text-gray-600 dark:text-gray-400 text-center mb-4">Free resource to boost your YouTube CTR</p>
+              <div class="flex justify-center items-center mb-4">
+                <span class="product-price font-bold text-2xl text-gray-900 dark:text-white">Free</span>
+                <span class="ml-2 text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded">Free</span>
+              </div>
+              <button onclick="showProductDetails('product-5')"
+                      class="w-full px-4 py-2 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium">
+                Get Instant Access
+              </button>
+            </div>
+          </div>
+          
+          <!-- PRODUCT 6 -->
+          <div id="product-6" class="product-card bg-white dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition" data-tier="tier3">
+            <div class="p-4">
+              <div class="w-16 h-16 rounded-lg bg-gradient-to-br from-jstar-blue to-faith-purple flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2 text-center">High-Ticket Sales System</h3>
+              <p class="text-gray-600 dark:text-gray-400 text-center mb-4">Convert leads into premium clients with proven frameworks</p>
+              <div class="flex justify-center items-center mb-4">
+                <span class="product-price font-bold text-2xl text-gray-900 dark:text-white">$199 one-time</span>
+                <span class="ml-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Tier 3</span>
+              </div>
+              <button onclick="showProductDetails('product-6')"
+                      class="w-full px-4 py-2 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium">
+                View Details
+              </button>
+            </div>
+          </div>
+          
+          <!-- PRODUCT 7 -->
+          <div id="product-7" class="product-card bg-white dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition" data-tier="tier2">
+            <div class="p-4">
+              <div class="w-16 h-16 rounded-lg bg-gradient-to-br from-faith-purple to-warning-yellow flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                </svg>
+              </div>
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2 text-center">Faith Integration Framework</h3>
+              <p class="text-gray-600 dark:text-gray-400 text-center mb-4">Integrate spiritual principles into your creative workflow</p>
+              <div class="flex justify-center items-center mb-4">
+                <span class="product-price font-bold text-2xl text-gray-900 dark:text-white">$79 one-time</span>
+                <span class="ml-2 text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">Tier 2</span>
+              </div>
+              <button onclick="showProductDetails('product-7')"
+                      class="w-full px-4 py-2 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium">
+                View Details
+              </button>
+            </div>
+          </div>
+          
+          <!-- PRODUCT 8 -->
+          <div id="product-8" class="product-card bg-white dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition" data-tier="tier1">
+            <div class="p-4">
+              <div class="w-16 h-16 rounded-lg bg-gradient-to-br from-growth-green to-warning-yellow flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                </svg>
+              </div>
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2 text-center">Content Repurposing System</h3>
+              <p class="text-gray-600 dark:text-gray-400 text-center mb-4">Turn one piece of content into 10+ assets</p>
+              <div class="flex justify-center items-center mb-4">
+                <span class="product-price font-bold text-2xl text-gray-900 dark:text-white">$69 one-time</span>
+                <span class="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Tier 1</span>
+              </div>
+              <button onclick="showProductDetails('product-8')"
+                      class="w-full px-4 py-2 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium">
+                View Details
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- PRODUCT DETAILS MODAL -->
+        <div id="product-details" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+              <div class="flex justify-end mb-4">
+                <button onclick="closeProductDetails()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <div class="w-24 h-24 rounded-lg bg-gradient-to-br from-jstar-blue to-faith-purple flex items-center justify-center mx-auto mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                  </div>
+                  
+                  <h3 id="detail-product-name" class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Creator Growth Engine Suite</h3>
+                  <p id="detail-product-description" class="text-gray-600 dark:text-gray-400 mb-4">Complete system for filmmakers, developers, and faith-driven creators</p>
+                  
+                  <div class="mb-6">
+                    <span id="detail-product-price" class="font-bold text-3xl text-gray-900 dark:text-white">$299/mo</span>
+                    <span id="detail-product-tier" class="ml-2 text-lg bg-green-100 text-green-800 px-3 py-1 rounded">Tier 3</span>
+                  </div>
+                  
+                  <button onclick="addToCart()"
+                          class="w-full px-6 py-3 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-bold text-lg mb-4">
+                    Add to Cart
+                  </button>
+                  
+                  <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
+                    <div class="flex items-start mb-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                      <p>Access to all Creator Growth Engine tools</p>
+                    </div>
+                    <div class="flex items-start mb-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                      <p>YouTube Virality OS with CTR prediction</p>
+                    </div>
+                    <div class="flex items-start mb-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                      <p>Client Magnet System with automated sequences</p>
+                    </div>
+                    <div class="flex items-start mb-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                      <p>Systems Launcher Toolkit with implementation tracker</p>
+                    </div>
+                    <div class="flex items-start">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                      <p>Faith Integration Framework with prayer tools</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div>
+                  <h4 class="text-lg font-bold text-gray-900 dark:text-white mb-3">Product Details</h4>
+                  <div class="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300">
+                    <p>The Creator Growth Engine Suite is the complete system for filmmakers, developers, and faith-driven creators who want to multiply their impact.</p>
+                    
+                    <h5>What You Get:</h5>
+                    <ul>
+                      <li><strong>YouTube Virality OS:</strong> Analyze, optimize, and predict the performance of your YouTube content</li>
+                      <li><strong>Client Magnet System:</strong> Automated outreach sequences to attract ideal clients</li>
+                      <li><strong>Systems Launcher Toolkit:</strong> Proven workflow templates with implementation tracking</li>
+                      <li><strong>Faith Integration Framework:</strong> Build systems that honor God while creating impactful content</li>
+                    </ul>
+                    
+                    <h5>Features:</h5>
+                    <ul>
+                      <li>JohnGPT-powered content optimization</li>
+                      <li>Virality Score Calculator for YouTube titles</li>
+                      <li>Thumbnail A/B testing with CTR prediction</li>
+                      <li>Lead capture forms with faith-based filtering</li>
+                      <li>Prayer integration with JohnGPT-powered prayer generation</li>
+                      <li>Community accountability groups for faith-based creators</li>
+                    </ul>
+                    
+                    <p>This subscription includes all updates and new features as they're released. Cancel anytime.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- TIER COMPARISON -->
+        <div class="mt-16 bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">Choose Your Tier</h2>
+          
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="bg-gray-50 dark:bg-gray-900/50">
+                  <th class="py-3 px-4 text-left font-semibold text-gray-900 dark:text-white">Features</th>
+                  <th class="py-3 px-4 text-center font-semibold text-gray-900 dark:text-white">Tier 1</th>
+                  <th class="py-3 px-4 text-center font-semibold text-gray-900 dark:text-white">Tier 2</th>
+                  <th class="py-3 px-4 text-center font-semibold text-gray-900 dark:text-white">Tier 3</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-t border-gray-200 dark:border-gray-700">
+                  <td class="py-4 px-4 font-medium text-gray-900 dark:text-white">JohnGPT Access</td>
+                  <td class="py-4 px-4 text-center"><span class="text-green-500">✓</span></td>
+                  <td class="py-4 px-4 text-center"><span class="text-green-500">✓</span></td>
+                  <td class="py-4 px-4 text-center"><span class="text-green-500">✓</span></td>
+                </tr>
+                <tr class="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+                  <td class="py-4 px-4 font-medium text-gray-900 dark:text-white">Systems Launcher Toolkit</td>
+                  <td class="py-4 px-4 text-center">-</td>
+                  <td class="py-4 px-4 text-center"><span class="text-green-500">✓</span></td>
+                  <td class="py-4 px-4 text-center"><span class="text-green-500">✓</span></td>
+                </tr>
+                <tr class="border-t border-gray-200 dark:border-gray-700">
+                  <td class="py-4 px-4 font-medium text-gray-900 dark:text-white">YouTube Virality OS</td>
+                  <td class="py-4 px-4 text-center">-</td>
+                  <td class="py-4 px-4 text-center">-</td>
+                  <td class="py-4 px-4 text-center"><span class="text-green-500">✓</span></td>
+                </tr>
+                <tr class="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+                  <td class="py-4 px-4 font-medium text-gray-900 dark:text-white">Client Magnet System</td>
+                  <td class="py-4 px-4 text-center">-</td>
+                  <td class="py-4 px-4 text-center">-</td>
+                  <td class="py-4 px-4 text-center"><span class="text-green-500">✓</span></td>
+                </tr>
+                <tr class="border-t border-gray-200 dark:border-gray-700">
+                  <td class="py-4 px-4 font-medium text-gray-900 dark:text-white">Faith Integration Framework</td>
+                  <td class="py-4 px-4 text-center">-</td>
+                  <td class="py-4 px-4 text-center"><span class="text-green-500">✓</span></td>
+                  <td class="py-4 px-4 text-center"><span class="text-green-500">✓</span></td>
+                </tr>
+                <tr class="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+                  <td class="py-4 px-4 font-medium text-gray-900 dark:text-white">Priority Support</td>
+                  <td class="py-4 px-4 text-center">-</td>
+                  <td class="py-4 px-4 text-center">-</td>
+                  <td class="py-4 px-4 text-center"><span class="text-green-500">✓</span></td>
+                </tr>
+                <tr class="border-t border-gray-200 dark:border-gray-700">
+                  <td class="py-4 px-4 font-medium text-gray-900 dark:text-white">Community Access</td>
+                  <td class="py-4 px-4 text-center">-</td>
+                  <td class="py-4 px-4 text-center"><span class="text-green-500">✓</span></td>
+                  <td class="py-4 px-4 text-center"><span class="text-green-500">✓</span></td>
+                </tr>
+                <tr class="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+                  <td class="py-4 px-4 font-medium text-gray-900 dark:text-white">Price</td>
+                  <td class="py-4 px-4 text-center">$49/mo</td>
+                  <td class="py-4 px-4 text-center">$99/mo</td>
+                  <td class="py-4 px-4 text-center">$299/mo</td>
+                </tr>
+                <tr class="border-t border-gray-200 dark:border-gray-700">
+                  <td class="py-4 px-4"></td>
+                  <td class="py-4 px-4 text-center">
+                    <button class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-lg font-medium">
+                      Current Tier
+                    </button>
+                  </td>
+                  <td class="py-4 px-4 text-center">
+                    <button class="px-4 py-2 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium">
+                      Upgrade
+                    </button>
+                  </td>
+                  <td class="py-4 px-4 text-center">
+                    <button class="px-4 py-2 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium">
+                      Upgrade
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div>
+            <div class="flex items-center mb-4">
+              <div class="w-8 h-8 rounded-full bg-gradient-to-br from-jstar-blue to-faith-purple flex items-center justify-center mr-2">
+                <span class="text-white font-bold">J</span>
+              </div>
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white">J StaR Films</h3>
+            </div>
+            <p class="text-gray-600 dark:text-gray-400">
+              Tools and systems for filmmakers, developers, and faith-driven creators to multiply their impact.
+            </p>
+          </div>
+          
+          <div>
+            <h4 class="font-bold text-gray-900 dark:text-white mb-4">Products</h4>
+            <ul class="space-y-2">
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">Creator Growth Engine</a></li>
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">JohnGPT Access</a></li>
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">Systems Launcher Toolkit</a></li>
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">Faith Integration Framework</a></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h4 class="font-bold text-gray-900 dark:text-white mb-4">Resources</h4>
+            <ul class="space-y-2">
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">Blog</a></li>
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">YouTube Channel</a></li>
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">Community</a></li>
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">Free Resources</a></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h4 class="font-bold text-gray-900 dark:text-white mb-4">Connect</h4>
+            <ul class="space-y-2">
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">Twitter</a></li>
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">Instagram</a></li>
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">LinkedIn</a></li>
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">YouTube</a></li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="border-t border-gray-200 dark:border-gray-700 mt-8 pt-8 text-center text-gray-500 dark:text-gray-400">
+          <p>&copy; 2024 J StaR Films. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+    
+    <!-- SUCCESS MESSAGE -->
+    <div id="product-added" class="hidden fixed bottom-6 right-6 bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg z-50">
+      <div class="flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        <span>Product added to cart</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

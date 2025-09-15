@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics - Admin Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'jstar-blue': '#2563EB',
+            'faith-purple': '#8B5CF6',
+            'growth-green': '#059669',
+            'warning-yellow': '#F59E0B'
+          }
+        }
+      }
+    }
+    
+    function changeTimeframe(timeframe) {
+      document.querySelectorAll('.timeframe-btn').forEach(btn => {
+        btn.classList.remove('bg-jstar-blue', 'text-white');
+        btn.classList.add('bg-gray-200', 'text-gray-800', 'dark:bg-gray-700', 'dark:text-gray-300');
+      });
+      
+      event.target.classList.remove('bg-gray-200', 'text-gray-800', 'dark:bg-gray-700', 'dark:text-gray-300');
+      event.target.classList.add('bg-jstar-blue', 'text-white');
+      
+      // In real implementation, this would update the analytics charts
+      document.getElementById('timeframe-label').textContent = timeframe === 'today' ? 'Today' : 
+                                                            timeframe === 'week' ? 'This Week' : 
+                                                            timeframe === 'month' ? 'This Month' : 'This Year';
+    }
+    
+    function exportData() {
+      const exportBtn = document.getElementById('export-btn');
+      const originalText = exportBtn.innerHTML;
+      exportBtn.innerHTML = '<svg class="animate-spin h-5 w-5 mr-2 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Exporting...';
+      
+      setTimeout(() => {
+        exportBtn.innerHTML = originalText;
+        const successMsg = document.getElementById('data-exported');
+        successMsg.classList.remove('hidden');
+        
+        setTimeout(() => {
+          successMsg.classList.add('hidden');
+        }, 3000);
+      }, 1500);
+    }
+  </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+  <!-- PRD: FR029 (Platform Analytics) -->
+  <div class="flex">
+    <!-- SIDEBAR -->
+    <div class="w-64 min-h-screen bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 hidden md:block">
+      <div class="p-5 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-jstar-blue to-faith-purple flex items-center justify-center mr-3">
+            <span class="text-white font-bold">J</span>
+          </div>
+          <div>
+            <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Admin • J StaR Films</p>
+          </div>
+        </div>
+      </div>
+      
+      <nav class="mt-5">
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
+          Dashboard
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          User Management
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          Content Management
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          </svg>
+          JohnGPT Settings
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 bg-jstar-blue/10 dark:bg-jstar-blue/20 border-l-4 border-jstar-blue text-jstar-blue dark:text-white font-medium">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v3m-6 5h6" />
+          </svg>
+          Analytics
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          Settings
+        </a>
+      </nav>
+      
+      <div class="absolute bottom-0 w-64 p-5 border-t border-gray-200 dark:border-gray-700">
+        <a href="#" class="flex items-center text-gray-700 dark:text-gray-300 hover:text-jstar-blue">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0 0l-3-3m3 3l3-3" />
+          </svg>
+          Sign Out
+        </a>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="flex-1">
+      <!-- TOP BAR -->
+      <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between px-6 py-4">
+          <div class="md:hidden">
+            <button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+          
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Analytics</h1>
+          
+          <div class="flex items-center space-x-4">
+            <div class="flex space-x-1">
+              <button onclick="changeTimeframe('today')" class="timeframe-btn px-3 py-1 bg-jstar-blue text-white rounded-lg font-medium">Today</button>
+              <button onclick="changeTimeframe('week')" class="timeframe-btn px-3 py-1 bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300 rounded-lg font-medium">Week</button>
+              <button onclick="changeTimeframe('month')" class="timeframe-btn px-3 py-1 bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300 rounded-lg font-medium">Month</button>
+              <button onclick="changeTimeframe('year')" class="timeframe-btn px-3 py-1 bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300 rounded-lg font-medium">Year</button>
+            </div>
+            
+            <button id="export-btn" onclick="exportData()"
+                    class="px-4 py-2 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              </svg>
+              Export Data
+            </button>
+            
+            <div class="relative">
+              <button class="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+              </button>
+              <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+            </div>
+            
+            <div class="hidden md:flex items-center">
+              <div class="w-8 h-8 rounded-full bg-jstar-blue flex items-center justify-center text-white mr-3">
+                J
+              </div>
+              <div>
+                <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Admin</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ANALYTICS CONTENT -->
+      <div class="p-6">
+        <!-- THEME TOGGLE -->
+        <div class="fixed top-4 right-4 z-50">
+          <button onclick="document.documentElement.classList.toggle('dark')" 
+                  class="p-2 rounded-full bg-jstar-blue text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Platform Analytics</h2>
+          <p class="text-lg text-gray-600 dark:text-gray-400" id="timeframe-label">This Week</p>
+        </div>
+        
+        <!-- SUCCESS MESSAGE -->
+        <div id="data-exported" class="hidden fixed bottom-6 right-6 bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg z-50">
+          <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <span>Analytics data exported successfully</span>
+          </div>
+        </div>
+        
+        <!-- QUICK STATS -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <!-- TOTAL USERS -->
+          <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Total Users</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">2,417</p>
+              </div>
+              <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <span class="text-green-500 mr-1">↑ 12.3%</span>
+              <span class="text-sm text-gray-500 dark:text-gray-400">from last period</span>
+            </div>
+          </div>
+          
+          <!-- ACTIVE SUBSCRIBERS -->
+          <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Active Subscribers</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">384</p>
+              </div>
+              <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <span class="text-green-500 mr-1">↑ 8.7%</span>
+              <span class="text-sm text-gray-500 dark:text-gray-400">from last period</span>
+            </div>
+          </div>
+          
+          <!-- REVENUE -->
+          <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Total Revenue</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">$12,487</p>
+              </div>
+              <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <span class="text-green-500 mr-1">↑ 15.2%</span>
+              <span class="text-sm text-gray-500 dark:text-gray-400">from last period</span>
+            </div>
+          </div>
+          
+          <!-- JOHN GPT USAGE -->
+          <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="text-sm text-gray-500 dark:text-gray-400">JohnGPT Queries</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">18,427</p>
+              </div>
+              <div class="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <span class="text-green-500 mr-1">↑ 22.6%</span>
+              <span class="text-sm text-gray-500 dark:text-gray-400">from last period</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- ANALYTICS GRAPHS -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <!-- TRAFFIC OVERVIEW -->
+          <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+            <div class="flex justify-between items-start mb-4">
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white">Traffic Overview</h3>
+              <div class="flex space-x-2">
+                <button class="px-2 py-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded text-sm">Daily</button>
+                <button class="px-2 py-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded text-sm">Weekly</button>
+                <button class="px-2 py-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded text-sm">Monthly</button>
+              </div>
+            </div>
+            
+            <div class="h-64 flex items-end justify-between px-2">
+              <!-- Simulated bar chart -->
+              <div class="flex-1 flex flex-col items-center">
+                <div class="flex-1 bg-jstar-blue w-10 rounded-t" style="height: 70%"></div>
+                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Mon</p>
+              </div>
+              <div class="flex-1 flex flex-col items-center">
+                <div class="flex-1 bg-jstar-blue w-10 rounded-t" style="height: 85%"></div>
+                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Tue</p>
+              </div>
+              <div class="flex-1 flex flex-col items-center">
+                <div class="flex-1 bg-jstar-blue w-10 rounded-t" style="height: 90%"></div>
+                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Wed</p>
+              </div>
+              <div class="flex-1 flex flex-col items-center">
+                <div class="flex-1 bg-jstar-blue w-10 rounded-t" style="height: 75%"></div>
+                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Thu</p>
+              </div>
+              <div class="flex-1 flex flex-col items-center">
+                <div class="flex-1 bg-jstar-blue w-10 rounded-t" style="height: 80%"></div>
+                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Fri</p>
+              </div>
+              <div class="flex-1 flex flex-col items-center">
+                <div class="flex-1 bg-jstar-blue w-10 rounded-t" style="height: 60%"></div>
+                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Sat</p>
+              </div>
+              <div class="flex-1 flex flex-col items-center">
+                <div class="flex-1 bg-jstar-blue w-10 rounded-t" style="height: 50%"></div>
+                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Sun</p>
+              </div>
+            </div>
+            
+            <div class="mt-4 grid grid-cols-3 gap-4">
+              <div class="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+                <p class="text-sm text-gray-500 dark:text-gray-400">Total Visits</p>
+                <p class="text-lg font-bold text-gray-900 dark:text-white">14,283</p>
+              </div>
+              <div class="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+                <p class="text-sm text-gray-500 dark:text-gray-400">Bounce Rate</p>
+                <p class="text-lg font-bold text-gray-900 dark:text-white">42.3%</p>
+              </div>
+              <div class="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+                <p class="text-sm text-gray-500 dark:text-gray-400">Avg. Session</p>
+                <p class="text-lg font-bold text-gray-900 dark:text-white">3:42 min</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- REVENUE BY SOURCE -->
+          <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+            <div class="flex justify-between items-start mb-4">
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white">Revenue by Source</h3>
+              <div class="flex space-x-2">
+                <button class="px-2 py-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded text-sm">This Week</button>
+                <button class="px-2 py-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded text-sm">This Month</button>
+              </div>
+            </div>
+            
+            <div class="h-64 flex items-center justify-center mb-6">
+              <!-- Simulated pie chart -->
+              <div class="relative w-48 h-48">
+                <svg viewBox="0 0 40 40" class="w-full h-full">
+                  <path d="M 20 20 L 20 3 A 17 17 0 0 1 35.26 14.74" fill="#2563EB" />
+                  <path d="M 20 20 L 35.26 14.74 A 17 17 0 0 1 20 37" fill="#8B5CF6" />
+                  <path d="M 20 20 L 20 37 A 17 17 0 0 1 4.74 14.74" fill="#059669" />
+                  <path d="M 20 20 L 4.74 14.74 A 17 17 0 0 1 20 3" fill="#F59E0B" />
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <div class="w-20 h-20 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center">
+                    <span class="text-xl font-bold">$12.5k</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="space-y-3">
+              <div class="flex items-center">
+                <div class="w-4 h-4 rounded-full bg-jstar-blue mr-3"></div>
+                <div class="flex-1">
+                  <div class="flex justify-between">
+                    <span class="text-gray-700 dark:text-gray-300">JohnGPT Subscriptions</span>
+                    <span class="font-medium">$6,243</span>
+                  </div>
+                  <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                    <div class="bg-jstar-blue h-2.5 rounded-full" style="width: 50%"></div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="flex items-center">
+                <div class="w-4 h-4 rounded-full bg-faith-purple mr-3"></div>
+                <div class="flex-1">
+                  <div class="flex justify-between">
+                    <span class="text-gray-700 dark:text-gray-300">Creator Growth Engine</span>
+                    <span class="font-medium">$4,158</span>
+                  </div>
+                  <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                    <div class="bg-faith-purple h-2.5 rounded-full" style="width: 33%"></div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="flex items-center">
+                <div class="w-4 h-4 rounded-full bg-growth-green mr-3"></div>
+                <div class="flex-1">
+                  <div class="flex justify-between">
+                    <span class="text-gray-700 dark:text-gray-300">Digital Products</span>
+                    <span class="font-medium">$1,875</span>
+                  </div>
+                  <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                    <div class="bg-growth-green h-2.5 rounded-full" style="width: 15%"></div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="flex items-center">
+                <div class="w-4 h-4 rounded-full bg-warning-yellow mr-3"></div>
+                <div class="flex-1">
+                  <div class="flex justify-between">
+                    <span class="text-gray-700 dark:text-gray-300">Services</span>
+                    <span class="font-medium">$211</span>
+                  </div>
+                  <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                    <div class="bg-warning-yellow h-2.5 rounded-full" style="width: 2%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- USER TIER BREAKDOWN -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+          <div class="flex justify-between items-start mb-6">
+            <div>
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white">User Tier Breakdown</h3>
+              <p class="text-gray-600 dark:text-gray-400">Distribution of users across subscription tiers</p>
+            </div>
+            <div class="flex space-x-2">
+              <button class="px-3 py-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-lg font-medium">This Week</button>
+              <button class="px-3 py-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-lg font-medium">This Month</button>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+              <div class="h-64 flex items-center justify-center">
+                <!-- Simulated donut chart -->
+                <div class="relative w-64 h-64">
+                  <svg viewBox="0 0 40 40" class="w-full h-full">
+                    <path d="M 20 20 m 0 -17 a 17 17 0 1 1 0 34 a 17 17 0 1 1 0 -34" fill="none" stroke="#E5E7EB" stroke-width="4" />
+                    <path d="M 20 20 m 0 -17 a 17 17 0 0 1 24.04 0" stroke="#2563EB" stroke-width="4" fill="none" stroke-dasharray="106.8" stroke-dashoffset="74.76" />
+                    <path d="M 20 20 m 0 -17 a 17 17 0 0 1 -17 17" stroke="#8B5CF6" stroke-width="4" fill="none" stroke-dasharray="106.8" stroke-dashoffset="96.12" />
+                    <path d="M 20 20 m 0 -17 a 17 17 0 0 1 0 34" stroke="#059669" stroke-width="4" fill="none" stroke-dasharray="106.8" stroke-dashoffset="99.32" />
+                    <path d="M 20 20 m 0 -17 a 17 17 0 0 1 17 17" stroke="#9CA3AF" stroke-width="4" fill="none" stroke-dasharray="106.8" stroke-dashoffset="106.8" />
+                  </svg>
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="w-32 h-32 rounded-full bg-white dark:bg-gray-800 flex flex-col items-center justify-center">
+                      <span class="text-2xl font-bold">384</span>
+                      <span class="text-sm text-gray-500 dark:text-gray-400">Subscribers</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="space-y-4">
+              <div class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                <div class="flex items-center mb-2">
+                  <div class="w-3 h-3 rounded-full bg-jstar-blue mr-2"></div>
+                  <div class="flex-1">
+                    <div class="flex justify-between">
+                      <span class="font-medium text-gray-900 dark:text-white">Tier 1 (JohnGPT)</span>
+                      <span class="font-medium">197</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700 mt-1">
+                      <div class="bg-jstar-blue h-2 rounded-full" style="width: 51%"></div>
+                    </div>
+                  </div>
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">51.3% of subscribers • $49/mo</p>
+              </div>
+              
+              <div class="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                <div class="flex items-center mb-2">
+                  <div class="w-3 h-3 rounded-full bg-faith-purple mr-2"></div>
+                  <div class="flex-1">
+                    <div class="flex justify-between">
+                      <span class="font-medium text-gray-900 dark:text-white">Tier 2 (Creator)</span>
+                      <span class="font-medium">128</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700 mt-1">
+                      <div class="bg-faith-purple h-2 rounded-full" style="width: 33%"></div>
+                    </div>
+                  </div>
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">33.3% of subscribers • $99/mo</p>
+              </div>
+              
+              <div class="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                <div class="flex items-center mb-2">
+                  <div class="w-3 h-3 rounded-full bg-growth-green mr-2"></div>
+                  <div class="flex-1">
+                    <div class="flex justify-between">
+                      <span class="font-medium text-gray-900 dark:text-white">Tier 3 (Full Access)</span>
+                      <span class="font-medium">59</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700 mt-1">
+                      <div class="bg-growth-green h-2 rounded-full" style="width: 15%"></div>
+                    </div>
+                  </div>
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">15.4% of subscribers • $299/mo</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

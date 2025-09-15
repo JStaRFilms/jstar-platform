@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ - J StaR Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1000px; margin: 0 auto; padding: 2rem; }
+        
+        .hero-section {
+            text-align: center;
+            padding: 4rem 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+        
+        .search-box {
+            max-width: 500px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 2px solid var(--border);
+            border-radius: 2rem;
+            font-size: 1rem;
+            background: var(--bg-secondary);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+        
+        .faq-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+        
+        .category-filter {
+            padding: 0.75rem 1.5rem;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: 2rem;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .category-filter.active {
+            background: var(--brand-blue);
+            color: white;
+            border-color: var(--brand-blue);
+        }
+        
+        .category-filter:hover {
+            border-color: var(--brand-blue);
+        }
+        
+        .faq-section {
+            margin-bottom: 3rem;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .section-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .faq-grid {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .faq-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .faq-item:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .faq-question {
+            width: 100%;
+            padding: 1.5rem;
+            background: none;
+            border: none;
+            text-align: left;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-primary);
+        }
+        
+        .faq-icon {
+            color: var(--brand-blue);
+            transition: transform 0.3s ease;
+        }
+        
+        .faq-item.open .faq-icon {
+            transform: rotate(180deg);
+        }
+        
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            padding: 0 1.5rem;
+        }
+        
+        .faq-item.open .faq-answer {
+            max-height: 300px;
+            padding: 0 1.5rem 1.5rem;
+        }
+        
+        .faq-answer-content {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        .helpful-section {
+            background: var(--bg-secondary);
+            border-radius: 1rem;
+            padding: 3rem;
+            text-align: center;
+            margin: 4rem 0;
+        }
+        
+        .helpful-title {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .helpful-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: var(--bg-primary);
+            border: 2px solid var(--border);
+            color: var(--text-primary);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero-section">
+            <h1 class="hero-title">Frequently Asked Questions</h1>
+            <p class="hero-subtitle">Find quick answers to common questions about J StaR Platform</p>
+            
+            <div class="search-box">
+                <i class="search-icon fas fa-search"></i>
+                <input type="text" class="search-input" placeholder="Search for answers..." id="searchInput">
+            </div>
+        </div>
+
+        <div class="faq-categories">
+            <div class="category-filter active" data-category="all">All Questions</div>
+            <div class="category-filter" data-category="getting-started">Getting Started</div>
+            <div class="category-filter" data-category="johngpt">JohnGPT</div>
+            <div class="category-filter" data-category="billing">Billing</div>
+            <div class="category-filter" data-category="technical">Technical</div>
+        </div>
+
+        <!-- Getting Started FAQs -->
+        <div class="faq-section" data-category="getting-started">
+            <h2 class="section-title">
+                <div class="section-icon"><i class="fas fa-rocket"></i></div>
+                Getting Started
+            </h2>
+            
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        <span>How do I get started with J StaR Platform?</span>
+                        <i class="faq-icon fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Getting started is simple! Sign up for a free trial, complete your profile setup, and follow our onboarding wizard. You'll have access to JohnGPT and basic features immediately. Our guided tour will help you understand the key features and get your first viral content created within minutes.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        <span>What's included in the free trial?</span>
+                        <i class="faq-icon fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            The 14-day free trial includes full access to JohnGPT, 5 AI-generated posts, basic analytics, and all core platform features. No credit card required to start. You can upgrade anytime during the trial to unlock unlimited features.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        <span>Do I need technical skills to use the platform?</span>
+                        <i class="faq-icon fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Not at all! J StaR Platform is designed for entrepreneurs and business owners without technical backgrounds. Our intuitive interface and AI assistance make complex tasks simple. If you can use social media, you can master our platform.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- JohnGPT FAQs -->
+        <div class="faq-section" data-category="johngpt">
+            <h2 class="section-title">
+                <div class="section-icon"><i class="fas fa-robot"></i></div>
+                JohnGPT Assistant
+            </h2>
+            
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        <span>What makes JohnGPT different from other AI assistants?</span>
+                        <i class="faq-icon fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            JohnGPT is specifically trained on business growth strategies, viral content creation, and entrepreneurship. It understands your business context, remembers your preferences, and provides personalized advice based on proven methodologies. It's like having a business mentor available 24/7.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        <span>How does JohnGPT learn about my business?</span>
+                        <i class="faq-icon fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            JohnGPT learns through your interactions, business profile setup, and the content you create. It analyzes your industry, target audience, and goals to provide increasingly personalized recommendations. All learning is privacy-focused and you maintain full control over your data.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        <span>Can JohnGPT integrate with my existing tools?</span>
+                        <i class="faq-icon fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Yes! JohnGPT integrates with popular platforms like social media networks, email marketing tools, CRM systems, and productivity apps. We're constantly adding new integrations based on user requests.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Billing FAQs -->
+        <div class="faq-section" data-category="billing">
+            <h2 class="section-title">
+                <div class="section-icon"><i class="fas fa-credit-card"></i></div>
+                Billing & Pricing
+            </h2>
+            
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        <span>Can I change my plan anytime?</span>
+                        <i class="faq-icon fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Absolutely! You can upgrade or downgrade your plan at any time. Upgrades take effect immediately, while downgrades apply at your next billing cycle. All changes are prorated automatically.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        <span>Do you offer refunds?</span>
+                        <i class="faq-icon fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Yes, we offer a 30-day money-back guarantee for all paid plans. If you're not satisfied within your first 30 days, contact our support team for a full refund. No questions asked.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        <span>What payment methods do you accept?</span>
+                        <i class="faq-icon fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            We accept all major credit cards (Visa, MasterCard, American Express), PayPal, and bank transfers for enterprise customers. All payments are processed securely through industry-standard encryption.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical FAQs -->
+        <div class="faq-section" data-category="technical">
+            <h2 class="section-title">
+                <div class="section-icon"><i class="fas fa-cog"></i></div>
+                Technical Support
+            </h2>
+            
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        <span>Is my data secure on J StaR Platform?</span>
+                        <i class="faq-icon fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Security is our top priority. We use enterprise-grade encryption, regular security audits, SOC 2 compliance, and follow industry best practices. Your data is encrypted both in transit and at rest, and we never share your information with third parties.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        <span>What if I experience technical issues?</span>
+                        <i class="faq-icon fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Our support team is available 24/7 via live chat, email, and phone. We also have an extensive help center with guides, video tutorials, and troubleshooting tips. Most issues are resolved within minutes.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        <span>Can I export my data if I decide to leave?</span>
+                        <i class="faq-icon fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Yes, you own your data and can export it anytime. We provide easy export tools for all your content, analytics, and account information. We believe in data portability and will never hold your information hostage.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="helpful-section">
+            <h2 class="helpful-title">Still have questions?</h2>
+            <p>Our support team is here to help you succeed with J StaR Platform</p>
+            
+            <div class="helpful-buttons">
+                <a href="#" class="btn btn-primary">
+                    <i class="fas fa-comments"></i>
+                    Contact Support
+                </a>
+                <a href="#" class="btn btn-secondary">
+                    <i class="fas fa-book"></i>
+                    Browse Help Center
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleFaq(element) {
+            const faqItem = element.parentElement;
+            const isOpen = faqItem.classList.contains('open');
+            
+            // Close all other FAQ items
+            document.querySelectorAll('.faq-item').forEach(item => {
+                item.classList.remove('open');
+            });
+            
+            // Toggle current item
+            if (!isOpen) {
+                faqItem.classList.add('open');
+            }
+        }
+
+        // Category filtering
+        document.querySelectorAll('.category-filter').forEach(filter => {
+            filter.addEventListener('click', function() {
+                const category = this.dataset.category;
+                
+                // Update active filter
+                document.querySelectorAll('.category-filter').forEach(f => f.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Show/hide sections
+                document.querySelectorAll('.faq-section').forEach(section => {
+                    if (category === 'all' || section.dataset.category === category) {
+                        section.classList.remove('hidden');
+                    } else {
+                        section.classList.add('hidden');
+                    }
+                });
+            });
+        });
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            
+            document.querySelectorAll('.faq-item').forEach(item => {
+                const question = item.querySelector('.faq-question span').textContent.toLowerCase();
+                const answer = item.querySelector('.faq-answer-content').textContent.toLowerCase();
+                
+                if (question.includes(searchTerm) || answer.includes(searchTerm)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = searchTerm ? 'none' : 'block';
+                }
+            });
+        });
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

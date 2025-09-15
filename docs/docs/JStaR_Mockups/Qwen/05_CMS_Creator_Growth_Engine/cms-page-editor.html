@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page Editor - J StaR CMS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'jstar-blue': '#2563EB',
+            'faith-purple': '#8B5CF6',
+            'growth-green': '#059669'
+          }
+        }
+      }
+    }
+    
+    function togglePreview() {
+      const editor = document.getElementById('editor-section');
+      const preview = document.getElementById('preview-section');
+      
+      editor.classList.toggle('hidden');
+      preview.classList.toggle('hidden');
+      
+      const toggleBtn = document.getElementById('toggle-preview');
+      if (editor.classList.contains('hidden')) {
+        toggleBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2v-3m-5.5 0h5.5m-5.5 0a3 3 0 100 6 3 3 0 000-6z" /></svg> Edit Mode';
+      } else {
+        toggleBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2v-3m-5.5 0h5.5m-5.5 0a3 3 0 100 6 3 3 0 000-6z" /></svg> Preview Mode';
+      }
+    }
+    
+    function savePage() {
+      const saveBtn = document.getElementById('save-btn');
+      const originalText = saveBtn.innerHTML;
+      saveBtn.innerHTML = '<svg class="animate-spin h-5 w-5 mr-2 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Saving...';
+      
+      setTimeout(() => {
+        saveBtn.innerHTML = originalText;
+        const successMsg = document.getElementById('page-saved');
+        successMsg.classList.remove('hidden');
+        
+        setTimeout(() => {
+          successMsg.classList.add('hidden');
+        }, 3000);
+      }, 1500);
+    }
+    
+    function addComponent(componentType) {
+      const previewContent = document.getElementById('preview-content');
+      
+      let componentHTML = '';
+      if (componentType === 'hero') {
+        componentHTML = `
+          <div class="hero-component bg-gray-50 dark:bg-gray-900 rounded-xl p-6 mb-6 border border-dashed border-jstar-blue cursor-move" draggable="true">
+            <div class="flex justify-between items-start mb-4">
+              <h2 class="text-xl font-bold text-gray-900 dark:text-white">Hero Section</h2>
+              <button class="text-red-500 hover:text-red-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+              <input type="text" placeholder="Main headline" 
+                     class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-jstar-blue"
+                     value="Your Creative Operating System">
+              <textarea placeholder="Subheading" rows="2" 
+                        class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-jstar-blue">A complete solution for filmmakers, developers, and faith-driven creators to multiply their impact</textarea>
+              <div class="flex space-x-3">
+                <input type="text" placeholder="Primary button text" 
+                       class="flex-1 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue"
+                       value="Get Started">
+                <input type="text" placeholder="Secondary button text" 
+                       class="flex-1 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue"
+                       value="Learn More">
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (componentType === 'features') {
+        componentHTML = `
+          <div class="features-component bg-gray-50 dark:bg-gray-900 rounded-xl p-6 mb-6 border border-dashed border-faith-purple cursor-move" draggable="true">
+            <div class="flex justify-between items-start mb-4">
+              <h2 class="text-xl font-bold text-gray-900 dark:text-white">Features Grid</h2>
+              <button class="text-red-500 hover:text-red-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+              <input type="text" placeholder="Section title" 
+                     class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-jstar-blue"
+                     value="What You Get">
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
+                  <input type="text" placeholder="Feature title" 
+                         class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 mb-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue"
+                         value="JohnGPT Assistant">
+                  <textarea placeholder="Feature description" rows="2" 
+                            class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">AI-powered creative partner for YouTube, app development, and faith-based content</textarea>
+                </div>
+                
+                <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
+                  <input type="text" placeholder="Feature title" 
+                         class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 mb-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue"
+                         value="Creator Growth Engine">
+                  <textarea placeholder="Feature description" rows="2" 
+                            class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">Complete system for growing your creative impact with proven frameworks</textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (componentType === 'testimonials') {
+        componentHTML = `
+          <div class="testimonials-component bg-gray-50 dark:bg-gray-900 rounded-xl p-6 mb-6 border border-dashed border-growth-green cursor-move" draggable="true">
+            <div class="flex justify-between items-start mb-4">
+              <h2 class="text-xl font-bold text-gray-900 dark:text-white">Testimonials</h2>
+              <button class="text-red-500 hover:text-red-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+              <input type="text" placeholder="Section title" 
+                     class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-jstar-blue"
+                     value="What Creators Are Saying">
+              
+              <div class="space-y-4">
+                <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
+                  <textarea placeholder="Testimonial" rows="2" 
+                            class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 mb-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">John's approach to integrating faith and technology has transformed how I create content. His tools have helped me grow from 0 to 50k subscribers in just 6 months.</textarea>
+                  <div class="flex">
+                    <div class="w-8 h-8 rounded-full bg-jstar-blue flex items-center justify-center text-white mr-2">S</div>
+                    <div>
+                      <input type="text" placeholder="Name" 
+                             class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-jstar-blue mb-1"
+                             value="Sarah Johnson">
+                      <input type="text" placeholder="Title" 
+                             class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-jstar-blue"
+                             value="Content Creator">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <button class="mt-3 text-jstar-blue hover:text-faith-purple font-medium flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Add Testimonial
+              </button>
+            </div>
+          </div>
+        `;
+      }
+      
+      previewContent.insertAdjacentHTML('beforeend', componentHTML);
+    }
+  </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+  <!-- PRD: FR032 (Page Editor) -->
+  <div class="flex">
+    <!-- SIDEBAR -->
+    <div class="w-64 min-h-screen bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 hidden md:block">
+      <div class="p-5 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-jstar-blue to-faith-purple flex items-center justify-center mr-3">
+            <span class="text-white font-bold">J</span>
+          </div>
+          <div>
+            <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Admin • J StaR Films</p>
+          </div>
+        </div>
+      </div>
+      
+      <nav class="mt-5">
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
+          Dashboard
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          User Management
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 bg-jstar-blue/10 dark:bg-jstar-blue/20 border-l-4 border-jstar-blue text-jstar-blue dark:text-white font-medium">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          Content Management
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          </svg>
+          JohnGPT Settings
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v3m-6 5h6" />
+          </svg>
+          Analytics
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          Settings
+        </a>
+      </nav>
+      
+      <div class="absolute bottom-0 w-64 p-5 border-t border-gray-200 dark:border-gray-700">
+        <a href="#" class="flex items-center text-gray-700 dark:text-gray-300 hover:text-jstar-blue">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0 0l-3-3m3 3l3-3" />
+          </svg>
+          Sign Out
+        </a>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="flex-1">
+      <!-- TOP BAR -->
+      <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between px-6 py-4">
+          <div class="md:hidden">
+            <button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+          
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Page Editor</h1>
+          
+          <div class="flex items-center space-x-4">
+            <button id="toggle-preview" onclick="togglePreview()"
+                    class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-lg font-medium flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2v-3m-5.5 0h5.5m-5.5 0a3 3 0 100 6 3 3 0 000-6z" />
+              </svg>
+              Preview Mode
+            </button>
+            
+            <button id="save-btn" onclick="savePage()"
+                    class="px-4 py-2 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium">
+              Save Page
+            </button>
+            
+            <div class="relative">
+              <button class="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+              </button>
+              <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+            </div>
+            
+            <div class="hidden md:flex items-center">
+              <div class="w-8 h-8 rounded-full bg-jstar-blue flex items-center justify-center text-white mr-3">
+                J
+              </div>
+              <div>
+                <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Admin</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE EDITOR CONTENT -->
+      <div class="p-6">
+        <!-- THEME TOGGLE -->
+        <div class="fixed top-4 right-4 z-50">
+          <button onclick="document.documentElement.classList.toggle('dark')" 
+                  class="p-2 rounded-full bg-jstar-blue text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Edit Home Page</h2>
+          <div class="mt-3 sm:mt-0 flex space-x-2">
+            <div class="relative">
+              <button class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-lg font-medium flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                </svg>
+                More
+              </button>
+              <div class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-10">
+                <div class="py-1">
+                  <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">Duplicate Page</a>
+                  <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">Schedule Publish</a>
+                  <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">Page History</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- SUCCESS MESSAGE -->
+        <div id="page-saved" class="hidden fixed bottom-6 right-6 bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg z-50">
+          <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <span>Page saved successfully</span>
+          </div>
+        </div>
+        
+        <!-- PAGE SETTINGS -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 mb-6 border border-gray-200 dark:border-gray-700">
+          <h3 class="text-lg font-bold mb-4 text-gray-900 dark:text-white">Page Settings</h3>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <div class="mb-4">
+                <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Page Title</label>
+                <input type="text" value="J StaR Films - Creative Operating System"
+                       class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+              </div>
+              
+              <div class="mb-4">
+                <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">URL Slug</label>
+                <div class="relative">
+                  <span class="absolute left-3 top-2.5 text-gray-500 dark:text-gray-400">jstarfilms.com/</span>
+                  <input type="text" value=""
+                         class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg pl-24 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue"
+                         placeholder="home">
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <div class="mb-4">
+                <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Template</label>
+                <select class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                  <option>Default Template</option>
+                  <option>Landing Page Template</option>
+                  <option>Blog Template</option>
+                  <option>Product Template</option>
+                </select>
+              </div>
+              
+              <div class="mb-4">
+                <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Page Status</label>
+                <div class="flex space-x-4">
+                  <label class="flex items-center">
+                    <input type="radio" name="status" checked class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300">
+                    <span class="ml-2 text-gray-700 dark:text-gray-300">Published</span>
+                  </label>
+                  <label class="flex items-center">
+                    <input type="radio" name="status" class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300">
+                    <span class="ml-2 text-gray-700 dark:text-gray-300">Draft</span>
+                  </label>
+                  <label class="flex items-center">
+                    <input type="radio" name="status" class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300">
+                    <span class="ml-2 text-gray-700 dark:text-gray-300">Scheduled</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- EDITOR LAYOUT -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <!-- COMPONENT LIBRARY -->
+          <div class="lg:col-span-1">
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700 mb-6">
+              <h3 class="text-lg font-bold mb-4 text-gray-900 dark:text-white">Components</h3>
+              
+              <div class="space-y-2">
+                <button onclick="addComponent('hero')" 
+                        class="w-full p-3 bg-gray-50 dark:bg-gray-900 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 text-left border border-gray-200 dark:border-gray-700 transition">
+                  <div class="flex items-center">
+                    <div class="w-8 h-8 rounded-lg bg-jstar-blue/10 flex items-center justify-center mr-3">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-jstar-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4v12a1 1 0 001 1h14a1 1 0 001-1V4" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="font-medium text-gray-900 dark:text-white">Hero Section</p>
+                      <p class="text-xs text-gray-500 dark:text-gray-400">Main headline and call-to-action</p>
+                    </div>
+                  </div>
+                </button>
+                
+                <button onclick="addComponent('features')" 
+                        class="w-full p-3 bg-gray-50 dark:bg-gray-900 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 text-left border border-gray-200 dark:border-gray-700 transition">
+                  <div class="flex items-center">
+                    <div class="w-8 h-8 rounded-lg bg-faith-purple/10 flex items-center justify-center mr-3">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-faith-purple" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="font-medium text-gray-900 dark:text-white">Features Grid</p>
+                      <p class="text-xs text-gray-500 dark:text-gray-400">Showcase your key features</p>
+                    </div>
+                  </div>
+                </button>
+                
+                <button onclick="addComponent('testimonials')" 
+                        class="w-full p-3 bg-gray-50 dark:bg-gray-900 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 text-left border border-gray-200 dark:border-gray-700 transition">
+                  <div class="flex items-center">
+                    <div class="w-8 h-8 rounded-lg bg-growth-green/10 flex items-center justify-center mr-3">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-growth-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1 1 0 01-1-1v-4H4a2 2 0 01-2-2V6a2 2 0 012-2h2" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="font-medium text-gray-900 dark:text-white">Testimonials</p>
+                      <p class="text-xs text-gray-500 dark:text-gray-400">Customer success stories</p>
+                    </div>
+                  </div>
+                </button>
+                
+                <button class="w-full p-3 bg-gray-50 dark:bg-gray-900 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 text-left border border-gray-200 dark:border-gray-700 transition opacity-50 cursor-not-allowed">
+                  <div class="flex items-center">
+                    <div class="w-8 h-8 rounded-lg bg-yellow-50 flex items-center justify-center mr-3">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="font-medium text-gray-900 dark:text-white">Video Section</p>
+                      <p class="text-xs text-gray-500 dark:text-gray-400">Embedded videos (Tier 2+)</p>
+                    </div>
+                  </div>
+                </button>
+                
+                <button class="w-full p-3 bg-gray-50 dark:bg-gray-900 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 text-left border border-gray-200 dark:border-gray-700 transition opacity-50 cursor-not-allowed">
+                  <div class="flex items-center">
+                    <div class="w-8 h-8 rounded-lg bg-yellow-50 flex items-center justify-center mr-3">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="font-medium text-gray-900 dark:text-white">Pricing Table</p>
+                      <p class="text-xs text-gray-500 dark:text-gray-400">Subscription tiers (Tier 3+)</p>
+                    </div>
+                  </div>
+                </button>
+                
+                <button class="w-full p-3 bg-gray-50 dark:bg-gray-900 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 text-left border border-gray-200 dark:border-gray-700 transition opacity-50 cursor-not-allowed">
+                  <div class="flex items-center">
+                    <div class="w-8 h-8 rounded-lg bg-yellow-50 flex items-center justify-center mr-3">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="font-medium text-gray-900 dark:text-white">CTA Section</p>
+                      <p class="text-xs text-gray-500 dark:text-gray-400">Conversion-focused blocks (Tier 3+)</p>
+                    </div>
+                  </div>
+                </button>
+              </div>
+            </div>
+            
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
+              <h3 class="text-lg font-bold mb-4 text-gray-900 dark:text-white">Page Structure</h3>
+              
+              <div class="space-y-2">
+                <div class="p-2 bg-gray-50 dark:bg-gray-900 rounded border border-dashed border-jstar-blue">
+                  <div class="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-jstar-blue mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span class="text-gray-700 dark:text-gray-300">Hero Section</span>
+                  </div>
+                </div>
+                
+                <div class="p-2 bg-gray-50 dark:bg-gray-900 rounded border border-dashed border-faith-purple">
+                  <div class="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-faith-purple mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span class="text-gray-700 dark:text-gray-300">Features Grid</span>
+                  </div>
+                </div>
+                
+                <div class="p-2 bg-gray-50 dark:bg-gray-900 rounded border border-dashed border-growth-green">
+                  <div class="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-growth-green mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span class="text-gray-700 dark:text-gray-300">Testimonials</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- PAGE PREVIEW -->
+          <div class="lg:col-span-3">
+            <div id="editor-section" class="bg-white dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
+              <div class="p-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Page Editor</span>
+              </div>
+              
+              <div id="preview-content" class="p-6 min-h-[600px]">
+                <div class="text-center py-12 text-gray-500 dark:text-gray-400 border-2 border-dashed rounded-xl">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                  <p class="text-lg">Drag components from the left panel to start building your page</p>
+                </div>
+              </div>
+            </div>
+            
+            <div id="preview-section" class="hidden bg-white dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
+              <div class="p-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Page Preview</span>
+              </div>
+              
+              <div class="p-6 h-[600px] overflow-y-auto">
+                <!-- This would show a realistic preview of the page -->
+                <div class="max-w-4xl mx-auto">
+                  <div class="text-center mb-12">
+                    <h1 class="text-4xl font-bold mb-4 text-gray-900 dark:text-white">Your Creative Operating System</h1>
+                    <p class="text-xl text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
+                      A complete solution for filmmakers, developers, and faith-driven creators to multiply their impact
+                    </p>
+                    <div class="flex justify-center space-x-4">
+                      <button class="px-6 py-3 bg-jstar-blue hover:bg-faith-purple text-white font-bold rounded-lg transition">
+                        Get Started
+                      </button>
+                      <button class="px-6 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white font-bold rounded-lg transition">
+                        Learn More
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div class="mb-12">
+                    <h2 class="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">What You Get</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div class="bg-gray-50 dark:bg-gray-900 p-6 rounded-xl">
+                        <h3 class="text-xl font-bold mb-2 text-gray-900 dark:text-white">JohnGPT Assistant</h3>
+                        <p class="text-gray-600 dark:text-gray-400">
+                          AI-powered creative partner for YouTube, app development, and faith-based content
+                        </p>
+                      </div>
+                      
+                      <div class="bg-gray-50 dark:bg-gray-900 p-6 rounded-xl">
+                        <h3 class="text-xl font-bold mb-2 text-gray-900 dark:text-white">Creator Growth Engine</h3>
+                        <p class="text-gray-600 dark:text-gray-400">
+                          Complete system for growing your creative impact with proven frameworks
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="mb-12">
+                    <h2 class="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">What Creators Are Saying</h2>
+                    
+                    <div class="bg-gray-50 dark:bg-gray-900 p-6 rounded-xl">
+                      <p class="text-gray-600 dark:text-gray-400 italic mb-4">
+                        "John's approach to integrating faith and technology has transformed how I create content. His tools have helped me grow from 0 to 50k subscribers in just 6 months."
+                      </p>
+                      <div class="flex items-center">
+                        <div class="w-10 h-10 rounded-full bg-jstar-blue flex items-center justify-center text-white mr-3">S</div>
+                        <div>
+                          <p class="font-medium text-gray-900 dark:text-white">Sarah Johnson</p>
+                          <p class="text-gray-500 dark:text-gray-400">Content Creator</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

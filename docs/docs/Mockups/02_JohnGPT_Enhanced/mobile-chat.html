@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JohnGPT Mobile | AI-Powered Creator Assistant</title>
+    <meta name="description" content="Mobile-optimized JohnGPT interface for content creation on the go.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'obsidian-bg': '#202020',
+                        'obsidian-sidebar': '#161618',
+                        'obsidian-text': '#dcddde',
+                        'obsidian-text-muted': '#888888',
+                        'obsidian-accent': '#7c3aed',
+                        'obsidian-link': '#8b5cf6'
+                    },
+                    fontFamily: {
+                        'mono': ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --growth-green: #059669;
+            --obsidian-bg: #202020;
+            --obsidian-sidebar: #161618;
+            --obsidian-text: #dcddde;
+            --obsidian-text-muted: #888888;
+            --obsidian-accent: #7c3aed;
+            --obsidian-link: #8b5cf6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --transition-normal: 300ms;
+        }
+        
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--obsidian-bg);
+            color: var(--obsidian-text);
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .mobile-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            max-width: 100%;
+        }
+        
+        .mobile-header {
+            background: var(--obsidian-sidebar);
+            border-bottom: 1px solid #333;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .message-bubble {
+            max-width: 85%;
+            padding: 1rem;
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+        
+        .user-message {
+            background: rgba(37, 99, 235, 0.2);
+            border: 1px solid rgba(37, 99, 235, 0.3);
+            margin-left: auto;
+            border-bottom-right-radius: 0.25rem;
+        }
+        
+        .ai-message {
+            background: rgba(124, 58, 237, 0.1);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            margin-right: auto;
+            border-bottom-left-radius: 0.25rem;
+        }
+        
+        .chat-input-container {
+            padding: 1rem;
+            background: var(--obsidian-sidebar);
+            border-top: 1px solid #333;
+        }
+        
+        .chat-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--obsidian-text);
+            resize: none;
+            min-height: 50px;
+            max-height: 150px;
+        }
+        
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--obsidian-link);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .action-button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            color: var(--obsidian-text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .action-button:hover {
+            background: rgba(124, 58, 235, 0.2);
+            border-color: var(--obsidian-link);
+        }
+        
+        .send-button {
+            background: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        
+        .send-button:hover {
+            transform: scale(1.05);
+        }
+        
+        .send-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .persona-selector {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            color: var(--obsidian-text);
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+        
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            background: var(--obsidian-sidebar);
+            border-top: 1px solid #333;
+            padding: 0.75rem 0;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--obsidian-text-muted);
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+        
+        .nav-item.active {
+            color: var(--obsidian-link);
+        }
+        
+        .nav-item svg {
+            width: 1.5rem;
+            height: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .conversation-history {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--obsidian-bg);
+            z-index: 50;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .conversation-history.open {
+            transform: translateX(0);
+        }
+        
+        .history-header {
+            background: var(--obsidian-sidebar);
+            border-bottom: 1px solid #333;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .history-list {
+            padding: 1rem;
+            overflow-y: auto;
+            height: calc(100% - 4rem);
+        }
+        
+        .history-item {
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            border: 1px solid #333;
+        }
+        
+        .history-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .history-item.active {
+            background: rgba(124, 58, 237, 0.2);
+            border-color: var(--obsidian-link);
+        }
+        
+        /* Responsive adjustments for mobile */
+        @media (max-width: 480px) {
+            .message-bubble {
+                max-width: 90%;
+                padding: 0.75rem;
+            }
+            
+            .chat-input {
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 transition-colors duration-300">
+    <!-- Mobile Chat Interface -->
+    <div class="mobile-container">
+        <!-- Header -->
+        <div class="mobile-header">
+            <div class="flex items-center">
+                <button id="menu-toggle" class="mr-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+                <div>
+                    <h1 class="font-bold">JohnGPT</h1>
+                    <p class="text-xs text-gray-400">Creative Director</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Chat Messages -->
+        <div class="chat-messages" id="chat-messages">
+            <!-- AI Message -->
+            <div class="ai-message message-bubble">
+                <div class="font-bold text-sm mb-1">JohnGPT (Creative Director)</div>
+                <div>Hello! I'm JohnGPT, your AI-powered creator assistant. How can I help you with your content today?</div>
+            </div>
+            
+            <!-- User Message -->
+            <div class="user-message message-bubble">
+                <div class="font-bold text-sm mb-1">You</div>
+                <div>I'm working on a YouTube video script. Can you help me structure it?</div>
+            </div>
+            
+            <!-- AI Message -->
+            <div class="ai-message message-bubble">
+                <div class="font-bold text-sm mb-1">JohnGPT (Creative Director)</div>
+                <div>Absolutely! Here's a proven framework for YouTube video scripts:</div>
+                
+                <div class="mt-2 text-sm">
+                    <div class="font-semibold text-faith-purple mt-2">1. Opening Hook (0:00-0:15)</div>
+                    <p class="mt-1">Start with a bold statement or surprising fact related to your viewer's main pain point.</p>
+                    
+                    <div class="font-semibold text-faith-purple mt-2">2. Problem Validation (0:15-0:45)</div>
+                    <p class="mt-1">Acknowledge and empathize with your audience's struggles.</p>
+                    
+                    <div class="font-semibold text-faith-purple mt-2">3. Solution Preview (0:45-1:15)</div>
+                    <p class="mt-1">Tease the value you'll provide in this video.</p>
+                </div>
+            </div>
+            
+            <!-- User Message -->
+            <div class="user-message message-bubble">
+                <div class="font-bold text-sm mb-1">You</div>
+                <div>That's helpful! Can you give me examples for a tech tutorial?</div>
+            </div>
+            
+            <!-- AI Message -->
+            <div class="ai-message message-bubble">
+                <div class="font-bold text-sm mb-1">JohnGPT (Creative Director)</div>
+                <div>Here are tech tutorial-specific examples:</div>
+                
+                <div class="mt-2 text-sm">
+                    <div class="font-semibold text-faith-purple mt-2">Hook Example:</div>
+                    <p class="mt-1">"Did you know 73% of developers waste 5+ hours weekly on debugging? I'll show you how to cut that in half with this one debugging technique."</p>
+                    
+                    <div class="font-semibold text-faith-purple mt-2">Problem Validation:</div>
+                    <p class="mt-1">"We've all been there - you're deep in code, and suddenly everything breaks. The console is full of red errors, and you have no idea where to start."</p>
+                    
+                    <div class="font-semibold text-faith-purple mt-2">Solution Preview:</div>
+                    <p class="mt-1">"In the next 8 minutes, I'll walk you through my systematic debugging approach that has saved me countless hours."</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Input Area -->
+        <div class="chat-input-container">
+            <select class="persona-selector">
+                <option>🗣️ Creative Director</option>
+                <option>⚙️ Systems Mentor</option>
+                <option>🙏 Faith Guide</option>
+            </select>
+            
+            <div class="flex">
+                <textarea class="chat-input" placeholder="Message JohnGPT..." id="chat-input"></textarea>
+                <button class="send-button ml-2 self-end" id="send-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="action-button flex-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                    </svg>
+                    Voice
+                </button>
+                <button class="action-button flex-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Image
+                </button>
+                <button class="action-button flex-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Save
+                </button>
+            </div>
+        </div>
+        
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item active">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                </svg>
+                <span>Chat</span>
+            </div>
+            <div class="nav-item">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+                <span>History</span>
+            </div>
+            <div class="nav-item">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                <span>New</span>
+            </div>
+            <div class="nav-item">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span>Settings</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Conversation History Sidebar -->
+    <div class="conversation-history" id="conversation-history">
+        <div class="history-header">
+            <h2 class="font-bold">Conversations</h2>
+            <button id="close-history">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <div class="history-list">
+            <div class="history-item active">
+                <div class="font-medium">YouTube Script Framework</div>
+                <div class="text-xs text-gray-400 mt-1">Today • 12 messages</div>
+            </div>
+            <div class="history-item">
+                <div class="font-medium">Wedding Pricing Strategy</div>
+                <div class="text-xs text-gray-400 mt-1">Jun 12 • 8 messages</div>
+            </div>
+            <div class="history-item">
+                <div class="font-medium">App Feature Prioritization</div>
+                <div class="text-xs text-gray-400 mt-1">Jun 8 • 15 messages</div>
+            </div>
+            <div class="history-item">
+                <div class="font-medium">Content Calendar Planning</div>
+                <div class="text-xs text-gray-400 mt-1">Jun 5 • 22 messages</div>
+            </div>
+            <div class="history-item">
+                <div class="font-medium">Brand Voice Development</div>
+                <div class="text-xs text-gray-400 mt-1">Jun 1 • 6 messages</div>
+            </div>
+            <div class="history-item">
+                <div class="font-medium">Thumbnail Design Principles</div>
+                <div class="text-xs text-gray-400 mt-1">May 28 • 9 messages</div>
+            </div>
+            <div class="history-item">
+                <div class="font-medium">Client Onboarding Process</div>
+                <div class="text-xs text-gray-400 mt-1">May 25 • 14 messages</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme management
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Auto-resize textarea
+        const textarea = document.getElementById('chat-input');
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+        
+        // Menu toggle functionality
+        const menuToggle = document.getElementById('menu-toggle');
+        const conversationHistory = document.getElementById('conversation-history');
+        const closeHistory = document.getElementById('close-history');
+        
+        menuToggle.addEventListener('click', function() {
+            conversationHistory.classList.add('open');
+        });
+        
+        closeHistory.addEventListener('click', function() {
+            conversationHistory.classList.remove('open');
+        });
+        
+        // Conversation item selection
+        document.querySelectorAll('.history-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.history-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                conversationHistory.classList.remove('open');
+            });
+        });
+        
+        // Send button functionality
+        const sendButton = document.getElementById('send-button');
+        sendButton.addEventListener('click', function() {
+            const message = textarea.value.trim();
+            if (message) {
+                // Create new message bubble
+                const messageBubble = document.createElement('div');
+                messageBubble.className = 'user-message message-bubble';
+                messageBubble.innerHTML = `
+                    <div class="font-bold text-sm mb-1">You</div>
+                    <div>${message}</div>
+                `;
+                
+                // Add to chat
+                document.getElementById('chat-messages').appendChild(messageBubble);
+                
+                // Clear input
+                textarea.value = '';
+                textarea.style.height = 'auto';
+                
+                // Scroll to bottom
+                document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+                
+                // Simulate AI response after a delay
+                setTimeout(() => {
+                    const aiResponse = document.createElement('div');
+                    aiResponse.className = 'ai-message message-bubble';
+                    aiResponse.innerHTML = `
+                        <div class="font-bold text-sm mb-1">JohnGPT (Creative Director)</div>
+                        <div>Thanks for your message! I'm thinking about how to best help you with "${message}". Let me provide some insights...</div>
+                    `;
+                    document.getElementById('chat-messages').appendChild(aiResponse);
+                    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+                }, 1000);
+            }
+        });
+        
+        // Allow sending with Enter key (but not Shift+Enter for new lines)
+        textarea.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendButton.click();
+            }
+        });
+    </script>
+</body>
+</html>

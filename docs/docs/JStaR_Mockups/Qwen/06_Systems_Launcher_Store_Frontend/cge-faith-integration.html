@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Faith Integration - Creator Growth Engine</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'jstar-blue': '#2563EB',
+            'faith-purple': '#8B5CF6',
+            'growth-green': '#059669',
+            'warning-yellow': '#F59E0B'
+          }
+        }
+      }
+    }
+    
+    function showSection(sectionId) {
+      // Hide all sections
+      document.querySelectorAll('.content-section').forEach(section => {
+        section.classList.add('hidden');
+      });
+      
+      // Show selected section
+      document.getElementById(sectionId).classList.remove('hidden');
+      
+      // Update active button
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('bg-jstar-blue', 'text-white');
+        btn.classList.add('bg-gray-200', 'text-gray-800', 'dark:bg-gray-700', 'dark:text-gray-300');
+      });
+      
+      event.target.classList.remove('bg-gray-200', 'text-gray-800', 'dark:bg-gray-700', 'dark:text-gray-300');
+      event.target.classList.add('bg-jstar-blue', 'text-white');
+    }
+    
+    function addPrayerPoint() {
+      const prayerPoints = document.getElementById('prayer-points');
+      const pointNumber = prayerPoints.children.length + 1;
+      
+      const newPoint = document.createElement('div');
+      newPoint.className = 'prayer-point bg-gray-50 dark:bg-gray-900 p-3 rounded-lg mb-2 flex items-start';
+      newPoint.innerHTML = `
+        <div class="w-6 h-6 rounded-full bg-jstar-blue text-white flex items-center justify-center mr-3 mt-1">
+          ${pointNumber}
+        </div>
+        <div class="flex-1">
+          <input type="text" placeholder="Enter prayer point..." 
+                 class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+          <div class="mt-2 flex justify-end">
+            <button onclick="removePrayerPoint(this)" 
+                    class="text-red-500 hover:text-red-600 text-sm">
+              Remove
+            </button>
+          </div>
+        </div>
+      `;
+      
+      prayerPoints.appendChild(newPoint);
+    }
+    
+    function removePrayerPoint(button) {
+      const point = button.closest('.prayer-point');
+      point.remove();
+      
+      // Renumber remaining points
+      document.querySelectorAll('.prayer-point').forEach((point, index) => {
+        const number = point.querySelector('.w-6');
+        number.textContent = index + 1;
+      });
+    }
+    
+    function saveFramework() {
+      const saveBtn = document.getElementById('save-btn');
+      const originalText = saveBtn.innerHTML;
+      saveBtn.innerHTML = '<svg class="animate-spin h-5 w-5 mr-2 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Saving...';
+      
+      setTimeout(() => {
+        saveBtn.innerHTML = originalText;
+        const successMsg = document.getElementById('framework-saved');
+        successMsg.classList.remove('hidden');
+        
+        setTimeout(() => {
+          successMsg.classList.add('hidden');
+        }, 3000);
+      }, 1500);
+    }
+    
+    function generateFramework() {
+      // Clear existing framework
+      document.getElementById('framework-builder').innerHTML = `
+        <div class="mb-6">
+          <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Framework Title</label>
+          <input type="text" value="Faith-Based Content Framework" 
+                 class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+        </div>
+        
+        <div class="mb-6">
+          <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Scripture Reference</label>
+          <div class="flex">
+            <input type="text" value="Proverbs 3:5-6" 
+                   class="flex-1 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+            <button class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-r-lg px-4 py-2">
+              Lookup
+            </button>
+          </div>
+        </div>
+        
+        <div class="mb-6">
+          <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Content Purpose</label>
+          <textarea rows="2" 
+                    class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">To create content that honors God and serves my audience with integrity</textarea>
+        </div>
+        
+        <div class="mb-6">
+          <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Prayer Points</label>
+          <div id="prayer-points">
+            <div class="prayer-point bg-gray-50 dark:bg-gray-900 p-3 rounded-lg mb-2 flex items-start">
+              <div class="w-6 h-6 rounded-full bg-jstar-blue text-white flex items-center justify-center mr-3 mt-1">
+                1
+              </div>
+              <div class="flex-1">
+                <input type="text" value="Guide me to create content that honors You" 
+                       class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                <div class="mt-2 flex justify-end">
+                  <button onclick="removePrayerPoint(this)" 
+                          class="text-red-500 hover:text-red-600 text-sm">
+                    Remove
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="prayer-point bg-gray-50 dark:bg-gray-900 p-3 rounded-lg mb-2 flex items-start">
+              <div class="w-6 h-6 rounded-full bg-jstar-blue text-white flex items-center justify-center mr-3 mt-1">
+                2
+              </div>
+              <div class="flex-1">
+                <input type="text" value="Help me serve my audience with dignity" 
+                       class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                <div class="mt-2 flex justify-end">
+                  <button onclick="removePrayerPoint(this)" 
+                          class="text-red-500 hover:text-red-600 text-sm">
+                    Remove
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="prayer-point bg-gray-50 dark:bg-gray-900 p-3 rounded-lg mb-2 flex items-start">
+              <div class="w-6 h-6 rounded-full bg-jstar-blue text-white flex items-center justify-center mr-3 mt-1">
+                3
+              </div>
+              <div class="flex-1">
+                <input type="text" value="Give me wisdom to integrate technology and faith" 
+                       class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                <div class="mt-2 flex justify-end">
+                  <button onclick="removePrayerPoint(this)" 
+                          class="text-red-500 hover:text-red-600 text-sm">
+                    Remove
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button onclick="addPrayerPoint()" 
+                  class="mt-2 flex items-center text-jstar-blue hover:text-faith-purple">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Add Prayer Point
+          </button>
+        </div>
+        
+        <div class="mb-6">
+          <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Content Guidelines</label>
+          <div class="space-y-2">
+            <div class="flex items-start">
+              <input type="checkbox" checked class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 rounded mr-2 mt-1">
+              <p>Content must align with biblical principles</p>
+            </div>
+            <div class="flex items-start">
+              <input type="checkbox" checked class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 rounded mr-2 mt-1">
+              <p>Technology should enhance, not replace, human creativity</p>
+            </div>
+            <div class="flex items-start">
+              <input type="checkbox" class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 rounded mr-2 mt-1">
+              <p>Include clear calls to action that honor God</p>
+            </div>
+            <div class="flex items-start">
+              <input type="checkbox" class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 rounded mr-2 mt-1">
+              <p>Measure success by impact, not just metrics</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mb-6">
+          <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Implementation Plan</label>
+          <textarea rows="4" 
+                    class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">1. Start each content session with prayer\n2. Review scripture before outlining content\n3. Evaluate content against biblical principles\n4. Seek accountability from faith community\n5. Measure impact beyond metrics</textarea>
+        </div>
+      `;
+    }
+    
+    function generatePrayer() {
+      const prayerContainer = document.getElementById('prayer-container');
+      prayerContainer.innerHTML = `
+        <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-6">
+          <h4 class="font-bold text-gray-900 dark:text-white mb-3">AI-Generated Prayer</h4>
+          <p class="text-gray-700 dark:text-gray-300 mb-4">
+            "Heavenly Father, as I prepare to create content today, I ask for Your guidance and wisdom. Help me to honor You in every word I write and every frame I capture. May my work serve my audience with dignity and reflect Your truth. Give me creativity that flows from my relationship with You, not just technical skill. Help me to use technology as a tool for Your kingdom, not as an idol. May my content multiply impact while keeping You at the center. In Jesus' name, Amen."
+          </p>
+          
+          <div class="flex space-x-2">
+            <button class="px-3 py-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded text-sm">
+              Copy Prayer
+            </button>
+            <button class="px-3 py-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded text-sm">
+              Edit Prayer
+            </button>
+            <button class="px-3 py-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded text-sm">
+              Save to Vault
+            </button>
+          </div>
+        </div>
+      `;
+    }
+  </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+  <!-- PRD: FR042 (Faith Integration Framework) + FR043 (Prayer Integration) -->
+  <div class="flex">
+    <!-- SIDEBAR -->
+    <div class="w-64 min-h-screen bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 hidden md:block">
+      <div class="p-5 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-jstar-blue to-faith-purple flex items-center justify-center mr-3">
+            <span class="text-white font-bold">J</span>
+          </div>
+          <div>
+            <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Admin • J StaR Films</p>
+          </div>
+        </div>
+      </div>
+      
+      <nav class="mt-5">
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
+          Dashboard
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          User Management
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          Content Management
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          </svg>
+          JohnGPT Settings
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v3m-6 5h6" />
+          </svg>
+          Analytics
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 bg-jstar-blue/10 dark:bg-jstar-blue/20 border-l-4 border-jstar-blue text-jstar-blue dark:text-white font-medium">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          Settings
+        </a>
+      </nav>
+      
+      <div class="absolute bottom-0 w-64 p-5 border-t border-gray-200 dark:border-gray-700">
+        <a href="#" class="flex items-center text-gray-700 dark:text-gray-300 hover:text-jstar-blue">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0 0l-3-3m3 3l3-3" />
+          </svg>
+          Sign Out
+        </a>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="flex-1">
+      <!-- TOP BAR -->
+      <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between px-6 py-4">
+          <div class="md:hidden">
+            <button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+          
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Faith Integration Framework</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Part of the Creator Growth Engine Suite (Tier 3)</p>
+          </div>
+          
+          <div class="flex items-center space-x-4">
+            <div class="relative">
+              <button class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-lg font-medium flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                </svg>
+                More Tools
+              </button>
+              <div class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-10">
+                <div class="py-1">
+                  <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">YouTube Virality OS</a>
+                  <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">Client Magnet System</a>
+                  <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">Systems Launcher Toolkit</a>
+                </div>
+              </div>
+            </div>
+            
+            <div class="relative">
+              <button class="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+              </button>
+              <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+            </div>
+            
+            <div class="hidden md:flex items-center">
+              <div class="w-8 h-8 rounded-full bg-jstar-blue flex items-center justify-center text-white mr-3">
+                J
+              </div>
+              <div>
+                <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Admin</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAITH INTEGRATION CONTENT -->
+      <div class="p-6">
+        <!-- THEME TOGGLE -->
+        <div class="fixed top-4 right-4 z-50">
+          <button onclick="document.documentElement.classList.toggle('dark')" 
+                  class="p-2 rounded-full bg-jstar-blue text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between">
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Faith Integration Framework</h2>
+            <p class="text-gray-600 dark:text-gray-400 mt-1">
+              <!-- PRD: Faith Integration Description -->Build systems that honor God while creating impactful content
+            </p>
+          </div>
+          <div class="mt-3 sm:mt-0 flex space-x-2">
+            <button class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-lg font-medium">
+              View Documentation
+            </button>
+            <button class="px-4 py-2 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium">
+              Connect Community
+            </button>
+          </div>
+        </div>
+        
+        <!-- NAVIGATION TABS -->
+        <div class="border-b border-gray-200 dark:border-gray-700 mb-6">
+          <nav class="-mb-px flex space-x-8">
+            <a href="#" onclick="showSection('framework-builder')" class="nav-btn border-jstar-blue text-jstar-blue whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm">
+              Framework Builder
+            </a>
+            <a href="#" onclick="showSection('prayer-integration')" class="nav-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300 whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm">
+              Prayer Integration
+            </a>
+            <a href="#" onclick="showSection('scripture-library')" class="nav-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300 whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm">
+              Scripture Library
+            </a>
+            <a href="#" onclick="showSection('community')" class="nav-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300 whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm">
+              Community
+            </a>
+          </nav>
+        </div>
+        
+        <!-- FRAMEWORK BUILDER SECTION -->
+        <div id="framework-builder" class="content-section">
+          <div class="bg-white dark:bg-gray-800 rounded-xl p-6 mb-8 border border-gray-200 dark:border-gray-700">
+            <div class="flex justify-between items-start mb-6">
+              <div>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Faith-Based Content Framework Builder</h3>
+                <p class="text-gray-600 dark:text-gray-400">Create content frameworks that honor God and serve your audience</p>
+              </div>
+              <div class="flex space-x-2">
+                <button onclick="generateFramework()" 
+                        class="px-3 py-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded text-sm">
+                  Generate with JohnGPT
+                </button>
+                <button id="save-btn" onclick="saveFramework()"
+                        class="px-3 py-1 bg-jstar-blue hover:bg-faith-purple text-white rounded text-sm">
+                  Save Framework
+                </button>
+              </div>
+            </div>
+            
+            <!-- FRAMEWORK BUILDER -->
+            <div id="framework-builder">
+              <div class="mb-6">
+                <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Framework Title</label>
+                <input type="text" value="Faith-Based Content Framework" 
+                       class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+              </div>
+              
+              <div class="mb-6">
+                <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Scripture Reference</label>
+                <div class="flex">
+                  <input type="text" value="Proverbs 3:5-6" 
+                         class="flex-1 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                  <button class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-r-lg px-4 py-2">
+                    Lookup
+                  </button>
+                </div>
+              </div>
+              
+              <div class="mb-6">
+                <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Content Purpose</label>
+                <textarea rows="2" 
+                          class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">To create content that honors God and serves my audience with integrity</textarea>
+              </div>
+              
+              <div class="mb-6">
+                <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Prayer Points</label>
+                <div id="prayer-points">
+                  <div class="prayer-point bg-gray-50 dark:bg-gray-900 p-3 rounded-lg mb-2 flex items-start">
+                    <div class="w-6 h-6 rounded-full bg-jstar-blue text-white flex items-center justify-center mr-3 mt-1">
+                      1
+                    </div>
+                    <div class="flex-1">
+                      <input type="text" value="Guide me to create content that honors You" 
+                             class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                      <div class="mt-2 flex justify-end">
+                        <button onclick="removePrayerPoint(this)" 
+                                class="text-red-500 hover:text-red-600 text-sm">
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="prayer-point bg-gray-50 dark:bg-gray-900 p-3 rounded-lg mb-2 flex items-start">
+                    <div class="w-6 h-6 rounded-full bg-jstar-blue text-white flex items-center justify-center mr-3 mt-1">
+                      2
+                    </div>
+                    <div class="flex-1">
+                      <input type="text" value="Help me serve my audience with dignity" 
+                             class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                      <div class="mt-2 flex justify-end">
+                        <button onclick="removePrayerPoint(this)" 
+                                class="text-red-500 hover:text-red-600 text-sm">
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="prayer-point bg-gray-50 dark:bg-gray-900 p-3 rounded-lg mb-2 flex items-start">
+                    <div class="w-6 h-6 rounded-full bg-jstar-blue text-white flex items-center justify-center mr-3 mt-1">
+                      3
+                    </div>
+                    <div class="flex-1">
+                      <input type="text" value="Give me wisdom to integrate technology and faith" 
+                             class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                      <div class="mt-2 flex justify-end">
+                        <button onclick="removePrayerPoint(this)" 
+                                class="text-red-500 hover:text-red-600 text-sm">
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <button onclick="addPrayerPoint()" 
+                        class="mt-2 flex items-center text-jstar-blue hover:text-faith-purple">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  Add Prayer Point
+                </button>
+              </div>
+              
+              <div class="mb-6">
+                <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Content Guidelines</label>
+                <div class="space-y-2">
+                  <div class="flex items-start">
+                    <input type="checkbox" checked class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 rounded mr-2 mt-1">
+                    <p>Content must align with biblical principles</p>
+                  </div>
+                  <div class="flex items-start">
+                    <input type="checkbox" checked class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 rounded mr-2 mt-1">
+                    <p>Technology should enhance, not replace, human creativity</p>
+                  </div>
+                  <div class="flex items-start">
+                    <input type="checkbox" class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 rounded mr-2 mt-1">
+                    <p>Include clear calls to action that honor God</p>
+                  </div>
+                  <div class="flex items-start">
+                    <input type="checkbox" class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 rounded mr-2 mt-1">
+                    <p>Measure success by impact, not just metrics</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="mb-6">
+                <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Implementation Plan</label>
+                <textarea rows="4" 
+                          class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">1. Start each content session with prayer\n2. Review scripture before outlining content\n3. Evaluate content against biblical principles\n4. Seek accountability from faith community\n5. Measure impact beyond metrics</textarea>
+              </div>
+            </div>
+            
+            <!-- TIER 3 FEATURES -->
+            <div class="bg-gray-50 dark:bg-gray-900 rounded-xl p-6 mt-6">
+              <div class="flex flex-col md:flex-row md:items-start">
+                <div class="md:mr-4 mb-3 md:mb-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="font-bold text-gray-900 dark:text-white mb-1">Tier 3 Exclusive Features</h3>
+                  <p class="text-gray-700 dark:text-gray-300 mb-3">
+                    <!-- PRD: Tier 3 Features -->These advanced faith integration tools are available to Tier 3 subscribers:
+                  </p>
+                  <ul class="list-disc pl-5 space-y-1 text-gray-700 dark:text-gray-300 mb-4">
+                    <li>Customizable faith-based content frameworks (FR042)</li>
+                    <li>Prayer integration with JohnGPT-powered prayer generation (FR043)</li>
+                    <li>Scripture library with topical organization</li>
+                    <li>Community accountability groups for faith-based creators</li>
+                    <li>Integration with content creation and client acquisition systems</li>
+                  </ul>
+                  <button class="bg-gradient-to-r from-jstar-blue to-faith-purple text-white font-medium py-2 px-4 rounded-full">
+                    Upgrade to Tier 3 for Full Access
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- FRAMEWORK EXAMPLES -->
+          <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+            <h3 class="text-xl font-bold mb-6 text-gray-900 dark:text-white">Framework Examples</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- EXAMPLE 1 -->
+              <div class="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center mb-3">
+                  <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-jstar-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <h4 class="font-bold text-gray-900 dark:text-white">Weekly Content Framework</h4>
+                </div>
+                <ul class="list-disc pl-5 space-y-1 text-gray-700 dark:text-gray-300 mb-4">
+                  <li>Scripture: Psalm 37:4-5</li>
+                  <li>Prayer focus: Creativity that honors God</li>
+                  <li>Content guidelines: Serve audience with dignity</li>
+                  <li>Implementation: Start each day with prayer</li>
+                </ul>
+                <button onclick="launchTemplate('template-1')" 
+                        class="w-full px-3 py-1 bg-jstar-blue hover:bg-faith-purple text-white rounded text-sm">
+                  Use This Framework
+                </button>
+              </div>
+              
+              <!-- EXAMPLE 2 -->
+              <div class="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center mb-3">
+                  <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mr-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-faith-purple" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                  </div>
+                  <h4 class="font-bold text-gray-900 dark:text-white">Client Onboarding Framework</h4>
+                </div>
+                <ul class="list-disc pl-5 space-y-1 text-gray-700 dark:text-gray-300 mb-4">
+                  <li>Scripture: Colossians 3:23-24</li>
+                  <li>Prayer focus: Serve clients with excellence</li>
+                  <li>Content guidelines: Honor God in business</li>
+                  <li>Implementation: Weekly accountability check-ins</li>
+                </ul>
+                <button onclick="launchTemplate('template-2')" 
+                        class="w-full px-3 py-1 bg-jstar-blue hover:bg-faith-purple text-white rounded text-sm">
+                  Use This Framework
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- PRAYER INTEGRATION SECTION -->
+        <div id="prayer-integration" class="content-section hidden">
+          <div class="bg-white dark:bg-gray-800 rounded-xl p-6 mb-8 border border-gray-200 dark:border-gray-700">
+            <div class="flex justify-between items-start mb-6">
+              <div>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Prayer Integration Tools</h3>
+                <p class="text-gray-600 dark:text-gray-400">Integrate prayer into your creative workflow</p>
+              </div>
+              <div class="flex space-x-2">
+                <button onclick="generatePrayer()"
+                        class="px-3 py-1 bg-jstar-blue hover:bg-faith-purple text-white rounded text-sm">
+                  Generate Prayer
+                </button>
+                <button class="px-3 py-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded text-sm">
+                  Save Prayer
+                </button>
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <!-- PRAYER GENERATOR -->
+              <div>
+                <h4 class="font-medium mb-3 text-gray-900 dark:text-white">Prayer Generator</h4>
+                
+                <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 mb-6">
+                  <div class="mb-4">
+                    <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Content Type</label>
+                    <select class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                      <option>YouTube Video</option>
+                      <option>Blog Post</option>
+                      <option>Social Media</option>
+                      <option>Client Project</option>
+                    </select>
+                  </div>
+                  
+                  <div class="mb-4">
+                    <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Topic/Focus</label>
+                    <input type="text" value="AI and Faith Integration" 
+                           class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                  </div>
+                  
+                  <div class="mb-4">
+                    <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Specific Request</label>
+                    <textarea rows="3" 
+                              class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">Help me create content that shows how AI and faith can work together in harmony</textarea>
+                  </div>
+                  
+                  <button onclick="generatePrayer()"
+                          class="w-full px-4 py-2 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium">
+                    Generate Prayer
+                  </button>
+                </div>
+                
+                <!-- PRAYER VAULT -->
+                <h4 class="font-medium mb-3 text-gray-900 dark:text-white">Prayer Vault</h4>
+                
+                <div class="space-y-3">
+                  <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-start mb-2">
+                      <h5 class="font-medium text-gray-900 dark:text-white">Content Creation Prayer</h5>
+                      <span class="text-xs text-gray-500 dark:text-gray-400">2 days ago</span>
+                    </div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
+                      "Heavenly Father, as I prepare to create content today, I ask for Your guidance and wisdom. Help me to honor You in every word I write and every frame I capture..."
+                    </p>
+                    <div class="flex space-x-2">
+                      <button class="text-jstar-blue hover:text-faith-purple text-sm">Use</button>
+                      <button class="text-jstar-blue hover:text-faith-purple text-sm">Edit</button>
+                      <button class="text-jstar-blue hover:text-faith-purple text-sm">Delete</button>
+                    </div>
+                  </div>
+                  
+                  <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-start mb-2">
+                      <h5 class="font-medium text-gray-900 dark:text-white">Client Project Prayer</h5>
+                      <span class="text-xs text-gray-500 dark:text-gray-400">1 week ago</span>
+                    </div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
+                      "Lord, as I work on this client project, help me to serve with excellence and integrity. May my work reflect Your character and bring glory to Your name..."
+                    </p>
+                    <div class="flex space-x-2">
+                      <button class="text-jstar-blue hover:text-faith-purple text-sm">Use</button>
+                      <button class="text-jstar-blue hover:text-faith-purple text-sm">Edit</button>
+                      <button class="text-jstar-blue hover:text-faith-purple text-sm">Delete</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- PRAYER PREVIEW -->
+              <div>
+                <h4 class="font-medium mb-3 text-gray-900 dark:text-white">Prayer Preview</h4>
+                
+                <div id="prayer-container" class="bg-gray-50 dark:bg-gray-900 rounded-lg p-6">
+                  <p class="text-gray-600 dark:text-gray-400">
+                    Generate a prayer using the form on the left, or select one from your prayer vault.
+                  </p>
+                </div>
+                
+                <!-- PRAYER SCHEDULER -->
+                <div class="mt-6 bg-gray-50 dark:bg-gray-900 rounded-lg p-6">
+                  <h4 class="font-medium mb-3 text-gray-900 dark:text-white">Prayer Scheduler</h4>
+                  
+                  <div class="grid grid-cols-7 gap-2 mb-4">
+                    <div class="text-center py-2 rounded bg-jstar-blue text-white font-medium">M</div>
+                    <div class="text-center py-2 rounded bg-jstar-blue text-white font-medium">T</div>
+                    <div class="text-center py-2 rounded bg-jstar-blue text-white font-medium">W</div>
+                    <div class="text-center py-2 rounded bg-jstar-blue text-white font-medium">T</div>
+                    <div class="text-center py-2 rounded bg-jstar-blue text-white font-medium">F</div>
+                    <div class="text-center py-2 rounded bg-gray-200 dark:bg-gray-800 font-medium">S</div>
+                    <div class="text-center py-2 rounded bg-gray-200 dark:bg-gray-800 font-medium">S</div>
+                  </div>
+                  
+                  <div class="mb-4">
+                    <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Time of Day</label>
+                    <select class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                      <option>Morning (7-9 AM)</option>
+                      <option>Midday (12-1 PM)</option>
+                      <option>Evening (6-8 PM)</option>
+                      <option>Custom Time</option>
+                    </select>
+                  </div>
+                  
+                  <div class="mb-4">
+                    <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Prayer Type</label>
+                    <select class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                      <option>Content Creation Prayer</option>
+                      <option>Client Project Prayer</option>
+                      <option>General Guidance Prayer</option>
+                      <option>Custom Prayer</option>
+                    </select>
+                  </div>
+                  
+                  <button class="w-full px-4 py-2 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium">
+                    Schedule Prayer Reminder
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- TIER 3 FEATURES -->
+          <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+            <div class="flex flex-col md:flex-row md:items-start">
+              <div class="md:mr-4 mb-3 md:mb-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <h3 class="font-bold text-gray-900 dark:text-white mb-1">Tier 3 Exclusive Features</h3>
+                <p class="text-gray-700 dark:text-gray-300 mb-3">
+                  <!-- PRD: Tier 3 Features -->These advanced prayer integration tools are available to Tier 3 subscribers:
+                </p>
+                <ul class="list-disc pl-5 space-y-1 text-gray-700 dark:text-gray-300 mb-4">
+                  <li>JohnGPT-powered prayer generation for content creation (FR043)</li>
+                  <li>Customizable prayer scheduler with reminders</li>
+                  <li>Prayer vault for storing and reusing prayers</li>
+                  <li>Integration with content calendar and workflow systems</li>
+                  <li>Community prayer groups for accountability</li>
+                </ul>
+                <button class="bg-gradient-to-r from-jstar-blue to-faith-purple text-white font-medium py-2 px-4 rounded-full">
+                  Upgrade to Tier 3 for Full Access
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- SCRIPTURE LIBRARY SECTION (HIDDEN BY DEFAULT) -->
+        <div id="scripture-library" class="content-section hidden">
+          <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+            <div class="flex justify-between items-start mb-6">
+              <div>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Scripture Library</h3>
+                <p class="text-gray-600 dark:text-gray-400">Browse scripture references organized by creative topics</p>
+              </div>
+              <div class="relative">
+                <input type="text" placeholder="Search scripture..." 
+                       class="bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                <div class="absolute left-3 top-2.5 text-gray-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <!-- CATEGORY 1 -->
+              <div class="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg border border-gray-200 dark:border-gray-700">
+                <h4 class="font-bold mb-3 text-gray-900 dark:text-white">Creativity & Wisdom</h4>
+                <ul class="space-y-2 text-gray-700 dark:text-gray-300">
+                  <li class="flex justify-between">
+                    <span>Exodus 31:1-5</span>
+                    <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Bezalel</span>
+                  </li>
+                  <li class="flex justify-between">
+                    <span>Proverbs 3:13-18</span>
+                    <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Wisdom</span>
+                  </li>
+                  <li class="flex justify-between">
+                    <span>James 1:5</span>
+                    <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Wisdom</span>
+                  </li>
+                  <li class="flex justify-between">
+                    <span>Colossians 3:23-24</span>
+                    <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Work</span>
+                  </li>
+                </ul>
+                <button class="mt-4 w-full px-3 py-1 bg-jstar-blue hover:bg-faith-purple text-white rounded text-sm">
+                  View All
+                </button>
+              </div>
+              
+              <!-- CATEGORY 2 -->
+              <div class="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg border border-gray-200 dark:border-gray-700">
+                <h4 class="font-bold mb-3 text-gray-900 dark:text-white">Technology & Innovation</h4>
+                <ul class="space-y-2 text-gray-700 dark:text-gray-300">
+                  <li class="flex justify-between">
+                    <span>Nehemiah 6:3</span>
+                    <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">Work</span>
+                  </li>
+                  <li class="flex justify-between">
+                    <span>Proverbs 22:29</span>
+                    <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">Skill</span>
+                  </li>
+                  <li class="flex justify-between">
+                    <span>Genesis 11:1-9</span>
+                    <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">Babel</span>
+                  </li>
+                  <li class="flex justify-between">
+                    <span>1 Kings 7:13-14</span>
+                    <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">Hiram</span>
+                  </li>
+                </ul>
+                <button class="mt-4 w-full px-3 py-1 bg-jstar-blue hover:bg-faith-purple text-white rounded text-sm">
+                  View All
+                </button>
+              </div>
+              
+              <!-- CATEGORY 3 -->
+              <div class="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg border border-gray-200 dark:border-gray-700">
+                <h4 class="font-bold mb-3 text-gray-900 dark:text-white">Service & Impact</h4>
+                <ul class="space-y-2 text-gray-700 dark:text-gray-300">
+                  <li class="flex justify-between">
+                    <span>Matthew 5:16</span>
+                    <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Light</span>
+                  </li>
+                  <li class="flex justify-between">
+                    <span>Galatians 6:9-10</span>
+                    <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Service</span>
+                  </li>
+                  <li class="flex justify-between">
+                    <span>1 Peter 4:10-11</span>
+                    <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Gifts</span>
+                  </li>
+                  <li class="flex justify-between">
+                    <span>Mark 10:45</span>
+                    <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Service</span>
+                  </li>
+                </ul>
+                <button class="mt-4 w-full px-3 py-1 bg-jstar-blue hover:bg-faith-purple text-white rounded text-sm">
+                  View All
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- COMMUNITY SECTION (HIDDEN BY DEFAULT) -->
+        <div id="community" class="content-section hidden">
+          <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+            <div class="flex justify-between items-start mb-6">
+              <div>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Faith-Based Creator Community</h3>
+                <p class="text-gray-600 dark:text-gray-400">Connect with other creators who integrate faith and technology</p>
+              </div>
+              <button class="px-4 py-2 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium">
+                Join Community
+              </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- COMMUNITY GROUPS -->
+              <div>
+                <h4 class="font-medium mb-3 text-gray-900 dark:text-white">Community Groups</h4>
+                
+                <div class="space-y-3">
+                  <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-start mb-2">
+                      <h5 class="font-medium text-gray-900 dark:text-white">Faith & Technology Integration</h5>
+                      <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">42 members</span>
+                    </div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                      Group for creators exploring how to integrate faith with technology in their work
+                    </p>
+                    <button class="w-full px-3 py-1 bg-jstar-blue hover:bg-faith-purple text-white rounded text-sm">
+                      Join Group
+                    </button>
+                  </div>
+                  
+                  <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-start mb-2">
+                      <h5 class="font-medium text-gray-900 dark:text-white">Content Creators Fellowship</h5>
+                      <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">37 members</span>
+                    </div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                      Fellowship for Christian content creators to share resources and pray together
+                    </p>
+                    <button class="w-full px-3 py-1 bg-jstar-blue hover:bg-faith-purple text-white rounded text-sm">
+                      Join Group
+                    </button>
+                  </div>
+                  
+                  <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-start mb-2">
+                      <h5 class="font-medium text-gray-900 dark:text-white">Prayer Accountability Group</h5>
+                      <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">28 members</span>
+                    </div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                      Group for creators committed to starting each project with prayer
+                    </p>
+                    <button class="w-full px-3 py-1 bg-jstar-blue hover:bg-faith-purple text-white rounded text-sm">
+                      Join Group
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- UPCOMING EVENTS -->
+              <div>
+                <h4 class="font-medium mb-3 text-gray-900 dark:text-white">Upcoming Events</h4>
+                
+                <div class="space-y-3">
+                  <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-start mb-2">
+                      <h5 class="font-medium text-gray-900 dark:text-white">Weekly Prayer Call</h5>
+                      <span class="text-xs bg-jstar-blue text-white px-2 py-1 rounded">Today</span>
+                    </div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                      12:00 PM EST • Weekly gathering for prayer and accountability
+                    </p>
+                    <div class="flex space-x-2">
+                      <button class="flex-1 px-2 py-1 bg-jstar-blue hover:bg-faith-purple text-white rounded text-sm">
+                        Join Call
+                      </button>
+                      <button class="px-2 py-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded text-sm">
+                        Add to Calendar
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-start mb-2">
+                      <h5 class="font-medium text-gray-900 dark:text-white">Faith & Tech Workshop</h5>
+                      <span class="text-xs bg-jstar-blue text-white px-2 py-1 rounded">Fri</span>
+                    </div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                      3:00 PM EST • Practical strategies for integrating faith and technology
+                    </p>
+                    <div class="flex space-x-2">
+                      <button class="flex-1 px-2 py-1 bg-jstar-blue hover:bg-faith-purple text-white rounded text-sm">
+                        Register
+                      </button>
+                      <button class="px-2 py-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded text-sm">
+                        Add to Calendar
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-start mb-2">
+                      <h5 class="font-medium text-gray-900 dark:text-white">Content Creator Q&A</h5>
+                      <span class="text-xs bg-jstar-blue text-white px-2 py-1 rounded">Mon</span>
+                    </div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                      10:00 AM EST • Monthly Q&A with faith-based content experts
+                    </p>
+                    <div class="flex space-x-2">
+                      <button class="flex-1 px-2 py-1 bg-jstar-blue hover:bg-faith-purple text-white rounded text-sm">
+                        Register
+                      </button>
+                      <button class="px-2 py-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded text-sm">
+                        Add to Calendar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- COMMUNITY RESOURCES -->
+                <div class="mt-6 bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <h4 class="font-medium mb-3 text-gray-900 dark:text-white">Community Resources</h4>
+                  
+                  <div class="space-y-2">
+                    <a href="#" class="flex items-center p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-jstar-blue mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13.494m-3-8.75a3 3 0 11-6 0 3 3 0 016 0zm8.75 0a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <span>Prayer Guide for Creators</span>
+                    </a>
+                    <a href="#" class="flex items-center p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-jstar-blue mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13.494m-3-8.75a3 3 0 11-6 0 3 3 0 016 0zm8.75 0a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <span>Faith-Based Content Checklist</span>
+                    </a>
+                    <a href="#" class="flex items-center p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-jstar-blue mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13.494m-3-8.75a3 3 0 11-6 0 3 3 0 016 0zm8.75 0a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <span>Scripture Reference Guide</span>
+                    </a>
+                    <a href="#" class="flex items-center p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-jstar-blue mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13.494m-3-8.75a3 3 0 11-6 0 3 3 0 016 0zm8.75 0a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <span>Community Guidelines</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

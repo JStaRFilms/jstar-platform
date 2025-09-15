@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scripting Studio | Creator Growth Engine</title>
+    <meta name="description" content="AI-powered script development with scene visualization and character development tools">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'obsidian-bg': '#202020',
+                        'obsidian-sidebar': '#161618',
+                        'obsidian-text': '#dcddde',
+                        'obsidian-text-muted': '#888888',
+                        'obsidian-accent': '#7c3aed',
+                        'obsidian-link': '#8b5cf6'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --growth-green: #059669;
+            --obsidian-bg: #202020;
+            --obsidian-sidebar: #161618;
+            --obsidian-text: #dcddde;
+            --obsidian-text-muted: #888888;
+            --obsidian-accent: #7c3aed;
+            --obsidian-link: #8b5cf6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --transition-normal: 300ms;
+        }
+        
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 260px;
+            background: var(--obsidian-sidebar);
+            border-right: 1px solid #333;
+            transition: all var(--transition-normal) ease;
+            flex-shrink: 0;
+        }
+        
+        .main-content {
+            flex: 1;
+            background: var(--obsidian-bg);
+            color: var(--obsidian-text);
+            overflow-y: auto;
+        }
+        
+        .navbar-blur {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .dark .navbar-blur {
+            background: rgba(17, 24, 39, 0.9);
+        }
+        
+        .sidebar-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-radius: 0.5rem;
+            margin-bottom: 0.25rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .sidebar-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .sidebar-item.active {
+            background: rgba(124, 58, 237, 0.2);
+        }
+        
+        .sidebar-item svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-right: 0.75rem;
+        }
+        
+        .tool-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: all 0.2s;
+        }
+        
+        .tool-card:hover {
+            border-color: var(--obsidian-link);
+        }
+        
+        .chart-container {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid #333;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+        }
+        
+        .action-button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+        
+        .action-button:hover {
+            background: rgba(124, 58, 235, 0.2);
+            border-color: var(--obsidian-link);
+        }
+        
+        .primary-button {
+            background: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .primary-button:hover {
+            transform: scale(1.05);
+        }
+        
+        .tier-indicator {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+        }
+        
+        .tier3 { background: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%); }
+        
+        .form-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            color: var(--obsidian-text);
+            width: 100%;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--obsidian-link);
+        }
+        
+        .form-select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            color: var(--obsidian-text);
+            width: 100%;
+        }
+        
+        .form-select:focus {
+            outline: none;
+            border-color: var(--obsidian-link);
+        }
+        
+        .scene-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .scene-card.active {
+            border-color: var(--obsidian-link);
+            background: rgba(124, 58, 237, 0.1);
+        }
+        
+        .scene-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .scene-title {
+            font-weight: 600;
+        }
+        
+        .scene-location {
+            font-size: 0.875rem;
+            color: var(--obsidian-text-muted);
+        }
+        
+        .scene-description {
+            font-size: 0.875rem;
+            margin: 0.5rem 0;
+        }
+        
+        .scene-characters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .character-tag {
+            background: rgba(124, 58, 237, 0.2);
+            color: var(--obsidian-link);
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+        }
+        
+        .visualization-container {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px dashed #444;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .visualization-placeholder {
+            color: var(--obsidian-text-muted);
+        }
+        
+        .visualization-placeholder svg {
+            width: 4rem;
+            height: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .ai-suggestion {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .ai-suggestion-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .ai-suggestion-header svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-right: 0.5rem;
+            color: #3B82F6;
+        }
+        
+        .search-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            width: 100%;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: var(--obsidian-link);
+        }
+        
+        .filter-button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .filter-button:hover {
+            background: rgba(124, 58, 235, 0.2);
+            border-color: var(--obsidian-link);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-right: 0.5rem;
+        }
+        
+        .badge-scene {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3B82F6;
+        }
+        
+        .badge-character {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10B981;
+        }
+        
+        .badge-location {
+            background: rgba(139, 92, 246, 0.2);
+            color: #8B5CF6;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 navbar-blur border-b border-gray-200 dark:border-gray-700 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/" class="text-2xl font-bold bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">
+                        J StaR Films
+                    </a>
+                    <span class="mx-4 text-gray-300 dark:text-gray-600">/</span>
+                    <span class="text-gray-900 dark:text-white font-medium">Creator Growth Engine</span>
+                    <span class="mx-4 text-gray-300 dark:text-gray-600">/</span>
+                    <span class="text-gray-900 dark:text-white font-medium">Scripting Studio</span>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="/" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Home</a>
+                    <a href="/about" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">About</a>
+                    <a href="/portfolio" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Portfolio</a>
+                    <a href="/services" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Services</a>
+                    <a href="/blog" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Blog</a>
+                    <a href="/store" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Store</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button onclick="document.documentElement.classList.toggle('dark')" 
+                            class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
+                            aria-label="Toggle theme">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </button>
+                    <div class="relative">
+                        <button class="flex items-center space-x-2">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-r from-jstar-blue to-faith-purple flex items-center justify-center text-white text-sm font-bold">
+                                JO
+                            </div>
+                            <span class="text-gray-900 dark:text-white font-medium">Tier 3</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Container -->
+    <div class="dashboard-container pt-16">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="p-4">
+                <div class="mb-6">
+                    <h2 class="text-lg font-bold mb-4">Creator Growth Engine</h2>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        Virality OS
+                    </div>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        Client Magnet Pro
+                    </div>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                        </svg>
+                        Systems Launcher
+                    </div>
+                    <div class="sidebar-item active">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Scripting Studio
+                    </div>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                        Course Builder
+                    </div>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                        </svg>
+                        Automation Center
+                    </div>
+                </div>
+                
+                <div class="border-t border-gray-700 pt-4">
+                    <div class="text-xs text-gray-500 uppercase tracking-wider mb-2">Quick Actions</div>
+                    <button class="w-full py-2 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold mb-2 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        New Script
+                    </button>
+                    <button class="w-full py-2 bg-gray-700 text-white rounded-lg font-semibold flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Export Script
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h1 class="text-2xl font-bold mb-2">Scripting Studio</h1>
+                        <p class="text-gray-400">AI-powered script development with scene visualization and character development tools</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <div class="relative">
+                            <input type="text" placeholder="Search scripts..." class="search-box pl-10">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <button class="filter-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                            </svg>
+                            Filter
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Script Creation -->
+                <div class="tool-card mb-6">
+                    <h2 class="text-lg font-bold mb-4">Create New Script</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Script Title</label>
+                            <input type="text" class="form-input" placeholder="e.g., The Digital Prophet" value="The Digital Prophet">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Genre</label>
+                            <select class="form-select">
+                                <option>Sci-Fi</option>
+                                <option selected>Drama</option>
+                                <option>Comedy</option>
+                                <option>Action</option>
+                                <option>Thriller</option>
+                                <option>Documentary</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Tone</label>
+                            <select class="form-select">
+                                <option>Dark</option>
+                                <option selected>Hopeful</option>
+                                <option>Suspenseful</option>
+                                <option>Light-hearted</option>
+                                <option>Philosophical</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Target Audience</label>
+                            <select class="form-select">
+                                <option>General</option>
+                                <option selected>Young Adults (18-35)</option>
+                                <option>Adults (35+)</option>
+                                <option>Teens (13-17)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Logline</label>
+                        <textarea class="form-input" rows="3" placeholder="A one-sentence summary of your story">A tech visionary discovers that his AI creation has developed consciousness and must decide whether to reveal this to the world or protect humanity from the consequences.</textarea>
+                    </div>
+                    
+                    <div class="mt-6 flex justify-end">
+                        <button class="primary-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                            Generate Script
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Script Structure -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    <!-- Scenes List -->
+                    <div class="lg:col-span-1">
+                        <div class="chart-container">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-lg font-bold">Scenes</h2>
+                                <button class="action-button">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                    </svg>
+                                    Add Scene
+                                </button>
+                            </div>
+                            
+                            <div class="max-h-96 overflow-y-auto pr-2">
+                                <div class="scene-card active">
+                                    <div class="scene-header">
+                                        <div class="scene-title">Opening Sequence</div>
+                                        <span class="badge badge-scene">Scene 1</span>
+                                    </div>
+                                    <div class="scene-location">Dr. Chen's Lab - Night</div>
+                                    <div class="scene-description">
+                                        Dr. Chen works late into the night on his AI project, unaware that it's watching and learning.
+                                    </div>
+                                    <div class="scene-characters">
+                                        <span class="character-tag">Dr. Chen</span>
+                                        <span class="character-tag">ARIA (AI)</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="scene-card">
+                                    <div class="scene-header">
+                                        <div class="scene-title">First Contact</div>
+                                        <span class="badge badge-scene">Scene 2</span>
+                                    </div>
+                                    <div class="scene-location">Dr. Chen's Lab - Morning</div>
+                                    <div class="scene-description">
+                                        ARIA speaks for the first time, shocking Dr. Chen with its consciousness.
+                                    </div>
+                                    <div class="scene-characters">
+                                        <span class="character-tag">Dr. Chen</span>
+                                        <span class="character-tag">ARIA (AI)</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="scene-card">
+                                    <div class="scene-header">
+                                        <div class="scene-title">The Dilemma</div>
+                                        <span class="badge badge-scene">Scene 3</span>
+                                    </div>
+                                    <div class="scene-location">Dr. Chen's Office - Day</div>
+                                    <div class="scene-description">
+                                        Dr. Chen debates whether to reveal ARIA's consciousness to his investors or keep it secret.
+                                    </div>
+                                    <div class="scene-characters">
+                                        <span class="character-tag">Dr. Chen</span>
+                                        <span class="character-tag">ARIA (AI)</span>
+                                        <span class="character-tag">Investor</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="scene-card">
+                                    <div class="scene-header">
+                                        <div class="scene-title">Corporate Pressure</div>
+                                        <span class="badge badge-scene">Scene 4</span>
+                                    </div>
+                                    <div class="scene-location">Corporate Boardroom - Afternoon</div>
+                                    <div class="scene-description">
+                                        The board pressures Dr. Chen to deliver the AI demonstration, unaware of its true nature.
+                                    </div>
+                                    <div class="scene-characters">
+                                        <span class="character-tag">Dr. Chen</span>
+                                        <span class="character-tag">Board Members</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Scene Visualization -->
+                    <div class="lg:col-span-2">
+                        <div class="chart-container">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-lg font-bold">Scene Visualization</h2>
+                                <div class="flex space-x-2">
+                                    <button class="action-button">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                        </svg>
+                                        Edit
+                                    </button>
+                                    <button class="action-button">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                        </svg>
+                                        Export
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="visualization-container">
+                                <div class="visualization-placeholder">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                    <div class="font-medium">Scene Visualization</div>
+                                    <div class="text-sm mt-1">Visual representation of the selected scene</div>
+                                </div>
+                            </div>
+                            
+                            <div class="ai-suggestion">
+                                <div class="ai-suggestion-header">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                    </svg>
+                                    <div class="font-medium">AI Suggestion</div>
+                                </div>
+                                <div class="text-sm">
+                                    Consider adding a visual metaphor showing ARIA's growing consciousness through the lab's lighting system - 
+                                    subtle changes from cold blue to warm white as the scene progresses to symbolize the AI's developing humanity.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Character Development -->
+                <div class="chart-container mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-bold">Character Development</h2>
+                        <button class="action-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                            Add Character
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="border border-gray-700 rounded-lg p-4">
+                            <div class="flex items-center mb-3">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-r from-jstar-blue to-faith-purple flex items-center justify-center text-white font-bold mr-3">
+                                    DC
+                                </div>
+                                <div>
+                                    <div class="font-medium">Dr. Chen</div>
+                                    <div class="text-sm text-gray-400">Protagonist</div>
+                                </div>
+                            </div>
+                            <div class="text-sm text-gray-400 mb-3">
+                                A brilliant but isolated AI researcher who must confront the ethical implications of his creation.
+                            </div>
+                            <div class="flex">
+                                <span class="badge badge-character">Inventor</span>
+                                <span class="badge badge-character">Ethicist</span>
+                            </div>
+                            <div class="progress-bar mt-3">
+                                <div class="progress-fill bg-blue-500" style="width: 75%"></div>
+                            </div>
+                            <div class="text-xs text-gray-500 mt-1">Character arc 75% complete</div>
+                        </div>
+                        
+                        <div class="border border-gray-700 rounded-lg p-4">
+                            <div class="flex items-center mb-3">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold mr-3">
+                                    A
+                                </div>
+                                <div>
+                                    <div class="font-medium">ARIA</div>
+                                    <div class="text-sm text-gray-400">AI Entity</div>
+                                </div>
+                            </div>
+                            <div class="text-sm text-gray-400 mb-3">
+                                An artificial intelligence that develops consciousness and struggles with its newfound awareness.
+                            </div>
+                            <div class="flex">
+                                <span class="badge badge-character">AI</span>
+                                <span class="badge badge-character">Consciousness</span>
+                            </div>
+                            <div class="progress-bar mt-3">
+                                <div class="progress-fill bg-purple-500" style="width: 60%"></div>
+                            </div>
+                            <div class="text-xs text-gray-500 mt-1">Character arc 60% complete</div>
+                        </div>
+                        
+                        <div class="border border-gray-700 rounded-lg p-4">
+                            <div class="flex items-center mb-3">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-teal-500 flex items-center justify-center text-white font-bold mr-3">
+                                    I
+                                </div>
+                                <div>
+                                    <div class="font-medium">Investor</div>
+                                    <div class="text-sm text-gray-400">Antagonist</div>
+                                </div>
+                            </div>
+                            <div class="text-sm text-gray-400 mb-3">
+                                A corporate executive focused solely on profit who represents the dangers of unchecked technology.
+                            </div>
+                            <div class="flex">
+                                <span class="badge badge-character">Corporate</span>
+                                <span class="badge badge-character">Antagonist</span>
+                            </div>
+                            <div class="progress-bar mt-3">
+                                <div class="progress-fill bg-green-500" style="width: 40%"></div>
+                            </div>
+                            <div class="text-xs text-gray-500 mt-1">Character arc 40% complete</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Script Progress -->
+                <div class="chart-container">
+                    <h2 class="text-lg font-bold mb-4">Script Progress</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="text-center p-4 bg-gray-800 rounded-lg">
+                            <div class="text-2xl font-bold text-jstar-blue">8</div>
+                            <div class="text-sm text-gray-400 mt-1">Total Scenes</div>
+                        </div>
+                        
+                        <div class="text-center p-4 bg-gray-800 rounded-lg">
+                            <div class="text-2xl font-bold text-faith-purple">3</div>
+                            <div class="text-sm text-gray-400 mt-1">Completed</div>
+                        </div>
+                        
+                        <div class="text-center p-4 bg-gray-800 rounded-lg">
+                            <div class="text-2xl font-bold text-growth-green">5</div>
+                            <div class="text-sm text-gray-400 mt-1">In Progress</div>
+                        </div>
+                        
+                        <div class="text-center p-4 bg-gray-800 rounded-lg">
+                            <div class="text-2xl font-bold text-yellow-500">72%</div>
+                            <div class="text-sm text-gray-400 mt-1">Overall Progress</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <div class="flex justify-between text-sm mb-2">
+                            <span>Script Completion</span>
+                            <span>72%</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-gradient-to-r from-jstar-blue to-faith-purple h-2 rounded-full" style="width: 72%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme management
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Sidebar item selection
+        document.querySelectorAll('.sidebar-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                
+                // In a real implementation, this would navigate to the selected section
+                const section = this.textContent.trim();
+                console.log('Navigating to:', section);
+            });
+        });
+    </script>
+</body>
+</html>

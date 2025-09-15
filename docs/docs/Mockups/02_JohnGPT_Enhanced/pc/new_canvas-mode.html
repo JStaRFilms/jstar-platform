@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JOHNGPT | Canvas Mode</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #171717;
+            --bg-secondary: #000000;
+            --bg-tertiary: #262626;
+            --text-primary: #f5f5f5;
+            --text-secondary: #a3a3a3;
+            --accent-purple: #8B5CF6;
+            --accent-blue: #3B82F6;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+        ::-webkit-scrollbar-thumb { background-color: var(--bg-tertiary); border-radius: 10px; border: 2px solid var(--bg-secondary); }
+
+        .canvas-bg {
+             background-image: radial-gradient(circle at 1px 1px, #3a3a3a 1px, transparent 0);
+             background-size: 25px 25px;
+        }
+
+        .canvas-card {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="flex h-screen bg-black">
+
+        <!-- Main App Sidebar -->
+        <aside class="w-16 bg-black flex flex-col items-center py-4 space-y-4">
+             <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-accent-blue to-accent-purple"></div>
+             <a href="#" class="p-2 text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-lg transition-colors" title="Chat">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+             </a>
+             <a href="#" class="p-2 text-white bg-neutral-800 rounded-lg transition-colors" title="Canvas Mode">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+             </a>
+        </aside>
+
+        <!-- Split View Layout -->
+        <div class="flex-1 flex bg-neutral-900 rounded-tl-2xl overflow-hidden">
+            <!-- Canvas List Sidebar -->
+            <aside class="w-72 bg-neutral-800/50 p-4 border-r border-neutral-800 flex flex-col">
+                 <button class="w-full flex items-center justify-center gap-2 py-2.5 bg-gradient-to-r from-accent-blue to-accent-purple text-white rounded-lg font-semibold hover:opacity-90 transition-opacity mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
+                    New Canvas
+                </button>
+                <div class="flex-1 overflow-y-auto pr-2">
+                    <h3 class="text-xs font-semibold text-neutral-500 uppercase px-2 mb-2">Recent Canvases</h3>
+                    <nav class="space-y-1">
+                        <a href="#" class="block text-sm p-3 rounded-lg bg-neutral-700/60 text-white font-medium">
+                            <p>YouTube Growth Strategy</p>
+                            <p class="text-xs text-neutral-400 mt-1">Content calendar, channel optimization...</p>
+                        </a>
+                        <a href="#" class="block text-sm p-3 rounded-lg text-neutral-400 hover:bg-neutral-700/40 hover:text-white">
+                             <p>Wedding Cinematography Workflow</p>
+                            <p class="text-xs text-neutral-500 mt-1">Pre-production to delivery process...</p>
+                        </a>
+                    </nav>
+                </div>
+            </aside>
+            
+            <!-- Split View Main Content -->
+            <div class="flex-1 flex">
+                <!-- Chat Panel -->
+                <div class="w-1/2 flex flex-col border-r border-neutral-800">
+                    <header class="flex-shrink-0 p-4 border-b border-neutral-800">
+                        <h2 class="font-semibold text-lg text-white">Chat</h2>
+                    </header>
+                    <div class="flex-1 overflow-y-auto p-6 space-y-6">
+                         <!-- User Message -->
+                        <div class="flex items-start gap-4 justify-end">
+                            <div class="bg-accent-blue/80 p-4 rounded-xl rounded-br-none max-w-lg">
+                                <p>I'm working on a YouTube growth strategy. Help me brainstorm the key pillars and visualize how they connect.</p>
+                            </div>
+                        </div>
+                        <!-- AI Message with "Pin to Canvas" action -->
+                        <div class="flex items-start gap-4 group">
+                            <div class="w-9 h-9 flex-shrink-0 rounded-lg bg-gradient-to-br from-accent-blue to-accent-purple"></div>
+                            <div class="bg-neutral-800 p-4 rounded-xl rounded-bl-none max-w-lg relative">
+                                <p>Excellent! Let's map it out. I've identified three core pillars for your strategy. We can pin these to the canvas to start building.</p>
+                                <ul class="list-disc list-inside text-neutral-300 space-y-2 mt-3">
+                                    <li><strong>Content Pillars:</strong> The types of videos you'll create (e.g., Tutorials, Vlogs).</li>
+                                    <li><strong>Audience Segments:</strong> The specific groups of people you want to reach.</li>
+                                    <li><strong>Growth Tactics:</strong> The methods you'll use to expand your reach (e.g., SEO, Collabs).</li>
+                                </ul>
+                                <button class="absolute -top-3 -right-3 p-1.5 bg-accent-purple text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity" title="Pin to Canvas">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <footer class="p-4 border-t border-neutral-800">
+                         <div class="relative">
+                            <textarea rows="1" class="w-full bg-neutral-800 border border-neutral-700 rounded-xl resize-none p-4 pr-14 text-white focus:ring-2 focus:ring-accent-purple focus:outline-none" placeholder="Message JOHNGPT..."></textarea>
+                            <button class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center bg-accent-purple text-white rounded-lg hover:bg-violet-500 transition-colors">
+                               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                            </button>
+                        </div>
+                    </footer>
+                </div>
+
+                <!-- Canvas Panel -->
+                <div class="w-1/2 flex flex-col relative canvas-bg overflow-hidden">
+                    <header class="flex-shrink-0 p-4 border-b border-neutral-800 flex justify-between items-center">
+                        <h2 class="font-semibold text-lg text-white">Canvas: YouTube Growth Strategy</h2>
+                         <div class="flex items-center gap-2 text-sm bg-neutral-800/60 border border-neutral-700/80 px-3 py-1.5 rounded-lg">
+                            <span>100%</span>
+                            <button class="text-neutral-400 hover:text-white">&minus;</button>
+                            <button class="text-neutral-400 hover:text-white">&plus;</button>
+                        </div>
+                    </header>
+                    <div class="flex-1 relative">
+                        <!-- Canvas Cards -->
+                        <div class="absolute canvas-card bg-neutral-800 p-4 rounded-xl border border-neutral-700 w-64" style="top: 80px; left: 60px;">
+                            <h3 class="font-semibold text-white mb-2">Pillar 1: Content</h3>
+                            <ul class="list-disc list-inside text-sm text-neutral-300 space-y-1"><li>Tutorials</li><li>Vlogs</li><li>Interviews</li></ul>
+                        </div>
+                         <div class="absolute canvas-card bg-neutral-800 p-4 rounded-xl border border-neutral-700 w-64" style="top: 80px; left: 400px;">
+                            <h3 class="font-semibold text-white mb-2">Pillar 2: Audience</h3>
+                            <ul class="list-disc list-inside text-sm text-neutral-300 space-y-1"><li>Aspiring Creators</li><li>Faith Community</li><li>Business Owners</li></ul>
+                        </div>
+                        <div class="absolute canvas-card bg-neutral-800 p-4 rounded-xl border border-neutral-700 w-64" style="top: 280px; left: 230px;">
+                            <h3 class="font-semibold text-white mb-2">Pillar 3: Growth Tactics</h3>
+                            <ul class="list-disc list-inside text-sm text-neutral-300 space-y-1"><li>SEO Optimization</li><li>Collaborations</li><li>Community Engagement</li></ul>
+                        </div>
+
+                        <!-- Connection Lines -->
+                        <svg class="absolute top-0 left-0 w-full h-full pointer-events-none">
+                            <line x1="192" y1="180" x2="310" y2="280" stroke="#525252" stroke-width="2" stroke-dasharray="5 5" />
+                            <line x1="532" y1="180" x2="410" y2="280" stroke="#525252" stroke-width="2" stroke-dasharray="5 5" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

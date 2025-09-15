@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JohnGPT API Documentation - J StaR Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { 
+            display: grid; 
+            grid-template-columns: 280px 1fr; 
+            min-height: 100vh; 
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            background: var(--bg-primary);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+        }
+        
+        .sidebar-header {
+            padding: 2rem 1.5rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            color: white;
+        }
+        
+        .sidebar-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar-subtitle {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+        
+        .nav-section {
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .nav-title {
+            padding: 0 1.5rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+        }
+        
+        .nav-item {
+            display: block;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .nav-item:hover {
+            background: var(--bg-secondary);
+            border-left-color: var(--brand-blue);
+        }
+        
+        .nav-item.active {
+            background: rgba(74, 144, 226, 0.1);
+            border-left-color: var(--brand-blue);
+            color: var(--brand-blue);
+            font-weight: 500;
+        }
+        
+        /* Main Content */
+        .main-content {
+            padding: 2rem;
+            overflow-y: auto;
+        }
+        
+        .content-header {
+            margin-bottom: 3rem;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .page-description {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+        }
+        
+        .api-section {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+        
+        .section-header {
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .section-description {
+            color: var(--text-secondary);
+        }
+        
+        .section-content {
+            padding: 1.5rem;
+        }
+        
+        /* Code blocks */
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+        
+        .inline-code {
+            background: var(--bg-secondary);
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            color: var(--brand-blue);
+        }
+        
+        /* Parameter table */
+        .param-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        
+        .param-table th,
+        .param-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .param-table th {
+            background: var(--bg-secondary);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .param-type {
+            background: rgba(74, 144, 226, 0.1);
+            color: var(--brand-blue);
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .required {
+            background: rgba(255, 107, 107, 0.1);
+            color: var(--warm-orange);
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        /* Response examples */
+        .response-tabs {
+            display: flex;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .response-tab {
+            padding: 0.75rem 1rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .response-tab.active {
+            color: var(--brand-blue);
+            border-bottom-color: var(--brand-blue);
+        }
+        
+        .response-content {
+            display: none;
+        }
+        
+        .response-content.active {
+            display: block;
+        }
+        
+        /* Status badges */
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .status-success { background: rgba(69, 183, 209, 0.2); color: var(--success-green); }
+        .status-error { background: rgba(255, 107, 107, 0.2); color: var(--warm-orange); }
+        .status-warning { background: rgba(255, 193, 7, 0.2); color: #d39e00; }
+        
+        /* Quick start */
+        .quick-start {
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            color: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            margin-bottom: 2rem;
+        }
+        
+        .quick-start h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .quick-start-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .quick-step {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            text-align: center;
+        }
+        
+        .step-number {
+            width: 30px;
+            height: 30px;
+            background: white;
+            color: var(--brand-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin: 0 auto 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">JohnGPT API</div>
+                <div class="sidebar-subtitle">v2.1.0 Documentation</div>
+            </div>
+            
+            <nav>
+                <div class="nav-section">
+                    <div class="nav-title">Getting Started</div>
+                    <a href="#overview" class="nav-item active">Overview</a>
+                    <a href="#authentication" class="nav-item">Authentication</a>
+                    <a href="#quick-start" class="nav-item">Quick Start</a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-title">Endpoints</div>
+                    <a href="#chat" class="nav-item">Chat Completion</a>
+                    <a href="#personas" class="nav-item">Personas</a>
+                    <a href="#history" class="nav-item">Chat History</a>
+                    <a href="#templates" class="nav-item">Prompt Templates</a>
+                    <a href="#integrations" class="nav-item">Integrations</a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-title">Resources</div>
+                    <a href="#errors" class="nav-item">Error Codes</a>
+                    <a href="#webhooks" class="nav-item">Webhooks</a>
+                    <a href="#examples" class="nav-item">Code Examples</a>
+                    <a href="#sdks" class="nav-item">SDKs</a>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-header">
+                <h1 class="page-title">JohnGPT API Documentation</h1>
+                <p class="page-description">
+                    Build powerful AI-driven applications with JohnGPT's business-focused API. 
+                    Access intelligent personas, advanced chat capabilities, and seamless integrations.
+                </p>
+            </div>
+            
+            <!-- Quick Start -->
+            <div class="quick-start">
+                <h3>Get Started in Minutes</h3>
+                <p>Follow these simple steps to make your first API call</p>
+                
+                <div class="quick-start-steps">
+                    <div class="quick-step">
+                        <div class="step-number">1</div>
+                        <div>Get API Key</div>
+                    </div>
+                    <div class="quick-step">
+                        <div class="step-number">2</div>
+                        <div>Install SDK</div>
+                    </div>
+                    <div class="quick-step">
+                        <div class="step-number">3</div>
+                        <div>Make Request</div>
+                    </div>
+                    <div class="quick-step">
+                        <div class="step-number">4</div>
+                        <div>Get Response</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Authentication -->
+            <section class="api-section" id="authentication">
+                <div class="section-header">
+                    <h2 class="section-title">Authentication</h2>
+                    <p class="section-description">Secure your API requests with API key authentication</p>
+                </div>
+                <div class="section-content">
+                    <p>All API requests require authentication using your API key in the header:</p>
+                    
+                    <div class="code-block">
+Authorization: Bearer sk-johngpt_your_api_key_here
+Content-Type: application/json</div>
+                    
+                    <p><strong>Getting your API key:</strong></p>
+                    <ol>
+                        <li>Log into your J StaR Platform dashboard</li>
+                        <li>Navigate to Settings → API Keys</li>
+                        <li>Click "Generate New Key"</li>
+                        <li>Copy and securely store your key</li>
+                    </ol>
+                </div>
+            </section>
+            
+            <!-- Chat Completion -->
+            <section class="api-section" id="chat">
+                <div class="section-header">
+                    <h2 class="section-title">Chat Completion</h2>
+                    <p class="section-description">Generate intelligent responses using JohnGPT's business personas</p>
+                </div>
+                <div class="section-content">
+                    <h4>POST <span class="inline-code">/api/v2/chat/completions</span></h4>
+                    
+                    <h4>Parameters</h4>
+                    <table class="param-table">
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Type</th>
+                                <th>Required</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>messages</td>
+                                <td><span class="param-type">array</span></td>
+                                <td><span class="required">required</span></td>
+                                <td>Array of message objects</td>
+                            </tr>
+                            <tr>
+                                <td>persona</td>
+                                <td><span class="param-type">string</span></td>
+                                <td>optional</td>
+                                <td>Business persona to use (entrepreneur, marketer, coach, etc.)</td>
+                            </tr>
+                            <tr>
+                                <td>temperature</td>
+                                <td><span class="param-type">float</span></td>
+                                <td>optional</td>
+                                <td>Response creativity (0.0 - 2.0, default: 0.7)</td>
+                            </tr>
+                            <tr>
+                                <td>max_tokens</td>
+                                <td><span class="param-type">integer</span></td>
+                                <td>optional</td>
+                                <td>Maximum response length (default: 2048)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <h4>Example Request</h4>
+                    <div class="code-block">
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "Help me create a marketing strategy for my new SaaS product"
+    }
+  ],
+  "persona": "marketing_expert",
+  "temperature": 0.7,
+  "max_tokens": 1500
+}</div>
+                    
+                    <h4>Response</h4>
+                    <div class="response-tabs">
+                        <button class="response-tab active" onclick="showResponse('success')">200 Success</button>
+                        <button class="response-tab" onclick="showResponse('error')">400 Error</button>
+                    </div>
+                    
+                    <div class="response-content active" id="success">
+                        <div class="code-block">
+{
+  "id": "chatcmpl-7QyqpwdfhqwajicIEznoc6Q47XAyW",
+  "object": "chat.completion",
+  "created": 1677858242,
+  "model": "johngpt-business-v2",
+  "persona": "marketing_expert",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "Here's a comprehensive marketing strategy for your SaaS product..."
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 56,
+    "completion_tokens": 424,
+    "total_tokens": 480
+  }
+}</div>
+                    </div>
+                    
+                    <div class="response-content" id="error">
+                        <div class="code-block">
+{
+  "error": {
+    "message": "Invalid persona specified",
+    "type": "invalid_request_error",
+    "code": "invalid_persona"
+  }
+}</div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Personas -->
+            <section class="api-section" id="personas">
+                <div class="section-header">
+                    <h2 class="section-title">Available Personas</h2>
+                    <p class="section-description">Specialized business personas for different use cases</p>
+                </div>
+                <div class="section-content">
+                    <h4>GET <span class="inline-code">/api/v2/personas</span></h4>
+                    
+                    <table class="param-table">
+                        <thead>
+                            <tr>
+                                <th>Persona ID</th>
+                                <th>Name</th>
+                                <th>Specialty</th>
+                                <th>Use Cases</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="inline-code">entrepreneur</span></td>
+                                <td>The Entrepreneur</td>
+                                <td>Business Strategy</td>
+                                <td>Business planning, growth strategies</td>
+                            </tr>
+                            <tr>
+                                <td><span class="inline-code">marketing_expert</span></td>
+                                <td>Marketing Expert</td>
+                                <td>Digital Marketing</td>
+                                <td>Campaigns, content, lead generation</td>
+                            </tr>
+                            <tr>
+                                <td><span class="inline-code">sales_coach</span></td>
+                                <td>Sales Coach</td>
+                                <td>Sales Strategy</td>
+                                <td>Sales funnels, conversion optimization</td>
+                            </tr>
+                            <tr>
+                                <td><span class="inline-code">content_creator</span></td>
+                                <td>Content Creator</td>
+                                <td>Content Strategy</td>
+                                <td>Blog posts, social media, viral content</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- Error Codes -->
+            <section class="api-section" id="errors">
+                <div class="section-header">
+                    <h2 class="section-title">Error Codes</h2>
+                    <p class="section-description">Understanding API error responses</p>
+                </div>
+                <div class="section-content">
+                    <table class="param-table">
+                        <thead>
+                            <tr>
+                                <th>Status Code</th>
+                                <th>Error Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="status-badge status-error">400</span></td>
+                                <td>Bad Request</td>
+                                <td>Invalid request parameters</td>
+                            </tr>
+                            <tr>
+                                <td><span class="status-badge status-error">401</span></td>
+                                <td>Unauthorized</td>
+                                <td>Invalid or missing API key</td>
+                            </tr>
+                            <tr>
+                                <td><span class="status-badge status-error">429</span></td>
+                                <td>Rate Limit</td>
+                                <td>Too many requests</td>
+                            </tr>
+                            <tr>
+                                <td><span class="status-badge status-error">500</span></td>
+                                <td>Server Error</td>
+                                <td>Internal server error</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <script>
+        function showResponse(type) {
+            // Hide all response contents
+            document.querySelectorAll('.response-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active from all tabs
+            document.querySelectorAll('.response-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected content and activate tab
+            document.getElementById(type).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        // Smooth scrolling for navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                
+                if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth' });
+                    
+                    // Update active nav item
+                    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+        
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

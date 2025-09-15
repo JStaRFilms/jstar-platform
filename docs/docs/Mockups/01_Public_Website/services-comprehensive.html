@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Services | J StaR Films - Video Production, App Development & AI Tools</title>
+    <meta name="description" content="Professional video production, custom app development, and AI-powered creator tools by John Oluleke-Oke.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --growth-green: #059669;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --transition-normal: 300ms;
+        }
+        
+        .service-card {
+            transition: all var(--transition-normal) ease;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-8px);
+        }
+        
+        .process-step {
+            position: relative;
+        }
+        
+        .process-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 60px;
+            left: 30px;
+            width: 2px;
+            height: calc(100% - 80px);
+            background: #E5E7EB;
+            z-index: 1;
+        }
+        
+        .dark .process-step:not(:last-child)::after {
+            background: #4B5563;
+        }
+        
+        .navbar-blur {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .dark .navbar-blur {
+            background: rgba(17, 24, 39, 0.9);
+        }
+        
+        /* Pricing cards */
+        .pricing-card {
+            transition: all var(--transition-normal) ease;
+        }
+        
+        .pricing-card.featured {
+            transform: scale(1.05);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .pricing-card.featured:hover {
+            transform: scale(1.05) translateY(-5px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 navbar-blur border-b border-gray-200 dark:border-gray-700 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/" class="text-2xl font-bold bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">
+                        J StaR Films
+                    </a>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#services" class="text-jstar-blue font-semibold">Services</a>
+                    <a href="#video" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Video</a>
+                    <a href="#apps" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Apps</a>
+                    <a href="#ai" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">AI Tools</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button onclick="document.documentElement.classList.toggle('dark')" 
+                            class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
+                            aria-label="Toggle theme">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </button>
+                    <button class="px-4 py-2 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold text-sm">
+                        Book a Call
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-br from-gray-900 to-gray-800 py-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h1 class="text-4xl md:text-5xl font-bold text-white mb-6">
+                        Professional <span class="bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">Services</span> for Creators & Businesses
+                    </h1>
+                    <p class="text-xl text-gray-300 mb-8">
+                        From cinematic storytelling to cutting-edge digital solutions, I help individuals and organizations 
+                        amplify their message with technical excellence and faith-inspired purpose.
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <a href="#video" class="px-6 py-3 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold hover:opacity-90 transition-opacity">
+                            Video Services
+                        </a>
+                        <a href="#apps" class="px-6 py-3 bg-white/10 backdrop-blur-sm text-white border border-white/20 rounded-lg font-semibold hover:bg-white/20 transition-colors">
+                            App Development
+                        </a>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-br from-jstar-blue/20 to-faith-purple/20 rounded-2xl p-8 backdrop-blur-sm border border-white/10">
+                    <div class="grid grid-cols-3 gap-4 mb-6">
+                        <div class="bg-white/10 rounded-xl p-4 text-center">
+                            <div class="text-2xl font-bold text-white">50+</div>
+                            <div class="text-sm text-gray-300">Projects</div>
+                        </div>
+                        <div class="bg-white/10 rounded-xl p-4 text-center">
+                            <div class="text-2xl font-bold text-white">1M+</div>
+                            <div class="text-sm text-gray-300">Views</div>
+                        </div>
+                        <div class="bg-white/10 rounded-xl p-4 text-center">
+                            <div class="text-2xl font-bold text-white">98%</div>
+                            <div class="text-sm text-gray-300">Satisfaction</div>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <div class="inline-flex items-center px-4 py-2 bg-white/10 rounded-full text-white">
+                            <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
+                            Available for new projects
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Overview -->
+    <section class="py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6">
+                    Comprehensive <span class="bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">Creative Services</span>
+                </h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                    Whether you need cinematic storytelling, custom digital solutions, or AI-powered tools, 
+                    I offer end-to-end services tailored to your unique vision and goals.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Video Production -->
+                <div id="video" class="service-card bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="w-16 h-16 bg-gradient-to-r from-jstar-blue to-faith-purple rounded-2xl flex items-center justify-center mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Video Production</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6">
+                        Cinematic wedding films, event coverage, brand storytelling, and commercial productions 
+                        with drone footage and professional editing.
+                    </p>
+                    <ul class="space-y-3 mb-6">
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-gray-700 dark:text-gray-300">Wedding Films</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-gray-700 dark:text-gray-300">Event Coverage</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-gray-700 dark:text-gray-300">Brand Videos</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-gray-700 dark:text-gray-300">Commercial Production</span>
+                        </li>
+                    </ul>
+                    <a href="#video-pricing" class="inline-flex items-center text-jstar-blue font-semibold hover:text-faith-purple transition-colors">
+                        View Pricing
+                        <svg class="h-4 w-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </a>
+                </div>
+
+                <!-- App Development -->
+                <div id="apps" class="service-card bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="w-16 h-16 bg-gradient-to-r from-faith-purple to-growth-green rounded-2xl flex items-center justify-center mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">App Development</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6">
+                        Custom web and mobile applications built with modern frameworks, optimized for 
+                        performance, user experience, and scalability.
+                    </p>
+                    <ul class="space-y-3 mb-6">
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-gray-700 dark:text-gray-300">Mobile Apps</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-gray-700 dark:text-gray-300">Web Applications</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-gray-700 dark:text-gray-300">UI/UX Design</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-gray-700 dark:text-gray-300">API Integration</span>
+                        </li>
+                    </ul>
+                    <a href="#apps-pricing" class="inline-flex items-center text-faith-purple font-semibold hover:text-growth-green transition-colors">
+                        View Pricing
+                        <svg class="h-4 w-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </a>
+                </div>
+
+                <!-- AI Tools -->
+                <div id="ai" class="service-card bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="w-16 h-16 bg-gradient-to-r from-growth-green to-jstar-blue rounded-2xl flex items-center justify-center mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364-.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">AI Creator Tools</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6">
+                        AI-powered tools for content creation, YouTube optimization, audience growth, and 
+                        productivity. Including the JohnGPT Creator Assistant.
+                    </p>
+                    <ul class="space-y-3 mb-6">
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-gray-700 dark:text-gray-300">JohnGPT Assistant</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-gray-700 dark:text-gray-300">YouTube Virality OS</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-gray-700 dark:text-gray-300">Content Generator</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-gray-700 dark:text-gray-300">Automation Tools</span>
+                        </li>
+                    </ul>
+                    <a href="#ai-pricing" class="inline-flex items-center text-growth-green font-semibold hover:text-jstar-blue transition-colors">
+                        View Pricing
+                        <svg class="h-4 w-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Process Section -->
+    <section class="py-16 bg-gray-100 dark:bg-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6">
+                    My <span class="bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">Creative Process</span>
+                </h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                    A proven approach to delivering exceptional results, from initial concept to final delivery.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-8">
+                <div class="process-step text-center">
+                    <div class="w-16 h-16 bg-gradient-to-r from-jstar-blue to-faith-purple rounded-full flex items-center justify-center mx-auto mb-6 relative z-10">
+                        <span class="text-white font-bold">1</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Discovery</h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        We discuss your vision, goals, and requirements to understand your unique needs.
+                    </p>
+                </div>
+
+                <div class="process-step text-center">
+                    <div class="w-16 h-16 bg-gradient-to-r from-faith-purple to-growth-green rounded-full flex items-center justify-center mx-auto mb-6 relative z-10">
+                        <span class="text-white font-bold">2</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Planning</h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        I create a detailed project plan, timeline, and creative brief for your approval.
+                    </p>
+                </div>
+
+                <div class="process-step text-center">
+                    <div class="w-16 h-16 bg-gradient-to-r from-growth-green to-jstar-blue rounded-full flex items-center justify-center mx-auto mb-6 relative z-10">
+                        <span class="text-white font-bold">3</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Creation</h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        I bring your vision to life with professional production and attention to detail.
+                    </p>
+                </div>
+
+                <div class="process-step text-center">
+                    <div class="w-16 h-16 bg-gradient-to-r from-jstar-blue to-faith-purple rounded-full flex items-center justify-center mx-auto mb-6 relative z-10">
+                        <span class="text-white font-bold">4</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Review</h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        You review the work and provide feedback for any necessary revisions.
+                    </p>
+                </div>
+
+                <div class="process-step text-center">
+                    <div class="w-16 h-16 bg-gradient-to-r from-faith-purple to-growth-green rounded-full flex items-center justify-center mx-auto mb-6 relative z-10">
+                        <span class="text-white font-bold">5</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Delivery</h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        Final files are delivered in your preferred format with all necessary assets.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6">
+                    Transparent <span class="bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">Pricing</span>
+                </h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                    Flexible pricing options to suit projects of all sizes. Custom packages available for complex requirements.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Basic Package -->
+                <div class="pricing-card bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Basic</h3>
+                    <div class="mb-6">
+                        <span class="text-4xl font-bold text-gray-900 dark:text-white">₦150,000</span>
+                        <span class="text-gray-600 dark:text-gray-400">/project</span>
+                    </div>
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-gray-700 dark:text-gray-300">3-5 minute highlight film</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-gray-700 dark:text-gray-300">Basic color grading</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-gray-700 dark:text-gray-300">1 revision round</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-gray-700 dark:text-gray-300">Delivery in 7-10 days</span>
+                        </li>
+                        <li class="flex items-center opacity-50">
+                            <svg class="h-5 w-5 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                            <span class="text-gray-500 dark:text-gray-500 line-through">Drone footage</span>
+                        </li>
+                    </ul>
+                    <button class="w-full px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                        Get Started
+                    </button>
+                </div>
+
+                <!-- Premium Package (Featured) -->
+                <div id="video-pricing" class="pricing-card featured bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border-2 border-jstar-blue">
+                    <div class="absolute top-0 right-0 bg-gradient-to-r from-jstar-blue to-faith-purple text-white px-4 py-1 rounded-bl-lg rounded-tr-xl font-bold">
+                        POPULAR
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Premium</h3>
+                    <div class="mb-6">
+                        <span class="text-4xl font-bold text-gray-900 dark:text-white">₦350,000</span>
+                        <span class="text-gray-600 dark:text-gray-400">/project</span>
+                    </div>
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-gray-700 dark:text-gray-300">5-8 minute highlight film</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-gray-700 dark:text-gray-300">Professional color grading</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-gray-700 dark:text-gray-300">Drone footage included</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-gray-700 dark:text-gray-300">2 revision rounds</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-gray-700 dark:text-gray-300">Delivery in 5-7 days</span>
+                        </li>
+                    </ul>
+                    <button class="w-full px-6 py-3 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold hover:opacity-90 transition-opacity">
+                        Get Started
+                    </button>
+                </div>
+
+                <!-- Enterprise Package -->
+                <div class="pricing-card bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Enterprise</h3>
+                    <div class="mb-6">
+                        <span class="text-4xl font-bold text-gray-900 dark:text-white">Custom</span>
+                    </div>
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-gray-700 dark:text-gray-300">Full-length documentary</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-gray-700 dark:text-gray-300">Advanced color grading</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-gray-700 dark:text-gray-300">Unlimited revisions</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-gray-700 dark:text-gray-300">Priority delivery</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="text-gray-700 dark:text-gray-300">Dedicated project manager</span>
+                        </li>
+                    </ul>
+                    <button class="w-full px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                        Contact Sales
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-12 text-center">
+                <p class="text-gray-600 dark:text-gray-400 mb-6">
+                    Need a custom solution or have specific requirements? Let's discuss your project.
+                </p>
+                <a href="#contact" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold hover:opacity-90 transition-opacity">
+                    Schedule a Consultation
+                    <svg class="h-4 w-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-16 bg-gradient-to-r from-jstar-blue to-faith-purple">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">
+                Ready to Bring Your Vision to Life?
+            </h2>
+            <p class="text-xl text-white/90 mb-8">
+                Whether you need cinematic video production, custom app development, or AI-powered creator tools, 
+                let's create something amazing together.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="#contact" class="px-8 py-4 bg-white text-jstar-blue font-bold rounded-xl text-lg hover:bg-gray-100 transition-colors">
+                    Start Your Project
+                </a>
+                <a href="#portfolio" class="px-8 py-4 bg-white/10 backdrop-blur-sm text-white border border-white/20 font-bold rounded-xl text-lg hover:bg-white/20 transition-colors">
+                    View Portfolio
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Theme management
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

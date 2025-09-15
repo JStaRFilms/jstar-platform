@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help Center - J StaR Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        
+        .hero-section {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            color: white;
+            border-radius: 1rem;
+            margin-bottom: 3rem;
+        }
+        
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+        
+        .search-box {
+            max-width: 500px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: none;
+            border-radius: 2rem;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--text-primary);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+        
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+        
+        .category-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+            border-color: var(--brand-blue);
+        }
+        
+        .category-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+        }
+        
+        .category-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .category-description {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .article-count {
+            color: var(--brand-blue);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .popular-articles {
+            margin: 4rem 0;
+        }
+        
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .articles-list {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+        
+        .article-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .article-item:last-child { border-bottom: none; }
+        
+        .article-item:hover {
+            background: var(--bg-primary);
+        }
+        
+        .article-info {
+            flex: 1;
+        }
+        
+        .article-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        
+        .article-meta {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .article-arrow {
+            color: var(--brand-blue);
+            font-size: 1.2rem;
+        }
+        
+        .contact-support {
+            background: var(--bg-secondary);
+            border-radius: 1rem;
+            padding: 3rem;
+            text-align: center;
+            margin: 4rem 0;
+        }
+        
+        .support-title {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .support-text {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+        
+        .support-options {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: var(--bg-primary);
+            border: 2px solid var(--border);
+            color: var(--text-primary);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero-section">
+            <h1 class="hero-title">How can we help you?</h1>
+            <p class="hero-subtitle">Find answers to your questions and get the support you need</p>
+            
+            <div class="search-box">
+                <i class="search-icon fas fa-search"></i>
+                <input type="text" class="search-input" placeholder="Search for help articles...">
+            </div>
+        </div>
+
+        <div class="categories-grid">
+            <div class="category-card" onclick="openCategory('getting-started')">
+                <div class="category-icon">
+                    <i class="fas fa-rocket"></i>
+                </div>
+                <h3 class="category-title">Getting Started</h3>
+                <p class="category-description">Learn the basics and set up your account</p>
+                <span class="article-count">12 articles</span>
+            </div>
+
+            <div class="category-card" onclick="openCategory('johngpt')">
+                <div class="category-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h3 class="category-title">JohnGPT Assistant</h3>
+                <p class="category-description">Master your AI assistant and unlock its full potential</p>
+                <span class="article-count">18 articles</span>
+            </div>
+
+            <div class="category-card" onclick="openCategory('content-creation')">
+                <div class="category-icon">
+                    <i class="fas fa-edit"></i>
+                </div>
+                <h3 class="category-title">Content Creation</h3>
+                <p class="category-description">Create viral content with our AI-powered tools</p>
+                <span class="article-count">15 articles</span>
+            </div>
+
+            <div class="category-card" onclick="openCategory('lead-generation')">
+                <div class="category-icon">
+                    <i class="fas fa-magnet"></i>
+                </div>
+                <h3 class="category-title">Lead Generation</h3>
+                <p class="category-description">Attract and convert more clients with Client Magnet</p>
+                <span class="article-count">10 articles</span>
+            </div>
+
+            <div class="category-card" onclick="openCategory('automation')">
+                <div class="category-icon">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <h3 class="category-title">Automation & Systems</h3>
+                <p class="category-description">Streamline your workflow with automation tools</p>
+                <span class="article-count">14 articles</span>
+            </div>
+
+            <div class="category-card" onclick="openCategory('billing')">
+                <div class="category-icon">
+                    <i class="fas fa-credit-card"></i>
+                </div>
+                <h3 class="category-title">Billing & Account</h3>
+                <p class="category-description">Manage your subscription and account settings</p>
+                <span class="article-count">8 articles</span>
+            </div>
+        </div>
+
+        <div class="popular-articles">
+            <h2 class="section-title">Popular Articles</h2>
+            
+            <div class="articles-list">
+                <div class="article-item" onclick="openArticle('setup-johngpt')">
+                    <div class="article-info">
+                        <h4 class="article-title">How to set up JohnGPT for your business</h4>
+                        <p class="article-meta">Getting Started • 5 min read • Updated 2 days ago</p>
+                    </div>
+                    <i class="article-arrow fas fa-chevron-right"></i>
+                </div>
+
+                <div class="article-item" onclick="openArticle('viral-content')">
+                    <div class="article-info">
+                        <h4 class="article-title">Creating viral content with Virality OS</h4>
+                        <p class="article-meta">Content Creation • 8 min read • Updated 1 week ago</p>
+                    </div>
+                    <i class="article-arrow fas fa-chevron-right"></i>
+                </div>
+
+                <div class="article-item" onclick="openArticle('client-magnet')">
+                    <div class="article-info">
+                        <h4 class="article-title">Setting up your first Client Magnet campaign</h4>
+                        <p class="article-meta">Lead Generation • 6 min read • Updated 3 days ago</p>
+                    </div>
+                    <i class="article-arrow fas fa-chevron-right"></i>
+                </div>
+
+                <div class="article-item" onclick="openArticle('automation-basics')">
+                    <div class="article-info">
+                        <h4 class="article-title">Automation basics: Your first workflow</h4>
+                        <p class="article-meta">Automation & Systems • 10 min read • Updated 5 days ago</p>
+                    </div>
+                    <i class="article-arrow fas fa-chevron-right"></i>
+                </div>
+
+                <div class="article-item" onclick="openArticle('troubleshooting')">
+                    <div class="article-info">
+                        <h4 class="article-title">Common troubleshooting tips</h4>
+                        <p class="article-meta">General • 4 min read • Updated 1 week ago</p>
+                    </div>
+                    <i class="article-arrow fas fa-chevron-right"></i>
+                </div>
+
+                <div class="article-item" onclick="openArticle('api-integration')">
+                    <div class="article-info">
+                        <h4 class="article-title">Integrating with third-party APIs</h4>
+                        <p class="article-meta">Advanced • 12 min read • Updated 2 weeks ago</p>
+                    </div>
+                    <i class="article-arrow fas fa-chevron-right"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="contact-support">
+            <h2 class="support-title">Still need help?</h2>
+            <p class="support-text">Our friendly support team is here to help you succeed</p>
+            
+            <div class="support-options">
+                <a href="#" class="btn btn-primary">
+                    <i class="fas fa-comments"></i>
+                    Live Chat
+                </a>
+                <a href="#" class="btn btn-secondary">
+                    <i class="fas fa-envelope"></i>
+                    Email Support
+                </a>
+                <a href="#" class="btn btn-secondary">
+                    <i class="fas fa-calendar"></i>
+                    Book a Call
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openCategory(category) {
+            alert(`Opening ${category} category with related articles`);
+        }
+
+        function openArticle(article) {
+            alert(`Opening article: ${article}`);
+        }
+
+        // Search functionality
+        document.querySelector('.search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const query = this.value;
+                alert(`Searching for: "${query}"`);
+            }
+        });
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

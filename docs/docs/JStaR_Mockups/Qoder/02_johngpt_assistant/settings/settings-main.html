@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - JohnGPT Assistant</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .settings-container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            padding: 2rem 0;
+        }
+        
+        .sidebar-header {
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1rem;
+        }
+        
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .nav-menu {
+            list-style: none;
+        }
+        
+        .nav-item {
+            margin-bottom: 0.25rem;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover,
+        .nav-link.active {
+            background: var(--bg-primary);
+            color: var(--brand-blue);
+            border-right: 3px solid var(--brand-blue);
+        }
+        
+        .main-content {
+            padding: 2rem;
+            overflow-y: auto;
+        }
+        
+        .settings-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+        
+        .settings-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .settings-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+        
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+        
+        .setting-info {
+            flex: 1;
+        }
+        
+        .setting-label {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .setting-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .setting-control {
+            margin-left: 1rem;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+        }
+        
+        .toggle-input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--border);
+            transition: 0.3s;
+            border-radius: 30px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 24px;
+            width: 24px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+        
+        .toggle-input:checked + .toggle-slider {
+            background: var(--brand-blue);
+        }
+        
+        .toggle-input:checked + .toggle-slider:before {
+            transform: translateX(30px);
+        }
+        
+        .select-control {
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-width: 150px;
+        }
+        
+        .input-control {
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-width: 200px;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: #E53E3E;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        .usage-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--bg-primary);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--brand-blue);
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .settings-container { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+            .main-content { padding: 1rem; }
+            .usage-stats { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="settings-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">JohnGPT Settings</div>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active">
+                            <i class="fas fa-user"></i>
+                            Profile
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-comments"></i>
+                            Conversations
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-bell"></i>
+                            Notifications
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-shield-alt"></i>
+                            Privacy & Security
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-plug"></i>
+                            Integrations
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-chart-bar"></i>
+                            Usage & Billing
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <div class="settings-header">
+                <h1>Profile Settings</h1>
+                <p style="color: var(--text-secondary);">Manage your JohnGPT experience and preferences</p>
+            </div>
+
+            <!-- Usage Overview -->
+            <div class="usage-stats">
+                <div class="stat-card">
+                    <div class="stat-number">247</div>
+                    <div class="stat-label">Conversations</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">45.2h</div>
+                    <div class="stat-label">Time Saved</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">92%</div>
+                    <div class="stat-label">Satisfaction</div>
+                </div>
+            </div>
+
+            <!-- Conversation Preferences -->
+            <div class="settings-section">
+                <h3 class="section-title">Conversation Preferences</h3>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Default Persona</div>
+                        <div class="setting-description">Choose which JohnGPT persona to start conversations with</div>
+                    </div>
+                    <div class="setting-control">
+                        <select class="select-control">
+                            <option value="creative">Creative Director</option>
+                            <option value="systems" selected>Systems Mentor</option>
+                            <option value="faith">Faith Guide</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Response Length</div>
+                        <div class="setting-description">Preferred length for AI responses</div>
+                    </div>
+                    <div class="setting-control">
+                        <select class="select-control">
+                            <option value="concise">Concise</option>
+                            <option value="detailed" selected>Detailed</option>
+                            <option value="comprehensive">Comprehensive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Auto-save Conversations</div>
+                        <div class="setting-description">Automatically save conversations to your history</div>
+                    </div>
+                    <div class="setting-control">
+                        <label class="toggle-switch">
+                            <input type="checkbox" class="toggle-input" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interface Settings -->
+            <div class="settings-section">
+                <h3 class="section-title">Interface & Display</h3>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Theme</div>
+                        <div class="setting-description">Choose your preferred color theme</div>
+                    </div>
+                    <div class="setting-control">
+                        <select class="select-control">
+                            <option value="light">Light</option>
+                            <option value="dark">Dark</option>
+                            <option value="auto" selected>Auto (System)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Show Typing Indicators</div>
+                        <div class="setting-description">Display typing animation when JohnGPT is responding</div>
+                    </div>
+                    <div class="setting-control">
+                        <label class="toggle-switch">
+                            <input type="checkbox" class="toggle-input" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Conversation Export Format</div>
+                        <div class="setting-description">Default format for exporting conversations</div>
+                    </div>
+                    <div class="setting-control">
+                        <select class="select-control">
+                            <option value="markdown" selected>Markdown</option>
+                            <option value="pdf">PDF</option>
+                            <option value="txt">Plain Text</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Privacy Settings -->
+            <div class="settings-section">
+                <h3 class="section-title">Privacy & Data</h3>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Improve JohnGPT</div>
+                        <div class="setting-description">Help improve responses by sharing anonymous conversation data</div>
+                    </div>
+                    <div class="setting-control">
+                        <label class="toggle-switch">
+                            <input type="checkbox" class="toggle-input" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Data Retention</div>
+                        <div class="setting-description">How long to keep your conversation history</div>
+                    </div>
+                    <div class="setting-control">
+                        <select class="select-control">
+                            <option value="1month">1 Month</option>
+                            <option value="6months" selected>6 Months</option>
+                            <option value="1year">1 Year</option>
+                            <option value="forever">Forever</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Actions -->
+            <div class="settings-section">
+                <h3 class="section-title">Account Management</h3>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Export All Data</div>
+                        <div class="setting-description">Download all your conversations and data</div>
+                    </div>
+                    <div class="setting-control">
+                        <button class="btn btn-secondary">
+                            <i class="fas fa-download"></i>
+                            Export Data
+                        </button>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Clear Conversation History</div>
+                        <div class="setting-description">Permanently delete all saved conversations</div>
+                    </div>
+                    <div class="setting-control">
+                        <button class="btn btn-danger">
+                            <i class="fas fa-trash"></i>
+                            Clear History
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Save Changes -->
+            <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+                <button class="btn btn-secondary">Cancel</button>
+                <button class="btn btn-primary">
+                    <i class="fas fa-save"></i>
+                    Save Changes
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Navigation
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                navLinks.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+            });
+        });
+
+        // Settings interactions
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const action = this.textContent.trim();
+                alert(`${action} action triggered!`);
+            });
+        });
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

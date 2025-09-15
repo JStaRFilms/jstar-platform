@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Community Calendar - Creator Growth Engine</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'jstar-blue': '#2563EB',
+            'faith-purple': '#8B5CF6',
+            'growth-green': '#059669',
+            'warning-yellow': '#F59E0B'
+          }
+        }
+      }
+    }
+    
+    function changeMonth(direction) {
+      const currentMonth = document.getElementById('current-month');
+      const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      const currentMonthIndex = months.indexOf(currentMonth.textContent.split(' ')[0]);
+      const newMonthIndex = (currentMonthIndex + direction + 12) % 12;
+      
+      currentMonth.textContent = `${months[newMonthIndex]} 2024`;
+      updateCalendar();
+    }
+    
+    function updateCalendar() {
+      // In a real app, this would fetch calendar data for the current month
+      // For this mockup, we'll just keep the same events but update the month display
+    }
+    
+    function selectDate(date) {
+      // Clear previous selection
+      document.querySelectorAll('.calendar-day').forEach(day => {
+        day.classList.remove('bg-jstar-blue', 'text-white');
+        day.classList.add('text-gray-700', 'dark:text-gray-300');
+      });
+      
+      // Set new selection
+      date.classList.remove('text-gray-700', 'dark:text-gray-300');
+      date.classList.add('bg-jstar-blue', 'text-white');
+      
+      // Update event details
+      const day = date.textContent;
+      document.getElementById('event-date').textContent = `June ${day}, 2024`;
+      
+      // Show relevant events
+      document.querySelectorAll('.event-item').forEach(event => {
+        event.classList.add('hidden');
+      });
+      
+      if (day === '15') {
+        document.getElementById('event-1').classList.remove('hidden');
+        document.getElementById('event-2').classList.remove('hidden');
+      } else if (day === '20') {
+        document.getElementById('event-3').classList.remove('hidden');
+      } else if (day === '25') {
+        document.getElementById('event-4').classList.remove('hidden');
+      }
+    }
+    
+    function showEventDetails(eventId) {
+      document.getElementById('event-details').classList.remove('hidden');
+      document.getElementById('event-details').scrollIntoView({ behavior: 'smooth' });
+      
+      // In real app, this would load event details via API
+      const event = document.getElementById(eventId);
+      const eventName = event.querySelector('h4').textContent;
+      const eventTime = event.querySelector('.text-xs').textContent;
+      const eventDescription = event.querySelector('p').textContent;
+      
+      document.getElementById('detail-event-name').textContent = eventName;
+      document.getElementById('detail-event-time').textContent = eventTime;
+      document.getElementById('detail-event-description').textContent = eventDescription;
+    }
+    
+    function closeEventDetails() {
+      document.getElementById('event-details').classList.add('hidden');
+    }
+    
+    function registerForEvent() {
+      const registerBtn = document.getElementById('register-btn');
+      const originalText = registerBtn.innerHTML;
+      registerBtn.innerHTML = '<svg class="animate-spin h-5 w-5 mr-2 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Registering...';
+      
+      setTimeout(() => {
+        registerBtn.innerHTML = originalText;
+        const successMsg = document.getElementById('event-registered');
+        successMsg.classList.remove('hidden');
+        
+        setTimeout(() => {
+          successMsg.classList.add('hidden');
+        }, 3000);
+      }, 1500);
+    }
+    
+    function showNewEventModal() {
+      document.getElementById('new-event-modal').classList.remove('hidden');
+      setTimeout(() => {
+        document.getElementById('new-event-modal').classList.add('opacity-100');
+      }, 10);
+    }
+    
+    function closeNewEventModal() {
+      document.getElementById('new-event-modal').classList.remove('opacity-100');
+      setTimeout(() => {
+        document.getElementById('new-event-modal').classList.add('hidden');
+      }, 300);
+    }
+    
+    function createNewEvent() {
+      const eventName = document.getElementById('event-name').value;
+      const eventDate = document.getElementById('event-date-input').value;
+      const eventTime = document.getElementById('event-time').value;
+      const eventDescription = document.getElementById('event-description').value;
+      
+      if (!eventName || !eventDate || !eventTime || !eventDescription) return;
+      
+      // Close modal
+      closeNewEventModal();
+      
+      // Add new event to calendar
+      const eventsContainer = document.getElementById('events-container');
+      const newEvent = document.createElement('div');
+      newEvent.className = 'event-item bg-gray-50 dark:bg-gray-900 p-3 rounded-lg mb-2 hidden';
+      newEvent.id = `event-${Date.now()}`;
+      
+      newEvent.innerHTML = `
+        <h4 class="font-medium text-gray-900 dark:text-white mb-1">${eventName}</h4>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">${eventTime}</p>
+        <p class="text-gray-700 dark:text-gray-300 line-clamp-2">${eventDescription}</p>
+        <button onclick="showEventDetails('${newEvent.id}')" 
+                class="mt-2 text-jstar-blue hover:text-faith-purple text-sm">
+          View Details
+        </button>
+      `;
+      
+      eventsContainer.appendChild(newEvent);
+    }
+    
+    // Simulate user tier (in real app this would come from auth)
+    const userTier = 'tier1';
+  </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+  <!-- PRD: FR049 (Community Calendar) -->
+  <div class="flex">
+    <!-- SIDEBAR -->
+    <div class="w-64 min-h-screen bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 hidden md:block">
+      <div class="p-5 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-jstar-blue to-faith-purple flex items-center justify-center mr-3">
+            <span class="text-white font-bold">J</span>
+          </div>
+          <div>
+            <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Admin • J StaR Films</p>
+          </div>
+        </div>
+      </div>
+      
+      <nav class="mt-5">
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
+          Dashboard
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          User Management
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          Content Management
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          </svg>
+          JohnGPT Settings
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v3m-6 5h6" />
+          </svg>
+          Analytics
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 bg-jstar-blue/10 dark:bg-jstar-blue/20 border-l-4 border-jstar-blue text-jstar-blue dark:text-white font-medium">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          Settings
+        </a>
+      </nav>
+      
+      <div class="absolute bottom-0 w-64 p-5 border-t border-gray-200 dark:border-gray-700">
+        <a href="#" class="flex items-center text-gray-700 dark:text-gray-300 hover:text-jstar-blue">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0 0l-3-3m3 3l3-3" />
+          </svg>
+          Sign Out
+        </a>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="flex-1">
+      <!-- TOP BAR -->
+      <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between px-6 py-4">
+          <div class="md:hidden">
+            <button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+          
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Community Calendar</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Shared calendar with faith-based event scheduling</p>
+          </div>
+          
+          <div class="flex items-center space-x-4">
+            <div class="relative">
+              <button class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-lg font-medium flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                </svg>
+                More Tools
+              </button>
+              <div class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-10">
+                <div class="py-1">
+                  <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">YouTube Virality OS</a>
+                  <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">Client Magnet System</a>
+                  <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">Systems Launcher Toolkit</a>
+                </div>
+              </div>
+            </div>
+            
+            <div class="relative">
+              <button class="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+              </button>
+              <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+            </div>
+            
+            <div class="hidden md:flex items-center">
+              <div class="w-8 h-8 rounded-full bg-jstar-blue flex items-center justify-center text-white mr-3">
+                J
+              </div>
+              <div>
+                <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Admin</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COMMUNITY CALENDAR CONTENT -->
+      <div class="p-6">
+        <!-- THEME TOGGLE -->
+        <div class="fixed top-4 right-4 z-50">
+          <button onclick="document.documentElement.classList.toggle('dark')" 
+                  class="p-2 rounded-full bg-jstar-blue text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between">
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Community Calendar</h2>
+            <p class="text-gray-600 dark:text-gray-400 mt-1">
+              <!-- PRD: Community Calendar Description -->Shared calendar with faith-based event scheduling
+            </p>
+          </div>
+          <div class="mt-3 sm:mt-0 flex space-x-2">
+            <button class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-lg font-medium">
+              View Guidelines
+            </button>
+            <button onclick="showNewEventModal()" class="px-4 py-2 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium">
+              + New Event
+            </button>
+          </div>
+        </div>
+        
+        <!-- CALENDAR VIEW -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 mb-8">
+          <div class="flex justify-between items-center mb-6">
+            <h3 id="current-month" class="text-xl font-bold text-gray-900 dark:text-white">June 2024</h3>
+            
+            <div class="flex space-x-2">
+              <button onclick="changeMonth(-1)" 
+                      class="p-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <button onclick="changeMonth(1)" 
+                      class="p-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-7 gap-2 mb-4">
+            <div class="text-center py-2 font-medium text-gray-700 dark:text-gray-300">Sun</div>
+            <div class="text-center py-2 font-medium text-gray-700 dark:text-gray-300">Mon</div>
+            <div class="text-center py-2 font-medium text-gray-700 dark:text-gray-300">Tue</div>
+            <div class="text-center py-2 font-medium text-gray-700 dark:text-gray-300">Wed</div>
+            <div class="text-center py-2 font-medium text-gray-700 dark:text-gray-300">Thu</div>
+            <div class="text-center py-2 font-medium text-gray-700 dark:text-gray-300">Fri</div>
+            <div class="text-center py-2 font-medium text-gray-700 dark:text-gray-300">Sat</div>
+          </div>
+          
+          <div class="grid grid-cols-7 gap-2">
+            <!-- PREVIOUS MONTH DAYS -->
+            <div class="text-center py-2 text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-900/50 rounded">26</div>
+            <div class="text-center py-2 text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-900/50 rounded">27</div>
+            <div class="text-center py-2 text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-900/50 rounded">28</div>
+            <div class="text-center py-2 text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-900/50 rounded">29</div>
+            <div class="text-center py-2 text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-900/50 rounded">30</div>
+            <div class="text-center py-2 text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-900/50 rounded">31</div>
+            <div class="text-center py-2 text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-900/50 rounded">1</div>
+            
+            <!-- CURRENT MONTH DAYS -->
+            <div class="text-center py-2 rounded cursor-pointer calendar-day" onclick="selectDate(this)">2</div>
+            <div class="text-center py-2 rounded cursor-pointer calendar-day" onclick="selectDate(this)">3</div>
+            <div class="text-center py-2 rounded cursor-pointer calendar-day" onclick="selectDate(this)">4</div>
+            <div class="text-center py-2 rounded cursor-pointer calendar-day" onclick="selectDate(this)">5</div>
+            <div class="text-center py-2 rounded cursor-pointer calendar-day" onclick="selectDate(this)">6</div>
+            <div class="text-center py-2 rounded cursor-pointer calendar-day" onclick="selectDate(this)">7</div>
+            <div class="text-center py-2 rounded cursor-pointer calendar-day" onclick="selectDate(this)">8</div>
+            
+            <div class="text-center py-2 rounded cursor-pointer calendar-day" onclick="selectDate(this)">9</div>
+            <div class="text-center py-2 rounded cursor-pointer calendar-day" onclick="selectDate(this)">10</div>
+            <div class="text-center py-2 rounded cursor-pointer calendar-day" onclick="selectDate(this)">11</div>
+            <div class="text-center py-2 rounded cursor-pointer calendar-day" onclick="selectDate(this)">12</div>
+            <div class="text-center py-2 rounded cursor-pointer calendar-day" onclick="selectDate(this)">13</div>
+            <div class="text-center py-2 rounded cursor-pointer calendar-day" onclick="selectDate(this)">14</div>
+            <div class="text-center py-2 rounded cursor-pointer calendar-day bg-jstar-blue text-white" onclick="selectDate(this)">15</div>
+            
+            <div class="text-center py-2 rounded cursor-pointer calendar-day" onclick="selectDate(this)">16</div>
+            <div class="text-center py-2 rounded cursor-pointer calendar-day" onclick="selectDate(this)">17</div>
+            <div class="text-center py-2 rounded cursor-pointer calendar-day" onclick="selectDate(this)">18</div>
+            <div class="text-center py-2 rounded cursor-pointer calendar-day" onclick="selectDate(this)">19</div>
+            <div class="text-center py-2 rounded cursor-pointer calendar-day bg-warning-yellow text-white" onclick="selectDate(this)">20</div>
+            <div class="text-center py-2 rounded cursor-pointer calendar-day" onclick="selectDate(this)">21</div>
+            <div class="text-center py-2 rounded cursor-pointer calendar-day" onclick="selectDate(this)">22</div>
+            
+            <div class="text-center py-2 rounded cursor-pointer calendar-day" onclick="selectDate(this)">23</div>
+            <div class="text-center py-2 rounded cursor-pointer calendar-day" onclick="selectDate(this)">24</div>
+            <div class="text-center py-2 rounded cursor-pointer calendar-day bg-growth-green text-white" onclick="selectDate(this)">25</div>
+            <div class="text-center py-2 rounded cursor-pointer calendar-day" onclick="selectDate(this)">26</div>
+            <div class="text-center py-2 rounded cursor-pointer calendar-day" onclick="selectDate(this)">27</div>
+            <div class="text-center py-2 rounded cursor-pointer calendar-day" onclick="selectDate(this)">28</div>
+            <div class="text-center py-2 rounded cursor-pointer calendar-day" onclick="selectDate(this)">29</div>
+            
+            <div class="text-center py-2 rounded cursor-pointer calendar-day" onclick="selectDate(this)">30</div>
+            <!-- NEXT MONTH DAYS -->
+            <div class="text-center py-2 text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-900/50 rounded">1</div>
+            <div class="text-center py-2 text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-900/50 rounded">2</div>
+            <div class="text-center py-2 text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-900/50 rounded">3</div>
+            <div class="text-center py-2 text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-900/50 rounded">4</div>
+            <div class="text-center py-2 text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-900/50 rounded">5</div>
+            <div class="text-center py-2 text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-900/50 rounded">6</div>
+          </div>
+        </div>
+        
+        <!-- EVENTS SECTION -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <!-- EVENTS LIST -->
+          <div class="lg:col-span-2">
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 mb-8">
+              <div class="flex justify-between items-start mb-6">
+                <div>
+                  <h3 id="event-date" class="text-xl font-bold text-gray-900 dark:text-white">June 15, 2024</h3>
+                  <p class="text-gray-600 dark:text-gray-400">Upcoming community events</p>
+                </div>
+                <div class="flex space-x-2">
+                  <button class="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </button>
+                  <button class="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              
+              <div id="events-container">
+                <!-- EVENT 1 -->
+                <div id="event-1" class="event-item bg-gray-50 dark:bg-gray-900 p-3 rounded-lg mb-2">
+                  <h4 class="font-medium text-gray-900 dark:text-white mb-1">Weekly Prayer Call</h4>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">12:00 PM - 1:00 PM EST</p>
+                  <p class="text-gray-700 dark:text-gray-300 line-clamp-2">
+                    Join us for our weekly prayer call where we pray for each other's creative work and ask for God's guidance in our projects.
+                  </p>
+                  <button onclick="showEventDetails('event-1')" 
+                          class="mt-2 text-jstar-blue hover:text-faith-purple text-sm">
+                    View Details
+                  </button>
+                </div>
+                
+                <!-- EVENT 2 -->
+                <div id="event-2" class="event-item bg-gray-50 dark:bg-gray-900 p-3 rounded-lg mb-2">
+                  <h4 class="font-medium text-gray-900 dark:text-white mb-1">Content Creation Workshop</h4>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">2:00 PM - 3:30 PM EST</p>
+                  <p class="text-gray-700 dark:text-gray-300 line-clamp-2">
+                    Learn how to integrate faith principles into your content creation process while maximizing reach and engagement.
+                  </p>
+                  <button onclick="showEventDetails('event-2')" 
+                          class="mt-2 text-jstar-blue hover:text-faith-purple text-sm">
+                    View Details
+                  </button>
+                </div>
+                
+                <!-- EVENT 3 -->
+                <div id="event-3" class="event-item bg-gray-50 dark:bg-gray-900 p-3 rounded-lg mb-2 hidden">
+                  <h4 class="font-medium text-gray-900 dark:text-white mb-1">Faith & Tech Integration</h4>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">10:00 AM - 11:30 AM EST</p>
+                  <p class="text-gray-700 dark:text-gray-300 line-clamp-2">
+                    Practical strategies for integrating faith and technology in your creative work while maintaining excellence.
+                  </p>
+                  <button onclick="showEventDetails('event-3')" 
+                          class="mt-2 text-jstar-blue hover:text-faith-purple text-sm">
+                    View Details
+                  </button>
+                </div>
+                
+                <!-- EVENT 4 -->
+                <div id="event-4" class="event-item bg-gray-50 dark:bg-gray-900 p-3 rounded-lg mb-2 hidden">
+                  <h4 class="font-medium text-gray-900 dark:text-white mb-1">Client Magnet Q&A</h4>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">3:00 PM - 4:30 PM EST</p>
+                  <p class="text-gray-700 dark:text-gray-300 line-clamp-2">
+                    Monthly Q&A session with faith-based content experts about client acquisition and serving with excellence.
+                  </p>
+                  <button onclick="showEventDetails('event-4')" 
+                          class="mt-2 text-jstar-blue hover:text-faith-purple text-sm">
+                    View Details
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- EVENT DETAILS -->
+            <div id="event-details" class="hidden bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+              <div class="flex justify-between items-start mb-6">
+                <div>
+                  <h3 id="detail-event-name" class="text-2xl font-bold text-gray-900 dark:text-white">Weekly Prayer Call</h3>
+                  <p id="detail-event-time" class="text-gray-600 dark:text-gray-400">June 15, 2024 • 12:00 PM - 1:00 PM EST</p>
+                </div>
+                <button onclick="closeEventDetails()"
+                        class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              
+              <div class="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 mb-6">
+                <p id="detail-event-description">
+                  Join us for our weekly prayer call where we pray for each other's creative work and ask for God's guidance in our projects. 
+                  This is a time to connect with other faith-driven creators, share prayer requests, and grow together in our creative journey.
+                </p>
+                
+                <h4>What to Expect</h4>
+                <ul>
+                  <li>Opening prayer and worship</li>
+                  <li>Sharing of prayer requests</li>
+                  <li>Guided prayer time</li>
+                  <li>Accountability check-ins</li>
+                  <li>Closing prayer and encouragement</li>
+                </ul>
+                
+                <h4>Preparation</h4>
+                <p>
+                  Come ready to share one specific prayer request related to your creative work. It's helpful to have your Bible or a 
+                  favorite scripture passage ready to share if prompted.
+                </p>
+              </div>
+              
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div class="flex items-center mb-3 sm:mb-0">
+                  <div class="w-10 h-10 rounded-full bg-jstar-blue flex items-center justify-center text-white mr-3">
+                    J
+                  </div>
+                  <div>
+                    <p class="font-medium text-gray-900 dark:text-white">Hosted by John Oluleke-Oke</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Admin • J StaR Films</p>
+                  </div>
+                </div>
+                
+                <div class="flex space-x-2">
+                  <button id="register-btn" onclick="registerForEvent()"
+                          class="px-4 py-2 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium">
+                    Register for Event
+                  </button>
+                  <button class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-lg font-medium">
+                    Add to Calendar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- CALENDAR DETAILS -->
+          <div>
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 mb-6">
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Upcoming Events</h3>
+              
+              <div class="space-y-4">
+                <!-- UPCOMING EVENT 1 -->
+                <div class="flex">
+                  <div class="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center text-blue-800 mr-3 flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 class="font-medium text-gray-900 dark:text-white">Weekly Prayer Call</h4>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">June 15 • 12:00 PM EST</p>
+                  </div>
+                </div>
+                
+                <!-- UPCOMING EVENT 2 -->
+                <div class="flex">
+                  <div class="w-12 h-12 rounded-lg bg-purple-100 flex items-center justify-center text-purple-800 mr-3 flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 class="font-medium text-gray-900 dark:text-white">Faith & Tech Workshop</h4>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">June 20 • 3:00 PM EST</p>
+                  </div>
+                </div>
+                
+                <!-- UPCOMING EVENT 3 -->
+                <div class="flex">
+                  <div class="w-12 h-12 rounded-lg bg-yellow-100 flex items-center justify-center text-yellow-800 mr-3 flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 class="font-medium text-gray-900 dark:text-white">Content Creator Q&A</h4>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">June 25 • 10:00 AM EST</p>
+                  </div>
+                </div>
+                
+                <!-- UPCOMING EVENT 4 -->
+                <div class="flex">
+                  <div class="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center text-green-800 mr-3 flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 class="font-medium text-gray-900 dark:text-white">Client Acquisition Session</h4>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">June 28 • 2:00 PM EST</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- CALENDAR CATEGORIES -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Event Categories</h3>
+              
+              <div class="space-y-3">
+                <div class="flex items-center">
+                  <div class="w-3 h-3 rounded-full bg-jstar-blue mr-2"></div>
+                  <span class="text-gray-700 dark:text-gray-300">Prayer & Worship</span>
+                </div>
+                
+                <div class="flex items-center">
+                  <div class="w-3 h-3 rounded-full bg-faith-purple mr-2"></div>
+                  <span class="text-gray-700 dark:text-gray-300">Faith Integration</span>
+                </div>
+                
+                <div class="flex items-center">
+                  <div class="w-3 h-3 rounded-full bg-warning-yellow mr-2"></div>
+                  <span class="text-gray-700 dark:text-gray-300">Workshops & Training</span>
+                </div>
+                
+                <div class="flex items-center">
+                  <div class="w-3 h-3 rounded-full bg-growth-green mr-2"></div>
+                  <span class="text-gray-700 dark:text-gray-300">Q&A Sessions</span>
+                </div>
+                
+                <div class="flex items-center">
+                  <div class="w-3 h-3 rounded-full bg-gray-300 dark:bg-gray-600 mr-2"></div>
+                  <span class="text-gray-700 dark:text-gray-300">Community Events</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- NEW EVENT MODAL -->
+        <div id="new-event-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden transition-opacity duration-300 opacity-0">
+          <div class="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-2xl">
+            <div class="flex justify-end mb-4">
+              <button onclick="closeNewEventModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Create New Event</h3>
+            
+            <div class="mb-6">
+              <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Event Name</label>
+              <input type="text" id="event-name" placeholder="Enter event name" 
+                     class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 mb-6">
+              <div>
+                <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Date</label>
+                <input type="date" id="event-date-input" 
+                       class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Time</label>
+                <input type="time" id="event-time" 
+                       class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+              </div>
+            </div>
+            
+            <div class="mb-6">
+              <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Description</label>
+              <textarea id="event-description" rows="4" placeholder="Describe the event..." 
+                        class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue"></textarea>
+            </div>
+            
+            <div class="mb-6">
+              <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Category</label>
+              <div class="grid grid-cols-2 gap-4">
+                <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg cursor-pointer">
+                  <input type="radio" name="category" value="prayer" checked class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 dark:border-gray-600 mr-3">
+                  <div>
+                    <h4 class="font-medium text-gray-900 dark:text-white">Prayer & Worship</h4>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Prayer calls and worship</p>
+                  </div>
+                </label>
+                
+                <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg cursor-pointer">
+                  <input type="radio" name="category" value="faith" class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 dark:border-gray-600 mr-3">
+                  <div>
+                    <h4 class="font-medium text-gray-900 dark:text-white">Faith Integration</h4>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Integrating faith with work</p>
+                  </div>
+                </label>
+                
+                <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg cursor-pointer">
+                  <input type="radio" name="category" value="workshop" class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 dark:border-gray-600 mr-3">
+                  <div>
+                    <h4 class="font-medium text-gray-900 dark:text-white">Workshops & Training</h4>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Educational sessions</p>
+                  </div>
+                </label>
+                
+                <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg cursor-pointer">
+                  <input type="radio" name="category" value="qa" class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 dark:border-gray-600 mr-3">
+                  <div>
+                    <h4 class="font-medium text-gray-900 dark:text-white">Q&A Sessions</h4>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Question and answer</p>
+                  </div>
+                </label>
+              </div>
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+              <button onclick="closeNewEventModal()" 
+                      class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-lg font-medium">
+                Cancel
+              </button>
+              <button onclick="createNewEvent()" 
+                      class="px-4 py-2 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium">
+                Create Event
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- TIER 3 FEATURES -->
+        <div class="bg-gray-50 dark:bg-gray-900 rounded-xl p-6 mt-6 border border-gray-200 dark:border-gray-700">
+          <div class="flex flex-col md:flex-row md:items-start">
+            <div class="md:mr-4 mb-3 md:mb-0">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-bold text-gray-900 dark:text-white mb-1">Tier 3 Exclusive Features</h3>
+              <p class="text-gray-700 dark:text-gray-300 mb-3">
+                <!-- PRD: Tier 3 Features -->These advanced calendar features are available to Tier 3 subscribers:
+              </p>
+              <ul class="list-disc pl-5 space-y-1 text-gray-700 dark:text-gray-300 mb-4">
+                <li>Community events calendar with faith-based scheduling (FR049)</li>
+                <li>JohnGPT-powered event recommendations based on your workflow</li>
+                <li>Integration with prayer tools for spiritual accountability</li>
+                <li>Private event creation with faith-based filtering</li>
+                <li>Community-wide prayer schedule integration</li>
+              </ul>
+              <button class="bg-gradient-to-r from-jstar-blue to-faith-purple text-white font-medium py-2 px-4 rounded-full">
+                Upgrade to Tier 3 for Full Access
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigation Components - J StaR Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        
+        .demo-section {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+        
+        .section-description {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Main Header Navigation */
+        .main-header {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+        
+        .main-nav {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+        
+        .nav-link {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background: var(--bg-secondary);
+            color: var(--brand-blue);
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .theme-toggle {
+            padding: 0.5rem;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            color: var(--text-primary);
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            padding: 0.5rem;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            color: var(--text-primary);
+        }
+        
+        /* Sidebar Navigation */
+        .sidebar-nav {
+            width: 250px;
+            height: 100vh;
+            background: var(--bg-primary);
+            border-right: 1px solid var(--border);
+            padding: 1.5rem 0;
+            position: fixed;
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+        }
+        
+        .sidebar-logo {
+            padding: 0 1.5rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+        }
+        
+        .sidebar-item {
+            margin-bottom: 0.25rem;
+        }
+        
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-link:hover, .sidebar-link.active {
+            background: var(--bg-secondary);
+            color: var(--brand-blue);
+            border-right: 3px solid var(--brand-blue);
+        }
+        
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            background: var(--bg-secondary);
+            border-radius: 0.75rem;
+            padding: 0.25rem;
+            gap: 0.25rem;
+        }
+        
+        .tab-item {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            text-align: center;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .tab-item.active {
+            background: var(--bg-primary);
+            color: var(--brand-blue);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Breadcrumb Navigation */
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .breadcrumb a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .breadcrumb a:hover {
+            color: var(--brand-blue);
+        }
+        
+        .breadcrumb-separator {
+            color: var(--border);
+        }
+        
+        /* Dropdown Menu */
+        .dropdown {
+            position: relative;
+        }
+        
+        .dropdown-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            color: var(--text-primary);
+        }
+        
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.5rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            padding: 0.5rem 0;
+            min-width: 200px;
+            display: none;
+            z-index: 1000;
+        }
+        
+        .dropdown-menu.show {
+            display: block;
+        }
+        
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: background 0.3s ease;
+        }
+        
+        .dropdown-item:hover {
+            background: var(--bg-secondary);
+        }
+        
+        .dropdown-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 0.5rem 0;
+        }
+        
+        /* Pagination Navigation */
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .page-btn {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border);
+            background: var(--bg-primary);
+            border-radius: 0.25rem;
+            cursor: pointer;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .page-btn:hover:not(.disabled) {
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        .page-btn.active {
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        .page-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary { background: var(--brand-blue); color: white; }
+        .btn-secondary { background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary); }
+        
+        @media (max-width: 768px) {
+            .main-nav { display: none; }
+            .mobile-menu-btn { display: block; }
+            .header-actions { gap: 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 2rem; text-align: center;">
+            Navigation Components
+        </h1>
+
+        <!-- Main Header Navigation -->
+        <div class="demo-section">
+            <h2 class="section-title">Main Header Navigation</h2>
+            <p class="section-description">
+                Primary navigation for the public website with responsive design and theme toggle.
+            </p>
+            
+            <header class="main-header">
+                <div class="header-container">
+                    <a href="#" class="logo">J StaR</a>
+                    
+                    <nav>
+                        <ul class="main-nav">
+                            <li><a href="#" class="nav-link active">Home</a></li>
+                            <li><a href="#" class="nav-link">About</a></li>
+                            <li><a href="#" class="nav-link">Portfolio</a></li>
+                            <li><a href="#" class="nav-link">Services</a></li>
+                            <li><a href="#" class="nav-link">Blog</a></li>
+                            <li><a href="#" class="nav-link">Contact</a></li>
+                        </ul>
+                    </nav>
+                    
+                    <div class="header-actions">
+                        <button class="theme-toggle" onclick="toggleTheme()">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        <a href="#" class="btn btn-primary">Get Started</a>
+                        <button class="mobile-menu-btn">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+        </div>
+
+        <!-- Sidebar Navigation -->
+        <div class="demo-section">
+            <h2 class="section-title">Sidebar Navigation</h2>
+            <p class="section-description">
+                Admin dashboard sidebar with hierarchical menu structure and active states.
+            </p>
+            
+            <div style="height: 400px; position: relative; overflow: hidden; border: 1px solid var(--border); border-radius: 0.5rem;">
+                <nav class="sidebar-nav">
+                    <div class="sidebar-logo">
+                        <div class="logo">Admin Panel</div>
+                    </div>
+                    
+                    <ul class="sidebar-menu">
+                        <li class="sidebar-item">
+                            <a href="#" class="sidebar-link active">
+                                <i class="fas fa-home"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="#" class="sidebar-link">
+                                <i class="fas fa-users"></i>
+                                Users
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="#" class="sidebar-link">
+                                <i class="fas fa-edit"></i>
+                                Content
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="#" class="sidebar-link">
+                                <i class="fas fa-chart-bar"></i>
+                                Analytics
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="#" class="sidebar-link">
+                                <i class="fas fa-robot"></i>
+                                JohnGPT
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="#" class="sidebar-link">
+                                <i class="fas fa-cog"></i>
+                                Settings
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="demo-section">
+            <h2 class="section-title">Tab Navigation</h2>
+            <p class="section-description">
+                Segmented control for switching between related views or content sections.
+            </p>
+            
+            <div class="tab-nav">
+                <div class="tab-item active">Overview</div>
+                <div class="tab-item">Analytics</div>
+                <div class="tab-item">Settings</div>
+                <div class="tab-item">Billing</div>
+            </div>
+        </div>
+
+        <!-- Breadcrumb Navigation -->
+        <div class="demo-section">
+            <h2 class="section-title">Breadcrumb Navigation</h2>
+            <p class="section-description">
+                Shows the user's current location within the site hierarchy.
+            </p>
+            
+            <nav class="breadcrumb">
+                <a href="#">Home</a>
+                <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+                <a href="#">Dashboard</a>
+                <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+                <a href="#">Users</a>
+                <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+                <span style="color: var(--text-primary);">User Profile</span>
+            </nav>
+        </div>
+
+        <!-- Dropdown Menu -->
+        <div class="demo-section">
+            <h2 class="section-title">Dropdown Menu</h2>
+            <p class="section-description">
+                User profile dropdown with account actions and navigation options.
+            </p>
+            
+            <div style="display: flex; justify-content: center;">
+                <div class="dropdown">
+                    <button class="dropdown-toggle" onclick="toggleDropdown()">
+                        <div style="width: 32px; height: 32px; background: var(--brand-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">
+                            JS
+                        </div>
+                        John Smith
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    
+                    <div class="dropdown-menu" id="userDropdown">
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-user"></i>
+                            Profile
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-cog"></i>
+                            Settings
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-credit-card"></i>
+                            Billing
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Sign Out
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination Navigation -->
+        <div class="demo-section">
+            <h2 class="section-title">Pagination Navigation</h2>
+            <p class="section-description">
+                Navigate through multiple pages of content with previous/next controls.
+            </p>
+            
+            <div style="display: flex; justify-content: center;">
+                <nav class="pagination">
+                    <a href="#" class="page-btn disabled">
+                        <i class="fas fa-chevron-left"></i>
+                        Previous
+                    </a>
+                    <a href="#" class="page-btn active">1</a>
+                    <a href="#" class="page-btn">2</a>
+                    <a href="#" class="page-btn">3</a>
+                    <span style="padding: 0.5rem;">...</span>
+                    <a href="#" class="page-btn">10</a>
+                    <a href="#" class="page-btn">
+                        Next
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme toggle
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // Dropdown toggle
+        function toggleDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.dropdown')) {
+                document.getElementById('userDropdown').classList.remove('show');
+            }
+        });
+
+        // Tab navigation
+        document.querySelectorAll('.tab-item').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+            });
+        });
+
+        // Sidebar navigation
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+            });
+        });
+
+        // Main navigation
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+            });
+        });
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

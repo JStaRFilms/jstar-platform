@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog - J StaR Insights on Creativity & Tech</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+        
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+        
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+        
+        .header {
+            padding: 8rem 0 4rem;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            color: white;
+            text-align: center;
+        }
+        
+        .header-title {
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            font-weight: 900;
+            margin-bottom: 1rem;
+        }
+        
+        .search-section {
+            padding: 3rem 0;
+            background: var(--bg-secondary);
+        }
+        
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 2px solid var(--border);
+            border-radius: 2rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+        
+        .categories {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .category-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            border-radius: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .category-btn:hover,
+        .category-btn.active {
+            background: var(--brand-blue);
+            color: white;
+            border-color: var(--brand-blue);
+        }
+        
+        .blog-content {
+            padding: 4rem 0;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 4rem;
+        }
+        
+        .posts-grid {
+            display: grid;
+            gap: 2rem;
+        }
+        
+        .post-card {
+            background: var(--bg-secondary);
+            border-radius: 1rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 0;
+        }
+        
+        .post-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+        
+        .post-image {
+            background: linear-gradient(45deg, var(--brand-blue), var(--creative-teal));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            min-height: 200px;
+        }
+        
+        .post-content {
+            padding: 2rem;
+        }
+        
+        .post-category {
+            display: inline-block;
+            background: var(--warm-orange);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .post-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+        
+        .post-excerpt {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        
+        .post-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .post-date {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .read-time {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .read-more {
+            color: var(--brand-blue);
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.3s ease;
+        }
+        
+        .read-more:hover {
+            color: var(--creative-teal);
+        }
+        
+        .sidebar {
+            background: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+            height: fit-content;
+            position: sticky;
+            top: 120px;
+        }
+        
+        .sidebar-section {
+            margin-bottom: 2rem;
+        }
+        
+        .sidebar-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+        
+        .popular-posts {
+            list-style: none;
+        }
+        
+        .popular-post {
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .popular-post:last-child {
+            border-bottom: none;
+        }
+        
+        .popular-title {
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+            font-size: 0.875rem;
+        }
+        
+        .popular-date {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .tag {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .tag:hover {
+            background: var(--brand-blue);
+            color: white;
+            border-color: var(--brand-blue);
+        }
+        
+        @media (max-width: 1024px) {
+            .blog-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .post-card {
+                grid-template-columns: 1fr;
+            }
+            .post-image {
+                min-height: 150px;
+            }
+            .categories {
+                justify-content: flex-start;
+                overflow-x: auto;
+                padding-bottom: 1rem;
+            }
+            .container { padding: 0 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <a href="homepage-complete.html" class="logo">J StaR Films</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="header">
+        <div class="container">
+            <h1 class="header-title">Creative Insights</h1>
+            <p style="font-size: 1.25rem; opacity: 0.9;">
+                Thoughts on creativity, technology, faith, and building something meaningful.
+            </p>
+        </div>
+    </section>
+
+    <section class="search-section">
+        <div class="container">
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" placeholder="Search articles...">
+            </div>
+            <div class="categories">
+                <button class="category-btn active">All Posts</button>
+                <button class="category-btn">Creativity</button>
+                <button class="category-btn">Technology</button>
+                <button class="category-btn">Faith & Purpose</button>
+                <button class="category-btn">Business</button>
+                <button class="category-btn">AI & Innovation</button>
+            </div>
+        </div>
+    </section>
+
+    <section class="blog-content">
+        <div class="container" style="max-width: none; padding: 0;">
+            <div style="padding: 0 2rem;">
+                <div class="posts-grid">
+                    <article class="post-card">
+                        <div class="post-image">🎬</div>
+                        <div class="post-content">
+                            <span class="post-category">Creativity</span>
+                            <h2 class="post-title">The Art of Cinematic Storytelling in Business</h2>
+                            <p class="post-excerpt">
+                                How applying filmmaking principles to business content can transform your brand narrative and create deeper connections with your audience.
+                            </p>
+                            <div class="post-meta">
+                                <div class="post-date">
+                                    <i class="fas fa-calendar"></i>
+                                    December 15, 2024
+                                </div>
+                                <div class="read-time">
+                                    <i class="fas fa-clock"></i>
+                                    8 min read
+                                </div>
+                            </div>
+                            <a href="#" class="read-more">
+                                Read More <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </article>
+
+                    <article class="post-card">
+                        <div class="post-image">🤖</div>
+                        <div class="post-content">
+                            <span class="post-category">AI & Innovation</span>
+                            <h2 class="post-title">Building AI Tools That Actually Help Creators</h2>
+                            <p class="post-excerpt">
+                                My journey creating JohnGPT and lessons learned about making AI assistants that enhance creativity rather than replace it.
+                            </p>
+                            <div class="post-meta">
+                                <div class="post-date">
+                                    <i class="fas fa-calendar"></i>
+                                    December 10, 2024
+                                </div>
+                                <div class="read-time">
+                                    <i class="fas fa-clock"></i>
+                                    12 min read
+                                </div>
+                            </div>
+                            <a href="#" class="read-more">
+                                Read More <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </article>
+
+                    <article class="post-card">
+                        <div class="post-image">⚡</div>
+                        <div class="post-content">
+                            <span class="post-category">Business</span>
+                            <h2 class="post-title">Systems Thinking for Creative Entrepreneurs</h2>
+                            <p class="post-excerpt">
+                                Why successful creators need to think beyond the craft and build systems that scale their impact and income.
+                            </p>
+                            <div class="post-meta">
+                                <div class="post-date">
+                                    <i class="fas fa-calendar"></i>
+                                    December 5, 2024
+                                </div>
+                                <div class="read-time">
+                                    <i class="fas fa-clock"></i>
+                                    6 min read
+                                </div>
+                            </div>
+                            <a href="#" class="read-more">
+                                Read More <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </article>
+
+                    <article class="post-card">
+                        <div class="post-image">✝️</div>
+                        <div class="post-content">
+                            <span class="post-category">Faith & Purpose</span>
+                            <h2 class="post-title">Creating with Purpose: Faith in the Digital Age</h2>
+                            <p class="post-excerpt">
+                                How my faith shapes my approach to creativity, technology, and serving others through meaningful work.
+                            </p>
+                            <div class="post-meta">
+                                <div class="post-date">
+                                    <i class="fas fa-calendar"></i>
+                                    November 28, 2024
+                                </div>
+                                <div class="read-time">
+                                    <i class="fas fa-clock"></i>
+                                    10 min read
+                                </div>
+                            </div>
+                            <a href="#" class="read-more">
+                                Read More <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </article>
+
+                    <article class="post-card">
+                        <div class="post-image">💻</div>
+                        <div class="post-content">
+                            <span class="post-category">Technology</span>
+                            <h2 class="post-title">Local-First Development: Why I Choose Offline Capabilities</h2>
+                            <p class="post-excerpt">
+                                The benefits of building applications that work offline first, and how this philosophy shapes better user experiences.
+                            </p>
+                            <div class="post-meta">
+                                <div class="post-date">
+                                    <i class="fas fa-calendar"></i>
+                                    November 20, 2024
+                                </div>
+                                <div class="read-time">
+                                    <i class="fas fa-clock"></i>
+                                    7 min read
+                                </div>
+                            </div>
+                            <a href="#" class="read-more">
+                                Read More <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </article>
+                </div>
+            </div>
+
+            <aside class="sidebar" style="margin-right: 2rem;">
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">Popular Posts</h3>
+                    <ul class="popular-posts">
+                        <li class="popular-post">
+                            <div class="popular-title">The Creator's Dilemma: Art vs. Algorithm</div>
+                            <div class="popular-date">Nov 15, 2024</div>
+                        </li>
+                        <li class="popular-post">
+                            <div class="popular-title">Building My First AI Assistant</div>
+                            <div class="popular-date">Oct 28, 2024</div>
+                        </li>
+                        <li class="popular-post">
+                            <div class="popular-title">Faith-Driven Entrepreneurship</div>
+                            <div class="popular-date">Oct 12, 2024</div>
+                        </li>
+                        <li class="popular-post">
+                            <div class="popular-title">The Future of Creative Work</div>
+                            <div class="popular-date">Sep 30, 2024</div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">Tags</h3>
+                    <div class="tags">
+                        <span class="tag">creativity</span>
+                        <span class="tag">ai</span>
+                        <span class="tag">faith</span>
+                        <span class="tag">business</span>
+                        <span class="tag">systems</span>
+                        <span class="tag">filmmaking</span>
+                        <span class="tag">development</span>
+                        <span class="tag">entrepreneurship</span>
+                        <span class="tag">purpose</span>
+                        <span class="tag">innovation</span>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">Newsletter</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1rem;">
+                        Get weekly insights on creativity, technology, and purpose-driven business.
+                    </p>
+                    <input type="email" placeholder="Your email..." style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 0.5rem; margin-bottom: 1rem; background: var(--bg-primary); color: var(--text-primary);">
+                    <button style="width: 100%; padding: 0.75rem; background: var(--brand-blue); color: white; border: none; border-radius: 0.5rem; font-weight: 600; cursor: pointer;">
+                        Subscribe
+                    </button>
+                </div>
+            </aside>
+        </div>
+    </section>
+
+    <script>
+        // Category filtering
+        const categoryBtns = document.querySelectorAll('.category-btn');
+        categoryBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                categoryBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        // Tag clicking
+        const tags = document.querySelectorAll('.tag');
+        tags.forEach(tag => {
+            tag.addEventListener('click', () => {
+                const searchInput = document.querySelector('.search-input');
+                searchInput.value = tag.textContent;
+            });
+        });
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

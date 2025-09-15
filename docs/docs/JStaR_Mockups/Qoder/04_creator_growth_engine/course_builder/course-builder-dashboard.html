@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Builder - Creator Growth Engine</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+            --course-indigo: #667EEA;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, var(--course-indigo), var(--brand-blue));
+            padding: 2rem;
+            border-radius: 1rem;
+            color: white;
+        }
+        
+        .course-stats {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        .stats-number {
+            font-size: 3rem;
+            font-weight: 700;
+        }
+        
+        .stats-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .builder-nav {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            background: var(--bg-primary);
+            padding: 0.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border);
+        }
+        
+        .nav-tab {
+            flex: 1;
+            padding: 0.75rem;
+            text-align: center;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .nav-tab.active {
+            background: var(--course-indigo);
+            color: white;
+        }
+        
+        .nav-tab:not(.active):hover {
+            background: var(--bg-secondary);
+        }
+        
+        .content-area {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .course-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .course-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .course-thumbnail {
+            width: 100%;
+            height: 120px;
+            background: linear-gradient(135deg, var(--course-indigo), var(--brand-blue));
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+        }
+        
+        .course-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .course-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .course-meta {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .course-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-published {
+            background: rgba(69, 183, 209, 0.2);
+            color: var(--success-green);
+        }
+        
+        .status-draft {
+            background: rgba(255, 107, 107, 0.2);
+            color: var(--warm-orange);
+        }
+        
+        .course-progress {
+            margin-bottom: 1rem;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-primary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--course-indigo), var(--brand-blue));
+            transition: width 0.3s ease;
+        }
+        
+        .course-stats-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .builder-interface {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+            height: 600px;
+        }
+        
+        .lesson-sidebar {
+            background: var(--bg-secondary);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+        
+        .lesson-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .lesson-item:hover {
+            background: var(--bg-primary);
+        }
+        
+        .lesson-item.active {
+            background: var(--course-indigo);
+            color: white;
+        }
+        
+        .lesson-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+        
+        .lesson-item.active .lesson-icon {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        
+        .lesson-editor {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .editor-toolbar {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .toolbar-btn {
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .toolbar-btn:hover {
+            background: var(--course-indigo);
+            color: white;
+        }
+        
+        .editor-content {
+            flex: 1;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            background: var(--bg-secondary);
+        }
+        
+        .templates-section {
+            margin-top: 2rem;
+        }
+        
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .template-card {
+            background: var(--bg-primary);
+            border: 2px dashed var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .template-card:hover {
+            border-color: var(--course-indigo);
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary { background: var(--course-indigo); color: white; }
+        .btn-secondary { background: var(--bg-secondary); border: 1px solid var(--border); }
+        
+        @media (max-width: 1024px) {
+            .builder-interface { grid-template-columns: 1fr; height: auto; }
+            .lesson-sidebar { height: 200px; }
+        }
+        
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .header { flex-direction: column; gap: 1.5rem; text-align: center; }
+            .courses-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem;">🎓 Course Builder</h1>
+                <p style="font-size: 1.2rem; opacity: 0.9;">Create engaging online courses that sell</p>
+            </div>
+            <div class="course-stats">
+                <div class="stats-number">12</div>
+                <div class="stats-label">Active Courses</div>
+            </div>
+        </div>
+
+        <div class="builder-nav">
+            <div class="nav-tab active" data-tab="courses">My Courses</div>
+            <div class="nav-tab" data-tab="builder">Course Builder</div>
+            <div class="nav-tab" data-tab="templates">Templates</div>
+            <div class="nav-tab" data-tab="analytics">Analytics</div>
+        </div>
+
+        <div class="content-area" id="coursesTab">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 style="font-size: 1.5rem; font-weight: 600;">Your Courses</h2>
+                <button class="btn btn-primary" onclick="switchTab('builder')">
+                    <i class="fas fa-plus"></i> Create New Course
+                </button>
+            </div>
+
+            <div class="courses-grid">
+                <div class="course-card">
+                    <div class="course-thumbnail">🚀</div>
+                    <div class="course-header">
+                        <div>
+                            <div class="course-title">AI Productivity Masterclass</div>
+                            <div class="course-meta">12 lessons • 4.5 hours • Updated 2 days ago</div>
+                        </div>
+                        <div class="course-status status-published">Published</div>
+                    </div>
+                    <div class="course-progress">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.85rem;">
+                            <span>Progress</span>
+                            <span>100%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 100%;"></div>
+                        </div>
+                    </div>
+                    <div class="course-stats-row">
+                        <span>847 students</span>
+                        <span>4.8 ⭐</span>
+                        <span>$12,470 revenue</span>
+                    </div>
+                </div>
+
+                <div class="course-card">
+                    <div class="course-thumbnail">💡</div>
+                    <div class="course-header">
+                        <div>
+                            <div class="course-title">Client Acquisition System</div>
+                            <div class="course-meta">8 lessons • 3 hours • Updated 1 week ago</div>
+                        </div>
+                        <div class="course-status status-published">Published</div>
+                    </div>
+                    <div class="course-progress">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.85rem;">
+                            <span>Progress</span>
+                            <span>100%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 100%;"></div>
+                        </div>
+                    </div>
+                    <div class="course-stats-row">
+                        <span>432 students</span>
+                        <span>4.9 ⭐</span>
+                        <span>$8,640 revenue</span>
+                    </div>
+                </div>
+
+                <div class="course-card">
+                    <div class="course-thumbnail">⚙️</div>
+                    <div class="course-header">
+                        <div>
+                            <div class="course-title">Business Automation Blueprint</div>
+                            <div class="course-meta">6 lessons • 2.5 hours • Draft</div>
+                        </div>
+                        <div class="course-status status-draft">Draft</div>
+                    </div>
+                    <div class="course-progress">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.85rem;">
+                            <span>Progress</span>
+                            <span>67%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 67%;"></div>
+                        </div>
+                    </div>
+                    <div class="course-stats-row">
+                        <span>In development</span>
+                        <span>—</span>
+                        <span>Expected: $15K+</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-area" id="builderTab" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 style="font-size: 1.5rem; font-weight: 600;">Course Builder</h2>
+                <div style="display: flex; gap: 1rem;">
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-save"></i> Save Draft
+                    </button>
+                    <button class="btn btn-primary">
+                        <i class="fas fa-rocket"></i> Publish Course
+                    </button>
+                </div>
+            </div>
+
+            <div class="builder-interface">
+                <div class="lesson-sidebar">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3 style="font-weight: 600;">Lesson Structure</h3>
+                        <button class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="lesson-item active">
+                        <div class="lesson-icon">1</div>
+                        <div>
+                            <div style="font-weight: 500; font-size: 0.9rem;">Introduction</div>
+                            <div style="font-size: 0.75rem; opacity: 0.7;">5 min video</div>
+                        </div>
+                    </div>
+                    
+                    <div class="lesson-item">
+                        <div class="lesson-icon">2</div>
+                        <div>
+                            <div style="font-weight: 500; font-size: 0.9rem;">Core Concepts</div>
+                            <div style="font-size: 0.75rem; opacity: 0.7;">12 min video</div>
+                        </div>
+                    </div>
+                    
+                    <div class="lesson-item">
+                        <div class="lesson-icon">3</div>
+                        <div>
+                            <div style="font-weight: 500; font-size: 0.9rem;">Practical Examples</div>
+                            <div style="font-size: 0.75rem; opacity: 0.7;">8 min video</div>
+                        </div>
+                    </div>
+                    
+                    <div class="lesson-item">
+                        <div class="lesson-icon">+</div>
+                        <div style="color: var(--text-secondary); font-style: italic;">
+                            Add new lesson
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lesson-editor">
+                    <div style="margin-bottom: 1rem;">
+                        <input type="text" value="Lesson 1: Introduction" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 0.5rem; font-size: 1.1rem; font-weight: 600;">
+                    </div>
+                    
+                    <div class="editor-toolbar">
+                        <div class="toolbar-btn"><i class="fas fa-video"></i></div>
+                        <div class="toolbar-btn"><i class="fas fa-image"></i></div>
+                        <div class="toolbar-btn"><i class="fas fa-file-alt"></i></div>
+                        <div class="toolbar-btn"><i class="fas fa-question-circle"></i></div>
+                        <div class="toolbar-btn"><i class="fas fa-tasks"></i></div>
+                    </div>
+                    
+                    <div class="editor-content">
+                        <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                            Welcome to the course! In this lesson, we'll cover the fundamental concepts you need to understand...
+                        </p>
+                        
+                        <div style="background: var(--bg-primary); border: 2px dashed var(--border); border-radius: 0.5rem; padding: 2rem; text-align: center; margin: 1rem 0;">
+                            <i class="fas fa-video" style="font-size: 2rem; color: var(--text-secondary); margin-bottom: 1rem;"></i>
+                            <p style="color: var(--text-secondary);">Drop video file here or click to upload</p>
+                        </div>
+                        
+                        <p style="color: var(--text-secondary);">
+                            By the end of this lesson, you'll be able to...
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-area" id="templatesTab" style="display: none;">
+            <h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem;">Course Templates</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                Start with proven course structures and customize them for your content.
+            </p>
+            
+            <div class="templates-grid">
+                <div class="template-card" onclick="alert('Load Business Course template!')">
+                    <div style="font-size: 2rem; margin-bottom: 1rem;">💼</div>
+                    <h3>Business Course</h3>
+                    <p style="color: var(--text-secondary); margin-top: 0.5rem; font-size: 0.9rem;">
+                        8 lessons • Perfect for coaching and consulting
+                    </p>
+                </div>
+                
+                <div class="template-card" onclick="alert('Load Technical Skills template!')">
+                    <div style="font-size: 2rem; margin-bottom: 1rem;">💻</div>
+                    <h3>Technical Skills</h3>
+                    <p style="color: var(--text-secondary); margin-top: 0.5rem; font-size: 0.9rem;">
+                        12 lessons • Hands-on projects and code examples
+                    </p>
+                </div>
+                
+                <div class="template-card" onclick="alert('Load Creative Masterclass template!')">
+                    <div style="font-size: 2rem; margin-bottom: 1rem;">🎨</div>
+                    <h3>Creative Masterclass</h3>
+                    <p style="color: var(--text-secondary); margin-top: 0.5rem; font-size: 0.9rem;">
+                        6 lessons • Portfolio projects and critiques
+                    </p>
+                </div>
+                
+                <div class="template-card" onclick="alert('Load Personal Development template!')">
+                    <div style="font-size: 2rem; margin-bottom: 1rem;">🌱</div>
+                    <h3>Personal Development</h3>
+                    <p style="color: var(--text-secondary); margin-top: 0.5rem; font-size: 0.9rem;">
+                        10 lessons • Exercises and reflection prompts
+                    </p>
+                </div>
+                
+                <div class="template-card" onclick="alert('Load Mini Course template!')">
+                    <div style="font-size: 2rem; margin-bottom: 1rem;">⚡</div>
+                    <h3>Mini Course</h3>
+                    <p style="color: var(--text-secondary); margin-top: 0.5rem; font-size: 0.9rem;">
+                        3 lessons • Quick wins and immediate results
+                    </p>
+                </div>
+                
+                <div class="template-card" onclick="alert('Create blank course!')">
+                    <div style="font-size: 2rem; margin-bottom: 1rem;">📝</div>
+                    <h3>Start from Scratch</h3>
+                    <p style="color: var(--text-secondary); margin-top: 0.5rem; font-size: 0.9rem;">
+                        Build your own structure from the ground up
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-area" id="analyticsTab" style="display: none;">
+            <h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 2rem;">Course Analytics</h2>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                <div style="background: var(--bg-secondary); padding: 1.5rem; border-radius: 0.75rem; text-align: center;">
+                    <div style="font-size: 2rem; font-weight: 700; color: var(--course-indigo);">1,279</div>
+                    <div style="color: var(--text-secondary);">Total Students</div>
+                </div>
+                <div style="background: var(--bg-secondary); padding: 1.5rem; border-radius: 0.75rem; text-align: center;">
+                    <div style="font-size: 2rem; font-weight: 700; color: var(--success-green);">$21.1K</div>
+                    <div style="color: var(--text-secondary);">Total Revenue</div>
+                </div>
+                <div style="background: var(--bg-secondary); padding: 1.5rem; border-radius: 0.75rem; text-align: center;">
+                    <div style="font-size: 2rem; font-weight: 700; color: var(--warm-orange);">4.8</div>
+                    <div style="color: var(--text-secondary);">Avg Rating</div>
+                </div>
+                <div style="background: var(--bg-secondary); padding: 1.5rem; border-radius: 0.75rem; text-align: center;">
+                    <div style="font-size: 2rem; font-weight: 700; color: var(--brand-blue);">73%</div>
+                    <div style="color: var(--text-secondary);">Completion Rate</div>
+                </div>
+            </div>
+            
+            <div style="background: var(--bg-secondary); padding: 2rem; border-radius: 0.75rem; text-align: center; color: var(--text-secondary);">
+                <i class="fas fa-chart-bar" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                <p>Detailed analytics dashboard would be implemented here</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('[id$="Tab"]').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + 'Tab').style.display = 'block';
+            
+            // Update nav
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+        }
+
+        // Nav tab clicks
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                switchTab(tab.dataset.tab);
+            });
+        });
+
+        // Course card interactions
+        document.querySelectorAll('.course-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const title = card.querySelector('.course-title').textContent;
+                alert(`Opening course: "${title}"`);
+            });
+        });
+
+        // Lesson sidebar interactions
+        document.querySelectorAll('.lesson-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.lesson-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

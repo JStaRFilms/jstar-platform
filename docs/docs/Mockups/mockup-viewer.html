@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - Mockup Viewer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for a more polished look */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f2937; /* dark:bg-gray-800 */
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563; /* dark:bg-gray-600 */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280; /* dark:bg-gray-500 */
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-900 text-gray-200 antialiased" style="background-image: radial-gradient(circle at top left, #1f2937, #111827 30%);">
+    <div id="app" class="flex h-screen">
+        <!-- Sidebar will be injected here -->
+        <aside id="sidebar" class="w-64 bg-gray-800 p-4 overflow-y-auto flex-shrink-0">
+            <h1 class="text-2xl font-bold text-white mb-6">Mockups</h1>
+            <nav id="sidebar-nav">
+                <!-- Dynamic categories will be populated here -->
+            </nav>
+        </aside>
+
+        <!-- Main content -->
+        <main class="flex-1 flex flex-col overflow-hidden">
+            <header class="bg-gray-800/50 backdrop-blur-sm border-l border-b border-gray-700 p-4 flex items-center justify-between">
+                <h2 id="main-header" class="text-xl font-bold text-white">All Mockups</h2>
+            </header>
+            <div id="mockup-grid" class="flex-1 p-6 overflow-y-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Dynamic mockup cards will be populated here -->
+            </div>
+        </main>
+
+        <!-- Modal for viewing mockup -->
+        <div id="mockup-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+            <div class="bg-gray-800 w-full max-w-7xl h-full max-h-[90vh] rounded-lg shadow-2xl flex flex-col border border-gray-700">
+                <div class="p-4 border-b border-gray-700 flex justify-between items-center flex-shrink-0">
+                    <h3 id="modal-title" class="text-lg font-bold text-white truncate">Mockup Preview</h3>
+                    <button id="close-modal" class="text-gray-400 hover:text-white transition-colors rounded-full p-1 hover:bg-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="flex-1 p-2 relative">
+                    <div id="iframe-loader" class="absolute inset-2 flex items-center justify-center bg-gray-800 z-10">
+                        <svg class="animate-spin h-8 w-8 text-jstar-blue" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
+                    <iframe id="mockup-iframe" class="w-full h-full border-0 rounded-b-lg opacity-0 transition-opacity duration-500" src="about:blank"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const mockupsData = [
+                {
+                    category: "00_Design_System",
+                    files: [
+                        { name: "design-tokens.html", desc: "Unified color palette, typography, spacing system" },
+                        { name: "component-library.html", desc: "Reusable UI components showcase" },
+                        { name: "theme-system.html", desc: "Dark/light mode implementation" },
+                        { name: "accessibility-guide.html", desc: "WCAG 2.1 AA compliance guidelines" }
+                    ]
+                },
+                {
+                    category: "01_Public_Website",
+                    files: [
+                        { name: "homepage-unified.html", desc: "Cinematic hero + clean content structure" },
+                        { name: "about-enhanced.html", desc: "John's story with faith and technical background" },
+                        { name: "portfolio-advanced.html", desc: "Filterable projects with case studies" },
+                        { name: "services-comprehensive.html", desc: "Video, app dev, consulting offerings" },
+                        { name: "blog-interface.html", desc: "Original blog listing page design" },
+                        { name: "blog-list-interactive.html", desc: "Enhanced blog list with interactive filters and states" },
+                        { name: "blog-post-view.html", desc: "Detailed view of a single blog article" },
+                        { name: "store-enhanced.html", desc: "Digital products with tiered access" },
+                        { name: "contact-leadgen.html", desc: "Contact form + lead magnet integration" },
+                        { name: "public-vault-obsidian.html", desc: "Markdown notes with Obsidian compatibility" }
+                    ]
+                },
+                {
+                    category: "02_JohnGPT_Enhanced",
+                    files: [
+                        { name: "chat-interface-unified.html", desc: "Clean UI + sophisticated sidebar" },
+                        { name: "persona-system.html", desc: "Creative Director, Systems Mentor, Faith Guide" },
+                        { name: "conversation-history.html", desc: "Searchable timeline with export" },
+                        { name: "prompt-library.html", desc: "CRUD interface for saved prompts" },
+                        { name: "obsidian-integration.html", desc: "\"Save to Vault\" functionality" },
+                        { name: "agent-comparison.html", desc: "Multi-model A/B testing interface" },
+                        { name: "mobile-chat.html", desc: "Touch-optimized mobile experience" }
+                    ]
+                },
+                {
+                    category: "03_Admin_Dashboard_Pro",
+                    files: [
+                        { name: "dashboard-overview.html", desc: "Modular widget layout with analytics" },
+                        { name: "user-management-advanced.html", desc: "Tier assignment and subscription control" },
+                        { name: "analytics-comprehensive.html", desc: "Traffic, conversion, user behavior" },
+                        { name: "johngpt-settings.html", desc: "AI model configuration and API keys" },
+                        { name: "cms-interface.html", desc: "Content editing for website pages" },
+                        { name: "security-center.html", desc: "Access control and audit logs" },
+                        { name: "system-settings.html", desc: "Platform configuration and integrations" }
+                    ]
+                },
+                {
+                    category: "04_Creator_Growth_Engine",
+                    files: [
+                        { name: "virality-os-enhanced.html", desc: "YouTube analysis with AI-powered insights" },
+                        { name: "client-magnet-pro.html", desc: "Lead generation with personalized outreach" },
+                        { name: "systems-launcher.html", desc: "Creator starter kits and templates" },
+                        { name: "scripting-studio.html", desc: "Video content planning workspace" },
+                        { name: "course-builder.html", desc: "Digital course creation toolkit" },
+                        { name: "automation-center.html", desc: "Workflow automation and scheduling" }
+                    ]
+                },
+                {
+                    category: "05_Shared_Components",
+                    files: [
+                        { name: "navigation-unified.html", desc: "Responsive navigation with tier awareness" },
+                        { name: "modals-enhanced.html", desc: "Advanced modal system with animations" },
+                        { name: "forms-comprehensive.html", desc: "Form components with validation" },
+                        { name: "data-tables-advanced.html", desc: "Sortable, filterable data displays" },
+                        { name: "charts-visualization.html", desc: "Analytics and metrics visualization" },
+                        { name: "notification-system.html", desc: "Toast notifications and alerts" }
+                    ]
+                },
+                {
+                    category: "06_Mobile_Optimized",
+                    files: [
+                        { name: "mobile-homepage.html", desc: "Touch-first homepage experience" },
+                        { name: "mobile-chat.html", desc: "Mobile-optimized JohnGPT interface" },
+                        { name: "mobile-dashboard.html", desc: "Responsive admin dashboard" },
+                        { name: "mobile-navigation.html", desc: "Mobile menu and navigation patterns" }
+                    ]
+                }
+            ];
+
+            const sidebarNav = document.getElementById('sidebar-nav');
+            const mockupGrid = document.getElementById('mockup-grid');
+            const mainHeader = document.getElementById('main-header');
+            const modal = document.getElementById('mockup-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const closeModalBtn = document.getElementById('close-modal');
+            const iframe = document.getElementById('mockup-iframe');
+
+            let activeCategory = 'All';
+
+            function renderSidebar() {
+                const navFragment = document.createDocumentFragment();
+                const allLink = createNavLink('All Mockups', 'All');
+                allLink.classList.add('bg-jstar-blue', 'text-white');
+                navFragment.appendChild(allLink);
+
+                mockupsData.forEach(group => {
+                    const link = createNavLink(group.category.replace(/_/g, ' '), group.category);
+                    navFragment.appendChild(link);
+                });
+                sidebarNav.appendChild(navFragment);
+            }
+
+            function createNavLink(text, category) {
+                const a = document.createElement('a');
+                a.href = '#';
+                a.textContent = text;
+                a.dataset.category = category;
+                a.className = 'block py-2 px-3 rounded-lg hover:bg-gray-700/50 transition-all duration-200 ease-in-out';
+                a.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    activeCategory = category;
+                    updateActiveLink(a);
+                    renderMockups();
+                });
+                return a;
+            }
+
+            function updateActiveLink(activeLink) {
+                sidebarNav.querySelectorAll('a').forEach(link => {
+                    link.classList.remove('bg-jstar-blue', 'text-white', 'shadow-lg');
+                });
+                activeLink.classList.add('bg-jstar-blue', 'text-white', 'shadow-lg');
+            }
+
+            function renderMockups() {
+                mockupGrid.innerHTML = '';
+                mainHeader.textContent = activeCategory === 'All' ? 'All Mockups' : activeCategory.replace(/_/g, ' ');
+                
+                const mockupsToRender = activeCategory === 'All'
+                    ? mockupsData.flatMap(group => group.files.map(file => ({ ...file, category: group.category })))
+                    : mockupsData.find(group => group.category === activeCategory)?.files.map(file => ({ ...file, category: activeCategory })) || [];
+
+                const gridFragment = document.createDocumentFragment();
+                mockupsToRender.forEach(mockup => {
+                    const card = createMockupCard(mockup);
+                    gridFragment.appendChild(card);
+                });
+                mockupGrid.appendChild(gridFragment);
+            }
+
+            function createMockupCard(mockup) {
+                const card = document.createElement('div');
+                card.className = 'bg-gray-800/50 rounded-lg shadow-lg overflow-hidden cursor-pointer transform hover:-translate-y-1 transition-transform duration-300 ease-in-out border border-gray-700 hover:border-jstar-blue';
+                card.innerHTML = `
+                    <div class="p-5">
+                        <h3 class="font-bold text-lg text-white truncate">${mockup.name.replace('.html', '')}</h3>
+                        <p class="text-sm text-gray-400 mt-1 h-10 overflow-hidden">${mockup.desc}</p>
+                        <span class="text-xs text-jstar-blue font-semibold mt-3 inline-block bg-jstar-blue/10 px-2 py-1 rounded-full">${mockup.category.replace(/_/g, ' ')}</span>
+                    </div>
+                `;
+                card.addEventListener('click', () => openModal(mockup));
+                return card;
+            }
+
+            const iframeLoader = document.getElementById('iframe-loader');
+
+            function openModal(mockup) {
+                modalTitle.textContent = mockup.name;
+                iframe.src = 'about:blank'; // Clear previous content
+                iframe.classList.add('opacity-0');
+                iframeLoader.style.display = 'flex';
+
+                // Note: In a real scenario, the path would be relative to the server root.
+                // For local file viewing, this path works correctly.
+                iframe.src = `${mockup.category}/${mockup.name}`;
+                
+                iframe.onload = () => {
+                    iframeLoader.style.display = 'none';
+                    iframe.classList.remove('opacity-0');
+                };
+
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+
+            function closeModal() {
+                iframe.src = 'about:blank';
+                iframe.classList.add('opacity-0');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+
+            closeModalBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                    closeModal();
+                }
+            });
+
+            // Initial render
+            renderSidebar();
+            renderMockups();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Components - J StaR Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .components-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+        }
+        
+        .component-section {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--brand-blue);
+        }
+        
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--brand-blue);
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+        
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1rem;
+            padding-right: 2.5rem;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--brand-blue);
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            color: var(--text-primary);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        /* Validation States */
+        .form-input.error {
+            border-color: var(--warm-orange);
+        }
+        
+        .form-input.success {
+            border-color: var(--success-green);
+        }
+        
+        .error-message {
+            color: var(--warm-orange);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+        
+        .success-message {
+            color: var(--success-green);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+        
+        /* Input Groups */
+        .input-group {
+            display: flex;
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .input-group .form-input {
+            border: none;
+            border-radius: 0;
+        }
+        
+        .input-addon {
+            background: var(--bg-secondary);
+            padding: 0.75rem;
+            display: flex;
+            align-items: center;
+            color: var(--text-secondary);
+        }
+        
+        /* Switch Toggle */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--border);
+            transition: 0.3s;
+            border-radius: 24px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background: var(--brand-blue);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        /* File Upload */
+        .file-upload {
+            border: 2px dashed var(--border);
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .file-upload:hover {
+            border-color: var(--brand-blue);
+            background: rgba(74, 144, 226, 0.05);
+        }
+        
+        .file-upload-icon {
+            font-size: 2rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+        
+        /* Range Slider */
+        .range-slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--border);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--brand-blue);
+            cursor: pointer;
+        }
+        
+        .range-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--brand-blue);
+            cursor: pointer;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="page-title">Form Components Library</h1>
+        
+        <div class="components-grid">
+            <!-- Basic Inputs -->
+            <div class="component-section">
+                <h2 class="section-title">Basic Inputs</h2>
+                
+                <div class="form-group">
+                    <label class="form-label">Text Input</label>
+                    <input type="text" class="form-input" placeholder="Enter your name">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Email Input</label>
+                    <input type="email" class="form-input" placeholder="your@email.com">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Password Input</label>
+                    <input type="password" class="form-input" placeholder="Password">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Textarea</label>
+                    <textarea class="form-input form-textarea" placeholder="Enter your message"></textarea>
+                </div>
+            </div>
+            
+            <!-- Select and Options -->
+            <div class="component-section">
+                <h2 class="section-title">Selections</h2>
+                
+                <div class="form-group">
+                    <label class="form-label">Select Dropdown</label>
+                    <select class="form-input form-select">
+                        <option>Choose an option</option>
+                        <option>Option 1</option>
+                        <option>Option 2</option>
+                        <option>Option 3</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Checkboxes</label>
+                    <div class="checkbox-group">
+                        <input type="checkbox" class="checkbox" id="check1">
+                        <label for="check1">Subscribe to newsletter</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" class="checkbox" id="check2">
+                        <label for="check2">Accept terms and conditions</label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Radio Buttons</label>
+                    <div class="radio-group">
+                        <div class="radio-item">
+                            <input type="radio" name="plan" id="basic">
+                            <label for="basic">Basic</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" name="plan" id="pro">
+                            <label for="pro">Pro</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" name="plan" id="enterprise">
+                            <label for="enterprise">Enterprise</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Validation States -->
+            <div class="component-section">
+                <h2 class="section-title">Validation States</h2>
+                
+                <div class="form-group">
+                    <label class="form-label">Error State</label>
+                    <input type="text" class="form-input error" value="invalid@email">
+                    <div class="error-message">Please enter a valid email address</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Success State</label>
+                    <input type="email" class="form-input success" value="valid@email.com">
+                    <div class="success-message">Email address is valid</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Required Field</label>
+                    <input type="text" class="form-input" placeholder="This field is required" required>
+                </div>
+            </div>
+            
+            <!-- Input Groups -->
+            <div class="component-section">
+                <h2 class="section-title">Input Groups</h2>
+                
+                <div class="form-group">
+                    <label class="form-label">URL Input</label>
+                    <div class="input-group">
+                        <div class="input-addon">https://</div>
+                        <input type="text" class="form-input" placeholder="your-domain.com">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Price Input</label>
+                    <div class="input-group">
+                        <div class="input-addon">$</div>
+                        <input type="number" class="form-input" placeholder="0.00">
+                        <div class="input-addon">.00</div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Search Input</label>
+                    <div class="input-group">
+                        <input type="text" class="form-input" placeholder="Search...">
+                        <div class="input-addon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Advanced Controls -->
+            <div class="component-section">
+                <h2 class="section-title">Advanced Controls</h2>
+                
+                <div class="form-group">
+                    <label class="form-label">Toggle Switch</label>
+                    <label class="switch">
+                        <input type="checkbox">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Range Slider</label>
+                    <input type="range" min="0" max="100" value="50" class="range-slider">
+                    <div style="text-align: center; margin-top: 0.5rem; color: var(--text-secondary);">Value: 50</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">File Upload</label>
+                    <div class="file-upload">
+                        <div class="file-upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <div>Drag and drop files here or click to browse</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="component-section">
+                <h2 class="section-title">Form Actions</h2>
+                
+                <div class="form-group">
+                    <button class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Save Changes
+                    </button>
+                    <button class="btn btn-secondary" style="margin-left: 1rem;">
+                        Cancel
+                    </button>
+                </div>
+                
+                <div class="form-group">
+                    <button class="btn btn-primary" style="width: 100%;">
+                        Submit Form
+                    </button>
+                </div>
+                
+                <div class="form-group">
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-undo"></i>
+                        Reset Form
+                    </button>
+                    <button class="btn btn-primary" style="margin-left: 1rem;">
+                        <i class="fas fa-paper-plane"></i>
+                        Send
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Range slider value display
+        document.querySelector('.range-slider').addEventListener('input', function() {
+            const value = this.value;
+            this.nextElementSibling.textContent = `Value: ${value}`;
+        });
+        
+        // File upload interaction
+        document.querySelector('.file-upload').addEventListener('click', function() {
+            alert('File browser would open here');
+        });
+        
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

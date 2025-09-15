@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>J StaR - Mobile Homepage</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        /* Mobile Header */
+        .mobile-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .mobile-menu-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+        
+        /* Mobile Navigation */
+        .mobile-nav {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 280px;
+            height: 100vh;
+            background: var(--bg-primary);
+            border-right: 1px solid var(--border);
+            padding: 1rem;
+            transition: left 0.3s ease;
+            z-index: 200;
+        }
+        
+        .mobile-nav.open {
+            left: 0;
+        }
+        
+        .nav-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .nav-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+        
+        .nav-menu {
+            list-style: none;
+        }
+        
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            background: var(--bg-secondary);
+            color: var(--brand-blue);
+        }
+        
+        /* Overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 150;
+        }
+        
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-top: 80px;
+            padding-bottom: 80px;
+        }
+        
+        /* Hero Section */
+        .hero-section {
+            padding: 2rem 1rem;
+            text-align: center;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            line-height: 1.4;
+        }
+        
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: white;
+            color: var(--brand-blue);
+            padding: 1rem 2rem;
+            border-radius: 2rem;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Services Grid */
+        .services-section {
+            padding: 3rem 1rem;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+        
+        .services-grid {
+            display: grid;
+            gap: 1.5rem;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .service-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .service-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .service-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .service-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        /* Stats Section */
+        .stats-section {
+            background: var(--bg-secondary);
+            padding: 3rem 1rem;
+            text-align: center;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            max-width: 400px;
+            margin: 2rem auto 0;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        /* JohnGPT Preview */
+        .johngpt-section {
+            padding: 3rem 1rem;
+            background: linear-gradient(135deg, var(--creative-teal), var(--success-green));
+            color: white;
+            text-align: center;
+        }
+        
+        .johngpt-preview {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin: 2rem auto 0;
+            max-width: 400px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        
+        .chat-message {
+            background: var(--bg-secondary);
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            text-align: left;
+            color: var(--text-primary);
+        }
+        
+        .message-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--brand-blue);
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+        }
+        
+        /* Footer */
+        .mobile-footer {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            padding: 2rem 1rem;
+            text-align: center;
+        }
+        
+        .footer-links {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-link {
+            color: var(--bg-primary);
+            text-decoration: none;
+            padding: 0.5rem;
+            opacity: 0.8;
+        }
+        
+        .footer-link:hover {
+            opacity: 1;
+        }
+        
+        /* Floating JohnGPT Button */
+        .floating-chat {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 50;
+        }
+        
+        .floating-chat:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+        <div class="logo">J StaR</div>
+        <button class="mobile-menu-btn" onclick="toggleMenu()">
+            <i class="fas fa-bars"></i>
+        </button>
+    </header>
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav" id="mobileNav">
+        <div class="nav-header">
+            <div class="logo">J StaR</div>
+            <button class="nav-close" onclick="toggleMenu()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    Home
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-user"></i>
+                    About
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-briefcase"></i>
+                    Portfolio
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-cogs"></i>
+                    Services
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-robot"></i>
+                    JohnGPT
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-blog"></i>
+                    Blog
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-envelope"></i>
+                    Contact
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <h1 class="hero-title">AI-Powered Business Growth</h1>
+            <p class="hero-subtitle">
+                Transform your business with intelligent automation, viral content creation, and personalized AI assistance.
+            </p>
+            <a href="#" class="cta-button">
+                <i class="fas fa-rocket"></i>
+                Get Started Free
+            </a>
+        </section>
+
+        <!-- Services Section -->
+        <section class="services-section">
+            <h2 class="section-title">What I Offer</h2>
+            <p class="section-subtitle">Comprehensive solutions for modern businesses</p>
+            
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon" style="background: var(--brand-blue);">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3 class="service-title">JohnGPT Assistant</h3>
+                    <p class="service-description">Personal AI assistant trained on business expertise</p>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-icon" style="background: var(--creative-teal);">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <h3 class="service-title">Virality OS</h3>
+                    <p class="service-description">Content that spreads like wildfire across platforms</p>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-icon" style="background: var(--warm-orange);">
+                        <i class="fas fa-magnet"></i>
+                    </div>
+                    <h3 class="service-title">Client Magnet</h3>
+                    <p class="service-description">Attract perfect clients with magnetic lead generation</p>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-icon" style="background: var(--success-green);">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <h3 class="service-title">Systems Launcher</h3>
+                    <p class="service-description">Automate everything, scale effortlessly</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="stats-section">
+            <h2 class="section-title">Proven Results</h2>
+            <p class="section-subtitle">Numbers that speak for themselves</p>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" style="color: var(--brand-blue);">500+</div>
+                    <div class="stat-label">Clients Helped</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" style="color: var(--creative-teal);">2M+</div>
+                    <div class="stat-label">Content Views</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" style="color: var(--warm-orange);">95%</div>
+                    <div class="stat-label">Client Satisfaction</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" style="color: var(--success-green);">24/7</div>
+                    <div class="stat-label">AI Availability</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- JohnGPT Preview -->
+        <section class="johngpt-section">
+            <h2 class="section-title">Meet JohnGPT</h2>
+            <p class="section-subtitle">Your personal AI business consultant</p>
+            
+            <div class="johngpt-preview">
+                <div class="chat-message">
+                    <div class="message-avatar">JG</div>
+                    <span>Hi! I'm JohnGPT. How can I help grow your business today?</span>
+                </div>
+                <div class="chat-message">
+                    <span><strong>You:</strong> I need help with my content strategy</span>
+                </div>
+                <div class="chat-message">
+                    <div class="message-avatar">JG</div>
+                    <span>Perfect! Let me analyze your current content and create a viral strategy that matches your brand voice...</span>
+                </div>
+            </div>
+            
+            <a href="#" class="cta-button" style="margin-top: 1.5rem; display: inline-flex;">
+                <i class="fas fa-comments"></i>
+                Try JohnGPT Free
+            </a>
+        </section>
+    </main>
+
+    <!-- Mobile Footer -->
+    <footer class="mobile-footer">
+        <div class="footer-links">
+            <a href="#" class="footer-link">Privacy Policy</a>
+            <a href="#" class="footer-link">Terms of Service</a>
+            <a href="#" class="footer-link">Support</a>
+            <a href="#" class="footer-link">About</a>
+        </div>
+        <p style="opacity: 0.8;">&copy; 2024 J StaR Platform. All rights reserved.</p>
+    </footer>
+
+    <!-- Floating JohnGPT Button -->
+    <div class="floating-chat" onclick="openChat()">
+        <i class="fas fa-comments"></i>
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        function toggleMenu() {
+            const nav = document.getElementById('mobileNav');
+            const overlay = document.getElementById('overlay');
+            
+            nav.classList.toggle('open');
+            overlay.classList.toggle('active');
+            
+            // Prevent body scroll when menu is open
+            document.body.style.overflow = nav.classList.contains('open') ? 'hidden' : '';
+        }
+
+        // Floating chat
+        function openChat() {
+            alert('Opening JohnGPT chat interface...');
+        }
+
+        // Close menu when clicking nav links
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                toggleMenu();
+            });
+        });
+
+        // Handle touch events for better mobile experience
+        let touchStartY = 0;
+        
+        document.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (document.getElementById('mobileNav').classList.contains('open')) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Table Components | Shared Components</title>
+    <meta name="description" content="Advanced data table components for the J StaR Platform">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'obsidian-bg': '#202020',
+                        'obsidian-sidebar': '#161618',
+                        'obsidian-text': '#dcddde',
+                        'obsidian-text-muted': '#888888',
+                        'obsidian-accent': '#7c3aed',
+                        'obsidian-link': '#8b5cf6'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --growth-green: #059669;
+            --obsidian-bg: #202020;
+            --obsidian-sidebar: #161618;
+            --obsidian-text: #dcddde;
+            --obsidian-text-muted: #888888;
+            --obsidian-accent: #7c3aed;
+            --obsidian-link: #8b5cf6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --transition-normal: 300ms;
+        }
+        
+        .component-showcase {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 260px;
+            background: var(--obsidian-sidebar);
+            border-right: 1px solid #333;
+            transition: all var(--transition-normal) ease;
+            flex-shrink: 0;
+        }
+        
+        .main-content {
+            flex: 1;
+            background: var(--obsidian-bg);
+            color: var(--obsidian-text);
+            overflow-y: auto;
+        }
+        
+        .navbar-blur {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .dark .navbar-blur {
+            background: rgba(17, 24, 39, 0.9);
+        }
+        
+        .sidebar-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-radius: 0.5rem;
+            margin-bottom: 0.25rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .sidebar-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .sidebar-item.active {
+            background: rgba(124, 58, 237, 0.2);
+        }
+        
+        .sidebar-item svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-right: 0.75rem;
+        }
+        
+        .component-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: all 0.2s;
+            margin-bottom: 1.5rem;
+        }
+        
+        .component-card:hover {
+            border-color: var(--obsidian-link);
+        }
+        
+        .component-preview {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+        
+        .action-button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+        
+        .action-button:hover {
+            background: rgba(124, 58, 235, 0.2);
+            border-color: var(--obsidian-link);
+        }
+        
+        .primary-button {
+            background: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .primary-button:hover {
+            transform: scale(1.05);
+        }
+        
+        .secondary-button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .secondary-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .tier-indicator {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+        }
+        
+        .tier1 { background: linear-gradient(135deg, #10B981 0%, #34D399 100%); }
+        .tier2 { background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%); }
+        .tier3 { background: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%); }
+        .admin { background: linear-gradient(135deg, #EF4444 0%, #F87171 100%); }
+        
+        .search-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            width: 100%;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: var(--obsidian-link);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-right: 0.5rem;
+        }
+        
+        .badge-component {
+            background: rgba(124, 58, 237, 0.2);
+            color: var(--obsidian-link);
+        }
+        
+        .badge-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .badge-active {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10B981;
+        }
+        
+        .badge-pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: #F59E0B;
+        }
+        
+        .badge-inactive {
+            background: rgba(156, 163, 175, 0.2);
+            color: #9CA3AF;
+        }
+        
+        /* Data Table Components */
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .data-table th {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--obsidian-text);
+            border-bottom: 1px solid #333;
+        }
+        
+        .data-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #333;
+        }
+        
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .data-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .table-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .table-pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-top: 1px solid #333;
+        }
+        
+        .pagination-info {
+            color: var(--obsidian-text-muted);
+            font-size: 0.875rem;
+        }
+        
+        .pagination-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .pagination-button {
+            width: 2.5rem;
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .pagination-button:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .pagination-button.active {
+            background: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            color: white;
+        }
+        
+        .sort-indicator {
+            display: inline-flex;
+            flex-direction: column;
+            margin-left: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .sort-indicator svg {
+            width: 0.75rem;
+            height: 0.75rem;
+        }
+        
+        .sort-indicator .asc {
+            margin-bottom: -0.25rem;
+        }
+        
+        .sort-indicator .desc {
+            margin-top: -0.25rem;
+        }
+        
+        .table-checkbox {
+            width: 1.25rem;
+            height: 1.25rem;
+            border-radius: 0.25rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            accent-color: var(--obsidian-link);
+            cursor: pointer;
+        }
+        
+        .table-checkbox:checked {
+            background: var(--obsidian-link);
+        }
+        
+        .table-actions-cell {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .table-action-button {
+            width: 2rem;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--obsidian-text-muted);
+        }
+        
+        .table-action-button:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--obsidian-text);
+        }
+        
+        .filter-dropdown {
+            position: relative;
+        }
+        
+        .filter-button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .filter-button:hover {
+            background: rgba(124, 58, 235, 0.2);
+            border-color: var(--obsidian-link);
+        }
+        
+        .filter-menu {
+            position: absolute;
+            top: calc(100% + 0.5rem);
+            right: 0;
+            background: var(--obsidian-sidebar);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            width: 250px;
+            z-index: 100;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .filter-group {
+            margin-bottom: 1rem;
+        }
+        
+        .filter-group:last-child {
+            margin-bottom: 0;
+        }
+        
+        .filter-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .filter-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .filter-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .table-empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--obsidian-text-muted);
+        }
+        
+        .table-empty-state svg {
+            width: 3rem;
+            height: 3rem;
+            margin: 0 auto 1rem;
+            opacity: 0.5;
+        }
+        
+        .table-loading {
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+        
+        .table-loading-spinner {
+            width: 2rem;
+            height: 2rem;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-top: 2px solid var(--obsidian-link);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .user-avatar {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 0.75rem;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-name {
+            font-weight: 500;
+        }
+        
+        .user-email {
+            font-size: 0.875rem;
+            color: var(--obsidian-text-muted);
+        }
+        
+        .progress-bar {
+            height: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 0.25rem;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 0.25rem;
+        }
+        
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 navbar-blur border-b border-gray-200 dark:border-gray-700 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/" class="text-2xl font-bold bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">
+                        J StaR Films
+                    </a>
+                    <span class="mx-4 text-gray-300 dark:text-gray-600">/</span>
+                    <span class="text-gray-900 dark:text-white font-medium">Shared Components</span>
+                    <span class="mx-4 text-gray-300 dark:text-gray-600">/</span>
+                    <span class="text-gray-900 dark:text-white font-medium">Data Tables</span>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="/" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Home</a>
+                    <a href="/about" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">About</a>
+                    <a href="/portfolio" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Portfolio</a>
+                    <a href="/services" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Services</a>
+                    <a href="/blog" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Blog</a>
+                    <a href="/store" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Store</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button onclick="document.documentElement.classList.toggle('dark')" 
+                            class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
+                            aria-label="Toggle theme">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </button>
+                    <div class="relative">
+                        <button class="flex items-center space-x-2">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-r from-jstar-blue to-faith-purple flex items-center justify-center text-white text-sm font-bold">
+                                JO
+                            </div>
+                            <span class="text-gray-900 dark:text-white font-medium">Tier 3</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Component Showcase Container -->
+    <div class="component-showcase pt-16">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="p-4">
+                <div class="mb-6">
+                    <h2 class="text-lg font-bold mb-4">Shared Components</h2>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        Navigation
+                    </div>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                        </svg>
+                        Modals
+                    </div>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Forms
+                    </div>
+                    <div class="sidebar-item active">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                        Data Tables
+                    </div>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        Charts
+                    </div>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                        Notifications
+                    </div>
+                </div>
+                
+                <div class="border-t border-gray-700 pt-4">
+                    <div class="text-xs text-gray-500 uppercase tracking-wider mb-2">Component Info</div>
+                    <div class="text-sm">
+                        <div class="flex justify-between mb-1">
+                            <span class="text-gray-400">Components</span>
+                            <span>6</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Version</span>
+                            <span>2.1.4</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h1 class="text-2xl font-bold mb-2">Data Table Components</h1>
+                        <p class="text-gray-400">Advanced data table components for displaying and managing information</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <div class="relative">
+                            <input type="text" placeholder="Search components..." class="search-box pl-10">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Basic Data Table -->
+                <div class="component-card">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 class="text-lg font-bold">Basic Data Table</h2>
+                            <p class="text-gray-400 text-sm mt-1">Simple table with sorting and pagination</p>
+                        </div>
+                        <div>
+                            <span class="badge badge-component">Essential</span>
+                        </div>
+                    </div>
+                    
+                    <div class="component-preview">
+                        <div class="table-header">
+                            <div class="relative">
+                                <input type="text" placeholder="Search users..." class="search-box pl-10">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                            <div class="table-actions">
+                                <button class="action-button">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                                    </svg>
+                                    Filter
+                                </button>
+                                <button class="primary-button">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                    </svg>
+                                    Add User
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="border border-gray-700 rounded-lg overflow-hidden">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            <input type="checkbox" class="table-checkbox">
+                                        </th>
+                                        <th>
+                                            User
+                                            <div class="sort-indicator">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="asc" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                                </svg>
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="desc" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </div>
+                                        </th>
+                                        <th>
+                                            Email
+                                            <div class="sort-indicator">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="asc" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                                </svg>
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="desc" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </div>
+                                        </th>
+                                        <th>
+                                            Role
+                                            <div class="sort-indicator">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="asc" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                                </svg>
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="desc" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </div>
+                                        </th>
+                                        <th>
+                                            Status
+                                            <div class="sort-indicator">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="asc" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                                </svg>
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="desc" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </div>
+                                        </th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" class="table-checkbox">
+                                        </td>
+                                        <td>
+                                            <div class="user-info">
+                                                <div class="user-avatar">JD</div>
+                                                <div>
+                                                    <div class="user-name">John Doe</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>john.doe@example.com</td>
+                                        <td>Admin</td>
+                                        <td>
+                                            <span class="badge-status badge-active">Active</span>
+                                        </td>
+                                        <td>
+                                            <div class="table-actions-cell">
+                                                <button class="table-action-button">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                    </svg>
+                                                </button>
+                                                <button class="table-action-button">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" class="table-checkbox">
+                                        </td>
+                                        <td>
+                                            <div class="user-info">
+                                                <div class="user-avatar">AS</div>
+                                                <div>
+                                                    <div class="user-name">Alice Smith</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>alice.smith@example.com</td>
+                                        <td>Editor</td>
+                                        <td>
+                                            <span class="badge-status badge-active">Active</span>
+                                        </td>
+                                        <td>
+                                            <div class="table-actions-cell">
+                                                <button class="table-action-button">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                    </svg>
+                                                </button>
+                                                <button class="table-action-button">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" class="table-checkbox">
+                                        </td>
+                                        <td>
+                                            <div class="user-info">
+                                                <div class="user-avatar">BJ</div>
+                                                <div>
+                                                    <div class="user-name">Bob Johnson</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>bob.johnson@example.com</td>
+                                        <td>Viewer</td>
+                                        <td>
+                                            <span class="badge-status badge-pending">Pending</span>
+                                        </td>
+                                        <td>
+                                            <div class="table-actions-cell">
+                                                <button class="table-action-button">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                    </svg>
+                                                </button>
+                                                <button class="table-action-button">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" class="table-checkbox">
+                                        </td>
+                                        <td>
+                                            <div class="user-info">
+                                                <div class="user-avatar">EC</div>
+                                                <div>
+                                                    <div class="user-name">Emma Clark</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>emma.clark@example.com</td>
+                                        <td>Editor</td>
+                                        <td>
+                                            <span class="badge-status badge-inactive">Inactive</span>
+                                        </td>
+                                        <td>
+                                            <div class="table-actions-cell">
+                                                <button class="table-action-button">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                    </svg>
+                                                </button>
+                                                <button class="table-action-button">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="table-pagination">
+                            <div class="pagination-info">
+                                Showing 1 to 4 of 4 results
+                            </div>
+                            <div class="pagination-controls">
+                                <button class="pagination-button">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                    </svg>
+                                </button>
+                                <button class="pagination-button active">1</button>
+                                <button class="pagination-button">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 text-sm">
+                        <p class="mb-2"><strong>Usage:</strong> Display tabular data with basic sorting and pagination functionality.</p>
+                        <p><strong>Features:</strong> Column sorting, row selection, pagination controls, responsive design, dark/light mode support.</p>
+                    </div>
+                </div>
+                
+                <!-- Advanced Data Table -->
+                <div class="component-card">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 class="text-lg font-bold">Advanced Data Table</h2>
+                            <p class="text-gray-400 text-sm mt-1">Complex table with filtering, bulk actions, and detailed information</p>
+                        </div>
+                        <div>
+                            <span class="badge badge-component">Advanced</span>
+                        </div>
+                    </div>
+                    
+                    <div class="component-preview">
+                        <div class="table-header">
+                            <div class="flex items-center gap-3">
+                                <div class="relative">
+                                    <input type="text" placeholder="Search projects..." class="search-box pl-10">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                </div>
+                                <div class="filter-dropdown">
+                                    <button class="filter-button">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                                        </svg>
+                                        Filters
+                                    </button>
+                                    <div class="filter-menu">
+                                        <div class="filter-group">
+                                            <label class="filter-label">Status</label>
+                                            <div class="filter-options">
+                                                <div class="filter-option">
+                                                    <input type="checkbox" class="table-checkbox" id="status-active" checked>
+                                                    <label for="status-active">Active</label>
+                                                </div>
+                                                <div class="filter-option">
+                                                    <input type="checkbox" class="table-checkbox" id="status-completed" checked>
+                                                    <label for="status-completed">Completed</label>
+                                                </div>
+                                                <div class="filter-option">
+                                                    <input type="checkbox" class="table-checkbox" id="status-pending">
+                                                    <label for="status-pending">Pending</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="filter-group">
+                                            <label class="filter-label">Priority</label>
+                                            <div class="filter-options">
+                                                <div class="filter-option">
+                                                    <input type="checkbox" class="table-checkbox" id="priority-high">
+                                                    <label for="priority-high">High</label>
+                                                </div>
+                                                <div class="filter-option">
+                                                    <input type="checkbox" class="table-checkbox" id="priority-medium" checked>
+                                                    <label for="priority-medium">Medium</label>
+                                                </div>
+                                                <div class="filter-option">
+                                                    <input type="checkbox" class="table-checkbox" id="priority-low">
+                                                    <label for="priority-low">Low</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="filter-actions">
+                                            <button class="secondary-button flex-1">Reset</button>
+                                            <button class="primary-button flex-1">Apply</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="table-actions">
+                                <button class="action-button">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                    Delete
+                                </button>
+                                <button class="primary-button">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                    </svg>
+                                    New Project
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="border border-gray-700 rounded-lg overflow-hidden">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            <input type="checkbox" class="table-checkbox">
+                                        </th>
+                                        <th>Project</th>
+                                        <th>Client</th>
+                                        <th>Progress</th>
+                                        <th>Deadline</th>
+                                        <th>Priority</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" class="table-checkbox">
+                                        </td>
+                                        <td>
+                                            <div class="font-medium">Website Redesign</div>
+                                            <div class="text-sm text-gray-400">UI/UX Project</div>
+                                        </td>
+                                        <td>
+                                            <div class="user-info">
+                                                <div class="user-avatar">AC</div>
+                                                <div>
+                                                    <div class="user-name">Acme Corp</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="progress-bar">
+                                                <div class="progress-fill bg-jstar-blue" style="width: 75%"></div>
+                                            </div>
+                                            <div class="progress-info">
+                                                <span>75%</span>
+                                                <span>3 days left</span>
+                                            </div>
+                                        </td>
+                                        <td>2023-06-15</td>
+                                        <td>
+                                            <span class="badge-status badge-active">High</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge-status badge-active">Active</span>
+                                        </td>
+                                        <td>
+                                            <div class="table-actions-cell">
+                                                <button class="table-action-button">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                    </svg>
+                                                </button>
+                                                <button class="table-action-button">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" class="table-checkbox">
+                                        </td>
+                                        <td>
+                                            <div class="font-medium">Mobile App Development</div>
+                                            <div class="text-sm text-gray-400">iOS & Android</div>
+                                        </td>
+                                        <td>
+                                            <div class="user-info">
+                                                <div class="user-avatar">GS</div>
+                                                <div>
+                                                    <div class="user-name">Global Solutions</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="progress-bar">
+                                                <div class="progress-fill bg-faith-purple" style="width: 45%"></div>
+                                            </div>
+                                            <div class="progress-info">
+                                                <span>45%</span>
+                                                <span>2 weeks left</span>
+                                            </div>
+                                        </td>
+                                        <td>2023-07-01</td>
+                                        <td>
+                                            <span class="badge-status badge-pending">Medium</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge-status badge-active">Active</span>
+                                        </td>
+                                        <td>
+                                            <div class="table-actions-cell">
+                                                <button class="table-action-button">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                    </svg>
+                                                </button>
+                                                <button class="table-action-button">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" class="table-checkbox">
+                                        </td>
+                                        <td>
+                                            <div class="font-medium">Marketing Campaign</div>
+                                            <div class="text-sm text-gray-400">Social Media</div>
+                                        </td>
+                                        <td>
+                                            <div class="user-info">
+                                                <div class="user-avatar">TI</div>
+                                                <div>
+                                                    <div class="user-name">Tech Innovations</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="progress-bar">
+                                                <div class="progress-fill bg-growth-green" style="width: 100%"></div>
+                                            </div>
+                                            <div class="progress-info">
+                                                <span>100%</span>
+                                                <span>Completed</span>
+                                            </div>
+                                        </td>
+                                        <td>2023-05-30</td>
+                                        <td>
+                                            <span class="badge-status badge-active">High</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge-status badge-inactive">Completed</span>
+                                        </td>
+                                        <td>
+                                            <div class="table-actions-cell">
+                                                <button class="table-action-button">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                    </svg>
+                                                </button>
+                                                <button class="table-action-button">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="table-pagination">
+                            <div class="pagination-info">
+                                Showing 1 to 3 of 3 results
+                            </div>
+                            <div class="pagination-controls">
+                                <button class="pagination-button">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                    </svg>
+                                </button>
+                                <button class="pagination-button active">1</button>
+                                <button class="pagination-button">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 text-sm">
+                        <p class="mb-2"><strong>Usage:</strong> Display complex data with filtering, sorting, and detailed progress information.</p>
+                        <p><strong>Features:</strong> Advanced filtering, progress bars, detailed status indicators, bulk actions, responsive design.</p>
+                    </div>
+                </div>
+                
+                <!-- Empty State Table -->
+                <div class="component-card">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 class="text-lg font-bold">Empty State Table</h2>
+                            <p class="text-gray-400 text-sm mt-1">Table with empty state and call-to-action</p>
+                        </div>
+                        <div>
+                            <span class="badge badge-component">States</span>
+                        </div>
+                    </div>
+                    
+                    <div class="component-preview">
+                        <div class="table-header">
+                            <div class="relative">
+                                <input type="text" placeholder="Search clients..." class="search-box pl-10">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                            <div class="table-actions">
+                                <button class="primary-button">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                    </svg>
+                                    Add Client
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="border border-gray-700 rounded-lg overflow-hidden">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            <input type="checkbox" class="table-checkbox">
+                                        </th>
+                                        <th>Client</th>
+                                        <th>Email</th>
+                                        <th>Projects</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="6" class="p-0">
+                                            <div class="table-empty-state">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                                </svg>
+                                                <h3 class="text-lg font-medium mb-1">No clients found</h3>
+                                                <p class="mb-4">Get started by adding a new client to your portfolio.</p>
+                                                <button class="primary-button">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                                    </svg>
+                                                    Add Client
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 text-sm">
+                        <p class="mb-2"><strong>Usage:</strong> Display when there is no data to show with a clear call-to-action.</p>
+                        <p><strong>Features:</strong> Empty state illustration, helpful messaging, prominent CTA, responsive design.</p>
+                    </div>
+                </div>
+                
+                <!-- Loading State Table -->
+                <div class="component-card">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 class="text-lg font-bold">Loading State Table</h2>
+                            <p class="text-gray-400 text-sm mt-1">Table with loading skeleton states</p>
+                        </div>
+                        <div>
+                            <span class="badge badge-component">States</span>
+                        </div>
+                    </div>
+                    
+                    <div class="component-preview">
+                        <div class="table-header">
+                            <div class="relative">
+                                <input type="text" placeholder="Search invoices..." class="search-box pl-10">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                            <div class="table-actions">
+                                <button class="action-button">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                                    </svg>
+                                    Filter
+                                </button>
+                                <button class="primary-button">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                    </svg>
+                                    New Invoice
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="border border-gray-700 rounded-lg overflow-hidden">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            <input type="checkbox" class="table-checkbox">
+                                        </th>
+                                        <th>Invoice</th>
+                                        <th>Client</th>
+                                        <th>Amount</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="7" class="p-0">
+                                            <div class="table-loading">
+                                                <div class="table-loading-spinner"></div>
+                                                <p>Loading invoices...</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="table-pagination">
+                            <div class="pagination-info">
+                                Showing 0 to 0 of 0 results
+                            </div>
+                            <div class="pagination-controls">
+                                <button class="pagination-button">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                    </svg>
+                                </button>
+                                <button class="pagination-button active">1</button>
+                                <button class="pagination-button">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 text-sm">
+                        <p class="mb-2"><strong>Usage:</strong> Display while data is being fetched from the server.</p>
+                        <p><strong>Features:</strong> Loading spinner, skeleton screens, responsive design, dark/light mode support.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme management
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Sidebar item selection
+        document.querySelectorAll('.sidebar-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                
+                // In a real implementation, this would navigate to the selected section
+                const section = this.textContent.trim();
+                console.log('Navigating to:', section);
+            });
+        });
+        
+        // Filter dropdown toggle
+        document.querySelector('.filter-button').addEventListener('click', function() {
+            const menu = document.querySelector('.filter-menu');
+            menu.classList.toggle('hidden');
+        });
+        
+        // Close filter dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const filterDropdown = document.querySelector('.filter-dropdown');
+            if (!filterDropdown.contains(event.target)) {
+                document.querySelector('.filter-menu').classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

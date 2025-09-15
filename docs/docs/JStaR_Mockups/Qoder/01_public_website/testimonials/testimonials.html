@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testimonials - J StaR Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        
+        .hero-section {
+            text-align: center;
+            padding: 4rem 0;
+            margin-bottom: 4rem;
+        }
+        
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+        
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+        
+        .testimonial-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+        
+        .quote-icon {
+            position: absolute;
+            top: -15px;
+            left: 2rem;
+            width: 40px;
+            height: 40px;
+            background: var(--brand-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+        
+        .testimonial-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            font-style: italic;
+        }
+        
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .author-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+        
+        .author-info h4 {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .author-info p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .rating {
+            display: flex;
+            gap: 0.25rem;
+            margin-top: 0.5rem;
+        }
+        
+        .star {
+            color: #FFD700;
+            font-size: 1rem;
+        }
+        
+        .video-testimonials {
+            margin: 4rem 0;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+        }
+        
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+        
+        .video-card {
+            background: var(--bg-secondary);
+            border-radius: 1rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        
+        .video-thumbnail {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        .play-button {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--brand-blue);
+            font-size: 1.5rem;
+        }
+        
+        .video-info {
+            padding: 1.5rem;
+        }
+        
+        .video-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .video-author {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .stats-section {
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            color: white;
+            padding: 4rem 2rem;
+            border-radius: 1rem;
+            margin: 4rem 0;
+            text-align: center;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .cta-section {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--bg-secondary);
+            border-radius: 1rem;
+            margin: 4rem 0;
+        }
+        
+        .cta-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .cta-text {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+        
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #3A7BC8;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero-section">
+            <h1 class="hero-title">What Our Clients Say</h1>
+            <p class="hero-subtitle">Real stories from real people who transformed their businesses with J StaR Platform</p>
+        </div>
+
+        <div class="testimonials-grid">
+            <div class="testimonial-card">
+                <div class="quote-icon">
+                    <i class="fas fa-quote-left"></i>
+                </div>
+                <p class="testimonial-text">
+                    "The AI content generation capabilities are mind-blowing! JohnGPT helped me create viral content that increased my engagement by 400%. The ROI has been incredible."
+                </p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">SM</div>
+                    <div class="author-info">
+                        <h4>Sarah Martinez</h4>
+                        <p>CEO, Digital Dynamics</p>
+                        <div class="rating">
+                            <i class="star fas fa-star"></i>
+                            <i class="star fas fa-star"></i>
+                            <i class="star fas fa-star"></i>
+                            <i class="star fas fa-star"></i>
+                            <i class="star fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="testimonial-card">
+                <div class="quote-icon">
+                    <i class="fas fa-quote-left"></i>
+                </div>
+                <p class="testimonial-text">
+                    "The Client Magnet feature transformed our lead generation. We went from 50 leads per month to over 500! The automation tools saved us countless hours."
+                </p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">MJ</div>
+                    <div class="author-info">
+                        <h4>Michael Johnson</h4>
+                        <p>Founder, Growth Hackers Inc</p>
+                        <div class="rating">
+                            <i class="star fas fa-star"></i>
+                            <i class="star fas fa-star"></i>
+                            <i class="star fas fa-star"></i>
+                            <i class="star fas fa-star"></i>
+                            <i class="star fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="testimonial-card">
+                <div class="quote-icon">
+                    <i class="fas fa-quote-left"></i>
+                </div>
+                <p class="testimonial-text">
+                    "I was skeptical about AI, but J StaR's platform made it so easy to understand and implement. The personal touch and faith-based approach really resonated with me."
+                </p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">AL</div>
+                    <div class="author-info">
+                        <h4>Anna Lee</h4>
+                        <p>Director, Creative Solutions</p>
+                        <div class="rating">
+                            <i class="star fas fa-star"></i>
+                            <i class="star fas fa-star"></i>
+                            <i class="star fas fa-star"></i>
+                            <i class="star fas fa-star"></i>
+                            <i class="star fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="testimonial-card">
+                <div class="quote-icon">
+                    <i class="fas fa-quote-left"></i>
+                </div>
+                <p class="testimonial-text">
+                    "The Virality OS is pure genius! Our content now consistently reaches millions instead of thousands. John's approach to viral content is revolutionary."
+                </p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">RT</div>
+                    <div class="author-info">
+                        <h4>Robert Taylor</h4>
+                        <p>Content Creator</p>
+                        <div class="rating">
+                            <i class="star fas fa-star"></i>
+                            <i class="star fas fa-star"></i>
+                            <i class="star fas fa-star"></i>
+                            <i class="star fas fa-star"></i>
+                            <i class="star fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="testimonial-card">
+                <div class="quote-icon">
+                    <i class="fas fa-quote-left"></i>
+                </div>
+                <p class="testimonial-text">
+                    "The Course Builder tool helped me launch my first online course in just 2 weeks. The AI suggestions for content structure were spot-on!"
+                </p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">JD</div>
+                    <div class="author-info">
+                        <h4>Jennifer Davis</h4>
+                        <p>Online Educator</p>
+                        <div class="rating">
+                            <i class="star fas fa-star"></i>
+                            <i class="star fas fa-star"></i>
+                            <i class="star fas fa-star"></i>
+                            <i class="star fas fa-star"></i>
+                            <i class="star fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="testimonial-card">
+                <div class="quote-icon">
+                    <i class="fas fa-quote-left"></i>
+                </div>
+                <p class="testimonial-text">
+                    "Systems Launcher automated our entire workflow. What used to take our team 8 hours now happens automatically. Game-changer for our productivity!"
+                </p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">DW</div>
+                    <div class="author-info">
+                        <h4>David Wilson</h4>
+                        <p>Operations Manager</p>
+                        <div class="rating">
+                            <i class="star fas fa-star"></i>
+                            <i class="star fas fa-star"></i>
+                            <i class="star fas fa-star"></i>
+                            <i class="star fas fa-star"></i>
+                            <i class="star fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Video Testimonials -->
+        <div class="video-testimonials">
+            <h2 class="section-title">Video Testimonials</h2>
+            
+            <div class="video-grid">
+                <div class="video-card">
+                    <div class="video-thumbnail" onclick="playVideo(this)">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                    <div class="video-info">
+                        <h3 class="video-title">How J StaR Platform 10x'd My Business</h3>
+                        <p class="video-author">Sarah Martinez, CEO Digital Dynamics</p>
+                    </div>
+                </div>
+
+                <div class="video-card">
+                    <div class="video-thumbnail" onclick="playVideo(this)">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                    <div class="video-info">
+                        <h3 class="video-title">From 50 to 500 Leads Per Month</h3>
+                        <p class="video-author">Michael Johnson, Growth Hackers Inc</p>
+                    </div>
+                </div>
+
+                <div class="video-card">
+                    <div class="video-thumbnail" onclick="playVideo(this)">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                    <div class="video-info">
+                        <h3 class="video-title">Creating Viral Content with AI</h3>
+                        <p class="video-author">Robert Taylor, Content Creator</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Section -->
+        <div class="stats-section">
+            <h2 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem;">The Numbers Speak</h2>
+            <p style="font-size: 1.2rem; opacity: 0.9;">Real results from real clients using J StaR Platform</p>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">500+</div>
+                    <div class="stat-label">Happy Clients</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">2M+</div>
+                    <div class="stat-label">Content Views Generated</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">400%</div>
+                    <div class="stat-label">Average Engagement Increase</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">95%</div>
+                    <div class="stat-label">Client Satisfaction Rate</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA Section -->
+        <div class="cta-section">
+            <h2 class="cta-title">Ready to Join Them?</h2>
+            <p class="cta-text">Start your journey to exponential growth with J StaR Platform today</p>
+            <a href="#" class="btn btn-primary">
+                <i class="fas fa-rocket"></i>
+                Start Free Trial
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function playVideo(element) {
+            const title = element.parentElement.querySelector('.video-title').textContent;
+            alert(`Playing video: "${title}"\n\nVideo player would load here in a real implementation.`);
+        }
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

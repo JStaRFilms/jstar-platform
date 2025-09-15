@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Components | Shared Components</title>
+    <meta name="description" content="Comprehensive form components for the J StaR Platform">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'obsidian-bg': '#202020',
+                        'obsidian-sidebar': '#161618',
+                        'obsidian-text': '#dcddde',
+                        'obsidian-text-muted': '#888888',
+                        'obsidian-accent': '#7c3aed',
+                        'obsidian-link': '#8b5cf6'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --growth-green: #059669;
+            --obsidian-bg: #202020;
+            --obsidian-sidebar: #161618;
+            --obsidian-text: #dcddde;
+            --obsidian-text-muted: #888888;
+            --obsidian-accent: #7c3aed;
+            --obsidian-link: #8b5cf6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --transition-normal: 300ms;
+        }
+        
+        .component-showcase {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 260px;
+            background: var(--obsidian-sidebar);
+            border-right: 1px solid #333;
+            transition: all var(--transition-normal) ease;
+            flex-shrink: 0;
+        }
+        
+        .main-content {
+            flex: 1;
+            background: var(--obsidian-bg);
+            color: var(--obsidian-text);
+            overflow-y: auto;
+        }
+        
+        .navbar-blur {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .dark .navbar-blur {
+            background: rgba(17, 24, 39, 0.9);
+        }
+        
+        .sidebar-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-radius: 0.5rem;
+            margin-bottom: 0.25rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .sidebar-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .sidebar-item.active {
+            background: rgba(124, 58, 237, 0.2);
+        }
+        
+        .sidebar-item svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-right: 0.75rem;
+        }
+        
+        .component-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: all 0.2s;
+            margin-bottom: 1.5rem;
+        }
+        
+        .component-card:hover {
+            border-color: var(--obsidian-link);
+        }
+        
+        .component-preview {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+        
+        .action-button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+        
+        .action-button:hover {
+            background: rgba(124, 58, 235, 0.2);
+            border-color: var(--obsidian-link);
+        }
+        
+        .primary-button {
+            background: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .primary-button:hover {
+            transform: scale(1.05);
+        }
+        
+        .secondary-button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .secondary-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .tier-indicator {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+        }
+        
+        .tier1 { background: linear-gradient(135deg, #10B981 0%, #34D399 100%); }
+        .tier2 { background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%); }
+        .tier3 { background: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%); }
+        .admin { background: linear-gradient(135deg, #EF4444 0%, #F87171 100%); }
+        
+        .search-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            width: 100%;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: var(--obsidian-link);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-right: 0.5rem;
+        }
+        
+        .badge-component {
+            background: rgba(124, 58, 237, 0.2);
+            color: var(--obsidian-link);
+        }
+        
+        /* Form Components */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .form-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            color: var(--obsidian-text);
+            width: 100%;
+            transition: all 0.2s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--obsidian-link);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+        }
+        
+        .form-input.error {
+            border-color: #EF4444;
+        }
+        
+        .form-input.success {
+            border-color: #10B981;
+        }
+        
+        .form-select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            color: var(--obsidian-text);
+            width: 100%;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1rem;
+        }
+        
+        .form-select:focus {
+            outline: none;
+            border-color: var(--obsidian-link);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+        }
+        
+        .form-textarea {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            color: var(--obsidian-text);
+            width: 100%;
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--obsidian-link);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+        }
+        
+        .form-checkbox {
+            width: 1.25rem;
+            height: 1.25rem;
+            border-radius: 0.25rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            accent-color: var(--obsidian-link);
+            cursor: pointer;
+        }
+        
+        .form-checkbox:checked {
+            background: var(--obsidian-link);
+        }
+        
+        .form-radio {
+            width: 1.25rem;
+            height: 1.25rem;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            accent-color: var(--obsidian-link);
+            cursor: pointer;
+        }
+        
+        .form-radio:checked {
+            background: var(--obsidian-link);
+        }
+        
+        .form-switch {
+            position: relative;
+            display: inline-block;
+            width: 3rem;
+            height: 1.75rem;
+        }
+        
+        .form-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .form-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.1);
+            transition: .4s;
+            border-radius: 1.75rem;
+        }
+        
+        .form-slider:before {
+            position: absolute;
+            content: "";
+            height: 1.25rem;
+            width: 1.25rem;
+            left: 0.25rem;
+            bottom: 0.25rem;
+            background: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .form-slider {
+            background: var(--obsidian-link);
+        }
+        
+        input:checked + .form-slider:before {
+            transform: translateX(1.25rem);
+        }
+        
+        .form-error {
+            color: #EF4444;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        
+        .form-success {
+            color: #10B981;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        
+        .form-hint {
+            color: var(--obsidian-text-muted);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-col {
+            flex: 1;
+        }
+        
+        .form-inline {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .form-inline .form-label {
+            margin-bottom: 0;
+        }
+        
+        .file-upload {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px dashed #333;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .file-upload:hover {
+            border-color: var(--obsidian-link);
+        }
+        
+        .file-upload-icon {
+            width: 3rem;
+            height: 3rem;
+            margin: 0 auto 1rem;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .file-upload-icon svg {
+            width: 1.5rem;
+            height: 1.5rem;
+            color: var(--obsidian-link);
+        }
+        
+        .file-upload-text {
+            color: var(--obsidian-text-muted);
+            margin-bottom: 0.5rem;
+        }
+        
+        .file-upload-button {
+            color: var(--obsidian-link);
+            font-weight: 500;
+        }
+        
+        .file-list {
+            margin-top: 1rem;
+            border-top: 1px solid #333;
+            padding-top: 1rem;
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0;
+        }
+        
+        .file-item-icon {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 0.25rem;
+            background: rgba(59, 130, 246, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+        }
+        
+        .file-item-icon svg {
+            width: 1rem;
+            height: 1rem;
+            color: #3B82F6;
+        }
+        
+        .file-item-info {
+            flex: 1;
+        }
+        
+        .file-item-name {
+            font-weight: 500;
+            margin-bottom: 0.125rem;
+        }
+        
+        .file-item-size {
+            font-size: 0.75rem;
+            color: var(--obsidian-text-muted);
+        }
+        
+        .file-item-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .file-item-action {
+            color: var(--obsidian-text-muted);
+            cursor: pointer;
+        }
+        
+        .file-item-action:hover {
+            color: var(--obsidian-text);
+        }
+        
+        .search-input {
+            position: relative;
+        }
+        
+        .search-input svg {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1rem;
+            height: 1rem;
+            color: var(--obsidian-text-muted);
+        }
+        
+        .search-input .form-input {
+            padding-left: 2.5rem;
+        }
+        
+        .range-slider {
+            width: 100%;
+            height: 0.5rem;
+            border-radius: 0.25rem;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 1.25rem;
+            height: 1.25rem;
+            border-radius: 50%;
+            background: var(--obsidian-link);
+            cursor: pointer;
+        }
+        
+        .range-slider::-moz-range-thumb {
+            width: 1.25rem;
+            height: 1.25rem;
+            border-radius: 50%;
+            background: var(--obsidian-link);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 navbar-blur border-b border-gray-200 dark:border-gray-700 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/" class="text-2xl font-bold bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">
+                        J StaR Films
+                    </a>
+                    <span class="mx-4 text-gray-300 dark:text-gray-600">/</span>
+                    <span class="text-gray-900 dark:text-white font-medium">Shared Components</span>
+                    <span class="mx-4 text-gray-300 dark:text-gray-600">/</span>
+                    <span class="text-gray-900 dark:text-white font-medium">Forms</span>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="/" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Home</a>
+                    <a href="/about" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">About</a>
+                    <a href="/portfolio" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Portfolio</a>
+                    <a href="/services" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Services</a>
+                    <a href="/blog" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Blog</a>
+                    <a href="/store" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Store</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button onclick="document.documentElement.classList.toggle('dark')" 
+                            class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
+                            aria-label="Toggle theme">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </button>
+                    <div class="relative">
+                        <button class="flex items-center space-x-2">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-r from-jstar-blue to-faith-purple flex items-center justify-center text-white text-sm font-bold">
+                                JO
+                            </div>
+                            <span class="text-gray-900 dark:text-white font-medium">Tier 3</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Component Showcase Container -->
+    <div class="component-showcase pt-16">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="p-4">
+                <div class="mb-6">
+                    <h2 class="text-lg font-bold mb-4">Shared Components</h2>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        Navigation
+                    </div>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                        </svg>
+                        Modals
+                    </div>
+                    <div class="sidebar-item active">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Forms
+                    </div>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                        Data Tables
+                    </div>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        Charts
+                    </div>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                        Notifications
+                    </div>
+                </div>
+                
+                <div class="border-t border-gray-700 pt-4">
+                    <div class="text-xs text-gray-500 uppercase tracking-wider mb-2">Component Info</div>
+                    <div class="text-sm">
+                        <div class="flex justify-between mb-1">
+                            <span class="text-gray-400">Components</span>
+                            <span>6</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Version</span>
+                            <span>2.1.4</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h1 class="text-2xl font-bold mb-2">Form Components</h1>
+                        <p class="text-gray-400">Comprehensive form components for consistent data collection across the platform</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <div class="relative">
+                            <input type="text" placeholder="Search components..." class="search-box pl-10">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Text Input -->
+                <div class="component-card">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 class="text-lg font-bold">Text Input</h2>
+                            <p class="text-gray-400 text-sm mt-1">Standard text input field with validation states</p>
+                        </div>
+                        <div>
+                            <span class="badge badge-component">Essential</span>
+                        </div>
+                    </div>
+                    
+                    <div class="component-preview">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                                <label class="form-label">Default Input</label>
+                                <input type="text" class="form-input" placeholder="Enter text">
+                                <div class="form-hint">This is a hint message</div>
+                            </div>
+                            
+                            <div>
+                                <label class="form-label">Success State</label>
+                                <input type="text" class="form-input success" value="Valid input">
+                                <div class="form-success">This field is valid</div>
+                            </div>
+                            
+                            <div>
+                                <label class="form-label">Error State</label>
+                                <input type="text" class="form-input error" value="Invalid input">
+                                <div class="form-error">This field is required</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 text-sm">
+                        <p class="mb-2"><strong>Usage:</strong> Basic text input for collecting user information with validation feedback.</p>
+                        <p><strong>Features:</strong> Validation states, hint messages, responsive sizing, dark/light mode support.</p>
+                    </div>
+                </div>
+                
+                <!-- Select Input -->
+                <div class="component-card">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 class="text-lg font-bold">Select Input</h2>
+                            <p class="text-gray-400 text-sm mt-1">Dropdown selection component with custom styling</p>
+                        </div>
+                        <div>
+                            <span class="badge badge-component">Interactive</span>
+                        </div>
+                    </div>
+                    
+                    <div class="component-preview">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="form-label">Category Selection</label>
+                                <select class="form-select">
+                                    <option>Select a category</option>
+                                    <option>Video Production</option>
+                                    <option>Content Creation</option>
+                                    <option>Marketing</option>
+                                    <option>Education</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="form-label">Priority Level</label>
+                                <select class="form-select">
+                                    <option>Low</option>
+                                    <option selected>Medium</option>
+                                    <option>High</option>
+                                    <option>Critical</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 text-sm">
+                        <p class="mb-2"><strong>Usage:</strong> Allow users to select from predefined options with custom dropdown styling.</p>
+                        <p><strong>Features:</strong> Custom dropdown arrow, consistent styling, keyboard navigation, responsive design.</p>
+                    </div>
+                </div>
+                
+                <!-- Checkbox and Radio -->
+                <div class="component-card">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 class="text-lg font-bold">Checkbox & Radio</h2>
+                            <p class="text-gray-400 text-sm mt-1">Selection controls for multiple or single choices</p>
+                        </div>
+                        <div>
+                            <span class="badge badge-component">Selection</span>
+                        </div>
+                    </div>
+                    
+                    <div class="component-preview">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="form-label">Notification Preferences</label>
+                                <div class="space-y-2">
+                                    <div class="form-inline">
+                                        <input type="checkbox" class="form-checkbox" id="email-notifications" checked>
+                                        <label for="email-notifications" class="form-label">Email notifications</label>
+                                    </div>
+                                    <div class="form-inline">
+                                        <input type="checkbox" class="form-checkbox" id="sms-notifications">
+                                        <label for="sms-notifications" class="form-label">SMS notifications</label>
+                                    </div>
+                                    <div class="form-inline">
+                                        <input type="checkbox" class="form-checkbox" id="push-notifications" checked>
+                                        <label for="push-notifications" class="form-label">Push notifications</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="form-label">Account Type</label>
+                                <div class="space-y-2">
+                                    <div class="form-inline">
+                                        <input type="radio" class="form-radio" name="account-type" id="personal" checked>
+                                        <label for="personal" class="form-label">Personal</label>
+                                    </div>
+                                    <div class="form-inline">
+                                        <input type="radio" class="form-radio" name="account-type" id="business">
+                                        <label for="business" class="form-label">Business</label>
+                                    </div>
+                                    <div class="form-inline">
+                                        <input type="radio" class="form-radio" name="account-type" id="creator">
+                                        <label for="creator" class="form-label">Creator</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 text-sm">
+                        <p class="mb-2"><strong>Usage:</strong> Allow users to select multiple options (checkboxes) or a single option (radio buttons).</p>
+                        <p><strong>Features:</strong> Custom styling, keyboard navigation, accessible labels, responsive layout.</p>
+                    </div>
+                </div>
+                
+                <!-- Switch and Range -->
+                <div class="component-card">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 class="text-lg font-bold">Switch & Range</h2>
+                            <p class="text-gray-400 text-sm mt-1">Toggle switches and slider controls for settings</p>
+                        </div>
+                        <div>
+                            <span class="badge badge-component">Settings</span>
+                        </div>
+                    </div>
+                    
+                    <div class="component-preview">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="form-label">Feature Toggles</label>
+                                <div class="space-y-4">
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <div class="font-medium">Dark Mode</div>
+                                            <div class="text-sm text-gray-400">Enable dark theme</div>
+                                        </div>
+                                        <label class="form-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="form-slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <div class="font-medium">Auto-save</div>
+                                            <div class="text-sm text-gray-400">Save changes automatically</div>
+                                        </div>
+                                        <label class="form-switch">
+                                            <input type="checkbox">
+                                            <span class="form-slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <div class="font-medium">Notifications</div>
+                                            <div class="text-sm text-gray-400">Receive platform updates</div>
+                                        </div>
+                                        <label class="form-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="form-slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="form-label">Volume Control</label>
+                                <div class="mb-2 flex justify-between">
+                                    <span>0%</span>
+                                    <span>50%</span>
+                                    <span>100%</span>
+                                </div>
+                                <input type="range" min="0" max="100" value="50" class="range-slider">
+                                
+                                <label class="form-label mt-6">Project Progress</label>
+                                <div class="mb-2 flex justify-between">
+                                    <span>0%</span>
+                                    <span>75%</span>
+                                    <span>100%</span>
+                                </div>
+                                <input type="range" min="0" max="100" value="75" class="range-slider">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 text-sm">
+                        <p class="mb-2"><strong>Usage:</strong> Toggle settings on/off or select a value within a range.</p>
+                        <p><strong>Features:</strong> Smooth animations, accessible controls, keyboard navigation, responsive design.</p>
+                    </div>
+                </div>
+                
+                <!-- Textarea and File Upload -->
+                <div class="component-card">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 class="text-lg font-bold">Textarea & File Upload</h2>
+                            <p class="text-gray-400 text-sm mt-1">Multi-line text input and file attachment components</p>
+                        </div>
+                        <div>
+                            <span class="badge badge-component">Content</span>
+                        </div>
+                    </div>
+                    
+                    <div class="component-preview">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="form-label">Project Description</label>
+                                <textarea class="form-textarea" placeholder="Describe your project in detail...">This project focuses on creating engaging video content for social media platforms. We'll be using the latest AI tools to enhance our creative process and deliver high-quality results to our clients.</textarea>
+                            </div>
+                            
+                            <div>
+                                <label class="form-label">Attachments</label>
+                                <div class="file-upload">
+                                    <div class="file-upload-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        </svg>
+                                    </div>
+                                    <div class="file-upload-text">Drag & drop files here or click to browse</div>
+                                    <div class="file-upload-button">Choose Files</div>
+                                </div>
+                                
+                                <div class="file-list">
+                                    <div class="file-item">
+                                        <div class="file-item-icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </div>
+                                        <div class="file-item-info">
+                                            <div class="file-item-name">project-brief.pdf</div>
+                                            <div class="file-item-size">2.4 MB</div>
+                                        </div>
+                                        <div class="file-item-actions">
+                                            <div class="file-item-action">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 text-sm">
+                        <p class="mb-2"><strong>Usage:</strong> Collect multi-line text input or allow users to attach files to forms.</p>
+                        <p><strong>Features:</strong> Drag & drop support, file previews, multi-file handling, responsive design.</p>
+                    </div>
+                </div>
+                
+                <!-- Search and Complex Forms -->
+                <div class="component-card">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 class="text-lg font-bold">Search & Complex Forms</h2>
+                            <p class="text-gray-400 text-sm mt-1">Advanced form layouts with multiple sections</p>
+                        </div>
+                        <div>
+                            <span class="badge badge-component">Advanced</span>
+                        </div>
+                    </div>
+                    
+                    <div class="component-preview">
+                        <div class="border border-gray-700 rounded-lg p-6">
+                            <h3 class="text-lg font-bold mb-4">Create New Campaign</h3>
+                            
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <label class="form-label">Campaign Name</label>
+                                    <input type="text" class="form-input" placeholder="Enter campaign name">
+                                </div>
+                                <div class="form-col">
+                                    <label class="form-label">Budget</label>
+                                    <input type="text" class="form-input" placeholder="$0.00">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Target Platforms</label>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                    <div class="form-inline">
+                                        <input type="checkbox" class="form-checkbox" id="platform-youtube">
+                                        <label for="platform-youtube" class="form-label">YouTube</label>
+                                    </div>
+                                    <div class="form-inline">
+                                        <input type="checkbox" class="form-checkbox" id="platform-instagram" checked>
+                                        <label for="platform-instagram" class="form-label">Instagram</label>
+                                    </div>
+                                    <div class="form-inline">
+                                        <input type="checkbox" class="form-checkbox" id="platform-twitter">
+                                        <label for="platform-twitter" class="form-label">Twitter</label>
+                                    </div>
+                                    <div class="form-inline">
+                                        <input type="checkbox" class="form-checkbox" id="platform-linkedin" checked>
+                                        <label for="platform-linkedin" class="form-label">LinkedIn</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Target Audience</label>
+                                <div class="search-input">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                    <input type="text" class="form-input" placeholder="Search for audience segments">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Campaign Duration</label>
+                                <div class="form-row">
+                                    <div class="form-col">
+                                        <input type="date" class="form-input">
+                                    </div>
+                                    <div class="form-col">
+                                        <input type="date" class="form-input">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-end gap-3 mt-6">
+                                <button class="secondary-button">Cancel</button>
+                                <button class="primary-button">Create Campaign</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 text-sm">
+                        <p class="mb-2"><strong>Usage:</strong> Complex forms with multiple sections, validation, and advanced layouts.</p>
+                        <p><strong>Features:</strong> Multi-column layouts, date pickers, search integration, form validation, responsive design.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme management
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Sidebar item selection
+        document.querySelectorAll('.sidebar-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                
+                // In a real implementation, this would navigate to the selected section
+                const section = this.textContent.trim();
+                console.log('Navigating to:', section);
+            });
+        });
+    </script>
+</body>
+</html>

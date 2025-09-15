@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lead Tracker - J StaR Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .pipeline-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .pipeline-stage {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .stage-count {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stage-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 2rem;
+        }
+        
+        .leads-table {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+        
+        .table-header {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+        
+        .table-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .table th,
+        .table td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .table th {
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: var(--bg-secondary);
+        }
+        
+        .table tbody tr:hover {
+            background: var(--bg-secondary);
+        }
+        
+        .lead-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--brand-blue);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .lead-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .lead-details h4 {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .lead-details p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-new { background: rgba(74, 144, 226, 0.2); color: var(--brand-blue); }
+        .status-contacted { background: rgba(78, 205, 196, 0.2); color: var(--creative-teal); }
+        .status-qualified { background: rgba(255, 193, 7, 0.2); color: #d39e00; }
+        .status-proposal { background: rgba(255, 107, 107, 0.2); color: var(--warm-orange); }
+        .status-closed { background: rgba(69, 183, 209, 0.2); color: var(--success-green); }
+        
+        .sidebar {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            height: fit-content;
+        }
+        
+        .quick-actions {
+            margin-bottom: 2rem;
+        }
+        
+        .sidebar-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .action-grid {
+            display: grid;
+            gap: 0.75rem;
+        }
+        
+        .action-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .action-card:hover {
+            border-color: var(--brand-blue);
+            transform: translateY(-2px);
+        }
+        
+        .action-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--brand-blue);
+        }
+        
+        .activity-feed {
+            margin-bottom: 2rem;
+        }
+        
+        .activity-item {
+            display: flex;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .activity-item:last-child { border-bottom: none; }
+        
+        .activity-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--creative-teal);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        .activity-content {
+            flex: 1;
+        }
+        
+        .activity-text {
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .activity-time {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="page-title">Lead Tracker</h1>
+            <div>
+                <button class="btn btn-secondary">
+                    <i class="fas fa-download"></i>
+                    Export
+                </button>
+                <button class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    Add Lead
+                </button>
+            </div>
+        </div>
+        
+        <div class="pipeline-overview">
+            <div class="pipeline-stage">
+                <div class="stage-count" style="color: var(--brand-blue);">47</div>
+                <div class="stage-label">New Leads</div>
+            </div>
+            <div class="pipeline-stage">
+                <div class="stage-count" style="color: var(--creative-teal);">23</div>
+                <div class="stage-label">Contacted</div>
+            </div>
+            <div class="pipeline-stage">
+                <div class="stage-count" style="color: var(--warm-orange);">15</div>
+                <div class="stage-label">Qualified</div>
+            </div>
+            <div class="pipeline-stage">
+                <div class="stage-count" style="color: #d39e00;">8</div>
+                <div class="stage-label">Proposal</div>
+            </div>
+            <div class="pipeline-stage">
+                <div class="stage-count" style="color: var(--success-green);">12</div>
+                <div class="stage-label">Closed Won</div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="leads-table">
+                <div class="table-header">
+                    <h2 class="table-title">Recent Leads</h2>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Lead</th>
+                            <th>Source</th>
+                            <th>Status</th>
+                            <th>Value</th>
+                            <th>Last Contact</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="lead-info">
+                                    <div class="lead-avatar">SM</div>
+                                    <div class="lead-details">
+                                        <h4>Sarah Martinez</h4>
+                                        <p>sarah@techstartup.com</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>LinkedIn</td>
+                            <td><span class="status-badge status-qualified">Qualified</span></td>
+                            <td>$5,000</td>
+                            <td>2 hours ago</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="lead-info">
+                                    <div class="lead-avatar">MJ</div>
+                                    <div class="lead-details">
+                                        <h4>Mike Johnson</h4>
+                                        <p>mike@consulting.com</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>Website</td>
+                            <td><span class="status-badge status-new">New</span></td>
+                            <td>$3,500</td>
+                            <td>1 day ago</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="lead-info">
+                                    <div class="lead-avatar">AL</div>
+                                    <div class="lead-details">
+                                        <h4>Anna Lee</h4>
+                                        <p>anna@ecommerce.com</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>Referral</td>
+                            <td><span class="status-badge status-proposal">Proposal</span></td>
+                            <td>$8,000</td>
+                            <td>3 days ago</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="lead-info">
+                                    <div class="lead-avatar">RT</div>
+                                    <div class="lead-details">
+                                        <h4>Robert Taylor</h4>
+                                        <p>robert@agency.com</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>Facebook Ads</td>
+                            <td><span class="status-badge status-contacted">Contacted</span></td>
+                            <td>$2,500</td>
+                            <td>1 week ago</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="lead-info">
+                                    <div class="lead-avatar">JW</div>
+                                    <div class="lead-details">
+                                        <h4>Jennifer White</h4>
+                                        <p>jennifer@nonprofit.org</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>Google Ads</td>
+                            <td><span class="status-badge status-closed">Closed Won</span></td>
+                            <td>$4,200</td>
+                            <td>2 weeks ago</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="sidebar">
+                <div class="quick-actions">
+                    <h3 class="sidebar-title">Quick Actions</h3>
+                    <div class="action-grid">
+                        <div class="action-card">
+                            <div class="action-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div>Make Call</div>
+                        </div>
+                        <div class="action-card">
+                            <div class="action-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div>Send Email</div>
+                        </div>
+                        <div class="action-card">
+                            <div class="action-icon">
+                                <i class="fas fa-calendar"></i>
+                            </div>
+                            <div>Schedule Meeting</div>
+                        </div>
+                        <div class="action-card">
+                            <div class="action-icon">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div>Create Proposal</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="activity-feed">
+                    <h3 class="sidebar-title">Recent Activity</h3>
+                    <div class="activity-item">
+                        <div class="activity-avatar">SM</div>
+                        <div class="activity-content">
+                            <div class="activity-text">Sarah Martinez opened your email</div>
+                            <div class="activity-time">2 hours ago</div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-avatar">MJ</div>
+                        <div class="activity-content">
+                            <div class="activity-text">Mike Johnson filled out contact form</div>
+                            <div class="activity-time">1 day ago</div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-avatar">AL</div>
+                        <div class="activity-content">
+                            <div class="activity-text">Anna Lee downloaded proposal</div>
+                            <div class="activity-time">3 days ago</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Table row clicks
+        document.querySelectorAll('.table tbody tr').forEach(row => {
+            row.addEventListener('click', function() {
+                const leadName = this.querySelector('h4').textContent;
+                alert(`Opening lead details for ${leadName}`);
+            });
+        });
+        
+        // Quick action clicks
+        document.querySelectorAll('.action-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const action = this.textContent.trim();
+                alert(`${action} feature would open here`);
+            });
+        });
+        
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

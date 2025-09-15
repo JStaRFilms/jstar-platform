@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JohnGPT - AI Assistant</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .chat-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            height: 100vh;
+        }
+        
+        .sidebar {
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-primary);
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+        }
+        
+        .persona-selector {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .persona-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .persona-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .persona-btn {
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            background: var(--bg-primary);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.875rem;
+        }
+        
+        .persona-btn:hover,
+        .persona-btn.active {
+            border-color: var(--brand-blue);
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        .persona-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+        }
+        
+        .conversations {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+        
+        .conversation-item {
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .conversation-item:hover {
+            background: var(--bg-primary);
+        }
+        
+        .conversation-item.active {
+            background: var(--bg-primary);
+            border-left-color: var(--brand-blue);
+        }
+        
+        .conversation-title {
+            font-weight: 500;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+            color: var(--text-primary);
+        }
+        
+        .conversation-preview {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .conversation-time {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+        
+        .new-chat-btn {
+            margin: 1rem;
+            padding: 0.75rem;
+            background: var(--brand-blue);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .new-chat-btn:hover {
+            background: #3A7BC8;
+        }
+        
+        .main-chat {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        .chat-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .current-persona {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .persona-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--brand-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .persona-info h3 {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .persona-info p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .chat-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .action-btn {
+            padding: 0.5rem;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn:hover {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+        
+        .messages {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            background: var(--bg-secondary);
+        }
+        
+        .message {
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .message.user {
+            flex-direction: row-reverse;
+        }
+        
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        .message.user .message-avatar {
+            background: var(--warm-orange);
+            color: white;
+        }
+        
+        .message.assistant .message-avatar {
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        .message-content {
+            max-width: 70%;
+            background: var(--bg-primary);
+            padding: 1rem 1.25rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+            position: relative;
+        }
+        
+        .message.user .message-content {
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        .message-text {
+            line-height: 1.6;
+            margin-bottom: 0.5rem;
+        }
+        
+        .message-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .message:hover .message-actions {
+            opacity: 1;
+        }
+        
+        .message-action {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 0.25rem;
+            transition: all 0.3s ease;
+            font-size: 0.75rem;
+        }
+        
+        .message-action:hover {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+        
+        .message-time {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+        
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .typing-dots {
+            display: flex;
+            gap: 0.25rem;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--text-secondary);
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+        
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes typing {
+            0%, 60%, 100% { opacity: 0.3; }
+            30% { opacity: 1; }
+        }
+        
+        .input-area {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border);
+            background: var(--bg-primary);
+        }
+        
+        .input-container {
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-end;
+        }
+        
+        .input-field {
+            flex: 1;
+            min-height: 50px;
+            max-height: 150px;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 1.5rem;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            resize: none;
+            font-family: inherit;
+            font-size: 1rem;
+            line-height: 1.5;
+            transition: border-color 0.3s ease;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: var(--brand-blue);
+        }
+        
+        .send-btn {
+            width: 50px;
+            height: 50px;
+            background: var(--brand-blue);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .send-btn:hover:not(:disabled) {
+            background: #3A7BC8;
+            transform: scale(1.05);
+        }
+        
+        .send-btn:disabled {
+            background: var(--text-secondary);
+            cursor: not-allowed;
+        }
+        
+        @media (max-width: 768px) {
+            .chat-container { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+            .message-content { max-width: 85%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">JohnGPT</div>
+            </div>
+            
+            <div class="persona-selector">
+                <div class="persona-title">Choose Your Guide</div>
+                <div class="persona-options">
+                    <button class="persona-btn active" data-persona="creative">
+                        <div class="persona-icon" style="background: var(--warm-orange);">🎬</div>
+                        <div>
+                            <div style="font-weight: 600;">Creative Director</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Video & content strategy</div>
+                        </div>
+                    </button>
+                    <button class="persona-btn" data-persona="systems">
+                        <div class="persona-icon" style="background: var(--brand-blue);">⚙️</div>
+                        <div>
+                            <div style="font-weight: 600;">Systems Mentor</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Business & workflows</div>
+                        </div>
+                    </button>
+                    <button class="persona-btn" data-persona="faith">
+                        <div class="persona-icon" style="background: var(--success-green);">✝️</div>
+                        <div>
+                            <div style="font-weight: 600;">Faith Guide</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Purpose & wisdom</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+            
+            <button class="new-chat-btn">
+                <i class="fas fa-plus"></i> New Conversation
+            </button>
+            
+            <div class="conversations">
+                <div class="conversation-item active">
+                    <div class="conversation-title">Video Marketing Strategy</div>
+                    <div class="conversation-preview">How to create viral content that builds authentic connections with your audience...</div>
+                    <div class="conversation-time">2 hours ago</div>
+                </div>
+                <div class="conversation-item">
+                    <div class="conversation-title">AI Integration Planning</div>
+                    <div class="conversation-preview">Best practices for implementing AI tools in creative workflows without losing the human touch...</div>
+                    <div class="conversation-time">Yesterday</div>
+                </div>
+                <div class="conversation-item">
+                    <div class="conversation-title">Faith & Creativity</div>
+                    <div class="conversation-preview">Balancing commercial success with purpose-driven work and maintaining authentic expression...</div>
+                    <div class="conversation-time">3 days ago</div>
+                </div>
+                <div class="conversation-item">
+                    <div class="conversation-title">Client Onboarding System</div>
+                    <div class="conversation-preview">Building a systematic approach to client relationships that scales without losing personal touch...</div>
+                    <div class="conversation-time">1 week ago</div>
+                </div>
+            </div>
+        </aside>
+        
+        <main class="main-chat">
+            <header class="chat-header">
+                <div class="current-persona">
+                    <div class="persona-avatar">🎬</div>
+                    <div class="persona-info">
+                        <h3>Creative Director Mode</h3>
+                        <p>Ready to craft compelling visual stories</p>
+                    </div>
+                </div>
+                <div class="chat-actions">
+                    <button class="action-btn" title="Export to Obsidian">
+                        <i class="fas fa-download"></i>
+                    </button>
+                    <button class="action-btn" title="Share Conversation">
+                        <i class="fas fa-share"></i>
+                    </button>
+                    <button class="action-btn" title="Clear Chat">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </header>
+            
+            <div class="messages" id="messages">
+                <div class="message assistant">
+                    <div class="message-avatar">🎬</div>
+                    <div class="message-content">
+                        <div class="message-text">
+                            Hey there, creative soul! 👋 I'm here to help you craft compelling visual stories that connect with your audience. Whether you're planning a video campaign, developing content strategy, or brainstorming creative concepts, I've got you covered.
+                            
+                            <br><br>What creative challenge can we tackle together today?
+                        </div>
+                        <div class="message-actions">
+                            <button class="message-action" title="Copy">📋</button>
+                            <button class="message-action" title="Save to Obsidian">💾</button>
+                            <button class="message-action" title="Regenerate">🔄</button>
+                        </div>
+                        <div class="message-time">2:34 PM</div>
+                    </div>
+                </div>
+                
+                <div class="message user">
+                    <div class="message-avatar">Y</div>
+                    <div class="message-content">
+                        <div class="message-text">
+                            I'm struggling with creating video content that stands out on social media. Everything feels generic. How can I develop a unique visual style?
+                        </div>
+                        <div class="message-time">2:35 PM</div>
+                    </div>
+                </div>
+                
+                <div class="message assistant">
+                    <div class="message-avatar">🎬</div>
+                    <div class="message-content">
+                        <div class="message-text">
+                            Great question! Developing a unique visual style is like creating your creative fingerprint. Here's my framework for authentic visual identity:
+                            
+                            <br><br><strong>1. Audit Your Inspiration Sources</strong>
+                            <br>• Look beyond your industry - what movies, art, or experiences move you?
+                            <br>• Identify 3-5 visual elements that consistently catch your eye
+                            
+                            <br><br><strong>2. Define Your Color Psychology</strong>
+                            <br>• Choose 2-3 core colors that reflect your brand personality
+                            <br>• Use them consistently across lighting, graphics, and wardrobe
+                            
+                            <br><br><strong>3. Establish Your Rhythm</strong>
+                            <br>• Fast cuts vs. slow contemplative paces
+                            <br>• Static shots vs. dynamic movement patterns
+                            
+                            <br><br>What type of content are you primarily creating? Knowing this will help me give more targeted style recommendations! 🎯
+                        </div>
+                        <div class="message-actions">
+                            <button class="message-action" title="Copy">📋</button>
+                            <button class="message-action" title="Save to Obsidian">💾</button>
+                            <button class="message-action" title="Regenerate">🔄</button>
+                        </div>
+                        <div class="message-time">2:36 PM</div>
+                    </div>
+                </div>
+                
+                <div class="typing-indicator" id="typingIndicator">
+                    <div class="message-avatar" style="background: var(--brand-blue); color: white;">🎬</div>
+                    <div class="typing-dots">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="input-area">
+                <div class="input-container">
+                    <textarea 
+                        class="input-field" 
+                        id="messageInput"
+                        placeholder="Ask me about video strategy, creative concepts, storytelling techniques..."
+                        rows="1"
+                    ></textarea>
+                    <button class="send-btn" id="sendBtn" disabled>
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Persona switching
+        const personaBtns = document.querySelectorAll('.persona-btn');
+        const currentPersona = document.querySelector('.current-persona');
+        
+        const personas = {
+            creative: {
+                icon: '🎬',
+                title: 'Creative Director Mode',
+                description: 'Ready to craft compelling visual stories',
+                color: 'var(--warm-orange)'
+            },
+            systems: {
+                icon: '⚙️',
+                title: 'Systems Mentor Mode',  
+                description: 'Let\'s optimize your workflows and processes',
+                color: 'var(--brand-blue)'
+            },
+            faith: {
+                icon: '✝️',
+                title: 'Faith Guide Mode',
+                description: 'Exploring purpose and meaning in your work',
+                color: 'var(--success-green)'
+            }
+        };
+        
+        personaBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                personaBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const persona = btn.dataset.persona;
+                const personaData = personas[persona];
+                
+                currentPersona.querySelector('.persona-avatar').textContent = personaData.icon;
+                currentPersona.querySelector('h3').textContent = personaData.title;
+                currentPersona.querySelector('p').textContent = personaData.description;
+            });
+        });
+        
+        // Message input handling
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const messages = document.getElementById('messages');
+        const typingIndicator = document.getElementById('typingIndicator');
+        
+        messageInput.addEventListener('input', () => {
+            sendBtn.disabled = !messageInput.value.trim();
+            
+            // Auto-resize textarea
+            messageInput.style.height = 'auto';
+            messageInput.style.height = Math.min(messageInput.scrollHeight, 150) + 'px';
+        });
+        
+        messageInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        sendBtn.addEventListener('click', sendMessage);
+        
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+            
+            // Add user message
+            addMessage('user', message);
+            messageInput.value = '';
+            sendBtn.disabled = true;
+            messageInput.style.height = 'auto';
+            
+            // Show typing indicator
+            typingIndicator.style.display = 'flex';
+            scrollToBottom();
+            
+            // Simulate AI response
+            setTimeout(() => {
+                typingIndicator.style.display = 'none';
+                addMessage('assistant', generateResponse(message));
+            }, 2000);
+        }
+        
+        function addMessage(type, text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            const avatar = type === 'user' ? 'Y' : '🎬';
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${avatar}</div>
+                <div class="message-content">
+                    <div class="message-text">${text}</div>
+                    <div class="message-actions">
+                        <button class="message-action" title="Copy">📋</button>
+                        <button class="message-action" title="Save to Obsidian">💾</button>
+                        ${type === 'assistant' ? '<button class="message-action" title="Regenerate">🔄</button>' : ''}
+                    </div>
+                    <div class="message-time">${time}</div>
+                </div>
+            `;
+            
+            messages.insertBefore(messageDiv, typingIndicator);
+            scrollToBottom();
+        }
+        
+        function generateResponse(userMessage) {
+            const responses = [
+                "That's a great question! Let me share some insights based on my experience...",
+                "I love where you're going with this! Here's how I'd approach it...",
+                "Absolutely! This reminds me of a successful project where...",
+                "Perfect timing for this question! Here's a framework that works really well..."
+            ];
+            
+            return responses[Math.floor(Math.random() * responses.length)] + " [This would be a detailed AI response based on the user's question]";
+        }
+        
+        function scrollToBottom() {
+            messages.scrollTop = messages.scrollHeight;
+        }
+        
+        // Message actions
+        messages.addEventListener('click', (e) => {
+            if (e.target.classList.contains('message-action')) {
+                const title = e.target.title;
+                const messageText = e.target.closest('.message-content').querySelector('.message-text').textContent;
+                
+                if (title === 'Copy') {
+                    navigator.clipboard.writeText(messageText);
+                    e.target.textContent = '✅';
+                    setTimeout(() => e.target.textContent = '📋', 1000);
+                } else if (title === 'Save to Obsidian') {
+                    alert('Saving to Obsidian vault...');
+                } else if (title === 'Regenerate') {
+                    alert('Regenerating response...');
+                }
+            }
+        });
+        
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+        
+        // Auto-focus input
+        messageInput.focus();
+    </script>
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Site Navigation - JohnGPT</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'jstar-blue': '#2563EB',
+            'faith-purple': '#8B5CF6'
+          }
+        }
+      }
+    }
+    
+    function sendMessage() {
+      const input = document.getElementById('message-input');
+      const message = input.value.trim();
+      if (!message) return;
+      
+      // Add user message
+      addMessage(message, 'user');
+      input.value = '';
+      
+      // Simulate AI response after delay
+      setTimeout(() => {
+        const responses = [
+          `I see you're interested in portfolio examples. Here are some of my best work:\n\n1. [Faith in Tech Documentary](#) - 45 min film exploring faith & software development\n2. [Global Faith Summit 2023](#) - Live stream for 12k+ viewers\n3. [Virality OS Dashboard](#) - SaaS platform for YouTube creators`,
+          `Looking for services? I offer:\n\n- [Video Production](#) - Cinematic storytelling for brands & events\n- [App Development](#) - Full-stack JavaScript solutions\n- [Consulting](#) - Strategy sessions for creators & developers`,
+          `You might be interested in these resources:\n\n- [10 Viral YouTube Title Formulas](#) (free download)\n- [YouTube Virality Score Calculator](#) ($49)\n- [Creator Growth Engine Suite](#) ($299)`,
+          `Here's how I can help with your content:\n\n1. [Script Hook Builder](#) - Craft compelling openings\n2. [Thumbnail Generator](#) - Design high-CTR visuals\n3. [Audience Retention Framework](#) - Keep viewers watching`
+        ];
+        addMessage(responses[Math.floor(Math.random() * responses.length)], 'ai');
+      }, 1000);
+    }
+    
+    function addMessage(content, sender) {
+      const chatContainer = document.getElementById('chat-messages');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start'}`;
+      
+      if (sender === 'ai') {
+        // Convert markdown links to HTML
+        const htmlContent = content.replace(/\[([^\]]+)\]\(#\)/g, 
+          '<a href="#" class="text-jstar-blue hover:text-faith-purple font-medium">$1 →</a>');
+        
+        messageDiv.innerHTML = `
+          <div class="max-w-2xl">
+            <div class="flex items-start">
+              <div class="w-8 h-8 rounded-full bg-jstar-blue flex items-center justify-center mr-3 flex-shrink-0 text-white">JG</div>
+              <div class="bg-gray-100 dark:bg-gray-700 rounded-2xl p-4">
+                <p class="text-gray-800 dark:text-gray-200">${htmlContent}</p>
+              </div>
+            </div>
+          </div>
+        `;
+      } else {
+        messageDiv.innerHTML = `
+          <div class="max-w-2xl">
+            <div class="bg-jstar-blue text-white rounded-2xl p-4">
+              ${content}
+            </div>
+          </div>
+        `;
+      }
+      
+      chatContainer.appendChild(messageDiv);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+  </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+  <div class="max-w-4xl mx-auto px-6 py-12">
+    <!-- PRD: FR022 (Navigate Users via Chat) -->
+    <header class="text-center mb-8">
+      <div class="w-16 h-16 rounded-full bg-gradient-to-br from-jstar-blue to-faith-purple flex items-center justify-center mx-auto mb-4">
+        <span class="text-white text-2xl font-bold">JG</span>
+      </div>
+      <h1 class="text-3xl font-bold mb-2 text-gray-900 dark:text-white">Chat-Based Navigation</h1>
+      <p class="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+        <!-- PRD: Navigation Description -->Ask JohnGPT questions and get directed to the most relevant pages on the site
+      </p>
+    </header>
+
+    <!-- THEME TOGGLE -->
+    <div class="fixed top-4 right-4 z-50">
+      <button onclick="document.documentElement.classList.toggle('dark')" 
+              class="p-2 rounded-full bg-jstar-blue text-white">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- NAVIGATION EXAMPLES -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+      <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+        <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Common User Queries</h2>
+        
+        <div class="space-y-3">
+          <div class="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+            <p class="text-gray-700 dark:text-gray-300 font-medium">"Show me portfolio examples"</p>
+            <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">→ Gets linked to <span class="font-medium text-jstar-blue">/portfolio</span></p>
+          </div>
+          
+          <div class="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+            <p class="text-gray-700 dark:text-gray-300 font-medium">"What services do you offer?"</p>
+            <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">→ Gets linked to <span class="font-medium text-jstar-blue">/services</span></p>
+          </div>
+          
+          <div class="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+            <p class="text-gray-700 dark:text-gray-300 font-medium">"How do I get your free resource?"</p>
+            <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">→ Gets linked to <span class="font-medium text-jstar-blue">/contact</span></p>
+          </div>
+          
+          <div class="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+            <p class="text-gray-700 dark:text-gray-300 font-medium">"I need help with YouTube titles"</p>
+            <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">→ Gets linked to <span class="font-medium text-jstar-blue">/store/virality-score</span></p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+        <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">How It Works</h2>
+        
+        <ol class="space-y-3 text-gray-700 dark:text-gray-300">
+          <li class="flex">
+            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-jstar-blue text-white flex items-center justify-center mr-3">1</span>
+            <span>User asks a question in the chat interface</span>
+          </li>
+          <li class="flex">
+            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-jstar-blue text-white flex items-center justify-center mr-3">2</span>
+            <span>JohnGPT analyzes intent using NLP</span>
+          </li>
+          <li class="flex">
+            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-jstar-blue text-white flex items-center justify-center mr-3">3</span>
+            <span>System matches to relevant site content</span>
+          </li>
+          <li class="flex">
+            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-jstar-blue text-white flex items-center justify-center mr-3">4</span>
+            <span>Returns contextual links with brief explanations</span>
+          </li>
+        </ol>
+        
+        <div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+          <p class="text-blue-800 dark:text-blue-200">
+            <strong>Behind the scenes:</strong> Uses a combination of keyword matching, 
+            semantic analysis, and user behavior data to provide the most relevant links.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEMO CHAT INTERFACE -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-200 dark:border-gray-700">
+      <!-- CHAT HEADER -->
+      <div class="p-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-8 h-8 rounded-full bg-jstar-blue flex items-center justify-center text-white">
+            JG
+          </div>
+          <span class="font-medium text-gray-900 dark:text-white">Creative Director</span>
+        </div>
+      </div>
+
+      <!-- CHAT MESSAGES -->
+      <div id="chat-messages" class="h-[400px] overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-900/50">
+        <!-- AI GREETING -->
+        <div class="flex justify-start">
+          <div class="max-w-2xl">
+            <div class="flex items-start">
+              <div class="w-8 h-8 rounded-full bg-jstar-blue flex items-center justify-center mr-3 flex-shrink-0 text-white">JG</div>
+              <div class="bg-gray-100 dark:bg-gray-700 rounded-2xl p-4">
+                <p class="text-gray-800 dark:text-gray-200">Hey there! I'm JohnGPT, your AI creative partner. 😊</p>
+                <p class="text-gray-800 dark:text-gray-200 mt-2">How can I help you navigate the site today?</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INPUT AREA -->
+      <div class="p-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+        <div class="flex space-x-2">
+          <input id="message-input" type="text" 
+                 placeholder="Ask me about portfolio examples, services, or resources..." 
+                 class="flex-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue"
+                 onkeypress="if (event.key === 'Enter') sendMessage()">
+          <button onclick="sendMessage()" class="bg-jstar-blue hover:bg-faith-purple text-white rounded-full p-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M2.166 4.999a1.959 1.959 0 010-2.998c5.905-3.001 12.04-3.001 17.945 0a1.959 1.959 0 010 2.998Z" clip-rule="evenodd" />
+              <path fill-rule="evenodd" d="M9.54 8.47c-1.332-.602-2.753-.602-4.085 0-1.333.601-2.513 1.81-3.449 3.441a1.96 1.96 0 000 1.178c.936 1.631 2.116 2.84 3.449 3.441 1.332.602 2.753.602 4.085 0 1.333-.601 2.513-1.81 3.45-3.441a1.96 1.96 0 000-1.178c-.937-1.631-2.117-2.84-3.45-3.441Zm4.016 3.441c.275.475.439.999.481 1.537.041.538-.07.107-.326 1.582a2 2 0 01-1.842 1.442c-.92.073-1.785-.392-2.299-1.188a5.985 5.985 0 01-.481-1.537c-.042-.538.07-1.107.326-1.582a2 2 0 011.842-1.442c.92-.073 1.785.392 2.299 1.188Z" clip-rule="evenodd" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TIER 1+ FEATURES -->
+    <div class="mt-6 p-5 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+      <h3 class="text-lg font-bold mb-3 text-gray-900 dark:text-white">Maximizing Site Navigation</h3>
+      <ul class="space-y-2 text-gray-700 dark:text-gray-300">
+        <li class="flex items-start">
+          <svg class="h-5 w-5 text-blue-500 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>Ask specific questions like "Show me event coverage examples" for best results</span>
+        </li>
+        <li class="flex items-start">
+          <svg class="h-5 w-5 text-blue-500 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>Use natural language - no need for technical terms</span>
+        </li>
+        <li class="flex items-start">
+          <svg class="h-5 w-5 text-blue-500 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>JohnGPT remembers context within the same conversation</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theme System - J StaR Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            /* Brand Colors */
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            
+            /* Light Theme */
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --bg-tertiary: #E9ECEF;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --text-muted: #718096;
+            --border: #E2E8F0;
+            --border-light: #F1F5F9;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --shadow-lg: rgba(0, 0, 0, 0.15);
+            
+            /* Status Colors */
+            --error-red: #E53E3E;
+            --warning-yellow: #D69E2E;
+            --info-blue: #3182CE;
+        }
+        
+        [data-theme="dark"] {
+            /* Dark Theme */
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --bg-tertiary: #4A5568;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --text-muted: #A0AEC0;
+            --border: #4A5568;
+            --border-light: #2D3748;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --shadow-lg: rgba(0, 0, 0, 0.5);
+        }
+        
+        [data-theme="sepia"] {
+            /* Sepia Theme */
+            --bg-primary: #F7F3E9;
+            --bg-secondary: #F0E6D2;
+            --bg-tertiary: #E8D5B7;
+            --text-primary: #3C2415;
+            --text-secondary: #5D4E37;
+            --text-muted: #8B7355;
+            --border: #D3C4B2;
+            --border-light: #E8D5B7;
+            --shadow: rgba(60, 36, 21, 0.1);
+            --shadow-lg: rgba(60, 36, 21, 0.15);
+        }
+        
+        [data-theme="high-contrast"] {
+            /* High Contrast Theme */
+            --bg-primary: #000000;
+            --bg-secondary: #FFFFFF;
+            --bg-tertiary: #333333;
+            --text-primary: #FFFFFF;
+            --text-secondary: #000000;
+            --text-muted: #666666;
+            --border: #FFFFFF;
+            --border-light: #CCCCCC;
+            --shadow: rgba(255, 255, 255, 0.3);
+            --shadow-lg: rgba(255, 255, 255, 0.5);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        
+        .theme-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 3rem 2rem;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            border-radius: 1rem;
+            color: white;
+        }
+        
+        .theme-controls {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px var(--shadow);
+        }
+        
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .theme-switcher {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.5rem;
+            background: var(--bg-secondary);
+            padding: 0.5rem;
+            border-radius: 0.75rem;
+        }
+        
+        .theme-option {
+            padding: 0.75rem 1rem;
+            border: 2px solid transparent;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        
+        .theme-option.active {
+            border-color: var(--brand-blue);
+            background: rgba(74, 144, 226, 0.1);
+            color: var(--brand-blue);
+        }
+        
+        .theme-option:hover:not(.active) {
+            background: var(--bg-tertiary);
+        }
+        
+        .color-picker {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .color-input {
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            border: 2px solid var(--border);
+        }
+        
+        .font-size-slider {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--bg-secondary);
+            outline: none;
+        }
+        
+        .font-size-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--brand-blue);
+            cursor: pointer;
+        }
+        
+        .demo-content {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px var(--shadow);
+        }
+        
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .color-swatch {
+            text-align: center;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+        
+        .component-demo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .demo-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+        
+        .btn-primary { background: var(--brand-blue); color: white; }
+        .btn-secondary { background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary); }
+        .btn-success { background: var(--success-green); color: white; }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid;
+        }
+        
+        .alert-info {
+            background: rgba(74, 144, 226, 0.1);
+            border-color: var(--brand-blue);
+            color: var(--brand-blue);
+        }
+        
+        .accessibility-panel {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .accessibility-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .option-card {
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border: 2px solid transparent;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .option-card.active {
+            border-color: var(--brand-blue);
+            background: rgba(74, 144, 226, 0.1);
+        }
+        
+        .text-size-demo {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border-radius: 0.5rem;
+            border: 1px solid var(--border);
+        }
+        
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .controls-grid { grid-template-columns: 1fr; }
+            .component-demo { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="theme-header">
+            <h1 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem;">🎨 Theme System</h1>
+            <p style="font-size: 1.2rem; opacity: 0.9;">Customizable themes and accessibility options for J StaR Platform</p>
+        </div>
+
+        <!-- Theme Controls -->
+        <div class="theme-controls">
+            <h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem;">Theme Settings</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                Customize the appearance and accessibility of the platform to suit your preferences.
+            </p>
+            
+            <div class="controls-grid">
+                <div class="control-group">
+                    <h4>Color Theme</h4>
+                    <div class="theme-switcher">
+                        <div class="theme-option active" onclick="setTheme('light')">
+                            <i class="fas fa-sun"></i><br>Light
+                        </div>
+                        <div class="theme-option" onclick="setTheme('dark')">
+                            <i class="fas fa-moon"></i><br>Dark
+                        </div>
+                        <div class="theme-option" onclick="setTheme('sepia')">
+                            <i class="fas fa-book"></i><br>Sepia
+                        </div>
+                        <div class="theme-option" onclick="setTheme('high-contrast')">
+                            <i class="fas fa-adjust"></i><br>Contrast
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h4>Font Size</h4>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem;">
+                        <span>Small</span>
+                        <span>Normal</span>
+                        <span>Large</span>
+                    </div>
+                    <input type="range" class="font-size-slider" min="12" max="20" value="16" onchange="setFontSize(this.value)">
+                    <div id="fontSizeDisplay" style="text-align: center; margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-secondary);">16px</div>
+                </div>
+                
+                <div class="control-group">
+                    <h4>Primary Color</h4>
+                    <div class="color-picker">
+                        <input type="color" class="color-input" value="#4A90E2" onchange="setPrimaryColor(this.value)">
+                        <div>
+                            <div style="font-weight: 500;">Brand Blue</div>
+                            <div style="font-size: 0.9rem; color: var(--text-secondary);" id="colorValue">#4A90E2</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h4>Quick Actions</h4>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <button class="btn btn-secondary" onclick="resetTheme()">
+                            <i class="fas fa-undo"></i> Reset to Default
+                        </button>
+                        <button class="btn btn-primary" onclick="exportTheme()">
+                            <i class="fas fa-download"></i> Export Settings
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Color Palette Demo -->
+        <div class="demo-content">
+            <h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem;">Color Palette</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                The complete color system used throughout the platform.
+            </p>
+            
+            <div class="color-palette">
+                <div class="color-swatch" style="background: var(--brand-blue);">
+                    Brand Blue<br>
+                    <small style="opacity: 0.8;">#4A90E2</small>
+                </div>
+                <div class="color-swatch" style="background: var(--creative-teal);">
+                    Creative Teal<br>
+                    <small style="opacity: 0.8;">#4ECDC4</small>
+                </div>
+                <div class="color-swatch" style="background: var(--warm-orange);">
+                    Warm Orange<br>
+                    <small style="opacity: 0.8;">#FF6B6B</small>
+                </div>
+                <div class="color-swatch" style="background: var(--success-green);">
+                    Success Green<br>
+                    <small style="opacity: 0.8;">#45B7D1</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Component Demo -->
+        <div class="demo-content">
+            <h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem;">Component Preview</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                See how different components look with your current theme settings.
+            </p>
+            
+            <div class="component-demo">
+                <div class="demo-card">
+                    <h4 style="margin-bottom: 1rem;">Buttons & Inputs</h4>
+                    <div style="margin-bottom: 1rem;">
+                        <input type="text" class="form-input" placeholder="Example input field">
+                        <input type="email" class="form-input" placeholder="Email address">
+                    </div>
+                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                        <button class="btn btn-primary">Primary</button>
+                        <button class="btn btn-secondary">Secondary</button>
+                        <button class="btn btn-success">Success</button>
+                    </div>
+                </div>
+                
+                <div class="demo-card">
+                    <h4 style="margin-bottom: 1rem;">Typography</h4>
+                    <h1 style="margin-bottom: 0.5rem;">Heading 1</h1>
+                    <h2 style="margin-bottom: 0.5rem;">Heading 2</h2>
+                    <h3 style="margin-bottom: 0.5rem;">Heading 3</h3>
+                    <p style="margin-bottom: 0.5rem;">Regular paragraph text with <a href="#" style="color: var(--brand-blue);">a link</a>.</p>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">Secondary text in smaller size.</p>
+                </div>
+                
+                <div class="demo-card">
+                    <h4 style="margin-bottom: 1rem;">Alerts & Status</h4>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        This is an informational alert message.
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <div style="width: 12px; height: 12px; background: var(--success-green); border-radius: 50%;"></div>
+                        <span>Online status indicator</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="width: 12px; height: 12px; background: var(--warm-orange); border-radius: 50%;"></div>
+                        <span>Away status indicator</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accessibility Panel -->
+        <div class="accessibility-panel">
+            <h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem;">Accessibility Options</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                Additional accessibility features to improve usability for all users.
+            </p>
+            
+            <div class="accessibility-options">
+                <div class="option-card" onclick="toggleMotion(this)">
+                    <i class="fas fa-play" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
+                    <h5>Reduce Motion</h5>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary);">Minimize animations</p>
+                </div>
+                
+                <div class="option-card" onclick="toggleFocus(this)">
+                    <i class="fas fa-eye" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
+                    <h5>Focus Indicators</h5>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary);">Enhanced focus rings</p>
+                </div>
+                
+                <div class="option-card" onclick="toggleSounds(this)">
+                    <i class="fas fa-volume-up" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
+                    <h5>System Sounds</h5>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary);">Audio feedback</p>
+                </div>
+                
+                <div class="option-card" onclick="toggleTooltips(this)">
+                    <i class="fas fa-question-circle" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
+                    <h5>Extended Tooltips</h5>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary);">More detailed hints</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Text Size Demo -->
+        <div class="text-size-demo">
+            <h3 style="margin-bottom: 1rem;">Live Text Size Preview</h3>
+            <p>This text will resize as you adjust the font size slider above. The platform maintains readable typography across all sizes while preserving the visual hierarchy.</p>
+        </div>
+    </div>
+
+    <script>
+        // Theme switching
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            
+            // Update active theme option
+            document.querySelectorAll('.theme-option').forEach(opt => opt.classList.remove('active'));
+            event.target.closest('.theme-option').classList.add('active');
+        }
+
+        // Font size adjustment
+        function setFontSize(size) {
+            document.documentElement.style.setProperty('--base-font-size', size + 'px');
+            document.getElementById('fontSizeDisplay').textContent = size + 'px';
+            localStorage.setItem('fontSize', size);
+        }
+
+        // Primary color customization
+        function setPrimaryColor(color) {
+            document.documentElement.style.setProperty('--brand-blue', color);
+            document.getElementById('colorValue').textContent = color;
+            localStorage.setItem('primaryColor', color);
+        }
+
+        // Reset theme
+        function resetTheme() {
+            localStorage.removeItem('theme');
+            localStorage.removeItem('fontSize');
+            localStorage.removeItem('primaryColor');
+            location.reload();
+        }
+
+        // Export theme settings
+        function exportTheme() {
+            const settings = {
+                theme: localStorage.getItem('theme') || 'light',
+                fontSize: localStorage.getItem('fontSize') || '16',
+                primaryColor: localStorage.getItem('primaryColor') || '#4A90E2'
+            };
+            
+            const blob = new Blob([JSON.stringify(settings, null, 2)], {
+                type: 'application/json'
+            });
+            
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'jstar-theme-settings.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Accessibility toggles
+        function toggleMotion(element) {
+            element.classList.toggle('active');
+            const isActive = element.classList.contains('active');
+            document.documentElement.style.setProperty('--animation-duration', isActive ? '0s' : '0.3s');
+        }
+
+        function toggleFocus(element) {
+            element.classList.toggle('active');
+            const isActive = element.classList.contains('active');
+            document.documentElement.style.setProperty('--focus-ring-width', isActive ? '3px' : '2px');
+        }
+
+        function toggleSounds(element) {
+            element.classList.toggle('active');
+            // Sound toggle implementation would go here
+        }
+
+        function toggleTooltips(element) {
+            element.classList.toggle('active');
+            // Extended tooltips implementation would go here
+        }
+
+        // Initialize theme from localStorage
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme');
+            const savedFontSize = localStorage.getItem('fontSize');
+            const savedPrimaryColor = localStorage.getItem('primaryColor');
+            
+            if (savedTheme) {
+                setTheme(savedTheme);
+            }
+            
+            if (savedFontSize) {
+                document.querySelector('.font-size-slider').value = savedFontSize;
+                setFontSize(savedFontSize);
+            }
+            
+            if (savedPrimaryColor) {
+                document.querySelector('.color-input').value = savedPrimaryColor;
+                setPrimaryColor(savedPrimaryColor);
+            }
+            
+            // Set default theme if none exists
+            if (!savedTheme) {
+                const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', systemTheme);
+            }
+        });
+
+        // Listen for system theme changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            if (!localStorage.getItem('theme')) {
+                const newTheme = e.matches ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', newTheme);
+            }
+        });
+    </script>
+</body>
+</html>

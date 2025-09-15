@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modal Components - J StaR Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .demo-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .demo-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--brand-blue);
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary { background: var(--brand-blue); color: white; }
+        .btn-secondary { background: var(--bg-secondary); border: 2px solid var(--border); color: var(--text-primary); }
+        .btn-success { background: var(--success-green); color: white; }
+        .btn-warning { background: var(--warm-orange); color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Basic Modal */
+        .modal {
+            background: var(--bg-primary);
+            border-radius: 1rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow: hidden;
+            transform: scale(0.8);
+            transition: all 0.3s ease;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+        
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 0.25rem;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-close:hover {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            background: var(--bg-secondary);
+        }
+        
+        /* Large Modal */
+        .modal-large {
+            max-width: 800px;
+        }
+        
+        /* Small Modal */
+        .modal-small {
+            max-width: 300px;
+        }
+        
+        /* Full Screen Modal */
+        .modal-fullscreen {
+            max-width: 100%;
+            width: 100%;
+            height: 100%;
+            max-height: 100%;
+            border-radius: 0;
+        }
+        
+        /* Confirmation Modal */
+        .modal-confirm {
+            text-align: center;
+        }
+        
+        .confirm-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 2rem;
+            color: white;
+        }
+        
+        .confirm-icon.warning {
+            background: var(--warm-orange);
+        }
+        
+        .confirm-icon.danger {
+            background: #dc3545;
+        }
+        
+        .confirm-icon.success {
+            background: var(--success-green);
+        }
+        
+        /* Loading Modal */
+        .loading-content {
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--brand-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Image Modal */
+        .modal-image {
+            background: transparent;
+            box-shadow: none;
+            max-width: 90%;
+            max-height: 90%;
+        }
+        
+        .modal-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 0.5rem;
+        }
+        
+        /* Form Modal */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--brand-blue);
+        }
+        
+        /* Notification Toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 1100;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            max-width: 300px;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        .toast-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .toast-title {
+            font-weight: 600;
+            color: var(--brand-blue);
+        }
+        
+        .toast-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+        
+        .toast-body {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="page-title">Modal Components Library</h1>
+        
+        <div class="demo-grid">
+            <div class="demo-card">
+                <h3 class="demo-title">Basic Modal</h3>
+                <p style="margin-bottom: 1rem; color: var(--text-secondary);">Standard modal with header, body, and footer</p>
+                <button class="btn btn-primary" onclick="openModal('basicModal')">Open Basic Modal</button>
+            </div>
+            
+            <div class="demo-card">
+                <h3 class="demo-title">Confirmation Modal</h3>
+                <p style="margin-bottom: 1rem; color: var(--text-secondary);">Confirm dangerous actions</p>
+                <button class="btn btn-danger" onclick="openModal('confirmModal')">Delete Item</button>
+            </div>
+            
+            <div class="demo-card">
+                <h3 class="demo-title">Form Modal</h3>
+                <p style="margin-bottom: 1rem; color: var(--text-secondary);">Modal with form inputs</p>
+                <button class="btn btn-success" onclick="openModal('formModal')">Add New Item</button>
+            </div>
+            
+            <div class="demo-card">
+                <h3 class="demo-title">Loading Modal</h3>
+                <p style="margin-bottom: 1rem; color: var(--text-secondary);">Show loading state</p>
+                <button class="btn btn-secondary" onclick="showLoading()">Process Data</button>
+            </div>
+            
+            <div class="demo-card">
+                <h3 class="demo-title">Large Modal</h3>
+                <p style="margin-bottom: 1rem; color: var(--text-secondary);">Wider modal for more content</p>
+                <button class="btn btn-primary" onclick="openModal('largeModal')">Open Large Modal</button>
+            </div>
+            
+            <div class="demo-card">
+                <h3 class="demo-title">Toast Notification</h3>
+                <p style="margin-bottom: 1rem; color: var(--text-secondary);">Non-blocking notifications</p>
+                <button class="btn btn-success" onclick="showToast()">Show Toast</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Basic Modal -->
+    <div class="modal-overlay" id="basicModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Basic Modal</h3>
+                <button class="modal-close" onclick="closeModal('basicModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>This is a basic modal example. You can put any content here like text, forms, images, or other components.</p>
+                <p>Modals are perfect for displaying important information, getting user input, or showing detailed views without navigating away from the current page.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('basicModal')">Cancel</button>
+                <button class="btn btn-primary">Save Changes</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal modal-small modal-confirm">
+            <div class="modal-header">
+                <h3 class="modal-title">Confirm Delete</h3>
+                <button class="modal-close" onclick="closeModal('confirmModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="confirm-icon danger">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h4 style="margin-bottom: 1rem;">Are you sure?</h4>
+                <p>This action cannot be undone. This will permanently delete the item and all associated data.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('confirmModal')">Cancel</button>
+                <button class="btn btn-danger">Delete</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Form Modal -->
+    <div class="modal-overlay" id="formModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Add New Item</h3>
+                <button class="modal-close" onclick="closeModal('formModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label class="form-label">Item Name</label>
+                        <input type="text" class="form-input" placeholder="Enter item name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-input" rows="3" placeholder="Enter description"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select class="form-input">
+                            <option>Select category</option>
+                            <option>Category 1</option>
+                            <option>Category 2</option>
+                            <option>Category 3</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('formModal')">Cancel</button>
+                <button class="btn btn-success">Add Item</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading Modal -->
+    <div class="modal-overlay" id="loadingModal">
+        <div class="modal modal-small">
+            <div class="modal-body">
+                <div class="loading-content">
+                    <div class="spinner"></div>
+                    <h4>Processing...</h4>
+                    <p>Please wait while we process your request.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Large Modal -->
+    <div class="modal-overlay" id="largeModal">
+        <div class="modal modal-large">
+            <div class="modal-header">
+                <h3 class="modal-title">Large Modal</h3>
+                <button class="modal-close" onclick="closeModal('largeModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                    <div>
+                        <h4 style="margin-bottom: 1rem;">Left Column</h4>
+                        <p>This is a large modal that can accommodate more content. It's perfect for complex forms, detailed information, or when you need more space.</p>
+                        <ul style="margin: 1rem 0; padding-left: 1.5rem;">
+                            <li>More space for content</li>
+                            <li>Better for complex layouts</li>
+                            <li>Can include multiple columns</li>
+                            <li>Perfect for detailed forms</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 style="margin-bottom: 1rem;">Right Column</h4>
+                        <p>You can use the extra space for images, charts, additional form fields, or any other content that needs more room to breathe.</p>
+                        <div style="background: var(--bg-secondary); padding: 2rem; border-radius: 0.5rem; text-align: center; margin-top: 1rem;">
+                            <i class="fas fa-chart-bar" style="font-size: 3rem; color: var(--brand-blue);"></i>
+                            <p style="margin-top: 1rem;">Chart or image placeholder</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('largeModal')">Close</button>
+                <button class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <div class="toast-header">
+            <span class="toast-title">Success!</span>
+            <button class="toast-close" onclick="hideToast()">&times;</button>
+        </div>
+        <div class="toast-body">
+            Your action was completed successfully.
+        </div>
+    </div>
+    
+    <script>
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        function showLoading() {
+            openModal('loadingModal');
+            // Simulate processing
+            setTimeout(() => {
+                closeModal('loadingModal');
+                showToast();
+            }, 3000);
+        }
+        
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            setTimeout(() => {
+                hideToast();
+            }, 4000);
+        }
+        
+        function hideToast() {
+            document.getElementById('toast').classList.remove('show');
+        }
+        
+        // Close modal when clicking overlay
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+        });
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.active').forEach(modal => {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = '';
+                });
+            }
+        });
+        
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

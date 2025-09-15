@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - Admin Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+        
+        .filters-bar {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            background: var(--bg-secondary);
+        }
+        
+        .filter-select {
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            background: var(--bg-secondary);
+            min-width: 120px;
+        }
+        
+        .users-table {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .table-header {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .table-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .table-stats {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            text-align: left;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        th {
+            background: var(--bg-secondary);
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        tr:hover {
+            background: var(--bg-secondary);
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--brand-blue);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 1rem;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .user-email {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-active {
+            background: rgba(69, 183, 209, 0.2);
+            color: var(--success-green);
+        }
+        
+        .status-inactive {
+            background: rgba(255, 107, 107, 0.2);
+            color: var(--warm-orange);
+        }
+        
+        .plan-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .plan-free {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+        }
+        
+        .plan-pro {
+            background: var(--warm-orange);
+            color: white;
+        }
+        
+        .actions-menu {
+            position: relative;
+        }
+        
+        .actions-btn {
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+            padding: 0.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+        
+        .actions-btn:hover {
+            background: var(--bg-secondary);
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+        }
+        
+        .pagination-info {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .pagination-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .pagination-btn {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border);
+            background: var(--bg-primary);
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        
+        .pagination-btn:hover:not(:disabled) {
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .page-header { flex-direction: column; gap: 1rem; align-items: stretch; }
+            .filters-bar { flex-direction: column; align-items: stretch; }
+            .users-table { overflow-x: auto; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">User Management</h1>
+            <div class="header-actions">
+                <button class="btn btn-secondary">
+                    <i class="fas fa-download"></i> Export Users
+                </button>
+                <button class="btn btn-primary">
+                    <i class="fas fa-user-plus"></i> Add User
+                </button>
+            </div>
+        </div>
+
+        <div class="filters-bar">
+            <input type="text" class="search-input" placeholder="Search users by name, email, or ID...">
+            <select class="filter-select">
+                <option value="">All Plans</option>
+                <option value="free">Free</option>
+                <option value="pro">Pro</option>
+            </select>
+            <select class="filter-select">
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+            </select>
+            <select class="filter-select">
+                <option value="">Join Date</option>
+                <option value="today">Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+            </select>
+            <button class="btn btn-secondary">
+                <i class="fas fa-filter"></i> Clear Filters
+            </button>
+        </div>
+
+        <div class="users-table">
+            <div class="table-header">
+                <div class="table-title">All Users</div>
+                <div class="table-stats">Showing 1-20 of 1,247 users</div>
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Plan</th>
+                        <th>Status</th>
+                        <th>Last Active</th>
+                        <th>Joined</th>
+                        <th>Usage</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="user-info">
+                                <div class="user-avatar">JD</div>
+                                <div class="user-details">
+                                    <div class="user-name">John Doe</div>
+                                    <div class="user-email">john.doe@example.com</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="plan-badge plan-pro">Pro</span></td>
+                        <td><span class="status-badge status-active">Active</span></td>
+                        <td>2 minutes ago</td>
+                        <td>Jan 15, 2024</td>
+                        <td>347 conversations</td>
+                        <td>
+                            <div class="actions-menu">
+                                <button class="actions-btn">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td>
+                            <div class="user-info">
+                                <div class="user-avatar">SM</div>
+                                <div class="user-details">
+                                    <div class="user-name">Sarah Miller</div>
+                                    <div class="user-email">sarah.m@company.com</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="plan-badge plan-free">Free</span></td>
+                        <td><span class="status-badge status-active">Active</span></td>
+                        <td>1 hour ago</td>
+                        <td>Feb 3, 2024</td>
+                        <td>23 conversations</td>
+                        <td>
+                            <div class="actions-menu">
+                                <button class="actions-btn">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td>
+                            <div class="user-info">
+                                <div class="user-avatar">MJ</div>
+                                <div class="user-details">
+                                    <div class="user-name">Mike Johnson</div>
+                                    <div class="user-email">mike.johnson@startup.co</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="plan-badge plan-pro">Pro</span></td>
+                        <td><span class="status-badge status-active">Active</span></td>
+                        <td>3 hours ago</td>
+                        <td>Dec 20, 2023</td>
+                        <td>892 conversations</td>
+                        <td>
+                            <div class="actions-menu">
+                                <button class="actions-btn">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td>
+                            <div class="user-info">
+                                <div class="user-avatar">AL</div>
+                                <div class="user-details">
+                                    <div class="user-name">Anna Lee</div>
+                                    <div class="user-email">anna.lee@design.co</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="plan-badge plan-free">Free</span></td>
+                        <td><span class="status-badge status-inactive">Inactive</span></td>
+                        <td>2 days ago</td>
+                        <td>Jan 28, 2024</td>
+                        <td>156 conversations</td>
+                        <td>
+                            <div class="actions-menu">
+                                <button class="actions-btn">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td>
+                            <div class="user-info">
+                                <div class="user-avatar">RW</div>
+                                <div class="user-details">
+                                    <div class="user-name">Robert Wilson</div>
+                                    <div class="user-email">r.wilson@agency.com</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="plan-badge plan-pro">Pro</span></td>
+                        <td><span class="status-badge status-active">Active</span></td>
+                        <td>1 day ago</td>
+                        <td>Nov 15, 2023</td>
+                        <td>534 conversations</td>
+                        <td>
+                            <div class="actions-menu">
+                                <button class="actions-btn">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="pagination">
+                <div class="pagination-info">
+                    Showing 1 to 20 of 1,247 entries
+                </div>
+                <div class="pagination-controls">
+                    <button class="pagination-btn" disabled>Previous</button>
+                    <button class="pagination-btn" style="background: var(--brand-blue); color: white;">1</button>
+                    <button class="pagination-btn">2</button>
+                    <button class="pagination-btn">3</button>
+                    <button class="pagination-btn">...</button>
+                    <button class="pagination-btn">63</button>
+                    <button class="pagination-btn">Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Search functionality
+        const searchInput = document.querySelector('.search-input');
+        searchInput.addEventListener('input', () => {
+            console.log('Searching for:', searchInput.value);
+        });
+
+        // Filter functionality
+        document.querySelectorAll('.filter-select').forEach(select => {
+            select.addEventListener('change', () => {
+                console.log('Filter changed:', select.value);
+            });
+        });
+
+        // Actions menu
+        document.querySelectorAll('.actions-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                alert('User actions menu would open here');
+            });
+        });
+
+        // Pagination
+        document.querySelectorAll('.pagination-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (!btn.disabled) {
+                    console.log('Navigate to page:', btn.textContent);
+                }
+            });
+        });
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

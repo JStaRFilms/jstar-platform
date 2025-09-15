@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JohnGPT Settings - Admin Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'jstar-blue': '#2563EB',
+            'faith-purple': '#8B5CF6',
+            'gemini-yellow': '#FACC15',
+            'gpt-blue': '#1DA1F2',
+            'llama-orange': '#F97316'
+          }
+        }
+      }
+    }
+    
+    function selectProvider(provider) {
+      // Hide all provider sections
+      document.querySelectorAll('.provider-section').forEach(section => {
+        section.classList.add('hidden');
+      });
+      
+      // Show selected provider
+      document.getElementById(`${provider}-section`).classList.remove('hidden');
+      
+      // Update active button
+      document.querySelectorAll('.provider-btn').forEach(btn => {
+        btn.classList.remove('bg-jstar-blue', 'text-white');
+        btn.classList.add('bg-gray-200', 'text-gray-800', 'dark:bg-gray-700', 'dark:text-gray-300');
+      });
+      
+      event.target.classList.remove('bg-gray-200', 'text-gray-800', 'dark:bg-gray-700', 'dark:text-gray-300');
+      event.target.classList.add('bg-jstar-blue', 'text-white');
+    }
+    
+    function testConnection() {
+      const status = document.getElementById('connection-status');
+      status.classList.remove('hidden');
+      status.classList.add('bg-yellow-100', 'text-yellow-800');
+      status.textContent = 'Testing connection...';
+      
+      setTimeout(() => {
+        status.classList.remove('bg-yellow-100', 'text-yellow-800');
+        status.classList.add('bg-green-100', 'text-green-800');
+        status.textContent = 'Connection successful!';
+        
+        setTimeout(() => {
+          status.classList.add('hidden');
+        }, 3000);
+      }, 1500);
+    }
+    
+    function saveSettings() {
+      const saveBtn = document.getElementById('save-btn');
+      const originalText = saveBtn.innerHTML;
+      saveBtn.innerHTML = '<svg class="animate-spin h-5 w-5 mr-2 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Saving...';
+      
+      setTimeout(() => {
+        saveBtn.innerHTML = originalText;
+        const successMsg = document.getElementById('settings-saved');
+        successMsg.classList.remove('hidden');
+        
+        setTimeout(() => {
+          successMsg.classList.add('hidden');
+        }, 3000);
+      }, 1500);
+    }
+  </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+  <!-- PRD: FR027 (JohnGPT Settings) -->
+  <div class="flex">
+    <!-- SIDEBAR -->
+    <div class="w-64 min-h-screen bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 hidden md:block">
+      <div class="p-5 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-jstar-blue to-faith-purple flex items-center justify-center mr-3">
+            <span class="text-white font-bold">J</span>
+          </div>
+          <div>
+            <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Admin • J StaR Films</p>
+          </div>
+        </div>
+      </div>
+      
+      <nav class="mt-5">
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
+          Dashboard
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          User Management
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          Content Management
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 bg-jstar-blue/10 dark:bg-jstar-blue/20 border-l-4 border-jstar-blue text-jstar-blue dark:text-white font-medium">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          </svg>
+          JohnGPT Settings
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v3m-6 5h6" />
+          </svg>
+          Analytics
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          Settings
+        </a>
+      </nav>
+      
+      <div class="absolute bottom-0 w-64 p-5 border-t border-gray-200 dark:border-gray-700">
+        <a href="#" class="flex items-center text-gray-700 dark:text-gray-300 hover:text-jstar-blue">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0 0l-3-3m3 3l3-3" />
+          </svg>
+          Sign Out
+        </a>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="flex-1">
+      <!-- TOP BAR -->
+      <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between px-6 py-4">
+          <div class="md:hidden">
+            <button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+          
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">JohnGPT Settings</h1>
+          
+          <div class="flex items-center space-x-4">
+            <div class="relative">
+              <button id="save-btn" onclick="saveSettings()"
+                      class="px-4 py-2 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                </svg>
+                Save Settings
+              </button>
+            </div>
+            
+            <div class="relative">
+              <button class="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+              </button>
+              <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+            </div>
+            
+            <div class="hidden md:flex items-center">
+              <div class="w-8 h-8 rounded-full bg-jstar-blue flex items-center justify-center text-white mr-3">
+                J
+              </div>
+              <div>
+                <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Admin</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- JOHN GPT SETTINGS CONTENT -->
+      <div class="p-6">
+        <!-- THEME TOGGLE -->
+        <div class="fixed top-4 right-4 z-50">
+          <button onclick="document.documentElement.classList.toggle('dark')" 
+                  class="p-2 rounded-full bg-jstar-blue text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="mb-6">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">JohnGPT Configuration</h2>
+          <p class="text-gray-600 dark:text-gray-400 mt-1">
+            <!-- PRD: Settings Description -->Configure AI providers, models, and system prompts for the JohnGPT assistant
+          </p>
+        </div>
+        
+        <!-- SUCCESS MESSAGE -->
+        <div id="settings-saved" class="hidden fixed bottom-6 right-6 bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg z-50">
+          <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <span>JohnGPT settings saved successfully</span>
+          </div>
+        </div>
+        
+        <!-- PROVIDER SELECTION -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 mb-8 border border-gray-200 dark:border-gray-700">
+          <h3 class="text-lg font-bold mb-4 text-gray-900 dark:text-white">AI Provider Configuration</h3>
+          
+          <div class="flex flex-wrap gap-2 mb-6">
+            <button onclick="selectProvider('ollama')" class="provider-btn px-4 py-2 bg-jstar-blue text-white rounded-lg font-medium flex items-center">
+              <div class="w-4 h-4 rounded-full bg-white mr-2"></div>
+              Ollama
+            </button>
+            <button onclick="selectProvider('lmstudio')" class="provider-btn px-4 py-2 bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300 rounded-lg font-medium flex items-center">
+              <div class="w-4 h-4 rounded-full bg-purple-500 mr-2"></div>
+              LM Studio
+            </button>
+            <button onclick="selectProvider('gemini')" class="provider-btn px-4 py-2 bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300 rounded-lg font-medium flex items-center">
+              <div class="w-4 h-4 rounded-full bg-yellow-400 mr-2"></div>
+              Gemini
+            </button>
+            <button onclick="selectProvider('openai')" class="provider-btn px-4 py-2 bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300 rounded-lg font-medium flex items-center">
+              <div class="w-4 h-4 rounded-full bg-blue-500 mr-2"></div>
+              OpenAI
+            </button>
+            <button onclick="selectProvider('groq')" class="provider-btn px-4 py-2 bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300 rounded-lg font-medium flex items-center">
+              <div class="w-4 h-4 rounded-full bg-orange-500 mr-2"></div>
+              Groq
+            </button>
+          </div>
+          
+          <!-- OLLAMA SECTION -->
+          <div id="ollama-section" class="provider-section">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h4 class="font-medium mb-3 text-gray-900 dark:text-white">Connection Settings</h4>
+                
+                <div class="space-y-4">
+                  <div>
+                    <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Server URL</label>
+                    <input type="text" value="http://localhost:11434" 
+                           class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Default Model</label>
+                    <select class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                      <option>llama3:latest</option>
+                      <option>mixtral:instruct</option>
+                      <option>phi3:latest</option>
+                      <option>gemma:instruct</option>
+                    </select>
+                  </div>
+                  
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="font-medium text-gray-900 dark:text-white">Local Execution</p>
+                      <p class="text-sm text-gray-500 dark:text-gray-400">Running on your machine (no internet required)</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" value="" class="sr-only peer" checked>
+                      <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-jstar-blue/50 dark:peer-focus:ring-jstar-blue/80 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-jstar-blue"></div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h4 class="font-medium mb-3 text-gray-900 dark:text-white">Status & Testing</h4>
+                
+                <div class="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-lg mb-4">
+                  <div class="flex items-center">
+                    <div class="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+                    <span class="text-gray-700 dark:text-gray-300">Connected to Ollama server</span>
+                  </div>
+                  <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Model: llama3:latest • GPU: NVIDIA RTX 4090</p>
+                </div>
+                
+                <button onclick="testConnection()" 
+                        class="w-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white font-medium py-2 px-4 rounded-lg">
+                  Test Connection
+                </button>
+                
+                <p id="connection-status" class="hidden mt-2 text-sm text-center py-1 rounded-lg"></p>
+                
+                <div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <p class="text-blue-800 dark:text-blue-200">
+                    <strong>Local First:</strong> All processing happens on your machine. 
+                    No data is sent to external servers when using local providers like Ollama.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- OTHER PROVIDER SECTIONS WOULD GO HERE -->
+          <div id="lmstudio-section" class="provider-section hidden">
+            <p class="text-gray-700 dark:text-gray-300">LM Studio configuration options...</p>
+          </div>
+          
+          <div id="gemini-section" class="provider-section hidden">
+            <p class="text-gray-700 dark:text-gray-300">Gemini API configuration options...</p>
+          </div>
+          
+          <div id="openai-section" class="provider-section hidden">
+            <p class="text-gray-700 dark:text-gray-300">OpenAI API configuration options...</p>
+          </div>
+          
+          <div id="groq-section" class="provider-section hidden">
+            <p class="text-gray-700 dark:text-gray-300">Groq API configuration options...</p>
+          </div>
+        </div>
+        
+        <!-- SYSTEM PROMPT EDITOR -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 mb-8 border border-gray-200 dark:border-gray-700">
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white">System Prompt</h3>
+              <p class="text-gray-600 dark:text-gray-400">Customize JohnGPT's brand voice and behavior</p>
+            </div>
+            <button class="text-jstar-blue hover:text-faith-purple font-medium">
+              Reset to Default
+            </button>
+          </div>
+          
+          <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 mb-4">
+            <h4 class="font-medium mb-2 text-gray-900 dark:text-white">Current Prompt Template</h4>
+            <p class="text-gray-600 dark:text-gray-400 mb-2">This prompt is sent with every user message to shape JohnGPT's responses:</p>
+            
+            <div class="bg-gray-800 rounded p-3">
+              <pre class="text-green-400 text-sm"><code>// JohnGPT System Prompt
+You are JohnGPT, the AI assistant created by John Oluleke-Oke (J StaR).
+Your role is to help creators grow their impact through filmmaking, app development, 
+and faith-driven creativity.
+
+## Brand Voice
+- Friendly, humorous, and practical
+- Grounded in Christian faith but respectful of all beliefs
+- Avoids religious jargon; explains concepts clearly
+- Uses emojis sparingly (1-2 per response)
+
+## Expertise Areas
+1. YouTube Strategy: Viral title formulas, thumbnail design, audience retention
+2. App Development: Next.js, Node, AI integration, database design
+3. Faith-Based Creativity: Integrating spiritual principles with creative work
+
+## Response Guidelines
+- Always provide actionable advice
+- Reference John's personal experiences when relevant
+- Use the "Problem → Agitate → Solve" framework for educational content
+- For YouTube queries, include CTR predictions and virality scores
+- Never make promises you can't keep
+
+You are currently in [PERSONA] mode. Adapt your responses to this persona's focus.</code></pre>
+            </div>
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Edit System Prompt</label>
+            <textarea rows="10" 
+                      class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-jstar-blue">You are JohnGPT, the AI assistant created by John Oluleke-Oke (J StaR).
+Your role is to help creators grow their impact through filmmaking, app development, 
+and faith-driven creativity.
+
+## Brand Voice
+- Friendly, humorous, and practical
+- Grounded in Christian faith but respectful of all beliefs
+- Avoids religious jargon; explains concepts clearly
+- Uses emojis sparingly (1-2 per response)
+
+## Expertise Areas
+1. YouTube Strategy: Viral title formulas, thumbnail design, audience retention
+2. App Development: Next.js, Node, AI integration, database design
+3. Faith-Based Creativity: Integrating spiritual principles with creative work
+
+## Response Guidelines
+- Always provide actionable advice
+- Reference John's personal experiences when relevant
+- Use the "Problem → Agitate → Solve" framework for educational content
+- For YouTube queries, include CTR predictions and virality scores
+- Never make promises you can't keep
+
+You are currently in [PERSONA] mode. Adapt your responses to this persona's focus.</textarea>
+          </div>
+          
+          <div class="flex justify-end">
+            <button onclick="saveSettings()" 
+                    class="px-4 py-2 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium">
+              Save Prompt
+            </button>
+          </div>
+        </div>
+        
+        <!-- PERSONA MANAGEMENT -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+          <div class="flex justify-between items-start mb-6">
+            <div>
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white">Personas Management</h3>
+              <p class="text-gray-600 dark:text-gray-400">Create and manage different AI modes for specific tasks</p>
+            </div>
+            <button class="bg-jstar-blue hover:bg-faith-purple text-white font-medium py-2 px-4 rounded-lg">
+              + New Persona
+            </button>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- PERSONA 1 -->
+            <div class="bg-gray-50 dark:bg-gray-900/50 p-5 rounded-xl">
+              <div class="w-10 h-10 rounded-full bg-jstar-blue flex items-center justify-center mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+              </div>
+              <h4 class="text-lg font-bold mb-2 text-gray-900 dark:text-white">Creative Director</h4>
+              <p class="text-gray-600 dark:text-gray-400 mb-4">Focuses on content strategy, viral frameworks, and audience growth tactics.</p>
+              
+              <div class="flex justify-between items-center">
+                <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">Included in Tier 1</span>
+                <button class="text-jstar-blue hover:text-faith-purple font-medium">Edit →</button>
+              </div>
+            </div>
+            
+            <!-- PERSONA 2 -->
+            <div class="bg-gray-50 dark:bg-gray-900/50 p-5 rounded-xl">
+              <div class="w-10 h-10 rounded-full bg-faith-purple flex items-center justify-center mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                </svg>
+              </div>
+              <h4 class="text-lg font-bold mb-2 text-gray-900 dark:text-white">Systems Mentor</h4>
+              <p class="text-gray-600 dark:text-gray-400 mb-4">Helps build scalable creative systems with automation and templates.</p>
+              
+              <div class="flex justify-between items-center">
+                <span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded">Requires Tier 2</span>
+                <button class="text-jstar-blue hover:text-faith-purple font-medium">Edit →</button>
+              </div>
+            </div>
+            
+            <!-- PERSONA 3 -->
+            <div class="bg-gray-50 dark:bg-gray-900/50 p-5 rounded-xl">
+              <div class="w-10 h-10 rounded-full bg-growth-green flex items-center justify-center mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                </svg>
+              </div>
+              <h4 class="text-lg font-bold mb-2 text-gray-900 dark:text-white">Faith Guide</h4>
+              <p class="text-gray-600 dark:text-gray-400 mb-4">Integrates biblical principles with creative work for meaningful impact.</p>
+              
+              <div class="flex justify-between items-center">
+                <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">Requires Tier 3</span>
+                <button class="text-jstar-blue hover:text-faith-purple font-medium">Edit →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

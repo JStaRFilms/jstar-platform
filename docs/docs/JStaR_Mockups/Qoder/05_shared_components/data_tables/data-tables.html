@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Tables - J StaR Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .table-section {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+        
+        .table-header {
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .table-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        
+        .table-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .search-box {
+            position: relative;
+        }
+        
+        .search-input {
+            padding: 0.5rem 0.75rem 0.5rem 2.5rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            width: 250px;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .btn-primary { background: var(--brand-blue); color: white; }
+        .btn-secondary { background: var(--bg-primary); border: 1px solid var(--border); color: var(--text-primary); }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th,
+        .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .data-table th {
+            background: var(--bg-secondary);
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .data-table th:hover {
+            background: var(--border);
+        }
+        
+        .data-table tbody tr:hover {
+            background: var(--bg-secondary);
+        }
+        
+        .sort-icon {
+            position: absolute;
+            right: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+        
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--brand-blue);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .user-info h4 {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .user-info p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-active { background: rgba(69, 183, 209, 0.2); color: var(--success-green); }
+        .status-inactive { background: rgba(255, 107, 107, 0.2); color: var(--warm-orange); }
+        .status-pending { background: rgba(255, 193, 7, 0.2); color: #d39e00; }
+        
+        .actions-cell {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .action-btn {
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn:hover {
+            background: var(--bg-secondary);
+            border-color: var(--brand-blue);
+            color: var(--brand-blue);
+        }
+        
+        .checkbox {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--brand-blue);
+        }
+        
+        .table-footer {
+            padding: 1rem 1.5rem;
+            background: var(--bg-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .pagination {
+            display: flex;
+            gap: 0.25rem;
+            align-items: center;
+        }
+        
+        .page-btn {
+            width: 32px;
+            height: 32px;
+            border: 1px solid var(--border);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border-radius: 0.25rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .page-btn:hover {
+            background: var(--brand-blue);
+            color: white;
+            border-color: var(--brand-blue);
+        }
+        
+        .page-btn.active {
+            background: var(--brand-blue);
+            color: white;
+            border-color: var(--brand-blue);
+        }
+        
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .table-info {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .filter-tags {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            padding: 0 1.5rem;
+        }
+        
+        .filter-tag {
+            background: var(--brand-blue);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .filter-remove {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .bulk-actions {
+            background: var(--brand-blue);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            display: none;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .bulk-actions.show {
+            display: flex;
+        }
+        
+        .bulk-count {
+            font-weight: 600;
+        }
+        
+        .bulk-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="page-title">Data Tables Components</h1>
+        
+        <!-- Users Table -->
+        <div class="table-section">
+            <div class="table-header">
+                <h2 class="table-title">Users Management</h2>
+                <div class="table-actions">
+                    <div class="search-box">
+                        <i class="search-icon fas fa-search"></i>
+                        <input type="text" class="search-input" placeholder="Search users...">
+                    </div>
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-filter"></i>
+                        Filter
+                    </button>
+                    <button class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Add User
+                    </button>
+                </div>
+            </div>
+            
+            <div class="bulk-actions" id="bulkActions">
+                <span class="bulk-count">3 items selected</span>
+                <button class="bulk-btn">Delete</button>
+                <button class="bulk-btn">Export</button>
+                <button class="bulk-btn">Assign Role</button>
+            </div>
+            
+            <div class="filter-tags">
+                <div class="filter-tag">
+                    Status: Active
+                    <button class="filter-remove">&times;</button>
+                </div>
+                <div class="filter-tag">
+                    Role: Admin
+                    <button class="filter-remove">&times;</button>
+                </div>
+            </div>
+            
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width: 40px;">
+                            <input type="checkbox" class="checkbox" id="selectAll">
+                        </th>
+                        <th onclick="sortTable(1)">
+                            User
+                            <i class="sort-icon fas fa-sort"></i>
+                        </th>
+                        <th onclick="sortTable(2)">
+                            Role
+                            <i class="sort-icon fas fa-sort"></i>
+                        </th>
+                        <th onclick="sortTable(3)">
+                            Status
+                            <i class="sort-icon fas fa-sort"></i>
+                        </th>
+                        <th onclick="sortTable(4)">
+                            Last Login
+                            <i class="sort-icon fas fa-sort"></i>
+                        </th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="checkbox" class="checkbox row-checkbox"></td>
+                        <td>
+                            <div class="user-cell">
+                                <div class="user-avatar">SM</div>
+                                <div class="user-info">
+                                    <h4>Sarah Martinez</h4>
+                                    <p>sarah@techstartup.com</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td>Administrator</td>
+                        <td><span class="status-badge status-active">Active</span></td>
+                        <td>2 hours ago</td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="action-btn">Edit</button>
+                                <button class="action-btn">View</button>
+                                <button class="action-btn">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" class="checkbox row-checkbox"></td>
+                        <td>
+                            <div class="user-cell">
+                                <div class="user-avatar">MJ</div>
+                                <div class="user-info">
+                                    <h4>Mike Johnson</h4>
+                                    <p>mike@consulting.com</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td>Editor</td>
+                        <td><span class="status-badge status-active">Active</span></td>
+                        <td>1 day ago</td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="action-btn">Edit</button>
+                                <button class="action-btn">View</button>
+                                <button class="action-btn">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" class="checkbox row-checkbox"></td>
+                        <td>
+                            <div class="user-cell">
+                                <div class="user-avatar">AL</div>
+                                <div class="user-info">
+                                    <h4>Anna Lee</h4>
+                                    <p>anna@ecommerce.com</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td>Viewer</td>
+                        <td><span class="status-badge status-pending">Pending</span></td>
+                        <td>3 days ago</td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="action-btn">Edit</button>
+                                <button class="action-btn">View</button>
+                                <button class="action-btn">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" class="checkbox row-checkbox"></td>
+                        <td>
+                            <div class="user-cell">
+                                <div class="user-avatar">RT</div>
+                                <div class="user-info">
+                                    <h4>Robert Taylor</h4>
+                                    <p>robert@agency.com</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td>Editor</td>
+                        <td><span class="status-badge status-inactive">Inactive</span></td>
+                        <td>1 week ago</td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="action-btn">Edit</button>
+                                <button class="action-btn">View</button>
+                                <button class="action-btn">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" class="checkbox row-checkbox"></td>
+                        <td>
+                            <div class="user-cell">
+                                <div class="user-avatar">JW</div>
+                                <div class="user-info">
+                                    <h4>Jennifer White</h4>
+                                    <p>jennifer@nonprofit.org</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td>Viewer</td>
+                        <td><span class="status-badge status-active">Active</span></td>
+                        <td>2 weeks ago</td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="action-btn">Edit</button>
+                                <button class="action-btn">View</button>
+                                <button class="action-btn">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="table-footer">
+                <div class="table-info">
+                    Showing 1-5 of 247 users
+                </div>
+                <div class="pagination">
+                    <button class="page-btn" disabled>
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="page-btn active">1</button>
+                    <button class="page-btn">2</button>
+                    <button class="page-btn">3</button>
+                    <span style="margin: 0 0.5rem;">...</span>
+                    <button class="page-btn">50</button>
+                    <button class="page-btn">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Content Performance Table -->
+        <div class="table-section">
+            <div class="table-header">
+                <h2 class="table-title">Content Performance</h2>
+                <div class="table-actions">
+                    <select class="btn btn-secondary">
+                        <option>Last 7 days</option>
+                        <option>Last 30 days</option>
+                        <option>Last 90 days</option>
+                    </select>
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-download"></i>
+                        Export
+                    </button>
+                </div>
+            </div>
+            
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Content Title</th>
+                        <th>Platform</th>
+                        <th>Views</th>
+                        <th>Engagement</th>
+                        <th>Conversion Rate</th>
+                        <th>Published</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <strong>5 AI Tools Every Entrepreneur Needs</strong><br>
+                            <small style="color: var(--text-secondary);">Blog Post</small>
+                        </td>
+                        <td>
+                            <span style="background: #0077B5; color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.8rem;">
+                                LinkedIn
+                            </span>
+                        </td>
+                        <td>45,230</td>
+                        <td>3,847 (8.5%)</td>
+                        <td>2.3%</td>
+                        <td>Mar 10, 2024</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>The Future of Remote Work</strong><br>
+                            <small style="color: var(--text-secondary);">Social Post</small>
+                        </td>
+                        <td>
+                            <span style="background: #1DA1F2; color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.8rem;">
+                                Twitter
+                            </span>
+                        </td>
+                        <td>32,150</td>
+                        <td>2,934 (9.1%)</td>
+                        <td>1.8%</td>
+                        <td>Mar 08, 2024</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>Building a SaaS Startup</strong><br>
+                            <small style="color: var(--text-secondary);">Video</small>
+                        </td>
+                        <td>
+                            <span style="background: #FF0000; color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.8rem;">
+                                YouTube
+                            </span>
+                        </td>
+                        <td>28,765</td>
+                        <td>2,156 (7.5%)</td>
+                        <td>3.1%</td>
+                        <td>Mar 05, 2024</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script>
+        // Select all checkbox functionality
+        document.getElementById('selectAll').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            const bulkActions = document.getElementById('bulkActions');
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+            
+            if (this.checked) {
+                bulkActions.classList.add('show');
+            } else {
+                bulkActions.classList.remove('show');
+            }
+        });
+        
+        // Individual row checkbox functionality
+        document.querySelectorAll('.row-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
+                const bulkActions = document.getElementById('bulkActions');
+                const selectAll = document.getElementById('selectAll');
+                
+                if (checkedBoxes.length > 0) {
+                    bulkActions.classList.add('show');
+                    bulkActions.querySelector('.bulk-count').textContent = `${checkedBoxes.length} items selected`;
+                } else {
+                    bulkActions.classList.remove('show');
+                }
+                
+                // Update select all checkbox
+                selectAll.checked = checkedBoxes.length === document.querySelectorAll('.row-checkbox').length;
+                selectAll.indeterminate = checkedBoxes.length > 0 && checkedBoxes.length < document.querySelectorAll('.row-checkbox').length;
+            });
+        });
+        
+        // Sort table functionality
+        function sortTable(columnIndex) {
+            alert(`Sorting by column ${columnIndex}`);
+        }
+        
+        // Filter tag removal
+        document.querySelectorAll('.filter-remove').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.parentElement.remove();
+            });
+        });
+        
+        // Search functionality
+        document.querySelector('.search-input').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('.data-table tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+        
+        // Action button clicks
+        document.querySelectorAll('.action-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const action = this.textContent;
+                const row = this.closest('tr');
+                const userName = row.querySelector('.user-info h4').textContent;
+                alert(`${action} action for ${userName}`);
+            });
+        });
+        
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

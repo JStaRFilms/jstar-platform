@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UI Elements Showcase - J StaR Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+            --error-red: #E53E3E;
+            --warning-yellow: #D69E2E;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        
+        .showcase-section {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+        
+        .section-description {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .element-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+        
+        .two-col { grid-template-columns: 1fr 1fr; }
+        .three-col { grid-template-columns: repeat(3, 1fr); }
+        .four-col { grid-template-columns: repeat(4, 1fr); }
+        
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            border: 1px solid transparent;
+        }
+        
+        .btn-primary { background: var(--brand-blue); color: white; }
+        .btn-primary:hover { background: #3A7BC8; }
+        
+        .btn-secondary { background: var(--bg-secondary); border-color: var(--border); color: var(--text-primary); }
+        .btn-secondary:hover { background: var(--border); }
+        
+        .btn-success { background: var(--success-green); color: white; }
+        .btn-success:hover { background: #369dbb; }
+        
+        .btn-danger { background: var(--error-red); color: white; }
+        .btn-danger:hover { background: #c53030; }
+        
+        .btn-warning { background: var(--warning-yellow); color: white; }
+        .btn-warning:hover { background: #b7791f; }
+        
+        .btn-outline-primary { background: transparent; border-color: var(--brand-blue); color: var(--brand-blue); }
+        .btn-outline-primary:hover { background: var(--brand-blue); color: white; }
+        
+        .btn-sm { padding: 0.5rem 1rem; font-size: 0.85rem; }
+        .btn-lg { padding: 1rem 2rem; font-size: 1.1rem; }
+        
+        .btn-rounded { border-radius: 2rem; }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Cards */
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        .card-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border);
+            background: var(--bg-primary);
+        }
+        
+        .card-image {
+            width: 100%;
+            height: 150px;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+        }
+        
+        /* Alerts */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .alert-success {
+            background: rgba(69, 183, 209, 0.1);
+            border-color: var(--success-green);
+            color: var(--success-green);
+        }
+        
+        .alert-error {
+            background: rgba(229, 62, 62, 0.1);
+            border-color: var(--error-red);
+            color: var(--error-red);
+        }
+        
+        .alert-warning {
+            background: rgba(214, 158, 46, 0.1);
+            border-color: var(--warning-yellow);
+            color: var(--warning-yellow);
+        }
+        
+        .alert-info {
+            background: rgba(74, 144, 226, 0.1);
+            border-color: var(--brand-blue);
+            color: var(--brand-blue);
+        }
+        
+        .alert-close {
+            margin-left: auto;
+            background: none;
+            border: none;
+            cursor: pointer;
+            opacity: 0.7;
+            font-size: 1.2rem;
+        }
+        
+        /* Badges */
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .badge-primary { background: var(--brand-blue); color: white; }
+        .badge-success { background: var(--success-green); color: white; }
+        .badge-danger { background: var(--error-red); color: white; }
+        .badge-warning { background: var(--warning-yellow); color: white; }
+        .badge-secondary { background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border); }
+        
+        /* Progress Bars */
+        .progress {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-primary { background: var(--brand-blue); }
+        .progress-success { background: var(--success-green); }
+        .progress-warning { background: var(--warning-yellow); }
+        .progress-danger { background: var(--error-red); }
+        
+        /* Loading Spinner */
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--bg-secondary);
+            border-left: 4px solid var(--brand-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Avatar */
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--brand-blue);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        
+        .avatar-sm { width: 35px; height: 35px; font-size: 0.85rem; }
+        .avatar-lg { width: 70px; height: 70px; font-size: 1.25rem; }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal {
+            background: var(--bg-primary);
+            border-radius: 0.75rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            opacity: 0.7;
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+        }
+        
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .tooltip-text {
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.25rem;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .tooltip:hover .tooltip-text {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Switch Toggle */
+        .switch {
+            position: relative;
+            width: 50px;
+            height: 28px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .switch-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-secondary);
+            transition: 0.3s;
+            border-radius: 28px;
+            border: 2px solid var(--border);
+        }
+        
+        .switch-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 2px;
+            bottom: 2px;
+            background: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+        
+        .switch input:checked + .switch-slider {
+            background: var(--brand-blue);
+            border-color: var(--brand-blue);
+        }
+        
+        .switch input:checked + .switch-slider:before {
+            transform: translateX(22px);
+        }
+        
+        @media (max-width: 768px) {
+            .two-col, .three-col, .four-col { grid-template-columns: 1fr; }
+            .container { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 2rem; text-align: center;">
+            UI Elements Showcase
+        </h1>
+
+        <!-- Buttons -->
+        <div class="showcase-section">
+            <h2 class="section-title">Buttons</h2>
+            <p class="section-description">
+                Various button styles and states for different actions and contexts.
+            </p>
+            
+            <div class="element-grid" style="gap: 1rem;">
+                <div>
+                    <h4 style="margin-bottom: 1rem;">Button Variants</h4>
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+                        <button class="btn btn-primary">Primary</button>
+                        <button class="btn btn-secondary">Secondary</button>
+                        <button class="btn btn-success">Success</button>
+                        <button class="btn btn-danger">Danger</button>
+                        <button class="btn btn-warning">Warning</button>
+                        <button class="btn btn-outline-primary">Outline</button>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 1rem;">Button Sizes & States</h4>
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center;">
+                        <button class="btn btn-primary btn-sm">Small</button>
+                        <button class="btn btn-primary">Normal</button>
+                        <button class="btn btn-primary btn-lg">Large</button>
+                        <button class="btn btn-primary" disabled>Disabled</button>
+                        <button class="btn btn-primary btn-rounded">
+                            <i class="fas fa-heart"></i> Rounded
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cards -->
+        <div class="showcase-section">
+            <h2 class="section-title">Cards</h2>
+            <p class="section-description">
+                Flexible content containers with headers, bodies, and footers.
+            </p>
+            
+            <div class="element-grid three-col">
+                <div class="card">
+                    <div class="card-header">Basic Card</div>
+                    <div class="card-body">
+                        <p>This is a basic card with header and body content. Great for displaying information in organized sections.</p>
+                    </div>
+                </div>
+                
+                <div class="card card-hover">
+                    <div class="card-image">📊</div>
+                    <div class="card-body">
+                        <h5 style="font-weight: 600; margin-bottom: 0.5rem;">Hover Card</h5>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">This card has a hover effect with image header.</p>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-primary btn-sm">Learn More</button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-body">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h5 style="font-weight: 600;">Statistics</h5>
+                            <span class="badge badge-success">+12%</span>
+                        </div>
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--brand-blue);">1,247</div>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Total users this month</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alerts -->
+        <div class="showcase-section">
+            <h2 class="section-title">Alerts & Notifications</h2>
+            <p class="section-description">
+                Status messages and notifications for different contexts.
+            </p>
+            
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                <span>Success! Your changes have been saved successfully.</span>
+                <button class="alert-close" onclick="this.parentElement.style.display='none'">×</button>
+            </div>
+            
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i>
+                <span>Info: Your trial period expires in 7 days. Upgrade to continue using premium features.</span>
+                <button class="alert-close" onclick="this.parentElement.style.display='none'">×</button>
+            </div>
+            
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>Warning: Your storage is 90% full. Consider upgrading your plan.</span>
+                <button class="alert-close" onclick="this.parentElement.style.display='none'">×</button>
+            </div>
+            
+            <div class="alert alert-error">
+                <i class="fas fa-times-circle"></i>
+                <span>Error: Unable to process your request. Please try again later.</span>
+                <button class="alert-close" onclick="this.parentElement.style.display='none'">×</button>
+            </div>
+        </div>
+
+        <!-- Badges & Progress -->
+        <div class="showcase-section">
+            <h2 class="section-title">Badges & Progress</h2>
+            <p class="section-description">
+                Status indicators and progress visualization components.
+            </p>
+            
+            <div class="element-grid two-col">
+                <div>
+                    <h4 style="margin-bottom: 1rem;">Badges</h4>
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center;">
+                        <span class="badge badge-primary">Primary</span>
+                        <span class="badge badge-success">
+                            <i class="fas fa-check"></i> Success
+                        </span>
+                        <span class="badge badge-danger">
+                            <i class="fas fa-times"></i> Error
+                        </span>
+                        <span class="badge badge-warning">Warning</span>
+                        <span class="badge badge-secondary">Secondary</span>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 1rem;">Progress Bars</h4>
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                                <span style="font-size: 0.9rem;">Progress</span>
+                                <span style="font-size: 0.9rem;">75%</span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar progress-primary" style="width: 75%;"></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                                <span style="font-size: 0.9rem;">Storage Used</span>
+                                <span style="font-size: 0.9rem;">90%</span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar progress-warning" style="width: 90%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Elements -->
+        <div class="showcase-section">
+            <h2 class="section-title">Interactive Elements</h2>
+            <p class="section-description">
+                Toggles, tooltips, avatars, and other interactive components.
+            </p>
+            
+            <div class="element-grid four-col">
+                <div style="text-align: center;">
+                    <h4 style="margin-bottom: 1rem;">Loading Spinner</h4>
+                    <div class="spinner" style="margin: 0 auto;"></div>
+                </div>
+                
+                <div style="text-align: center;">
+                    <h4 style="margin-bottom: 1rem;">Avatars</h4>
+                    <div style="display: flex; justify-content: center; gap: 0.5rem; align-items: center;">
+                        <div class="avatar avatar-sm">JS</div>
+                        <div class="avatar">JD</div>
+                        <div class="avatar avatar-lg">SM</div>
+                    </div>
+                </div>
+                
+                <div style="text-align: center;">
+                    <h4 style="margin-bottom: 1rem;">Toggle Switch</h4>
+                    <label class="switch" style="margin: 0 auto;">
+                        <input type="checkbox">
+                        <span class="switch-slider"></span>
+                    </label>
+                </div>
+                
+                <div style="text-align: center;">
+                    <h4 style="margin-bottom: 1rem;">Tooltip</h4>
+                    <div class="tooltip">
+                        <i class="fas fa-info-circle" style="font-size: 1.5rem; color: var(--brand-blue);"></i>
+                        <div class="tooltip-text">This is a helpful tooltip!</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Demo -->
+        <div class="showcase-section">
+            <h2 class="section-title">Modal Dialog</h2>
+            <p class="section-description">
+                Overlay dialogs for important actions and confirmations.
+            </p>
+            
+            <div style="text-align: center;">
+                <button class="btn btn-primary" onclick="openModal()">
+                    <i class="fas fa-plus"></i> Open Modal
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 class="modal-title">Example Modal</h3>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <p>This is an example modal dialog. You can put any content here including forms, images, or other interactive elements.</p>
+                
+                <div style="margin: 1rem 0;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Example Input:</label>
+                    <input type="text" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: 0.25rem;" placeholder="Enter something...">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Modal functions
+        function openModal() {
+            document.getElementById('modalOverlay').style.display = 'flex';
+        }
+
+        function closeModal(event) {
+            if (!event || event.target === document.getElementById('modalOverlay')) {
+                document.getElementById('modalOverlay').style.display = 'none';
+            }
+        }
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

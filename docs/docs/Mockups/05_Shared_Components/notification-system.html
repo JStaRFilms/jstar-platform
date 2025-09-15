@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification Components | Shared Components</title>
+    <meta name="description" content="Notification system components for the J StaR Platform">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'obsidian-bg': '#202020',
+                        'obsidian-sidebar': '#161618',
+                        'obsidian-text': '#dcddde',
+                        'obsidian-text-muted': '#888888',
+                        'obsidian-accent': '#7c3aed',
+                        'obsidian-link': '#8b5cf6'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --growth-green: #059669;
+            --obsidian-bg: #202020;
+            --obsidian-sidebar: #161618;
+            --obsidian-text: #dcddde;
+            --obsidian-text-muted: #888888;
+            --obsidian-accent: #7c3aed;
+            --obsidian-link: #8b5cf6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --transition-normal: 300ms;
+        }
+        
+        .component-showcase {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 260px;
+            background: var(--obsidian-sidebar);
+            border-right: 1px solid #333;
+            transition: all var(--transition-normal) ease;
+            flex-shrink: 0;
+        }
+        
+        .main-content {
+            flex: 1;
+            background: var(--obsidian-bg);
+            color: var(--obsidian-text);
+            overflow-y: auto;
+        }
+        
+        .navbar-blur {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .dark .navbar-blur {
+            background: rgba(17, 24, 39, 0.9);
+        }
+        
+        .sidebar-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-radius: 0.5rem;
+            margin-bottom: 0.25rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .sidebar-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .sidebar-item.active {
+            background: rgba(124, 58, 237, 0.2);
+        }
+        
+        .sidebar-item svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-right: 0.75rem;
+        }
+        
+        .component-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: all 0.2s;
+            margin-bottom: 1.5rem;
+        }
+        
+        .component-card:hover {
+            border-color: var(--obsidian-link);
+        }
+        
+        .component-preview {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+        
+        .action-button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+        
+        .action-button:hover {
+            background: rgba(124, 58, 235, 0.2);
+            border-color: var(--obsidian-link);
+        }
+        
+        .primary-button {
+            background: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .primary-button:hover {
+            transform: scale(1.05);
+        }
+        
+        .secondary-button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .secondary-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .tier-indicator {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+        }
+        
+        .tier1 { background: linear-gradient(135deg, #10B981 0%, #34D399 100%); }
+        .tier2 { background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%); }
+        .tier3 { background: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%); }
+        .admin { background: linear-gradient(135deg, #EF4444 0%, #F87171 100%); }
+        
+        .search-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            width: 100%;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: var(--obsidian-link);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-right: 0.5rem;
+        }
+        
+        .badge-component {
+            background: rgba(124, 58, 237, 0.2);
+            color: var(--obsidian-link);
+        }
+        
+        /* Notification Components */
+        .notification-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+            width: 350px;
+        }
+        
+        .notification {
+            background: var(--obsidian-bg);
+            border: 1px solid #333;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            animation: slideIn 0.3s ease-out;
+            position: relative;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .notification-title {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        .notification-close {
+            background: none;
+            border: none;
+            color: var(--obsidian-text-muted);
+            cursor: pointer;
+            width: 1.5rem;
+            height: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.25rem;
+        }
+        
+        .notification-close:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--obsidian-text);
+        }
+        
+        .notification-content {
+            font-size: 0.875rem;
+            color: var(--obsidian-text-muted);
+            margin-bottom: 0.75rem;
+        }
+        
+        .notification-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+        
+        .notification-icon {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            flex-shrink: 0;
+        }
+        
+        .notification-success .notification-icon {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10B981;
+        }
+        
+        .notification-error .notification-icon {
+            background: rgba(239, 68, 68, 0.1);
+            color: #EF4444;
+        }
+        
+        .notification-warning .notification-icon {
+            background: rgba(245, 158, 11, 0.1);
+            color: #F59E0B;
+        }
+        
+        .notification-info .notification-icon {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3B82F6;
+        }
+        
+        .notification-main {
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .notification-body {
+            flex: 1;
+        }
+        
+        .notification-progress {
+            height: 0.25rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 0.125rem;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        
+        .notification-progress-bar {
+            height: 100%;
+            border-radius: 0.125rem;
+            animation: progress 5s linear forwards;
+        }
+        
+        @keyframes progress {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+        
+        .toast-container {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            z-index: 1000;
+            width: 350px;
+        }
+        
+        .toast {
+            background: var(--obsidian-bg);
+            border: 1px solid #333;
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            animation: toastSlideIn 0.3s ease-out;
+            display: flex;
+            align-items: center;
+        }
+        
+        @keyframes toastSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .toast-icon {
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 0.375rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            flex-shrink: 0;
+        }
+        
+        .toast-success .toast-icon {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10B981;
+        }
+        
+        .toast-error .toast-icon {
+            background: rgba(239, 68, 68, 0.1);
+            color: #EF4444;
+        }
+        
+        .toast-warning .toast-icon {
+            background: rgba(245, 158, 11, 0.1);
+            color: #F59E0B;
+        }
+        
+        .toast-info .toast-icon {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3B82F6;
+        }
+        
+        .toast-content {
+            font-size: 0.875rem;
+            flex: 1;
+        }
+        
+        .toast-close {
+            background: none;
+            border: none;
+            color: var(--obsidian-text-muted);
+            cursor: pointer;
+            width: 1.25rem;
+            height: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.25rem;
+            margin-left: 0.5rem;
+        }
+        
+        .toast-close:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--obsidian-text);
+        }
+        
+        .alert-banner {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid #3B82F6;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .alert-banner-icon {
+            width: 1.5rem;
+            height: 1.5rem;
+            color: #3B82F6;
+            margin-right: 0.75rem;
+            flex-shrink: 0;
+            margin-top: 0.125rem;
+        }
+        
+        .alert-banner-content {
+            flex: 1;
+        }
+        
+        .alert-banner-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .alert-banner-message {
+            font-size: 0.875rem;
+            color: var(--obsidian-text-muted);
+            margin-bottom: 0.75rem;
+        }
+        
+        .alert-banner-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .alert-banner-close {
+            background: none;
+            border: none;
+            color: var(--obsidian-text-muted);
+            cursor: pointer;
+            width: 1.5rem;
+            height: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.25rem;
+            margin-left: 0.5rem;
+        }
+        
+        .alert-banner-close:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--obsidian-text);
+        }
+        
+        .notification-preferences {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+        }
+        
+        .preference-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .preference-group:last-child {
+            margin-bottom: 0;
+        }
+        
+        .preference-title {
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+        
+        .preference-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #333;
+        }
+        
+        .preference-item:last-child {
+            border-bottom: none;
+        }
+        
+        .preference-label {
+            font-size: 0.875rem;
+        }
+        
+        .preference-description {
+            font-size: 0.75rem;
+            color: var(--obsidian-text-muted);
+            margin-top: 0.25rem;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 3rem;
+            height: 1.75rem;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.1);
+            transition: .4s;
+            border-radius: 1.75rem;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 1.25rem;
+            width: 1.25rem;
+            left: 0.25rem;
+            bottom: 0.25rem;
+            background: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background: var(--obsidian-link);
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(1.25rem);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 navbar-blur border-b border-gray-200 dark:border-gray-700 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/" class="text-2xl font-bold bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">
+                        J StaR Films
+                    </a>
+                    <span class="mx-4 text-gray-300 dark:text-gray-600">/</span>
+                    <span class="text-gray-900 dark:text-white font-medium">Shared Components</span>
+                    <span class="mx-4 text-gray-300 dark:text-gray-600">/</span>
+                    <span class="text-gray-900 dark:text-white font-medium">Notifications</span>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="/" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Home</a>
+                    <a href="/about" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">About</a>
+                    <a href="/portfolio" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Portfolio</a>
+                    <a href="/services" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Services</a>
+                    <a href="/blog" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Blog</a>
+                    <a href="/store" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Store</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button onclick="document.documentElement.classList.toggle('dark')" 
+                            class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
+                            aria-label="Toggle theme">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </button>
+                    <div class="relative">
+                        <button class="flex items-center space-x-2">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-r from-jstar-blue to-faith-purple flex items-center justify-center text-white text-sm font-bold">
+                                JO
+                            </div>
+                            <span class="text-gray-900 dark:text-white font-medium">Tier 3</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Component Showcase Container -->
+    <div class="component-showcase pt-16">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="p-4">
+                <div class="mb-6">
+                    <h2 class="text-lg font-bold mb-4">Shared Components</h2>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        Navigation
+                    </div>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                        </svg>
+                        Modals
+                    </div>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Forms
+                    </div>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                        Data Tables
+                    </div>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        Charts
+                    </div>
+                    <div class="sidebar-item active">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                        Notifications
+                    </div>
+                </div>
+                
+                <div class="border-t border-gray-700 pt-4">
+                    <div class="text-xs text-gray-500 uppercase tracking-wider mb-2">Component Info</div>
+                    <div class="text-sm">
+                        <div class="flex justify-between mb-1">
+                            <span class="text-gray-400">Components</span>
+                            <span>6</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Version</span>
+                            <span>2.1.4</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h1 class="text-2xl font-bold mb-2">Notification Components</h1>
+                        <p class="text-gray-400">System for displaying alerts, messages, and user feedback</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <div class="relative">
+                            <input type="text" placeholder="Search components..." class="search-box pl-10">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Toast Notifications -->
+                <div class="component-card">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 class="text-lg font-bold">Toast Notifications</h2>
+                            <p class="text-gray-400 text-sm mt-1">Brief, non-intrusive messages that appear briefly</p>
+                        </div>
+                        <div>
+                            <span class="badge badge-component">Transient</span>
+                        </div>
+                    </div>
+                    
+                    <div class="component-preview">
+                        <div class="toast-container">
+                            <div class="toast toast-success">
+                                <div class="toast-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </div>
+                                <div class="toast-content">Project saved successfully</div>
+                                <button class="toast-close">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            
+                            <div class="toast toast-info">
+                                <div class="toast-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div class="toast-content">New update available</div>
+                                <button class="toast-close">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            
+                            <div class="toast toast-warning">
+                                <div class="toast-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                    </svg>
+                                </div>
+                                <div class="toast-content">Storage is almost full</div>
+                                <button class="toast-close">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 text-sm">
+                            <p><strong>Usage:</strong> Display brief, non-intrusive messages that appear temporarily and disappear automatically. Ideal for success messages, warnings, and informational updates.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 text-sm">
+                        <p class="mb-2"><strong>Usage:</strong> Display brief, non-intrusive messages that appear temporarily and disappear automatically. Ideal for success messages, warnings, and informational updates.</p>
+                        <p><strong>Features:</strong> Auto-dismiss with progress indicator, manual close option, multiple severity levels, responsive positioning, dark/light mode support.</p>
+                    </div>
+                </div>
+                
+                <!-- Full Notifications -->
+                <div class="component-card">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 class="text-lg font-bold">Full Notifications</h2>
+                            <p class="text-gray-400 text-sm mt-1">Detailed notifications with actions and rich content</p>
+                        </div>
+                        <div>
+                            <span class="badge badge-component">Persistent</span>
+                        </div>
+                    </div>
+                    
+                    <div class="component-preview">
+                        <div class="notification-container">
+                            <div class="notification notification-success">
+                                <div class="notification-main">
+                                    <div class="notification-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    <div class="notification-body">
+                                        <div class="notification-header">
+                                            <div class="notification-title">Project Published</div>
+                                            <button class="notification-close">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        <div class="notification-content">
+                                            Your "Summer Campaign" project has been successfully published and is now live on your portfolio.
+                                        </div>
+                                        <div class="notification-footer">
+                                            <button class="secondary-button text-xs">View Project</button>
+                                            <button class="primary-button text-xs">Share</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="notification-progress">
+                                    <div class="notification-progress-bar" style="background: #10B981;"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="notification notification-info">
+                                <div class="notification-main">
+                                    <div class="notification-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    <div class="notification-body">
+                                        <div class="notification-header">
+                                            <div class="notification-title">New Feature Available</div>
+                                            <button class="notification-close">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        <div class="notification-content">
+                                            We've added new AI-powered thumbnail generation capabilities to help boost your content performance.
+                                        </div>
+                                        <div class="notification-footer">
+                                            <button class="secondary-button text-xs">Later</button>
+                                            <button class="primary-button text-xs">Explore Feature</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="notification-progress">
+                                    <div class="notification-progress-bar" style="background: #3B82F6;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 text-sm">
+                            <p><strong>Usage:</strong> Display detailed notifications with actions and rich content that require user attention. Perfect for important updates, feature announcements, and system alerts.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 text-sm">
+                        <p class="mb-2"><strong>Usage:</strong> Display detailed notifications with actions and rich content that require user attention. Perfect for important updates, feature announcements, and system alerts.</p>
+                        <p><strong>Features:</strong> Action buttons, auto-dismiss with progress bar, manual close, rich content support, multiple severity levels.</p>
+                    </div>
+                </div>
+                
+                <!-- Alert Banners -->
+                <div class="component-card">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 class="text-lg font-bold">Alert Banners</h2>
+                            <p class="text-gray-400 text-sm mt-1">Contextual alerts displayed within page content</p>
+                        </div>
+                        <div>
+                            <span class="badge badge-component">Contextual</span>
+                        </div>
+                    </div>
+                    
+                    <div class="component-preview">
+                        <div class="alert-banner">
+                            <div class="alert-banner-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div class="alert-banner-content">
+                                <div class="alert-banner-title">System Maintenance Scheduled</div>
+                                <div class="alert-banner-message">
+                                    We'll be performing scheduled maintenance on Saturday, June 15th from 2:00 AM to 4:00 AM EST. Some features may be temporarily unavailable.
+                                </div>
+                                <div class="alert-banner-actions">
+                                    <button class="secondary-button text-xs">Learn More</button>
+                                    <button class="primary-button text-xs">Got It</button>
+                                </div>
+                            </div>
+                            <button class="alert-banner-close">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div class="alert-banner" style="background: rgba(239, 68, 68, 0.1); border-color: #EF4444;">
+                            <div class="alert-banner-icon" style="color: #EF4444;">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </div>
+                            <div class="alert-banner-content">
+                                <div class="alert-banner-title">Security Alert</div>
+                                <div class="alert-banner-message">
+                                    Unusual login activity detected on your account. Please review your recent sessions and update your password if necessary.
+                                </div>
+                                <div class="alert-banner-actions">
+                                    <button class="secondary-button text-xs">Review Sessions</button>
+                                    <button class="primary-button text-xs" style="background: linear-gradient(135deg, #EF4444 0%, #F87171 100%);">Change Password</button>
+                                </div>
+                            </div>
+                            <button class="alert-banner-close">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div class="mt-4 text-sm">
+                            <p><strong>Usage:</strong> Display contextual alerts and important information directly within page content. Useful for system announcements, security warnings, and important updates.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 text-sm">
+                        <p class="mb-2"><strong>Usage:</strong> Display contextual alerts and important information directly within page content. Useful for system announcements, security warnings, and important updates.</p>
+                        <p><strong>Features:</strong> Inline placement, action buttons, dismissible, rich content support, contextual styling, responsive design.</p>
+                    </div>
+                </div>
+                
+                <!-- Notification Preferences -->
+                <div class="component-card">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 class="text-lg font-bold">Notification Preferences</h2>
+                            <p class="text-gray-400 text-sm mt-1">User controls for managing notification settings</p>
+                        </div>
+                        <div>
+                            <span class="badge badge-component">Settings</span>
+                        </div>
+                    </div>
+                    
+                    <div class="component-preview">
+                        <div class="notification-preferences">
+                            <div class="preference-group">
+                                <div class="preference-title">Communication Preferences</div>
+                                <div class="preference-item">
+                                    <div>
+                                        <div class="preference-label">Email Notifications</div>
+                                        <div class="preference-description">Receive updates via email about your projects and account activity</div>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="preference-item">
+                                    <div>
+                                        <div class="preference-label">Push Notifications</div>
+                                        <div class="preference-description">Get instant alerts on your device for important updates</div>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="preference-item">
+                                    <div>
+                                        <div class="preference-label">SMS Notifications</div>
+                                        <div class="preference-description">Receive text messages for critical alerts and security issues</div>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="preference-group">
+                                <div class="preference-title">Platform Updates</div>
+                                <div class="preference-item">
+                                    <div>
+                                        <div class="preference-label">Feature Announcements</div>
+                                        <div class="preference-description">Be notified about new features and platform improvements</div>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="preference-item">
+                                    <div>
+                                        <div class="preference-label">Product Updates</div>
+                                        <div class="preference-description">Receive updates about new products and services</div>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="preference-item">
+                                    <div>
+                                        <div class="preference-label">Newsletter</div>
+                                        <div class="preference-description">Monthly newsletter with tips, insights, and industry news</div>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 text-sm">
+                        <p class="mb-2"><strong>Usage:</strong> Allow users to customize their notification preferences and control what types of messages they receive.</p>
+                        <p><strong>Features:</strong> Toggle switches, grouped settings, descriptive labels, responsive layout, dark/light mode support.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme management
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Sidebar item selection
+        document.querySelectorAll('.sidebar-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                
+                // In a real implementation, this would navigate to the selected section
+                const section = this.textContent.trim();
+                console.log('Navigating to:', section);
+            });
+        });
+    </script>
+</body>
+</html>

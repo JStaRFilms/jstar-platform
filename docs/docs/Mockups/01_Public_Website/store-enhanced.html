@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store | J StaR Films - Digital Products & Creator Tools</title>
+    <meta name="description" content="Digital products and creator tools by John Oluleke-Oke. Courses, templates, and AI-powered tools for content creators.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --growth-green: #059669;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --transition-normal: 300ms;
+        }
+        
+        .product-card {
+            transition: all var(--transition-normal) ease;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .tier-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 10;
+        }
+        
+        .navbar-blur {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .dark .navbar-blur {
+            background: rgba(17, 24, 39, 0.9);
+        }
+        
+        /* Product filter styles */
+        .filter-btn {
+            transition: all var(--transition-normal) ease;
+        }
+        
+        .filter-btn.active {
+            background: var(--gradient-brand);
+            color: white;
+        }
+        
+        /* Cart badge */
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #EF4444;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 navbar-blur border-b border-gray-200 dark:border-gray-700 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/" class="text-2xl font-bold bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">
+                        J StaR Films
+                    </a>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#store" class="text-jstar-blue font-semibold">Store</a>
+                    <a href="#courses" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Courses</a>
+                    <a href="#templates" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Templates</a>
+                    <a href="#tools" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Tools</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button onclick="document.documentElement.classList.toggle('dark')" 
+                            class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
+                            aria-label="Toggle theme">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </button>
+                    <div class="relative">
+                        <button class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                        </button>
+                        <div class="cart-badge">3</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-br from-gray-900 to-gray-800 py-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h1 class="text-4xl md:text-5xl font-bold text-white mb-6">
+                        <span class="bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">Digital Products</span> for Creators & Developers
+                    </h1>
+                    <p class="text-xl text-gray-300 mb-8">
+                        Professional courses, templates, and AI-powered tools designed to help you create 
+                        exceptional content, build better applications, and grow your audience.
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <a href="#featured" class="px-6 py-3 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold hover:opacity-90 transition-opacity">
+                            Shop Featured
+                        </a>
+                        <a href="#courses" class="px-6 py-3 bg-white/10 backdrop-blur-sm text-white border border-white/20 rounded-lg font-semibold hover:bg-white/20 transition-colors">
+                            View Courses
+                        </a>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-br from-jstar-blue/20 to-faith-purple/20 rounded-2xl p-8 backdrop-blur-sm border border-white/10">
+                    <div class="text-center mb-6">
+                        <div class="inline-flex items-center px-4 py-2 bg-white/10 rounded-full text-white mb-4">
+                            <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
+                            Limited Time Offer
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-2">Bundle Deals Available</h3>
+                        <p class="text-gray-300">Save up to 40% when you purchase courses together</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-white/10 rounded-xl p-4">
+                            <div class="text-2xl font-bold text-white">25+</div>
+                            <div class="text-sm text-gray-300">Products</div>
+                        </div>
+                        <div class="bg-white/10 rounded-xl p-4">
+                            <div class="text-2xl font-bold text-white">1000+</div>
+                            <div class="text-sm text-gray-300">Happy Creators</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Product Filters -->
+    <section class="py-8 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-wrap justify-center gap-3">
+                <button class="filter-btn active px-6 py-3 bg-gray-100 dark:bg-gray-700 rounded-full font-medium text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600">
+                    All Products
+                </button>
+                <button class="filter-btn px-6 py-3 bg-gray-100 dark:bg-gray-700 rounded-full font-medium text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600">
+                    Courses
+                </button>
+                <button class="filter-btn px-6 py-3 bg-gray-100 dark:bg-gray-700 rounded-full font-medium text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600">
+                    Templates
+                </button>
+                <button class="filter-btn px-6 py-3 bg-gray-100 dark:bg-gray-700 rounded-full font-medium text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600">
+                    Tools
+                </button>
+                <button class="filter-btn px-6 py-3 bg-gray-100 dark:bg-gray-700 rounded-full font-medium text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600">
+                    Free Resources
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Products -->
+    <section id="featured" class="py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                    Featured <span class="bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">Products</span>
+                </h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                    Hand-picked digital products that will accelerate your creative journey and help you achieve your goals faster.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Product 1 -->
+                <div class="product-card bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg relative">
+                    <div class="tier-badge">
+                        <span class="px-3 py-1 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-full text-xs font-bold">
+                            BEST SELLER
+                        </span>
+                    </div>
+                    <div class="h-48 bg-gradient-to-br from-jstar-blue to-faith-purple flex items-center justify-center">
+                        <div class="text-center text-white">
+                            <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                </svg>
+                            </div>
+                            <p class="font-medium">Complete Course</p>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-white">YouTube Virality Masterclass</h3>
+                            <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded text-xs font-medium">
+                                Course
+                            </span>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                            The complete system for creating viral YouTube content, from ideation to optimization. 
+                            Used by creators who've grown to 100K+ subscribers.
+                        </p>
+                        <div class="flex items-center mb-4">
+                            <div class="flex text-yellow-400">
+                                <svg class="h-5 w-5 fill-current" viewBox="0 0 24 24">
+                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                                </svg>
+                                <svg class="h-5 w-5 fill-current" viewBox="0 0 24 24">
+                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                                </svg>
+                                <svg class="h-5 w-5 fill-current" viewBox="0 0 24 24">
+                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                                </svg>
+                                <svg class="h-5 w-5 fill-current" viewBox="0 0 24 24">
+                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                                </svg>
+                                <svg class="h-5 w-5 fill-current" viewBox="0 0 24 24">
+                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                                </svg>
+                            </div>
+                            <span class="text-sm text-gray-500 dark:text-gray-400 ml-2">(128 reviews)</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-2xl font-bold text-gray-900 dark:text-white">₦45,000</span>
+                                <span class="text-sm text-gray-500 dark:text-gray-400 line-through ml-2">₦60,000</span>
+                            </div>
+                            <button class="px-4 py-2 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold hover:opacity-90 transition-opacity">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 2 -->
+                <div class="product-card bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg relative">
+                    <div class="h-48 bg-gradient-to-br from-faith-purple to-growth-green flex items-center justify-center">
+                        <div class="text-center text-white">
+                            <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                            </div>
+                            <p class="font-medium">Template Pack</p>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-white">Wedding Film Editing Templates</h3>
+                            <span class="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 rounded text-xs font-medium">
+                                Templates
+                            </span>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                            Professional Premiere Pro and DaVinci Resolve templates for wedding filmmakers. 
+                            Includes color grades, transitions, and lower thirds.
+                        </p>
+                        <div class="flex items-center mb-4">
+                            <div class="flex text-yellow-400">
+                                <svg class="h-5 w-5 fill-current" viewBox="0 0 24 24">
+                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                                </svg>
+                                <svg class="h-5 w-5 fill-current" viewBox="0 0 24 24">
+                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                                </svg>
+                                <svg class="h-5 w-5 fill-current" viewBox="0 0 24 24">
+                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                                </svg>
+                                <svg class="h-5 w-5 fill-current" viewBox="0 0 24 24">
+                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                                </svg>
+                                <svg class="h-5 w-5 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
+                                </svg>
+                            </div>
+                            <span class="text-sm text-gray-500 dark:text-gray-400 ml-2">(86 reviews)</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-2xl font-bold text-gray-900 dark:text-white">₦15,000</span>
+                            </div>
+                            <button class="px-4 py-2 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold hover:opacity-90 transition-opacity">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 3 -->
+                <div class="product-card bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg relative">
+                    <div class="tier-badge">
+                        <span class="px-3 py-1 bg-growth-green text-white rounded-full text-xs font-bold">
+                            NEW
+                        </span>
+                    </div>
+                    <div class="h-48 bg-gradient-to-br from-growth-green to-jstar-blue flex items-center justify-center">
+                        <div class="text-center text-white">
+                            <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                                </svg>
+                            </div>
+                            <p class="font-medium">AI Tool</p>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-white">JohnGPT Creator Assistant</h3>
+                            <span class="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 rounded text-xs font-medium">
+                                Tool
+                            </span>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                            Your AI-powered creative partner that helps with content ideation, scriptwriting, 
+                            and YouTube optimization. Works with any AI model.
+                        </p>
+                        <div class="flex items-center mb-4">
+                            <div class="flex text-yellow-400">
+                                <svg class="h-5 w-5 fill-current" viewBox="0 0 24 24">
+                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                                </svg>
+                                <svg class="h-5 w-5 fill-current" viewBox="0 0 24 24">
+                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                                </svg>
+                                <svg class="h-5 w-5 fill-current" viewBox="0 0 24 24">
+                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                                </svg>
+                                <svg class="h-5 w-5 fill-current" viewBox="0 0 24 24">
+                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                                </svg>
+                                <svg class="h-5 w-5 fill-current" viewBox="0 0 24 24">
+                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                                </svg>
+                            </div>
+                            <span class="text-sm text-gray-500 dark:text-gray-400 ml-2">(214 reviews)</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-2xl font-bold text-gray-900 dark:text-white">₦25,000</span>
+                                <span class="text-sm text-gray-500 dark:text-gray-400 ml-2">/month</span>
+                            </div>
+                            <button class="px-4 py-2 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold hover:opacity-90 transition-opacity">
+                                Subscribe
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Product Categories -->
+    <section class="py-16 bg-gray-100 dark:bg-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                    Browse by <span class="bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">Category</span>
+                </h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                    Find exactly what you need to enhance your creative workflow and grow your audience.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Category 1 -->
+                <a href="#courses" class="block bg-white dark:bg-gray-700 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                    <div class="w-12 h-12 bg-gradient-to-r from-jstar-blue to-faith-purple rounded-xl flex items-center justify-center mb-4">
+                        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Video Courses</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">
+                        Comprehensive courses on video production, editing, and storytelling.
+                    </p>
+                    <span class="text-jstar-blue font-semibold">12 Products</span>
+                </a>
+
+                <!-- Category 2 -->
+                <a href="#templates" class="block bg-white dark:bg-gray-700 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                    <div class="w-12 h-12 bg-gradient-to-r from-faith-purple to-growth-green rounded-xl flex items-center justify-center mb-4">
+                        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Templates</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">
+                        Ready-to-use templates for editing, design, and content planning.
+                    </p>
+                    <span class="text-faith-purple font-semibold">8 Products</span>
+                </a>
+
+                <!-- Category 3 -->
+                <a href="#tools" class="block bg-white dark:bg-gray-700 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                    <div class="w-12 h-12 bg-gradient-to-r from-growth-green to-jstar-blue rounded-xl flex items-center justify-center mb-4">
+                        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">AI Tools</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">
+                        AI-powered tools for content creation, optimization, and automation.
+                    </p>
+                    <span class="text-growth-green font-semibold">5 Products</span>
+                </a>
+
+                <!-- Category 4 -->
+                <a href="#free" class="block bg-white dark:bg-gray-700 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                    <div class="w-12 h-12 bg-gradient-to-r from-yellow-500 to-red-500 rounded-xl flex items-center justify-center mb-4">
+                        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Free Resources</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">
+                        Free templates, guides, and resources to get you started.
+                    </p>
+                    <span class="text-yellow-500 font-semibold">10 Products</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Free Resource Highlight -->
+    <section id="free" class="py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-gradient-to-r from-jstar-blue to-faith-purple rounded-2xl p-8 md:p-12 text-white">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <h2 class="text-3xl md:text-4xl font-bold mb-6">
+                            Get Your Free Creator Bundle
+                        </h2>
+                        <p class="text-xl mb-8 opacity-90">
+                            Download our exclusive bundle of templates, guides, and resources 
+                            used by professional creators to enhance their workflow.
+                        </p>
+                        <div class="flex flex-wrap gap-4">
+                            <button class="px-8 py-4 bg-white text-jstar-blue font-bold rounded-xl text-lg hover:bg-gray-100 transition-colors">
+                                Download Bundle
+                            </button>
+                            <button class="px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 font-bold rounded-xl text-lg hover:bg-white/20 transition-colors">
+                                View Contents
+                            </button>
+                        </div>
+                    </div>
+                    <div class="bg-white/10 rounded-xl p-6 backdrop-blur-sm">
+                        <h3 class="text-xl font-bold mb-4">What's Included:</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-center">
+                                <svg class="h-5 w-5 mr-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span>5 Wedding Editing Templates</span>
+                            </li>
+                            <li class="flex items-center">
+                                <svg class="h-5 w-5 mr-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span>YouTube Thumbnail Design Guide</span>
+                            </li>
+                            <li class="flex items-center">
+                                <svg class="h-5 w-5 mr-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span>Content Calendar Template</span>
+                            </li>
+                            <li class="flex items-center">
+                                <svg class="h-5 w-5 mr-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span>Client Communication Templates</span>
+                            </li>
+                            <li class="flex items-center">
+                                <svg class="h-5 w-5 mr-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span>Color Grading Cheat Sheet</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-16 bg-gradient-to-r from-jstar-blue to-faith-purple">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">
+                Ready to Enhance Your Creative Workflow?
+            </h2>
+            <p class="text-xl text-white/90 mb-8">
+                Browse our collection of digital products designed to help you create exceptional content 
+                and grow your audience faster.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="#featured" class="px-8 py-4 bg-white text-jstar-blue font-bold rounded-xl text-lg hover:bg-gray-100 transition-colors">
+                    Shop Now
+                </a>
+                <a href="#contact" class="px-8 py-4 bg-white/10 backdrop-blur-sm text-white border border-white/20 font-bold rounded-xl text-lg hover:bg-white/20 transition-colors">
+                    Contact Support
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Theme management
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+
+        // Product filtering
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                // Add active class to clicked button
+                button.classList.add('active');
+                
+                // In a real implementation, this would filter the products
+                console.log(`Filtering by: ${button.textContent.trim()}`);
+            });
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

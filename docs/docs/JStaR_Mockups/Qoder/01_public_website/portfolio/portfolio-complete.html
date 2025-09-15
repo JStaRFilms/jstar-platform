@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio - J StaR Films Creative Showcase</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+        
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+        
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+        
+        .nav-back {
+            color: var(--text-secondary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-back:hover { color: var(--brand-blue); }
+        
+        /* Header */
+        .header {
+            padding: 8rem 0 4rem;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            color: white;
+            text-align: center;
+        }
+        
+        .header-title {
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            font-weight: 900;
+            margin-bottom: 1rem;
+        }
+        
+        .header-subtitle {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Filter Bar */
+        .filter-bar {
+            padding: 3rem 0;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 80px;
+            z-index: 100;
+        }
+        
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid var(--border);
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            border-radius: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .filter-btn:hover,
+        .filter-btn.active {
+            border-color: var(--brand-blue);
+            background: var(--brand-blue);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        /* Portfolio Grid */
+        .portfolio {
+            padding: 4rem 0;
+            background: var(--bg-primary);
+        }
+        
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+        
+        .portfolio-item {
+            background: var(--bg-secondary);
+            border-radius: 1rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        .portfolio-item.hidden {
+            opacity: 0;
+            transform: scale(0.8);
+            pointer-events: none;
+        }
+        
+        .portfolio-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .portfolio-image {
+            width: 100%;
+            height: 240px;
+            background: linear-gradient(45deg, var(--brand-blue), var(--creative-teal));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .portfolio-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0);
+            transition: background 0.3s ease;
+        }
+        
+        .portfolio-item:hover .portfolio-image::before {
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        .portfolio-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 0.75rem 1.5rem;
+            border-radius: 2rem;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            font-weight: 600;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .portfolio-item:hover .portfolio-overlay {
+            opacity: 1;
+        }
+        
+        .portfolio-content {
+            padding: 2rem;
+        }
+        
+        .portfolio-category {
+            display: inline-block;
+            background: var(--brand-blue);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .portfolio-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+        
+        .portfolio-description {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+        
+        .portfolio-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .portfolio-client {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .portfolio-year {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .portfolio-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+        
+        .tag {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .portfolio-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+        
+        .btn-primary {
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        /* Stats Section */
+        .stats {
+            padding: 4rem 0;
+            background: var(--bg-secondary);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            text-align: center;
+        }
+        
+        .stat-item {
+            background: var(--bg-primary);
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--brand-blue);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        /* CTA Section */
+        .cta {
+            padding: 6rem 0;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            color: white;
+            text-align: center;
+        }
+        
+        .cta-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .cta-subtitle {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .btn-cta {
+            background: var(--warm-orange);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        
+        .btn-cta:hover {
+            background: #E55A5A;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .portfolio-grid { 
+                grid-template-columns: 1fr; 
+                gap: 1.5rem;
+            }
+            .filter-container { 
+                justify-content: flex-start; 
+                overflow-x: auto;
+                padding-bottom: 1rem;
+            }
+            .portfolio-actions { 
+                flex-direction: column; 
+            }
+            .container { padding: 0 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <a href="homepage-complete.html" class="nav-back">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Home
+                </a>
+                <a href="#" class="logo">J StaR Films</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <section class="header">
+        <div class="container">
+            <h1 class="header-title">Portfolio Showcase</h1>
+            <p class="header-subtitle">
+                Explore my creative journey through video production, app development, and AI-powered solutions.
+            </p>
+        </div>
+    </section>
+
+    <!-- Filter Bar -->
+    <section class="filter-bar">
+        <div class="container">
+            <div class="filter-container">
+                <button class="filter-btn active" data-filter="all">All Projects</button>
+                <button class="filter-btn" data-filter="video">Video Production</button>
+                <button class="filter-btn" data-filter="web">Web Development</button>
+                <button class="filter-btn" data-filter="ai">AI Solutions</button>
+                <button class="filter-btn" data-filter="events">Event Coverage</button>
+                <button class="filter-btn" data-filter="corporate">Corporate</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Portfolio Grid -->
+    <section class="portfolio">
+        <div class="container">
+            <div class="portfolio-grid">
+                <!-- Video Production Projects -->
+                <div class="portfolio-item" data-category="video corporate">
+                    <div class="portfolio-image">
+                        🎬
+                        <div class="portfolio-overlay">View Case Study</div>
+                    </div>
+                    <div class="portfolio-content">
+                        <span class="portfolio-category">Video Production</span>
+                        <h3 class="portfolio-title">Tech Startup Rebrand Documentary</h3>
+                        <p class="portfolio-description">
+                            A comprehensive visual identity transformation captured through cinematic storytelling and executive interviews.
+                        </p>
+                        <div class="portfolio-meta">
+                            <span class="portfolio-client">TechFlow Solutions</span>
+                            <span class="portfolio-year">2024</span>
+                        </div>
+                        <div class="portfolio-tags">
+                            <span class="tag">Corporate Video</span>
+                            <span class="tag">Documentary</span>
+                            <span class="tag">Branding</span>
+                        </div>
+                        <div class="portfolio-actions">
+                            <a href="#" class="btn btn-primary">
+                                <i class="fas fa-play"></i>
+                                Watch Video
+                            </a>
+                            <a href="#" class="btn btn-secondary">
+                                <i class="fas fa-info-circle"></i>
+                                Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Web Development Project -->
+                <div class="portfolio-item" data-category="web ai">
+                    <div class="portfolio-image">
+                        💻
+                        <div class="portfolio-overlay">View Live Site</div>
+                    </div>
+                    <div class="portfolio-content">
+                        <span class="portfolio-category">Web Development</span>
+                        <h3 class="portfolio-title">Creator Management Platform</h3>
+                        <p class="portfolio-description">
+                            Full-stack application with AI integration for content creators to manage their entire workflow and audience.
+                        </p>
+                        <div class="portfolio-meta">
+                            <span class="portfolio-client">CreatorHub Inc</span>
+                            <span class="portfolio-year">2024</span>
+                        </div>
+                        <div class="portfolio-tags">
+                            <span class="tag">React</span>
+                            <span class="tag">Next.js</span>
+                            <span class="tag">AI Integration</span>
+                            <span class="tag">PostgreSQL</span>
+                        </div>
+                        <div class="portfolio-actions">
+                            <a href="#" class="btn btn-primary">
+                                <i class="fas fa-external-link-alt"></i>
+                                Live Demo
+                            </a>
+                            <a href="#" class="btn btn-secondary">
+                                <i class="fas fa-code"></i>
+                                Code
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Event Coverage -->
+                <div class="portfolio-item" data-category="video events">
+                    <div class="portfolio-image">
+                        🎉
+                        <div class="portfolio-overlay">Watch Highlights</div>
+                    </div>
+                    <div class="portfolio-content">
+                        <span class="portfolio-category">Event Coverage</span>
+                        <h3 class="portfolio-title">Multi-Camera Conference Live Stream</h3>
+                        <p class="portfolio-description">
+                            Professional 3-camera setup with live switching, graphics overlay, and real-time audience interaction.
+                        </p>
+                        <div class="portfolio-meta">
+                            <span class="portfolio-client">Innovation Summit 2024</span>
+                            <span class="portfolio-year">2024</span>
+                        </div>
+                        <div class="portfolio-tags">
+                            <span class="tag">Live Stream</span>
+                            <span class="tag">Multi-Camera</span>
+                            <span class="tag">Graphics</span>
+                            <span class="tag">Interactive</span>
+                        </div>
+                        <div class="portfolio-actions">
+                            <a href="#" class="btn btn-primary">
+                                <i class="fas fa-video"></i>
+                                Highlights
+                            </a>
+                            <a href="#" class="btn btn-secondary">
+                                <i class="fas fa-camera"></i>
+                                Setup
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Solution -->
+                <div class="portfolio-item" data-category="ai web">
+                    <div class="portfolio-image">
+                        🤖
+                        <div class="portfolio-overlay">Try Demo</div>
+                    </div>
+                    <div class="portfolio-content">
+                        <span class="portfolio-category">AI Solution</span>
+                        <h3 class="portfolio-title">Content Generation Assistant</h3>
+                        <p class="portfolio-description">
+                            Custom AI tool that generates video scripts, social media posts, and marketing copy with brand voice consistency.
+                        </p>
+                        <div class="portfolio-meta">
+                            <span class="portfolio-client">Marketing Agency</span>
+                            <span class="portfolio-year">2024</span>
+                        </div>
+                        <div class="portfolio-tags">
+                            <span class="tag">GPT-4</span>
+                            <span class="tag">Custom Training</span>
+                            <span class="tag">API Integration</span>
+                            <span class="tag">Automation</span>
+                        </div>
+                        <div class="portfolio-actions">
+                            <a href="#" class="btn btn-primary">
+                                <i class="fas fa-robot"></i>
+                                Try Demo
+                            </a>
+                            <a href="#" class="btn btn-secondary">
+                                <i class="fas fa-cog"></i>
+                                Features
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Corporate Video -->
+                <div class="portfolio-item" data-category="video corporate">
+                    <div class="portfolio-image">
+                        📺
+                        <div class="portfolio-overlay">View Project</div>
+                    </div>
+                    <div class="portfolio-content">
+                        <span class="portfolio-category">Corporate</span>
+                        <h3 class="portfolio-title">Employee Training Series</h3>
+                        <p class="portfolio-description">
+                            5-part video series covering company culture, safety protocols, and professional development with interactive elements.
+                        </p>
+                        <div class="portfolio-meta">
+                            <span class="portfolio-client">Manufacturing Corp</span>
+                            <span class="portfolio-year">2023</span>
+                        </div>
+                        <div class="portfolio-tags">
+                            <span class="tag">Training</span>
+                            <span class="tag">Animation</span>
+                            <span class="tag">Interactive</span>
+                            <span class="tag">Series</span>
+                        </div>
+                        <div class="portfolio-actions">
+                            <a href="#" class="btn btn-primary">
+                                <i class="fas fa-play"></i>
+                                Preview
+                            </a>
+                            <a href="#" class="btn btn-secondary">
+                                <i class="fas fa-list"></i>
+                                Series
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Web App -->
+                <div class="portfolio-item" data-category="web">
+                    <div class="portfolio-image">
+                        📱
+                        <div class="portfolio-overlay">Launch App</div>
+                    </div>
+                    <div class="portfolio-content">
+                        <span class="portfolio-category">Web App</span>
+                        <h3 class="portfolio-title">Real Estate CRM Dashboard</h3>
+                        <p class="portfolio-description">
+                            Comprehensive client relationship management system with lead tracking, automated follow-ups, and analytics.
+                        </p>
+                        <div class="portfolio-meta">
+                            <span class="portfolio-client">Property Pros</span>
+                            <span class="portfolio-year">2023</span>
+                        </div>
+                        <div class="portfolio-tags">
+                            <span class="tag">CRM</span>
+                            <span class="tag">Dashboard</span>
+                            <span class="tag">Automation</span>
+                            <span class="tag">Analytics</span>
+                        </div>
+                        <div class="portfolio-actions">
+                            <a href="#" class="btn btn-primary">
+                                <i class="fas fa-eye"></i>
+                                View Demo
+                            </a>
+                            <a href="#" class="btn btn-secondary">
+                                <i class="fas fa-chart-bar"></i>
+                                Analytics
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="stats">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">500+</div>
+                    <div class="stat-label">Projects Completed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">50+</div>
+                    <div class="stat-label">Happy Clients</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">98%</div>
+                    <div class="stat-label">Client Satisfaction</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">24/7</div>
+                    <div class="stat-label">Support Available</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta">
+        <div class="container">
+            <h2 class="cta-title">Ready to Start Your Project?</h2>
+            <p class="cta-subtitle">
+                Let's bring your vision to life with the same excellence and creativity you see here.
+            </p>
+            <a href="#" class="btn btn-cta">
+                <i class="fas fa-rocket"></i>
+                Get Started Today
+            </a>
+        </div>
+    </section>
+
+    <script>
+        // Portfolio filtering
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const portfolioItems = document.querySelectorAll('.portfolio-item');
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from all buttons
+                filterBtns.forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
+                btn.classList.add('active');
+
+                const filter = btn.getAttribute('data-filter');
+
+                portfolioItems.forEach(item => {
+                    const category = item.getAttribute('data-category');
+                    
+                    if (filter === 'all' || category.includes(filter)) {
+                        item.classList.remove('hidden');
+                    } else {
+                        item.classList.add('hidden');
+                    }
+                });
+            });
+        });
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+
+        // Smooth scroll for navbar
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 100) {
+                navbar.style.background = 'rgba(255, 255, 255, 0.98)';
+            } else {
+                navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+            }
+        });
+    </script>
+</body>
+</html>

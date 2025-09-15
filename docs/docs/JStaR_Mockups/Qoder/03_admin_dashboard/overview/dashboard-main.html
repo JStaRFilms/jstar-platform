@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - J StaR Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .admin-container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            background: var(--bg-primary);
+            border-right: 1px solid var(--border);
+            padding: 1.5rem 0;
+        }
+        
+        .logo {
+            padding: 0 1.5rem 1.5rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .nav-menu {
+            list-style: none;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background: var(--bg-secondary);
+            color: var(--brand-blue);
+            border-right: 3px solid var(--brand-blue);
+        }
+        
+        .main-content {
+            padding: 2rem;
+            overflow-y: auto;
+        }
+        
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .header-title {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--bg-primary);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .stat-trend {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .trend-up { color: var(--success-green); }
+        .trend-down { color: var(--warm-orange); }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+        
+        .card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+        
+        .chart-placeholder {
+            height: 250px;
+            background: var(--bg-secondary);
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+        
+        .activity-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .activity-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--brand-blue);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        .activity-content {
+            flex: 1;
+        }
+        
+        .activity-text {
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .activity-time {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+        
+        .btn-primary {
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        @media (max-width: 1024px) {
+            .content-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        
+        @media (max-width: 768px) {
+            .admin-container { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+            .stats-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="sidebar">
+            <div class="logo">Admin Dashboard</div>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="#" class="nav-link active"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="#" class="nav-link"><i class="fas fa-users"></i> Users</a></li>
+                    <li><a href="#" class="nav-link"><i class="fas fa-edit"></i> Content</a></li>
+                    <li><a href="#" class="nav-link"><i class="fas fa-chart-line"></i> Analytics</a></li>
+                    <li><a href="#" class="nav-link"><i class="fas fa-cog"></i> Settings</a></li>
+                    <li><a href="#" class="nav-link"><i class="fas fa-shield-alt"></i> Security</a></li>
+                    <li><a href="#" class="nav-link"><i class="fas fa-plug"></i> Integrations</a></li>
+                    <li><a href="#" class="nav-link"><i class="fas fa-file-invoice"></i> Billing</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="dashboard-header">
+                <h1 class="header-title">Dashboard Overview</h1>
+                <button class="btn btn-primary">
+                    <i class="fas fa-download"></i> Export Report
+                </button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-number">1,247</div>
+                            <div class="stat-label">Total Users</div>
+                        </div>
+                        <div class="stat-icon" style="background: var(--brand-blue);">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                    <div class="stat-trend trend-up">
+                        <i class="fas fa-arrow-up"></i> +12.5% from last month
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-number">89.2%</div>
+                            <div class="stat-label">System Uptime</div>
+                        </div>
+                        <div class="stat-icon" style="background: var(--success-green);">
+                            <i class="fas fa-server"></i>
+                        </div>
+                    </div>
+                    <div class="stat-trend trend-up">
+                        <i class="fas fa-arrow-up"></i> +2.1% from last week
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-number">342</div>
+                            <div class="stat-label">Active Sessions</div>
+                        </div>
+                        <div class="stat-icon" style="background: var(--creative-teal);">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                    </div>
+                    <div class="stat-trend trend-up">
+                        <i class="fas fa-arrow-up"></i> +8.3% from yesterday
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-number">$12.4K</div>
+                            <div class="stat-label">Monthly Revenue</div>
+                        </div>
+                        <div class="stat-icon" style="background: var(--warm-orange);">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                    </div>
+                    <div class="stat-trend trend-down">
+                        <i class="fas fa-arrow-down"></i> -3.2% from last month
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-grid">
+                <div class="card">
+                    <div class="card-title">
+                        User Activity Trends
+                        <button class="btn btn-primary">View Details</button>
+                    </div>
+                    <div class="chart-placeholder">
+                        📊 Interactive Chart - User registrations, sessions, and engagement metrics over time
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Recent Activity</div>
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-avatar">JD</div>
+                            <div class="activity-content">
+                                <div class="activity-text">John Doe upgraded to Pro plan</div>
+                                <div class="activity-time">2 minutes ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-avatar">SM</div>
+                            <div class="activity-content">
+                                <div class="activity-text">Sarah Miller created new project</div>
+                                <div class="activity-time">15 minutes ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-avatar">⚠️</div>
+                            <div class="activity-content">
+                                <div class="activity-text">System maintenance completed</div>
+                                <div class="activity-time">1 hour ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-avatar">MJ</div>
+                            <div class="activity-content">
+                                <div class="activity-text">Mike Johnson exported 50 conversations</div>
+                                <div class="activity-time">2 hours ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-avatar">AL</div>
+                            <div class="activity-content">
+                                <div class="activity-text">Anna Lee integrated Slack workspace</div>
+                                <div class="activity-time">3 hours ago</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
+                <div class="card">
+                    <div class="card-title">System Health</div>
+                    <div style="display: grid; gap: 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>API Response Time</span>
+                            <span style="color: var(--success-green); font-weight: 600;">125ms</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Database Health</span>
+                            <span style="color: var(--success-green); font-weight: 600;">Optimal</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>AI Model Status</span>
+                            <span style="color: var(--success-green); font-weight: 600;">Online</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Storage Usage</span>
+                            <span style="color: var(--warm-orange); font-weight: 600;">78%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Quick Actions</div>
+                    <div style="display: grid; gap: 0.75rem;">
+                        <button class="btn btn-primary" style="justify-content: center;">
+                            <i class="fas fa-user-plus"></i> Create User
+                        </button>
+                        <button class="btn btn-primary" style="justify-content: center;">
+                            <i class="fas fa-bullhorn"></i> Send Announcement
+                        </button>
+                        <button class="btn btn-primary" style="justify-content: center;">
+                            <i class="fas fa-database"></i> Backup Data
+                        </button>
+                        <button class="btn btn-primary" style="justify-content: center;">
+                            <i class="fas fa-shield-alt"></i> Security Scan
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Navigation
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                navLinks.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+            });
+        });
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact - Let's Create Something Amazing Together</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+        
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+        
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+        
+        .header {
+            padding: 8rem 0 4rem;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            color: white;
+            text-align: center;
+        }
+        
+        .header-title {
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            font-weight: 900;
+            margin-bottom: 1rem;
+        }
+        
+        .contact-section {
+            padding: 6rem 0;
+        }
+        
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: start;
+        }
+        
+        .contact-info {
+            background: var(--bg-secondary);
+            padding: 3rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+        }
+        
+        .contact-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+        
+        .contact-methods {
+            margin-bottom: 3rem;
+        }
+        
+        .contact-method {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: var(--bg-primary);
+            border-radius: 0.75rem;
+            border: 1px solid var(--border);
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .contact-method:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .method-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--brand-blue);
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+        }
+        
+        .method-info h3 {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: var(--text-primary);
+        }
+        
+        .method-info p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        .availability {
+            background: var(--bg-primary);
+            padding: 2rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border);
+        }
+        
+        .availability-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+        
+        .timezone-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+        
+        .response-time {
+            background: var(--success-green);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        
+        .contact-form {
+            background: var(--bg-primary);
+            padding: 3rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--brand-blue);
+        }
+        
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .budget-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .budget-option {
+            padding: 0.75rem;
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--bg-secondary);
+        }
+        
+        .budget-option:hover,
+        .budget-option.selected {
+            border-color: var(--brand-blue);
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background: var(--brand-blue);
+            color: white;
+            width: 100%;
+        }
+        
+        .btn-cta {
+            background: var(--warm-orange);
+            color: white;
+            width: 100%;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .quick-actions {
+            padding: 4rem 0;
+            background: var(--bg-secondary);
+        }
+        
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        
+        .action-card {
+            background: var(--bg-primary);
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .action-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+        
+        .action-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-brand, linear-gradient(135deg, var(--brand-blue), var(--creative-teal)));
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            margin: 0 auto 1rem;
+        }
+        
+        .action-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+        
+        .action-description {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .faq {
+            padding: 6rem 0;
+        }
+        
+        .faq-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 3rem;
+            color: var(--text-primary);
+        }
+        
+        .faq-grid {
+            display: grid;
+            gap: 1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .faq-item {
+            background: var(--bg-secondary);
+            border-radius: 0.75rem;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+        
+        .faq-question {
+            padding: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: var(--text-primary);
+            transition: background 0.3s ease;
+        }
+        
+        .faq-question:hover {
+            background: var(--bg-primary);
+        }
+        
+        .faq-answer {
+            padding: 0 1.5rem 1.5rem;
+            color: var(--text-secondary);
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .contact-grid { grid-template-columns: 1fr; gap: 2rem; }
+            .form-row { grid-template-columns: 1fr; }
+            .budget-options { grid-template-columns: 1fr; }
+            .actions-grid { grid-template-columns: 1fr; }
+            .container { padding: 0 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <a href="homepage-complete.html" class="logo">J StaR Films</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="header">
+        <div class="container">
+            <h1 class="header-title">Let's Create Something Amazing</h1>
+            <p style="font-size: 1.25rem; opacity: 0.9;">
+                Ready to bring your vision to life? I'd love to hear about your project and explore how we can work together.
+            </p>
+        </div>
+    </section>
+
+    <section class="contact-section">
+        <div class="container">
+            <div class="contact-grid">
+                <div class="contact-info">
+                    <h2 class="contact-title">Get In Touch</h2>
+                    
+                    <div class="contact-methods">
+                        <div class="contact-method" onclick="window.open('mailto:john@jstarfilms.com')">
+                            <div class="method-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="method-info">
+                                <h3>Email</h3>
+                                <p>john@jstarfilms.com • Best for detailed project discussions</p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-method" onclick="alert('Calendar booking would open here')">
+                            <div class="method-icon">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <div class="method-info">
+                                <h3>Schedule a Call</h3>
+                                <p>15-30 min consultation • Perfect for initial project discussions</p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-method" onclick="alert('WhatsApp would open here')">
+                            <div class="method-icon">
+                                <i class="fab fa-whatsapp"></i>
+                            </div>
+                            <div class="method-info">
+                                <h3>WhatsApp</h3>
+                                <p>+1 (555) 123-4567 • Quick questions and project updates</p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-method" onclick="alert('LinkedIn would open here')">
+                            <div class="method-icon">
+                                <i class="fab fa-linkedin"></i>
+                            </div>
+                            <div class="method-info">
+                                <h3>LinkedIn</h3>
+                                <p>Professional networking and business inquiries</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="availability">
+                        <h3 class="availability-title">Availability & Response Time</h3>
+                        <div class="timezone-info">
+                            <i class="fas fa-clock"></i>
+                            <span>EST Timezone • Monday - Friday, 9 AM - 6 PM</span>
+                        </div>
+                        <div class="response-time">
+                            Usually responds within 2-4 hours
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-form">
+                    <h2 class="form-title">Project Inquiry</h2>
+                    <form>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">First Name *</label>
+                                <input type="text" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Last Name *</label>
+                                <input type="text" class="form-input" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Email *</label>
+                                <input type="email" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Phone</label>
+                                <input type="tel" class="form-input">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Company/Organization</label>
+                            <input type="text" class="form-input">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Service Needed *</label>
+                            <select class="form-select" required>
+                                <option value="">Select a service</option>
+                                <option value="video-production">Video Production</option>
+                                <option value="web-development">Web Development</option>
+                                <option value="ai-consulting">AI Consulting</option>
+                                <option value="live-streaming">Live Streaming</option>
+                                <option value="consulting">General Consulting</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Project Budget</label>
+                            <div class="budget-options">
+                                <div class="budget-option" onclick="selectBudget(this)">Under $5K</div>
+                                <div class="budget-option" onclick="selectBudget(this)">$5K - $15K</div>
+                                <div class="budget-option" onclick="selectBudget(this)">$15K - $30K</div>
+                                <div class="budget-option" onclick="selectBudget(this)">$30K+</div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Project Timeline</label>
+                            <select class="form-select">
+                                <option value="">Select timeline</option>
+                                <option value="asap">ASAP</option>
+                                <option value="1-month">Within 1 month</option>
+                                <option value="3-months">1-3 months</option>
+                                <option value="6-months">3-6 months</option>
+                                <option value="flexible">Flexible</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Project Description *</label>
+                            <textarea class="form-textarea" placeholder="Tell me about your project, goals, and any specific requirements..." required></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-cta">
+                            <i class="fas fa-paper-plane"></i>
+                            Send Message
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="quick-actions">
+        <div class="container">
+            <h2 style="font-size: 2.5rem; font-weight: 700; text-align: center; margin-bottom: 3rem; color: var(--text-primary);">
+                Quick Actions
+            </h2>
+            <div class="actions-grid">
+                <div class="action-card">
+                    <div class="action-icon">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <h3 class="action-title">Download Portfolio</h3>
+                    <p class="action-description">
+                        Get a comprehensive PDF portfolio showcasing my recent work and client testimonials.
+                    </p>
+                    <a href="#" class="btn btn-primary">Download PDF</a>
+                </div>
+                
+                <div class="action-card">
+                    <div class="action-icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <h3 class="action-title">Project Calculator</h3>
+                    <p class="action-description">
+                        Get an instant estimate for your video production or development project.
+                    </p>
+                    <a href="#" class="btn btn-primary">Calculate Cost</a>
+                </div>
+                
+                <div class="action-card">
+                    <div class="action-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3 class="action-title">Chat with JohnGPT</h3>
+                    <p class="action-description">
+                        Get instant answers about my services, process, and availability from my AI assistant.
+                    </p>
+                    <a href="#" class="btn btn-primary" onclick="alert('JohnGPT would launch here')">Start Chat</a>
+                </div>
+                
+                <div class="action-card">
+                    <div class="action-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h3 class="action-title">Client Testimonials</h3>
+                    <p class="action-description">
+                        Read what previous clients have to say about working with J StaR Films.
+                    </p>
+                    <a href="#" class="btn btn-primary">View Reviews</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="faq">
+        <div class="container">
+            <h2 class="faq-title">Frequently Asked Questions</h2>
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>What's your typical project timeline?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Project timelines vary depending on scope, but most video projects take 2-4 weeks from concept to delivery, while web development projects typically take 4-8 weeks. I'll provide a detailed timeline during our initial consultation.
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>Do you work with clients remotely?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Absolutely! I work with clients worldwide. Most of my process is designed for remote collaboration, including virtual meetings, cloud-based project management, and secure file sharing systems.
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>What's included in your video production service?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        My video production services include pre-production planning, filming, post-production editing, color grading, sound design, and final delivery in multiple formats. I also provide revisions and source files upon project completion.
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>Can you integrate AI into existing systems?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Yes! I specialize in integrating AI capabilities into existing workflows and systems. This includes custom AI assistants, automation tools, and enhanced functionality for current applications.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function selectBudget(element) {
+            document.querySelectorAll('.budget-option').forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+        }
+
+        function toggleFAQ(element) {
+            const answer = element.nextElementSibling;
+            const icon = element.querySelector('i');
+            
+            if (answer.style.display === 'block') {
+                answer.style.display = 'none';
+                icon.className = 'fas fa-chevron-down';
+            } else {
+                // Close all other FAQs
+                document.querySelectorAll('.faq-answer').forEach(ans => ans.style.display = 'none');
+                document.querySelectorAll('.faq-question i').forEach(ic => ic.className = 'fas fa-chevron-down');
+                
+                // Open this FAQ
+                answer.style.display = 'block';
+                icon.className = 'fas fa-chevron-up';
+            }
+        }
+
+        // Form submission
+        document.querySelector('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Thank you for your message! I\'ll get back to you within 2-4 hours.');
+        });
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

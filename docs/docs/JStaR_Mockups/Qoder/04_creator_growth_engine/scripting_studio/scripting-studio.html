@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scripting Studio - Creator Growth Engine</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+            --script-emerald: #10B981;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, var(--script-emerald), var(--creative-teal));
+            padding: 2rem;
+            border-radius: 1rem;
+            color: white;
+        }
+        
+        .script-count {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        .count-number {
+            font-size: 3rem;
+            font-weight: 700;
+        }
+        
+        .count-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .studio-layout {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 2rem;
+        }
+        
+        .scripts-sidebar {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            max-height: 800px;
+            overflow-y: auto;
+        }
+        
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .search-box {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            background: var(--bg-secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .script-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .script-item {
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .script-item:hover {
+            background: rgba(16, 185, 129, 0.1);
+            border-left-color: var(--script-emerald);
+        }
+        
+        .script-item.active {
+            background: rgba(16, 185, 129, 0.15);
+            border-left-color: var(--script-emerald);
+        }
+        
+        .script-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            font-size: 0.9rem;
+        }
+        
+        .script-meta {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .main-editor {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .script-type-tabs {
+            display: flex;
+            gap: 0.5rem;
+            background: var(--bg-secondary);
+            padding: 0.25rem;
+            border-radius: 0.5rem;
+        }
+        
+        .type-tab {
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+        }
+        
+        .type-tab.active {
+            background: var(--script-emerald);
+            color: white;
+        }
+        
+        .editor-toolbar {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .toolbar-btn {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+        }
+        
+        .toolbar-btn:hover {
+            background: var(--script-emerald);
+            color: white;
+        }
+        
+        .script-editor {
+            flex: 1;
+            min-height: 400px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            background: var(--bg-secondary);
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            resize: vertical;
+        }
+        
+        .editor-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .templates-bar {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .template-card {
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .template-card:hover {
+            background: rgba(16, 185, 129, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .template-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .ai-assistant {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 300px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+        
+        .assistant-toggle {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            background: var(--script-emerald);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .assistant-toggle:hover {
+            transform: scale(1.1);
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary { background: var(--script-emerald); color: white; }
+        .btn-secondary { background: var(--bg-secondary); border: 1px solid var(--border); }
+        
+        @media (max-width: 1024px) {
+            .studio-layout { grid-template-columns: 1fr; }
+            .scripts-sidebar { max-height: 300px; }
+        }
+        
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .header { flex-direction: column; gap: 1.5rem; text-align: center; }
+            .assistant-toggle { bottom: 1rem; right: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem;">🎬 Scripting Studio</h1>
+                <p style="font-size: 1.2rem; opacity: 0.9;">AI-powered script writing for videos, podcasts, and content</p>
+            </div>
+            <div class="script-count">
+                <div class="count-number">47</div>
+                <div class="count-label">Scripts Created</div>
+            </div>
+        </div>
+
+        <div class="templates-bar">
+            <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem;">
+                <i class="fas fa-magic"></i> Quick Start Templates
+            </h3>
+            
+            <div class="templates-grid">
+                <div class="template-card" onclick="loadTemplate('youtube')">
+                    <div class="template-icon">📺</div>
+                    <div style="font-weight: 600;">YouTube Video</div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary);">Hook + Value + CTA</div>
+                </div>
+                
+                <div class="template-card" onclick="loadTemplate('podcast')">
+                    <div class="template-icon">🎙️</div>
+                    <div style="font-weight: 600;">Podcast Episode</div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary);">Intro + Segments + Outro</div>
+                </div>
+                
+                <div class="template-card" onclick="loadTemplate('sales')">
+                    <div class="template-icon">💼</div>
+                    <div style="font-weight: 600;">Sales Pitch</div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary);">Problem + Solution + Close</div>
+                </div>
+                
+                <div class="template-card" onclick="loadTemplate('webinar')">
+                    <div class="template-icon">🖥️</div>
+                    <div style="font-weight: 600;">Webinar</div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary);">Education + Demo + Offer</div>
+                </div>
+                
+                <div class="template-card" onclick="loadTemplate('social')">
+                    <div class="template-icon">📱</div>
+                    <div style="font-weight: 600;">Social Media</div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary);">Short form content</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="studio-layout">
+            <div class="scripts-sidebar">
+                <div class="sidebar-header">
+                    <h3 style="font-weight: 600;">My Scripts</h3>
+                    <button class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">
+                        <i class="fas fa-plus"></i> New
+                    </button>
+                </div>
+                
+                <input type="text" class="search-box" placeholder="Search scripts...">
+                
+                <div class="script-list">
+                    <div class="script-item active">
+                        <div class="script-title">AI Productivity Tools Review</div>
+                        <div class="script-meta">
+                            <span>YouTube • 8 min</span>
+                            <span>Today</span>
+                        </div>
+                    </div>
+                    
+                    <div class="script-item">
+                        <div class="script-title">Client Onboarding Process</div>
+                        <div class="script-meta">
+                            <span>Webinar • 45 min</span>
+                            <span>2 days ago</span>
+                        </div>
+                    </div>
+                    
+                    <div class="script-item">
+                        <div class="script-title">Morning Routine for Success</div>
+                        <div class="script-meta">
+                            <span>Podcast • 15 min</span>
+                            <span>1 week ago</span>
+                        </div>
+                    </div>
+                    
+                    <div class="script-item">
+                        <div class="script-title">Freelancer Sales Pitch</div>
+                        <div class="script-meta">
+                            <span>Sales • 5 min</span>
+                            <span>2 weeks ago</span>
+                        </div>
+                    </div>
+                    
+                    <div class="script-item">
+                        <div class="script-title">Social Media Strategy</div>
+                        <div class="script-meta">
+                            <span>TikTok • 60 sec</span>
+                            <span>3 weeks ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="main-editor">
+                <div class="editor-header">
+                    <div>
+                        <input type="text" value="AI Productivity Tools Review" style="border: none; background: none; font-size: 1.5rem; font-weight: 600; color: var(--text-primary); width: 100%;">
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <button class="btn btn-secondary">
+                            <i class="fas fa-save"></i> Save
+                        </button>
+                        <button class="btn btn-primary">
+                            <i class="fas fa-share"></i> Export
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="script-type-tabs">
+                    <div class="type-tab active">YouTube Script</div>
+                    <div class="type-tab">Teleprompter</div>
+                    <div class="type-tab">Bullet Points</div>
+                </div>
+                
+                <div class="editor-toolbar">
+                    <div class="toolbar-btn"><i class="fas fa-magic"></i> AI Enhance</div>
+                    <div class="toolbar-btn"><i class="fas fa-clock"></i> Add Timing</div>
+                    <div class="toolbar-btn"><i class="fas fa-comment"></i> Add Notes</div>
+                    <div class="toolbar-btn"><i class="fas fa-microphone"></i> Voice Notes</div>
+                </div>
+                
+                <textarea class="script-editor" placeholder="Start writing your script here...">
+HOOK (0:00-0:10)
+-------------------
+"I tested 47 AI tools this month so you don't have to. Here are the 5 that actually saved me 20+ hours per week."
+
+[PAUSE FOR EFFECT]
+
+INTRODUCTION (0:10-0:30)
+------------------------
+Hey everyone! I'm John, and if you're drowning in repetitive tasks like I was, this video will change your life. 
+
+I spent the last 30 days testing every AI productivity tool I could find. Most were garbage, but these 5 are absolute game-changers.
+
+[SHOW SCREEN RECORDING OF TOOLS]
+
+MAIN CONTENT (0:30-6:00)
+------------------------
+
+#1 - NOTION AI (0:30-1:30)
+This isn't just another note-taking app. Watch this...
+[DEMO: Show AI writing meeting notes]
+- Automatically summarizes 1-hour meetings in 30 seconds
+- Creates project templates from brief descriptions
+- Cost: $10/month per user
+
+#2 - ZAPIER (1:30-2:30)
+This one connects everything. I use it to...
+[DEMO: Show automation workflow]
+- Auto-send client proposals when deals move in CRM
+- Backup all my content across 5 platforms
+- 750+ app integrations
+
+[Continue with tools 3-5...]
+
+CALL TO ACTION (6:00-8:00)
+--------------------------
+If this saved you time, smash that like button. 
+
+Which tool are you most excited to try? Drop a comment below - I read every single one.
+
+And if you want my complete AI workflow guide (it's free), link is in the description.
+
+Subscribe for more productivity hacks, and I'll see you in the next one!
+
+[END SCREEN: Subscribe button + related videos]</textarea>
+                
+                <div class="editor-stats">
+                    <div>
+                        <span>Word Count: <strong>247</strong></span> • 
+                        <span>Est. Time: <strong>8 min 12 sec</strong></span> • 
+                        <span>Reading Level: <strong>Grade 8</strong></span>
+                    </div>
+                    <div>
+                        <span>Last saved: 2 minutes ago</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="assistant-toggle" onclick="toggleAssistant()">
+        <i class="fas fa-robot"></i>
+    </button>
+
+    <div class="ai-assistant" id="aiAssistant">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h4 style="font-weight: 600;">AI Writing Assistant</h4>
+            <button onclick="toggleAssistant()" style="background: none; border: none; cursor: pointer;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; font-size: 0.9rem;">
+            💡 <strong>Suggestion:</strong> Your hook is strong, but consider adding a specific number or benefit to make it more compelling.
+        </div>
+        
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <button class="btn btn-secondary" style="justify-content: center; font-size: 0.85rem;">
+                <i class="fas fa-lightbulb"></i> Improve Hook
+            </button>
+            <button class="btn btn-secondary" style="justify-content: center; font-size: 0.85rem;">
+                <i class="fas fa-clock"></i> Add Timestamps
+            </button>
+            <button class="btn btn-secondary" style="justify-content: center; font-size: 0.85rem;">
+                <i class="fas fa-search"></i> SEO Keywords
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Script item selection
+        document.querySelectorAll('.script-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.script-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                
+                const title = item.querySelector('.script-title').textContent;
+                document.querySelector('input[value*="AI Productivity"]').value = title;
+            });
+        });
+
+        // Type tab switching
+        document.querySelectorAll('.type-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+            });
+        });
+
+        // Template loading
+        function loadTemplate(type) {
+            const templates = {
+                youtube: `HOOK (0:00-0:10)
+-------------------
+"[Compelling opening statement with specific benefit]"
+
+INTRODUCTION (0:10-0:30)
+------------------------
+- Welcome viewers
+- Introduce yourself
+- Preview what they'll learn
+
+MAIN CONTENT (0:30-[X]:00)
+-------------------------
+[Point 1]
+[Point 2]
+[Point 3]
+
+CALL TO ACTION ([X]:00-END)
+---------------------------
+- Ask for likes/comments
+- Subscribe reminder
+- Link to related content`,
+                
+                podcast: `INTRO MUSIC (0:00-0:15)
+-------------------
+[Theme music fades in and out]
+
+WELCOME (0:15-1:00)
+------------------
+- Host introduction
+- Episode topic overview
+- Guest introduction (if applicable)
+
+MAIN SEGMENTS (1:00-[X]:00)
+--------------------------
+Segment 1: [Topic]
+Segment 2: [Topic]
+Segment 3: [Topic]
+
+WRAP-UP ([X]:00-END)
+-------------------
+- Key takeaways
+- Next episode preview
+- Subscribe/review request`
+            };
+            
+            if (templates[type]) {
+                document.querySelector('.script-editor').value = templates[type];
+                alert(`${type.charAt(0).toUpperCase() + type.slice(1)} template loaded!`);
+            }
+        }
+
+        // AI Assistant toggle
+        function toggleAssistant() {
+            const assistant = document.getElementById('aiAssistant');
+            const toggle = document.querySelector('.assistant-toggle');
+            
+            if (assistant.style.display === 'none' || !assistant.style.display) {
+                assistant.style.display = 'block';
+                toggle.style.display = 'none';
+            } else {
+                assistant.style.display = 'none';
+                toggle.style.display = 'block';
+            }
+        }
+
+        // Toolbar functionality
+        document.querySelectorAll('.toolbar-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const action = btn.textContent.trim();
+                alert(`${action} feature would be implemented here!`);
+            });
+        });
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

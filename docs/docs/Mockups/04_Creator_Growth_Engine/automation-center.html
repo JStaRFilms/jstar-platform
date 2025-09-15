@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automation Center | Creator Growth Engine</title>
+    <meta name="description" content="Automate content workflows with AI-powered scheduling, cross-posting, and audience engagement tools">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'obsidian-bg': '#202020',
+                        'obsidian-sidebar': '#161618',
+                        'obsidian-text': '#dcddde',
+                        'obsidian-text-muted': '#888888',
+                        'obsidian-accent': '#7c3aed',
+                        'obsidian-link': '#8b5cf6'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --growth-green: #059669;
+            --obsidian-bg: #202020;
+            --obsidian-sidebar: #161618;
+            --obsidian-text: #dcddde;
+            --obsidian-text-muted: #888888;
+            --obsidian-accent: #7c3aed;
+            --obsidian-link: #8b5cf6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --transition-normal: 300ms;
+        }
+        
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 260px;
+            background: var(--obsidian-sidebar);
+            border-right: 1px solid #333;
+            transition: all var(--transition-normal) ease;
+            flex-shrink: 0;
+        }
+        
+        .main-content {
+            flex: 1;
+            background: var(--obsidian-bg);
+            color: var(--obsidian-text);
+            overflow-y: auto;
+        }
+        
+        .navbar-blur {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .dark .navbar-blur {
+            background: rgba(17, 24, 39, 0.9);
+        }
+        
+        .sidebar-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-radius: 0.5rem;
+            margin-bottom: 0.25rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .sidebar-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .sidebar-item.active {
+            background: rgba(124, 58, 237, 0.2);
+        }
+        
+        .sidebar-item svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-right: 0.75rem;
+        }
+        
+        .tool-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: all 0.2s;
+        }
+        
+        .tool-card:hover {
+            border-color: var(--obsidian-link);
+        }
+        
+        .chart-container {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid #333;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+        }
+        
+        .action-button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+        
+        .action-button:hover {
+            background: rgba(124, 58, 235, 0.2);
+            border-color: var(--obsidian-link);
+        }
+        
+        .primary-button {
+            background: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .primary-button:hover {
+            transform: scale(1.05);
+        }
+        
+        .tier-indicator {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+        }
+        
+        .tier3 { background: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%); }
+        
+        .form-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            color: var(--obsidian-text);
+            width: 100%;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--obsidian-link);
+        }
+        
+        .form-select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            color: var(--obsidian-text);
+            width: 100%;
+        }
+        
+        .form-select:focus {
+            outline: none;
+            border-color: var(--obsidian-link);
+        }
+        
+        .automation-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .automation-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--obsidian-link);
+        }
+        
+        .automation-card.active {
+            border-color: var(--obsidian-link);
+            background: rgba(124, 58, 237, 0.1);
+        }
+        
+        .automation-icon {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+        
+        .automation-title {
+            font-weight: 600;
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .automation-description {
+            color: var(--obsidian-text-muted);
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+        
+        .automation-status {
+            display: flex;
+            align-items: center;
+            font-size: 0.875rem;
+            margin-top: 1rem;
+        }
+        
+        .status-indicator {
+            width: 0.75rem;
+            height: 0.75rem;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+        
+        .status-active {
+            background: var(--growth-green);
+        }
+        
+        .status-inactive {
+            background: #EF4444;
+        }
+        
+        .workflow-step {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .step-number {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            background: rgba(124, 58, 237, 0.2);
+            color: var(--obsidian-link);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+        
+        .step-title {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .step-description {
+            font-size: 0.875rem;
+            color: var(--obsidian-text-muted);
+        }
+        
+        .step-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-right: 0.5rem;
+        }
+        
+        .badge-active {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10B981;
+        }
+        
+        .badge-inactive {
+            background: rgba(239, 68, 68, 0.2);
+            color: #EF4444;
+        }
+        
+        .badge-scheduled {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3B82F6;
+        }
+        
+        .search-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            width: 100%;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: var(--obsidian-link);
+        }
+        
+        .filter-button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .filter-button:hover {
+            background: rgba(124, 58, 235, 0.2);
+            border-color: var(--obsidian-link);
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+        }
+        
+        .schedule-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border-bottom: 1px solid #333;
+        }
+        
+        .schedule-item:last-child {
+            border-bottom: none;
+        }
+        
+        .schedule-content {
+            flex: 1;
+        }
+        
+        .schedule-title {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .schedule-platform {
+            font-size: 0.875rem;
+            color: var(--obsidian-text-muted);
+        }
+        
+        .schedule-time {
+            font-size: 0.875rem;
+            color: var(--obsidian-text-muted);
+            text-align: right;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 navbar-blur border-b border-gray-200 dark:border-gray-700 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/" class="text-2xl font-bold bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">
+                        J StaR Films
+                    </a>
+                    <span class="mx-4 text-gray-300 dark:text-gray-600">/</span>
+                    <span class="text-gray-900 dark:text-white font-medium">Creator Growth Engine</span>
+                    <span class="mx-4 text-gray-300 dark:text-gray-600">/</span>
+                    <span class="text-gray-900 dark:text-white font-medium">Automation Center</span>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="/" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Home</a>
+                    <a href="/about" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">About</a>
+                    <a href="/portfolio" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Portfolio</a>
+                    <a href="/services" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Services</a>
+                    <a href="/blog" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Blog</a>
+                    <a href="/store" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Store</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button onclick="document.documentElement.classList.toggle('dark')" 
+                            class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
+                            aria-label="Toggle theme">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </button>
+                    <div class="relative">
+                        <button class="flex items-center space-x-2">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-r from-jstar-blue to-faith-purple flex items-center justify-center text-white text-sm font-bold">
+                                JO
+                            </div>
+                            <span class="text-gray-900 dark:text-white font-medium">Tier 3</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Container -->
+    <div class="dashboard-container pt-16">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="p-4">
+                <div class="mb-6">
+                    <h2 class="text-lg font-bold mb-4">Creator Growth Engine</h2>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        Virality OS
+                    </div>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        Client Magnet Pro
+                    </div>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                        </svg>
+                        Systems Launcher
+                    </div>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Scripting Studio
+                    </div>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                        Course Builder
+                    </div>
+                    <div class="sidebar-item active">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                        </svg>
+                        Automation Center
+                    </div>
+                </div>
+                
+                <div class="border-t border-gray-700 pt-4">
+                    <div class="text-xs text-gray-500 uppercase tracking-wider mb-2">Quick Actions</div>
+                    <button class="w-full py-2 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold mb-2 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        New Workflow
+                    </button>
+                    <button class="w-full py-2 bg-gray-700 text-white rounded-lg font-semibold flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Export Workflows
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h1 class="text-2xl font-bold mb-2">Automation Center</h1>
+                        <p class="text-gray-400">Automate content workflows with AI-powered scheduling, cross-posting, and audience engagement tools</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <div class="relative">
+                            <input type="text" placeholder="Search workflows..." class="search-box pl-10">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <button class="filter-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                            </svg>
+                            Filter
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Automation Workflows -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="automation-card">
+                        <div class="automation-icon bg-blue-500/20">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div class="automation-title">Content Scheduler</div>
+                        <div class="automation-description">Automatically schedule and publish content across multiple platforms</div>
+                        <div class="automation-status">
+                            <div class="status-indicator status-active"></div>
+                            <span>Active</span>
+                        </div>
+                    </div>
+                    
+                    <div class="automation-card">
+                        <div class="automation-icon bg-purple-500/20">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                            </svg>
+                        </div>
+                        <div class="automation-title">Audience Engagement</div>
+                        <div class="automation-description">Automatically respond to comments and messages with AI assistance</div>
+                        <div class="automation-status">
+                            <div class="status-indicator status-active"></div>
+                            <span>Active</span>
+                        </div>
+                    </div>
+                    
+                    <div class="automation-card">
+                        <div class="automation-icon bg-green-500/20">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                        </div>
+                        <div class="automation-title">Analytics Reporter</div>
+                        <div class="automation-description">Generate weekly performance reports and insights</div>
+                        <div class="automation-status">
+                            <div class="status-indicator status-inactive"></div>
+                            <span>Inactive</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Workflow Builder -->
+                <div class="tool-card mb-6">
+                    <h2 class="text-lg font-bold mb-4">Create New Workflow</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Workflow Name</label>
+                            <input type="text" class="form-input" placeholder="e.g., Weekly Content Pipeline" value="Weekly Content Pipeline">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Trigger</label>
+                            <select class="form-select">
+                                <option>Manual</option>
+                                <option selected>Scheduled</option>
+                                <option>Event-Based</option>
+                                <option>API Call</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Schedule</label>
+                            <select class="form-select">
+                                <option>Daily</option>
+                                <option selected>Weekly</option>
+                                <option>Monthly</option>
+                                <option>Custom</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Platforms</label>
+                            <div class="flex flex-wrap gap-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="rounded bg-gray-700 border-gray-600 text-jstar-blue focus:ring-jstar-blue" checked>
+                                    <span class="ml-2 text-sm">YouTube</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="rounded bg-gray-700 border-gray-600 text-jstar-blue focus:ring-jstar-blue" checked>
+                                    <span class="ml-2 text-sm">Twitter</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="rounded bg-gray-700 border-gray-600 text-jstar-blue focus:ring-jstar-blue">
+                                    <span class="ml-2 text-sm">Instagram</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="rounded bg-gray-700 border-gray-600 text-jstar-blue focus:ring-jstar-blue" checked>
+                                    <span class="ml-2 text-sm">LinkedIn</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Workflow Steps</label>
+                        <div class="border border-gray-700 rounded-lg p-4">
+                            <div class="workflow-step">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <div class="step-title">Generate Content Ideas</div>
+                                    <div class="step-description">Use AI to brainstorm content topics based on trends and audience interests</div>
+                                </div>
+                                <div class="step-actions">
+                                    <button class="text-gray-400 hover:text-white">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="workflow-step">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <div class="step-title">Create Content</div>
+                                    <div class="step-description">Generate scripts, titles, and descriptions using AI tools</div>
+                                </div>
+                                <div class="step-actions">
+                                    <button class="text-gray-400 hover:text-white">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="workflow-step">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <div class="step-title">Schedule Publication</div>
+                                    <div class="step-description">Automatically schedule content for optimal posting times</div>
+                                </div>
+                                <div class="step-actions">
+                                    <button class="text-gray-400 hover:text-white">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="workflow-step">
+                                <div class="step-number">4</div>
+                                <div class="step-content">
+                                    <div class="step-title">Engage with Audience</div>
+                                    <div class="step-description">Monitor comments and respond with AI-generated replies</div>
+                                </div>
+                                <div class="step-actions">
+                                    <button class="text-gray-400 hover:text-white">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <button class="w-full py-2 bg-gray-800 rounded-lg text-sm mt-2 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                </svg>
+                                Add Step
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 flex justify-end">
+                        <button class="primary-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                            </svg>
+                            Activate Workflow
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Upcoming Schedule -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <!-- Content Schedule -->
+                    <div class="chart-container">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-lg font-bold">Upcoming Schedule</h2>
+                            <button class="action-button">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                </svg>
+                                Add Schedule
+                            </button>
+                        </div>
+                        
+                        <div class="max-h-96 overflow-y-auto pr-2">
+                            <div class="schedule-item">
+                                <div class="schedule-content">
+                                    <div class="schedule-title">"The Future of AI in Content Creation"</div>
+                                    <div class="schedule-platform">YouTube • Video</div>
+                                </div>
+                                <div class="schedule-time">
+                                    <div>Tomorrow</div>
+                                    <div class="text-xs">3:00 PM</div>
+                                </div>
+                            </div>
+                            
+                            <div class="schedule-item">
+                                <div class="schedule-content">
+                                    <div class="schedule-title">"5 Tips for Better Video Editing"</div>
+                                    <div class="schedule-platform">Twitter • Thread</div>
+                                </div>
+                                <div class="schedule-time">
+                                    <div>Wed, Sep 4</div>
+                                    <div class="text-xs">10:00 AM</div>
+                                </div>
+                            </div>
+                            
+                            <div class="schedule-item">
+                                <div class="schedule-content">
+                                    <div class="schedule-title">"Behind the Scenes: Our Latest Project"</div>
+                                    <div class="schedule-platform">Instagram • Reel</div>
+                                </div>
+                                <div class="schedule-time">
+                                    <div>Thu, Sep 5</div>
+                                    <div class="text-xs">12:00 PM</div>
+                                </div>
+                            </div>
+                            
+                            <div class="schedule-item">
+                                <div class="schedule-content">
+                                    <div class="schedule-title">"How We Built Our Creative Process"</div>
+                                    <div class="schedule-platform">LinkedIn • Article</div>
+                                </div>
+                                <div class="schedule-time">
+                                    <div>Fri, Sep 6</div>
+                                    <div class="text-xs">9:00 AM</div>
+                                </div>
+                            </div>
+                            
+                            <div class="schedule-item">
+                                <div class="schedule-content">
+                                    <div class="schedule-title">"Tech Review: New Camera Equipment"</div>
+                                    <div class="schedule-platform">YouTube • Short</div>
+                                </div>
+                                <div class="schedule-time">
+                                    <div>Sat, Sep 7</div>
+                                    <div class="text-xs">2:00 PM</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Automation Metrics -->
+                    <div class="chart-container">
+                        <h2 class="text-lg font-bold mb-4">Automation Metrics</h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            <div class="p-4 bg-gray-800 rounded-lg">
+                                <div class="text-2xl font-bold text-jstar-blue mb-1">24</div>
+                                <div class="text-sm text-gray-400">Posts Automated</div>
+                                <div class="text-xs text-growth-green mt-1">↑ 12% from last month</div>
+                            </div>
+                            
+                            <div class="p-4 bg-gray-800 rounded-lg">
+                                <div class="text-2xl font-bold text-faith-purple mb-1">142</div>
+                                <div class="text-sm text-gray-400">Comments Responded</div>
+                                <div class="text-xs text-growth-green mt-1">↑ 8% from last month</div>
+                            </div>
+                            
+                            <div class="p-4 bg-gray-800 rounded-lg">
+                                <div class="text-2xl font-bold text-growth-green mb-1">87%</div>
+                                <div class="text-sm text-gray-400">Schedule Adherence</div>
+                                <div class="text-xs text-growth-green mt-1">↑ 3% from last month</div>
+                            </div>
+                            
+                            <div class="p-4 bg-gray-800 rounded-lg">
+                                <div class="text-2xl font-bold text-yellow-500 mb-1">18h</div>
+                                <div class="text-sm text-gray-400">Time Saved Weekly</div>
+                                <div class="text-xs text-growth-green mt-1">↑ 2h from last month</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <div class="flex justify-between text-sm mb-2">
+                                <span>Workflow Efficiency</span>
+                                <span>87%</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2">
+                                <div class="bg-gradient-to-r from-jstar-blue to-faith-purple h-2 rounded-full" style="width: 87%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <div class="flex justify-between text-sm mb-2">
+                                <span>Engagement Automation</span>
+                                <span>76%</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2">
+                                <div class="bg-gradient-to-r from-growth-green to-jstar-blue h-2 rounded-full" style="width: 76%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Active Workflows -->
+                <div class="chart-container">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-bold">Active Workflows</h2>
+                        <div class="text-sm text-gray-400">3 workflows running</div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b border-gray-700">
+                                    <th class="text-left py-2 px-4 text-gray-400 font-normal text-sm">Workflow</th>
+                                    <th class="text-left py-2 px-4 text-gray-400 font-normal text-sm">Trigger</th>
+                                    <th class="text-left py-2 px-4 text-gray-400 font-normal text-sm">Platforms</th>
+                                    <th class="text-left py-2 px-4 text-gray-400 font-normal text-sm">Status</th>
+                                    <th class="text-left py-2 px-4 text-gray-400 font-normal text-sm">Last Run</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-gray-700 hover:bg-gray-800/50">
+                                    <td class="py-3 px-4">
+                                        <div class="font-medium">Weekly Content Pipeline</div>
+                                        <div class="text-sm text-gray-400">Creates and schedules weekly content</div>
+                                    </td>
+                                    <td class="py-3 px-4">Scheduled (Weekly)</td>
+                                    <td class="py-3 px-4">
+                                        <div class="flex flex-wrap gap-1">
+                                            <span class="badge badge-active">YouTube</span>
+                                            <span class="badge badge-active">Twitter</span>
+                                            <span class="badge badge-inactive">Instagram</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        <span class="badge badge-active">Active</span>
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        <div>2 hours ago</div>
+                                        <div class="text-sm text-gray-400">Next: Mon 9:00 AM</div>
+                                    </td>
+                                </tr>
+                                
+                                <tr class="border-b border-gray-700 hover:bg-gray-800/50">
+                                    <td class="py-3 px-4">
+                                        <div class="font-medium">Audience Engagement</div>
+                                        <div class="text-sm text-gray-400">Automatically responds to comments</div>
+                                    </td>
+                                    <td class="py-3 px-4">Event-Based</td>
+                                    <td class="py-3 px-4">
+                                        <div class="flex flex-wrap gap-1">
+                                            <span class="badge badge-active">All Platforms</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        <span class="badge badge-active">Active</span>
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        <div>15 minutes ago</div>
+                                        <div class="text-sm text-gray-400">Continuous</div>
+                                    </td>
+                                </tr>
+                                
+                                <tr class="hover:bg-gray-800/50">
+                                    <td class="py-3 px-4">
+                                        <div class="font-medium">Monthly Analytics Report</div>
+                                        <div class="text-sm text-gray-400">Generates performance reports</div>
+                                    </td>
+                                    <td class="py-3 px-4">Scheduled (Monthly)</td>
+                                    <td class="py-3 px-4">
+                                        <div class="flex flex-wrap gap-1">
+                                            <span class="badge badge-active">Email</span>
+                                            <span class="badge badge-active">Dashboard</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        <span class="badge badge-scheduled">Scheduled</span>
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        <div>3 days ago</div>
+                                        <div class="text-sm text-gray-400">Next: Sep 15</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme management
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Sidebar item selection
+        document.querySelectorAll('.sidebar-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                
+                // In a real implementation, this would navigate to the selected section
+                const section = this.textContent.trim();
+                console.log('Navigating to:', section);
+            });
+        });
+    </script>
+</body>
+</html>

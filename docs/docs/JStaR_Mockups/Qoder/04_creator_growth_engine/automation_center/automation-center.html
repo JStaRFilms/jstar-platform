@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automation Center - J StaR Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        .workflow-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .workflow-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .workflow-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+        
+        .workflow-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .workflow-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+        }
+        
+        .workflow-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-active { background: rgba(69, 183, 209, 0.2); color: var(--success-green); }
+        .status-inactive { background: rgba(255, 107, 107, 0.2); color: var(--warm-orange); }
+        
+        .workflow-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .workflow-description {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .workflow-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-weight: 600;
+            color: var(--brand-blue);
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+        
+        .workflow-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            cursor: pointer;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        
+        .builder-section {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+        
+        .workflow-builder {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .trigger-panel {
+            flex: 1;
+            background: var(--bg-secondary);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+        }
+        
+        .panel-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .trigger-options {
+            display: grid;
+            gap: 0.75rem;
+        }
+        
+        .trigger-option {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .trigger-option:hover {
+            border-color: var(--brand-blue);
+        }
+        
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .template-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .template-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--brand-blue);
+        }
+        
+        .template-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .template-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .template-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .template-tag {
+            background: rgba(74, 144, 226, 0.1);
+            color: var(--brand-blue);
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="page-title">Automation Center</h1>
+            <button class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                Create Workflow
+            </button>
+        </div>
+        
+        <div class="workflow-grid">
+            <div class="workflow-card">
+                <div class="workflow-header">
+                    <div class="workflow-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <span class="workflow-status status-active">Active</span>
+                </div>
+                <h3 class="workflow-title">Lead Nurture Sequence</h3>
+                <p class="workflow-description">Automatically send personalized emails to new leads based on their interests</p>
+                <div class="workflow-stats">
+                    <div class="stat">
+                        <div class="stat-value">247</div>
+                        <div class="stat-label">Contacts</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">87%</div>
+                        <div class="stat-label">Open Rate</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">23</div>
+                        <div class="stat-label">Conversions</div>
+                    </div>
+                </div>
+                <div class="workflow-actions">
+                    <button class="action-btn">Edit</button>
+                    <button class="action-btn">Analytics</button>
+                    <button class="action-btn">Duplicate</button>
+                </div>
+            </div>
+            
+            <div class="workflow-card">
+                <div class="workflow-header">
+                    <div class="workflow-icon">
+                        <i class="fas fa-share-alt"></i>
+                    </div>
+                    <span class="workflow-status status-active">Active</span>
+                </div>
+                <h3 class="workflow-title">Social Media Scheduler</h3>
+                <p class="workflow-description">Auto-publish content across all social platforms at optimal times</p>
+                <div class="workflow-stats">
+                    <div class="stat">
+                        <div class="stat-value">156</div>
+                        <div class="stat-label">Posts</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">2.4M</div>
+                        <div class="stat-label">Reach</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">12.4%</div>
+                        <div class="stat-label">Engagement</div>
+                    </div>
+                </div>
+                <div class="workflow-actions">
+                    <button class="action-btn">Edit</button>
+                    <button class="action-btn">Analytics</button>
+                    <button class="action-btn">Duplicate</button>
+                </div>
+            </div>
+            
+            <div class="workflow-card">
+                <div class="workflow-header">
+                    <div class="workflow-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <span class="workflow-status status-inactive">Inactive</span>
+                </div>
+                <h3 class="workflow-title">AI Content Generator</h3>
+                <p class="workflow-description">Generate blog posts and social content based on trending topics</p>
+                <div class="workflow-stats">
+                    <div class="stat">
+                        <div class="stat-value">0</div>
+                        <div class="stat-label">Generated</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">--</div>
+                        <div class="stat-label">Quality</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">--</div>
+                        <div class="stat-label">Published</div>
+                    </div>
+                </div>
+                <div class="workflow-actions">
+                    <button class="action-btn">Configure</button>
+                    <button class="action-btn">Test</button>
+                    <button class="action-btn">Activate</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="builder-section">
+            <h2 class="section-title">Quick Workflow Builder</h2>
+            <div class="workflow-builder">
+                <div class="trigger-panel">
+                    <div class="panel-title">
+                        <i class="fas fa-play"></i>
+                        Triggers
+                    </div>
+                    <div class="trigger-options">
+                        <div class="trigger-option">
+                            <strong>New Lead</strong><br>
+                            <small>When someone subscribes to your list</small>
+                        </div>
+                        <div class="trigger-option">
+                            <strong>Form Submission</strong><br>
+                            <small>When a contact form is submitted</small>
+                        </div>
+                        <div class="trigger-option">
+                            <strong>Purchase</strong><br>
+                            <small>When a customer makes a purchase</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="trigger-panel">
+                    <div class="panel-title">
+                        <i class="fas fa-cog"></i>
+                        Actions
+                    </div>
+                    <div class="trigger-options">
+                        <div class="trigger-option">
+                            <strong>Send Email</strong><br>
+                            <small>Send a personalized email</small>
+                        </div>
+                        <div class="trigger-option">
+                            <strong>Add Tag</strong><br>
+                            <small>Tag contacts for segmentation</small>
+                        </div>
+                        <div class="trigger-option">
+                            <strong>Create Task</strong><br>
+                            <small>Generate follow-up tasks</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="builder-section">
+            <h2 class="section-title">Workflow Templates</h2>
+            <div class="templates-grid">
+                <div class="template-card">
+                    <h4 class="template-title">Welcome Series</h4>
+                    <p class="template-description">5-part email sequence to onboard new subscribers</p>
+                    <div class="template-tags">
+                        <span class="template-tag">Email</span>
+                        <span class="template-tag">Onboarding</span>
+                    </div>
+                </div>
+                
+                <div class="template-card">
+                    <h4 class="template-title">Abandoned Cart Recovery</h4>
+                    <p class="template-description">Recover lost sales with automated follow-up sequence</p>
+                    <div class="template-tags">
+                        <span class="template-tag">E-commerce</span>
+                        <span class="template-tag">Sales</span>
+                    </div>
+                </div>
+                
+                <div class="template-card">
+                    <h4 class="template-title">Birthday Campaign</h4>
+                    <p class="template-description">Send special offers on customer birthdays</p>
+                    <div class="template-tags">
+                        <span class="template-tag">Loyalty</span>
+                        <span class="template-tag">Personal</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Template card clicks
+        document.querySelectorAll('.template-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const title = this.querySelector('.template-title').textContent;
+                alert(`Using template: ${title}`);
+            });
+        });
+        
+        // Trigger option clicks
+        document.querySelectorAll('.trigger-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const title = this.querySelector('strong').textContent;
+                alert(`Selected: ${title}`);
+            });
+        });
+        
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

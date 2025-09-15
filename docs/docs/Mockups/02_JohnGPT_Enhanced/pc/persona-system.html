@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Persona System | JohnGPT Creator Assistant</title>
+    <meta name="description" content="Explore and customize JohnGPT's persona system for different creative tasks and workflows.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'obsidian-bg': '#202020',
+                        'obsidian-sidebar': '#161618',
+                        'obsidian-text': '#dcddde',
+                        'obsidian-text-muted': '#888888',
+                        'obsidian-accent': '#7c3aed',
+                        'obsidian-link': '#8b5cf6'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --growth-green: #059669;
+            --obsidian-bg: #202020;
+            --obsidian-sidebar: #161618;
+            --obsidian-text: #dcddde;
+            --obsidian-text-muted: #888888;
+            --obsidian-accent: #7c3aed;
+            --obsidian-link: #8b5cf6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --transition-normal: 300ms;
+        }
+        
+        .persona-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 1rem;
+            transition: all var(--transition-normal) ease;
+            cursor: pointer;
+        }
+        
+        .persona-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--obsidian-link);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .persona-card.active {
+            background: rgba(124, 58, 237, 0.1);
+            border-color: var(--obsidian-link);
+        }
+        
+        .navbar-blur {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .dark .navbar-blur {
+            background: rgba(17, 24, 39, 0.9);
+        }
+        
+        .feature-badge {
+            display: inline-block;
+            background: rgba(124, 58, 237, 0.2);
+            color: #c4b5fd;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tier-restriction {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+        }
+        
+        .tier-1 { background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%); }
+        .tier-2 { background: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%); }
+        .tier-3 { background: linear-gradient(135deg, var(--faith-purple) 0%, var(--growth-green) 100%); }
+        .admin { background: linear-gradient(135deg, #EF4444 0%, #F87171 100%); }
+        
+        .capability-item {
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            background: rgba(0, 0, 0, 0.2);
+            margin-bottom: 0.5rem;
+        }
+        
+        .capability-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .custom-persona-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px dashed #4B5563;
+            border-radius: 1rem;
+            transition: all var(--transition-normal) ease;
+        }
+        
+        .custom-persona-card:hover {
+            background: rgba(124, 58, 237, 0.05);
+            border-style: solid;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 navbar-blur border-b border-gray-200 dark:border-gray-700 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/" class="text-2xl font-bold bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">
+                        J StaR Films
+                    </a>
+                    <span class="mx-4 text-gray-300 dark:text-gray-600">/</span>
+                    <span class="text-gray-900 dark:text-white font-medium">JohnGPT</span>
+                    <span class="mx-4 text-gray-300 dark:text-gray-600">/</span>
+                    <span class="text-gray-900 dark:text-white font-medium">Personas</span>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="/" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Home</a>
+                    <a href="/about" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">About</a>
+                    <a href="/portfolio" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Portfolio</a>
+                    <a href="/services" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Services</a>
+                    <a href="/blog" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Blog</a>
+                    <a href="/store" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Store</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button onclick="document.documentElement.classList.toggle('dark')" 
+                            class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
+                            aria-label="Toggle theme">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </button>
+                    <button class="px-4 py-2 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold text-sm">
+                        Sign In
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Persona System Content -->
+    <div class="pt-16 min-h-screen">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <!-- Header -->
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                    JohnGPT <span class="bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">Persona System</span>
+                </h1>
+                <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                    Switch between specialized AI personas to get the most relevant assistance for your creative tasks. 
+                    Each persona is optimized for specific domains and workflows.
+                </p>
+            </div>
+            
+            <!-- Current Persona Indicator -->
+            <div class="bg-gradient-to-r from-jstar-blue to-faith-purple rounded-2xl p-6 mb-12 text-white">
+                <div class="flex flex-col md:flex-row items-center justify-between">
+                    <div class="flex items-center mb-4 md:mb-0">
+                        <div class="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center mr-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold">Current Persona: Creative Director</h2>
+                            <p>Specialized in content strategy, storytelling, and brand development</p>
+                        </div>
+                    </div>
+                    <button class="px-6 py-3 bg-white text-jstar-blue font-bold rounded-xl hover:bg-gray-100 transition-colors">
+                        Switch Persona
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Persona Grid -->
+            <div class="mb-16">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Available Personas</h2>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                        Tier 3 Access • 4 Personas Available
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Creative Director -->
+                    <div class="persona-card active relative">
+                        <div class="tier-restriction tier-1 text-white">TIER 1+</div>
+                        <div class="p-6">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-r from-jstar-blue to-faith-purple flex items-center justify-center text-white mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Creative Director</h3>
+                            <p class="text-gray-600 dark:text-gray-400 mb-4">
+                                Expert in content strategy, storytelling, and brand development for creators.
+                            </p>
+                            <div class="flex flex-wrap">
+                                <span class="feature-badge">Content Strategy</span>
+                                <span class="feature-badge">Storytelling</span>
+                                <span class="feature-badge">Brand Voice</span>
+                                <span class="feature-badge">Scriptwriting</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Systems Mentor -->
+                    <div class="persona-card relative">
+                        <div class="tier-restriction tier-1 text-white">TIER 1+</div>
+                        <div class="p-6">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-r from-faith-purple to-growth-green flex items-center justify-center text-white mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Systems Mentor</h3>
+                            <p class="text-gray-600 dark:text-gray-400 mb-4">
+                                Workflow optimization expert for creative businesses and productivity systems.
+                            </p>
+                            <div class="flex flex-wrap">
+                                <span class="feature-badge">Workflow Design</span>
+                                <span class="feature-badge">Automation</span>
+                                <span class="feature-badge">Productivity</span>
+                                <span class="feature-badge">Business Systems</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Faith Guide -->
+                    <div class="persona-card relative">
+                        <div class="tier-restriction tier-1 text-white">TIER 1+</div>
+                        <div class="p-6">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-r from-growth-green to-jstar-blue flex items-center justify-center text-white mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Faith Guide</h3>
+                            <p class="text-gray-600 dark:text-gray-400 mb-4">
+                                Integrates faith principles with creative work and business decisions.
+                            </p>
+                            <div class="flex flex-wrap">
+                                <span class="feature-badge">Spiritual Integration</span>
+                                <span class="feature-badge">Values Alignment</span>
+                                <span class="feature-badge">Ethical Business</span>
+                                <span class="feature-badge">Purpose-Driven</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Technical Specialist -->
+                    <div class="persona-card relative">
+                        <div class="tier-restriction tier-2 text-white">TIER 2+</div>
+                        <div class="p-6">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-r from-gray-600 to-gray-800 flex items-center justify-center text-white mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Technical Specialist</h3>
+                            <p class="text-gray-600 dark:text-gray-400 mb-4">
+                                Expert in app development, AI integration, and technical implementation.
+                            </p>
+                            <div class="flex flex-wrap">
+                                <span class="feature-badge">App Development</span>
+                                <span class="feature-badge">AI Integration</span>
+                                <span class="feature-badge">Code Assistance</span>
+                                <span class="feature-badge">Tech Troubleshooting</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Persona Details -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg mb-12">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2">
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Creative Director Persona</h2>
+                        
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Core Capabilities</h3>
+                            <div class="space-y-3">
+                                <div class="capability-item">
+                                    <h4 class="font-medium text-gray-900 dark:text-white">Content Strategy Development</h4>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm mt-1">
+                                        Create comprehensive content strategies aligned with your brand voice and audience needs.
+                                    </p>
+                                </div>
+                                <div class="capability-item">
+                                    <h4 class="font-medium text-gray-900 dark:text-white">Storytelling & Scriptwriting</h4>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm mt-1">
+                                        Craft compelling narratives and detailed scripts for videos, podcasts, and written content.
+                                    </p>
+                                </div>
+                                <div class="capability-item">
+                                    <h4 class="font-medium text-gray-900 dark:text-white">Brand Voice & Messaging</h4>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm mt-1">
+                                        Develop consistent brand messaging that resonates with your target audience.
+                                    </p>
+                                </div>
+                                <div class="capability-item">
+                                    <h4 class="font-medium text-gray-900 dark:text-white">Creative Project Management</h4>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm mt-1">
+                                        Plan and execute creative projects with detailed timelines and resource allocation.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Sample Use Cases</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                                    <h4 class="font-medium text-gray-900 dark:text-white mb-2">YouTube Series Planning</h4>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                                        "Help me plan a 10-part YouTube series on faith-based content creation."
+                                    </p>
+                                </div>
+                                <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                                    <h4 class="font-medium text-gray-900 dark:text-white mb-2">Brand Messaging Audit</h4>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                                        "Review my website copy and suggest improvements to align with my brand voice."
+                                    </p>
+                                </div>
+                                <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                                    <h4 class="font-medium text-gray-900 dark:text-white mb-2">Wedding Film Storytelling</h4>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                                        "Create a narrative arc for a wedding film that tells the couple's unique love story."
+                                    </p>
+                                </div>
+                                <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                                    <h4 class="font-medium text-gray-900 dark:text-white mb-2">Content Calendar Creation</h4>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                                        "Build a monthly content calendar for my Instagram account with theme days."
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Persona Settings</h3>
+                        <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 mb-6">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-gray-900 dark:text-white">Active</span>
+                                <div class="relative inline-block w-10 mr-2 align-middle select-none">
+                                    <input type="checkbox" name="toggle" id="toggle" class="checked:bg-jstar-blue outline-none focus:outline-none right-4 checked:right-0 duration-200 ease-in absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+                                    <label for="toggle" class="block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                                </div>
+                            </div>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm">
+                                When active, this persona will be used for all new conversations.
+                            </p>
+                        </div>
+                        
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Customization</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Persona Name
+                                </label>
+                                <input type="text" value="Creative Director" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Description
+                                </label>
+                                <textarea class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" rows="3">Expert in content strategy, storytelling, and brand development for creators.</textarea>
+                            </div>
+                            <button class="w-full px-4 py-2 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold">
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Custom Persona Section -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Create Custom Persona</h2>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                        Admin Feature
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2">
+                        <p class="text-gray-600 dark:text-gray-400 mb-6">
+                            As an admin, you can create custom personas tailored to your specific needs or client requirements. 
+                            Define unique capabilities, knowledge bases, and interaction styles.
+                        </p>
+                        
+                        <div class="custom-persona-card p-6">
+                            <div class="text-center py-8">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                </svg>
+                                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Create New Persona</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-4">
+                                    Build a custom AI persona with specialized knowledge and capabilities.
+                                </p>
+                                <button class="px-6 py-3 bg-gradient-to-r from-jstar-blue to-faith-purple text-white font-bold rounded-xl hover:opacity-90 transition-opacity">
+                                    Create Persona
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Admin Controls</h3>
+                        <div class="space-y-4">
+                            <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                                <h4 class="font-medium text-gray-900 dark:text-white mb-2">Knowledge Base</h4>
+                                <p class="text-gray-600 dark:text-gray-400 text-sm mb-3">
+                                    Upload documents and resources to train your custom persona.
+                                </p>
+                                <button class="text-sm text-jstar-blue hover:text-faith-purple">
+                                    Manage Knowledge Base
+                                </button>
+                            </div>
+                            <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                                <h4 class="font-medium text-gray-900 dark:text-white mb-2">Persona Management</h4>
+                                <p class="text-gray-600 dark:text-gray-400 text-sm mb-3">
+                                    View, edit, and delete custom personas.
+                                </p>
+                                <button class="text-sm text-jstar-blue hover:text-faith-purple">
+                                    Manage Personas
+                                </button>
+                            </div>
+                            <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                                <h4 class="font-medium text-gray-900 dark:text-white mb-2">Access Control</h4>
+                                <p class="text-gray-600 dark:text-gray-400 text-sm mb-3">
+                                    Set permissions for which users can access custom personas.
+                                </p>
+                                <button class="text-sm text-jstar-blue hover:text-faith-purple">
+                                    Configure Access
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme management
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Persona card selection
+        document.querySelectorAll('.persona-card').forEach(card => {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.persona-card').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                
+                // In a real implementation, this would switch the active persona
+                const personaName = this.querySelector('h3').textContent;
+                console.log('Switched to persona:', personaName);
+            });
+        });
+    </script>
+</body>
+</html>

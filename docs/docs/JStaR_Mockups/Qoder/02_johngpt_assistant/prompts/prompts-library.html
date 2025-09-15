@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompts Library - JohnGPT Assistant</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #3A7BC8;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+            padding: 0.75rem;
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            background: var(--bg-secondary);
+        }
+        
+        .category-filter {
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            border-radius: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .category-filter.active {
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        .prompts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .prompt-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .prompt-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .prompt-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .prompt-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .prompt-category {
+            background: var(--warm-orange);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .prompt-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .prompt-preview {
+            background: var(--bg-primary);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border-left: 3px solid var(--brand-blue);
+            font-family: monospace;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+        
+        .prompt-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .action-btn {
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            background: var(--bg-primary);
+            border-radius: 0.25rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+        
+        .action-btn:hover {
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .prompts-grid { grid-template-columns: 1fr; }
+            .filters { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">JohnGPT Prompts Library</div>
+            <div class="header-actions">
+                <button class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Prompt
+                </button>
+                <button class="btn" style="background: var(--bg-secondary);">
+                    <i class="fas fa-arrow-left"></i> Back to Chat
+                </button>
+            </div>
+        </div>
+
+        <div class="filters">
+            <input type="text" class="search-box" placeholder="Search prompts...">
+            <button class="category-filter active">All</button>
+            <button class="category-filter">Creative</button>
+            <button class="category-filter">Business</button>
+            <button class="category-filter">Technical</button>
+            <button class="category-filter">Faith & Purpose</button>
+        </div>
+
+        <div class="prompts-grid">
+            <div class="prompt-card">
+                <div class="prompt-header">
+                    <div>
+                        <div class="prompt-title">Video Script Generator</div>
+                        <div class="prompt-category">Creative</div>
+                    </div>
+                </div>
+                <div class="prompt-description">
+                    Creates engaging video scripts with clear structure and compelling hooks
+                </div>
+                <div class="prompt-preview">
+                    Create a video script for [TOPIC] that includes: hook, problem, solution, call-to-action. Target audience: [AUDIENCE]. Duration: [TIME].
+                </div>
+                <div class="prompt-actions">
+                    <button class="action-btn" title="Use Prompt"><i class="fas fa-play"></i></button>
+                    <button class="action-btn" title="Copy"><i class="fas fa-copy"></i></button>
+                    <button class="action-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn" title="Favorite"><i class="fas fa-heart"></i></button>
+                </div>
+            </div>
+
+            <div class="prompt-card">
+                <div class="prompt-header">
+                    <div>
+                        <div class="prompt-title">Business Strategy Advisor</div>
+                        <div class="prompt-category">Business</div>
+                    </div>
+                </div>
+                <div class="prompt-description">
+                    Provides strategic business insights with action steps
+                </div>
+                <div class="prompt-preview">
+                    Act as a strategic business advisor. Analyze [SITUATION] and provide actionable recommendations considering market trends and resources.
+                </div>
+                <div class="prompt-actions">
+                    <button class="action-btn" title="Use Prompt"><i class="fas fa-play"></i></button>
+                    <button class="action-btn" title="Copy"><i class="fas fa-copy"></i></button>
+                    <button class="action-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn" title="Favorite"><i class="fas fa-heart"></i></button>
+                </div>
+            </div>
+
+            <div class="prompt-card">
+                <div class="prompt-header">
+                    <div>
+                        <div class="prompt-title">Code Review Assistant</div>
+                        <div class="prompt-category">Technical</div>
+                    </div>
+                </div>
+                <div class="prompt-description">
+                    Reviews code for best practices and optimization opportunities
+                </div>
+                <div class="prompt-preview">
+                    Review this code for: performance, security, readability, and best practices. Suggest improvements: [CODE]
+                </div>
+                <div class="prompt-actions">
+                    <button class="action-btn" title="Use Prompt"><i class="fas fa-play"></i></button>
+                    <button class="action-btn" title="Copy"><i class="fas fa-copy"></i></button>
+                    <button class="action-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn" title="Favorite"><i class="fas fa-heart"></i></button>
+                </div>
+            </div>
+
+            <div class="prompt-card">
+                <div class="prompt-header">
+                    <div>
+                        <div class="prompt-title">Purpose-Driven Planning</div>
+                        <div class="prompt-category">Faith & Purpose</div>
+                    </div>
+                </div>
+                <div class="prompt-description">
+                    Helps align projects with deeper purpose and values
+                </div>
+                <div class="prompt-preview">
+                    Help me align [PROJECT] with my core values and purpose. Consider impact, ethics, and meaningful outcomes.
+                </div>
+                <div class="prompt-actions">
+                    <button class="action-btn" title="Use Prompt"><i class="fas fa-play"></i></button>
+                    <button class="action-btn" title="Copy"><i class="fas fa-copy"></i></button>
+                    <button class="action-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn" title="Favorite"><i class="fas fa-heart"></i></button>
+                </div>
+            </div>
+
+            <div class="prompt-card">
+                <div class="prompt-header">
+                    <div>
+                        <div class="prompt-title">Social Media Content Creator</div>
+                        <div class="prompt-category">Creative</div>
+                    </div>
+                </div>
+                <div class="prompt-description">
+                    Generates platform-specific social media content with optimal engagement
+                </div>
+                <div class="prompt-preview">
+                    Create [PLATFORM] content about [TOPIC]. Include: engaging hook, valuable insight, clear CTA. Tone: [BRAND_VOICE].
+                </div>
+                <div class="prompt-actions">
+                    <button class="action-btn" title="Use Prompt"><i class="fas fa-play"></i></button>
+                    <button class="action-btn" title="Copy"><i class="fas fa-copy"></i></button>
+                    <button class="action-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn" title="Favorite"><i class="fas fa-heart"></i></button>
+                </div>
+            </div>
+
+            <div class="prompt-card">
+                <div class="prompt-header">
+                    <div>
+                        <div class="prompt-title">Process Optimizer</div>
+                        <div class="prompt-category">Business</div>
+                    </div>
+                </div>
+                <div class="prompt-description">
+                    Analyzes workflows and suggests efficiency improvements
+                </div>
+                <div class="prompt-preview">
+                    Analyze this workflow: [PROCESS]. Identify bottlenecks, suggest optimizations, and recommend automation opportunities.
+                </div>
+                <div class="prompt-actions">
+                    <button class="action-btn" title="Use Prompt"><i class="fas fa-play"></i></button>
+                    <button class="action-btn" title="Copy"><i class="fas fa-copy"></i></button>
+                    <button class="action-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn" title="Favorite"><i class="fas fa-heart"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Category filtering
+        const categoryBtns = document.querySelectorAll('.category-filter');
+        categoryBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                categoryBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        // Prompt actions
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.action-btn')) {
+                const title = e.target.closest('.action-btn').title;
+                alert(`${title} action triggered!`);
+            }
+        });
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

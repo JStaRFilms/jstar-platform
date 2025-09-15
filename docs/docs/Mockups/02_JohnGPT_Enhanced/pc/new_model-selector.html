@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JOHNGPT | Model Selection</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #171717;
+            --bg-secondary: #000000;
+            --bg-tertiary: #262626;
+            --text-primary: #f5f5f5;
+            --text-secondary: #a3a3a3;
+            --accent-purple: #8B5CF6;
+            --accent-blue: #3B82F6;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            /* This is just for the demo to center the modal */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        
+        .model-card.selected {
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 0 2px var(--accent-purple);
+        }
+        .model-card.selected .selected-check {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-neutral-900">
+
+    <!-- AI Model Selection Modal -->
+    <div id="model-selector-modal" class="w-full max-w-4xl bg-neutral-900/80 backdrop-blur-xl border border-neutral-700 rounded-2xl shadow-2xl">
+        <div class="p-6">
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 class="text-xl font-bold text-white">Switch Model</h2>
+                    <p class="text-neutral-400">Select the AI brain for your conversation.</p>
+                </div>
+                <div class="relative w-full max-w-xs">
+                    <input type="text" placeholder="Search models..." class="w-full bg-neutral-800 border border-neutral-700 rounded-lg p-2.5 pl-9 text-white focus:ring-2 focus:ring-accent-purple focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                </div>
+            </div>
+
+            <!-- Model Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+                <!-- Card: GPT-4o (Selected) -->
+                <div class="model-card selected relative bg-neutral-800/60 p-5 rounded-xl border-2 border-neutral-800 hover:border-accent-purple/50 transition-colors cursor-pointer group">
+                    <div class="absolute top-4 right-4 text-green-400 selected-check opacity-0 transition-opacity">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
+                    </div>
+                    <div class="flex items-center gap-4 mb-3">
+                        <img src="https://openai.com/favicon.ico" class="w-9 h-9 p-1.5 bg-black rounded-lg" alt="OpenAI Logo">
+                        <div>
+                            <h3 class="font-semibold text-white">GPT-4o</h3>
+                            <div class="text-xs text-green-400 font-medium">INCLUDED IN YOUR PLAN</div>
+                        </div>
+                    </div>
+                    <p class="text-sm text-neutral-400 mb-4 h-10">OpenAI's fastest and most capable model, optimized for reasoning and natural interaction.</p>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <span class="text-xs bg-sky-900/80 text-sky-300 px-2 py-1 rounded-full">Creativity</span>
+                        <span class="text-xs bg-purple-900/80 text-purple-300 px-2 py-1 rounded-full">Reasoning</span>
+                        <span class="text-xs bg-green-900/80 text-green-300 px-2 py-1 rounded-full">Coding</span>
+                    </div>
+                    <div class="flex items-center gap-4 text-xs text-neutral-400 pt-3 border-t border-neutral-800">
+                        <span class="flex items-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg> 128K Context</span>
+                        <span class="flex items-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg> Vision</span>
+                        <span class="flex items-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg> Image Gen</span>
+                    </div>
+                </div>
+                
+                <!-- Card: Gemini 1.5 Pro -->
+                <div class="model-card relative bg-neutral-800/60 p-5 rounded-xl border-2 border-neutral-800 hover:border-accent-purple/50 transition-colors cursor-pointer group">
+                     <div class="absolute top-4 right-4 text-green-400 selected-check opacity-0 transition-opacity">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
+                    </div>
+                    <div class="flex items-center gap-4 mb-3">
+                        <div class="w-9 h-9 p-1.5 bg-neutral-900 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><path d="M128 26.31a102.34 102.34 0 0 0-72.18 29.87L0 128l55.82 71.82a102.34 102.34 0 0 0 72.18 29.87c56.49 0 102.36-45.87 102.36-102.36S184.49 26.31 128 26.31Zm0 185.3A83 83 0 0 1 69.44 69.44a83 83 0 0 1 117.12 117.12A82.47 82.47 0 0 1 128 211.61Z" fill="#4285F4"/><path d="m119.53 119.53-53.11 53.11A82.41 82.41 0 0 0 128 211.61a83 83 0 0 0 58.56-141.17L128 128Z" fill="#34A853"/><path d="M211.61 128a82.47 82.47 0 0 1-22.95 58.56l-53.11-53.11 53.11-53.11A82.47 82.47 0 0 1 211.61 128Z" fill="#EA4335"/><path d="M69.44 69.44 128 128l-14.14-14.14-53.11-53.11A83 83 0 0 1 69.44 69.44Z" fill="#FBBC04"/></svg>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white">Gemini 1.5 Pro</h3>
+                            <div class="text-xs text-green-400 font-medium">INCLUDED IN YOUR PLAN</div>
+                        </div>
+                    </div>
+                    <p class="text-sm text-neutral-400 mb-4 h-10">Google's powerhouse with a massive context window for complex document analysis.</p>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <span class="text-xs bg-yellow-900/80 text-yellow-300 px-2 py-1 rounded-full">Analysis</span>
+                        <span class="text-xs bg-sky-900/80 text-sky-300 px-2 py-1 rounded-full">Multimodal</span>
+                    </div>
+                    <div class="flex items-center gap-4 text-xs text-neutral-400 pt-3 border-t border-neutral-800">
+                        <span class="flex items-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg> 1M Context</span>
+                        <span class="flex items-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg> Vision</span>
+                    </div>
+                </div>
+
+                <!-- Card: Claude 3 Opus -->
+                 <div class="model-card relative bg-neutral-800/60 p-5 rounded-xl border-2 border-neutral-800 hover:border-accent-purple/50 transition-colors cursor-pointer group">
+                     <div class="absolute top-4 right-4 text-green-400 selected-check opacity-0 transition-opacity">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
+                    </div>
+                    <div class="flex items-center gap-4 mb-3">
+                        <div class="w-9 h-9 p-1.5 bg-orange-900/40 rounded-lg flex items-center justify-center text-2xl font-bold text-orange-300">A</div>
+                        <div>
+                            <h3 class="font-semibold text-white">Claude 3 Opus</h3>
+                            <div class="text-xs text-yellow-400 font-medium">ADD-ON</div>
+                        </div>
+                    </div>
+                    <p class="text-sm text-neutral-400 mb-4 h-10">Anthropic's top-tier model, renowned for its deep reasoning and analytical capabilities.</p>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <span class="text-xs bg-purple-900/80 text-purple-300 px-2 py-1 rounded-full">Reasoning</span>
+                        <span class="text-xs bg-yellow-900/80 text-yellow-300 px-2 py-1 rounded-full">Analysis</span>
+                    </div>
+                    <div class="flex items-center gap-4 text-xs text-neutral-400 pt-3 border-t border-neutral-800">
+                        <span class="flex items-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg> 200K Context</span>
+                        <span class="flex items-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg> Vision</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const modelCards = document.querySelectorAll('.model-card');
+        
+        modelCards.forEach(card => {
+            card.addEventListener('click', () => {
+                // Remove 'selected' from all cards
+                modelCards.forEach(c => c.classList.remove('selected'));
+                // Add 'selected' to the clicked card
+                card.classList.add('selected');
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JohnGPT - Conversation History</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .title {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .search-filter {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        
+        .filter-dropdown {
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+        
+        .conversations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .conversation-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .conversation-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+        
+        .conversation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .persona-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .persona-creative { background: var(--warm-orange); color: white; }
+        .persona-systems { background: var(--brand-blue); color: white; }
+        .persona-faith { background: var(--success-green); color: white; }
+        
+        .conversation-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        
+        .conversation-preview {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .conversation-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .conversation-stats {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .conversation-actions {
+            display: flex;
+            gap: 0.5rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .conversation-card:hover .conversation-actions {
+            opacity: 1;
+        }
+        
+        .action-btn {
+            padding: 0.25rem 0.5rem;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn:hover {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 3rem;
+        }
+        
+        .pagination-btn {
+            padding: 0.5rem 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .pagination-btn:hover,
+        .pagination-btn.active {
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .conversations-grid { grid-template-columns: 1fr; }
+            .search-filter { flex-direction: column; }
+            .container { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">Conversation History</h1>
+            <a href="chat-main.html" style="text-decoration: none;">
+                <button style="padding: 0.75rem 1.5rem; background: var(--brand-blue); color: white; border: none; border-radius: 0.5rem; cursor: pointer;">
+                    <i class="fas fa-arrow-left"></i> Back to Chat
+                </button>
+            </a>
+        </div>
+        
+        <div class="search-filter">
+            <input type="text" class="search-box" placeholder="Search conversations...">
+            <select class="filter-dropdown">
+                <option value="">All Personas</option>
+                <option value="creative">Creative Director</option>
+                <option value="systems">Systems Mentor</option>
+                <option value="faith">Faith Guide</option>
+            </select>
+            <select class="filter-dropdown">
+                <option value="">All Time</option>
+                <option value="today">Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+            </select>
+        </div>
+        
+        <div class="conversations-grid">
+            <div class="conversation-card" data-persona="creative">
+                <div class="conversation-header">
+                    <div class="persona-badge persona-creative">
+                        🎬 Creative Director
+                    </div>
+                    <div class="conversation-actions">
+                        <button class="action-btn" title="Export"><i class="fas fa-download"></i></button>
+                        <button class="action-btn" title="Share"><i class="fas fa-share"></i></button>
+                        <button class="action-btn" title="Delete"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+                <h3 class="conversation-title">Video Marketing Strategy for Tech Startup</h3>
+                <p class="conversation-preview">
+                    Discussing how to create compelling video content that explains complex software features in an engaging way. We covered storytelling frameworks, visual metaphors, and audience retention strategies...
+                </p>
+                <div class="conversation-meta">
+                    <div class="conversation-stats">
+                        <div class="stat">
+                            <i class="fas fa-comments"></i>
+                            <span>24 messages</span>
+                        </div>
+                        <div class="stat">
+                            <i class="fas fa-clock"></i>
+                            <span>45 min</span>
+                        </div>
+                    </div>
+                    <span>2 hours ago</span>
+                </div>
+            </div>
+            
+            <div class="conversation-card" data-persona="systems">
+                <div class="conversation-header">
+                    <div class="persona-badge persona-systems">
+                        ⚙️ Systems Mentor
+                    </div>
+                    <div class="conversation-actions">
+                        <button class="action-btn" title="Export"><i class="fas fa-download"></i></button>
+                        <button class="action-btn" title="Share"><i class="fas fa-share"></i></button>
+                        <button class="action-btn" title="Delete"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+                <h3 class="conversation-title">Client Onboarding Automation System</h3>
+                <p class="conversation-preview">
+                    Building a comprehensive client onboarding system using Notion and automated email sequences. We designed workflows for project kickoffs, contract management, and milestone tracking...
+                </p>
+                <div class="conversation-meta">
+                    <div class="conversation-stats">
+                        <div class="stat">
+                            <i class="fas fa-comments"></i>
+                            <span>18 messages</span>
+                        </div>
+                        <div class="stat">
+                            <i class="fas fa-clock"></i>
+                            <span>32 min</span>
+                        </div>
+                    </div>
+                    <span>Yesterday</span>
+                </div>
+            </div>
+            
+            <div class="conversation-card" data-persona="faith">
+                <div class="conversation-header">
+                    <div class="persona-badge persona-faith">
+                        ✝️ Faith Guide
+                    </div>
+                    <div class="conversation-actions">
+                        <button class="action-btn" title="Export"><i class="fas fa-download"></i></button>
+                        <button class="action-btn" title="Share"><i class="fas fa-share"></i></button>
+                        <button class="action-btn" title="Delete"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+                <h3 class="conversation-title">Balancing Profit and Purpose in Creative Work</h3>
+                <p class="conversation-preview">
+                    Exploring how to maintain authentic Christian values while running a successful creative business. We discussed ethical pricing, serving clients with excellence, and using creativity for Kingdom impact...
+                </p>
+                <div class="conversation-meta">
+                    <div class="conversation-stats">
+                        <div class="stat">
+                            <i class="fas fa-comments"></i>
+                            <span>31 messages</span>
+                        </div>
+                        <div class="stat">
+                            <i class="fas fa-clock"></i>
+                            <span>52 min</span>
+                        </div>
+                    </div>
+                    <span>2 days ago</span>
+                </div>
+            </div>
+            
+            <div class="conversation-card" data-persona="creative">
+                <div class="conversation-header">
+                    <div class="persona-badge persona-creative">
+                        🎬 Creative Director
+                    </div>
+                    <div class="conversation-actions">
+                        <button class="action-btn" title="Export"><i class="fas fa-download"></i></button>
+                        <button class="action-btn" title="Share"><i class="fas fa-share"></i></button>
+                        <button class="action-btn" title="Delete"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+                <h3 class="conversation-title">AI-Enhanced Video Editing Workflow</h3>
+                <p class="conversation-preview">
+                    Designing a hybrid workflow that combines AI tools with human creativity for faster video production. We mapped out automated rough cuts, AI-generated B-roll suggestions, and quality control processes...
+                </p>
+                <div class="conversation-meta">
+                    <div class="conversation-stats">
+                        <div class="stat">
+                            <i class="fas fa-comments"></i>
+                            <span>15 messages</span>
+                        </div>
+                        <div class="stat">
+                            <i class="fas fa-clock"></i>
+                            <span>28 min</span>
+                        </div>
+                    </div>
+                    <span>3 days ago</span>
+                </div>
+            </div>
+            
+            <div class="conversation-card" data-persona="systems">
+                <div class="conversation-header">
+                    <div class="persona-badge persona-systems">
+                        ⚙️ Systems Mentor
+                    </div>
+                    <div class="conversation-actions">
+                        <button class="action-btn" title="Export"><i class="fas fa-download"></i></button>
+                        <button class="action-btn" title="Share"><i class="fas fa-share"></i></button>
+                        <button class="action-btn" title="Delete"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+                <h3 class="conversation-title">Revenue Diversification Strategy</h3>
+                <p class="conversation-preview">
+                    Planning multiple income streams for creative business stability. We analyzed service offerings, digital products, subscription models, and passive income opportunities...
+                </p>
+                <div class="conversation-meta">
+                    <div class="conversation-stats">
+                        <div class="stat">
+                            <i class="fas fa-comments"></i>
+                            <span>22 messages</span>
+                        </div>
+                        <div class="stat">
+                            <i class="fas fa-clock"></i>
+                            <span>41 min</span>
+                        </div>
+                    </div>
+                    <span>1 week ago</span>
+                </div>
+            </div>
+            
+            <div class="conversation-card" data-persona="faith">
+                <div class="conversation-header">
+                    <div class="persona-badge persona-faith">
+                        ✝️ Faith Guide
+                    </div>
+                    <div class="conversation-actions">
+                        <button class="action-btn" title="Export"><i class="fas fa-download"></i></button>
+                        <button class="action-btn" title="Share"><i class="fas fa-share"></i></button>
+                        <button class="action-btn" title="Delete"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+                <h3 class="conversation-title">Prayer and Planning: Seeking Guidance in Business Decisions</h3>
+                <p class="conversation-preview">
+                    Discussing how to integrate prayer and spiritual discernment into strategic business decisions. We explored frameworks for seeking God's direction while taking practical action...
+                </p>
+                <div class="conversation-meta">
+                    <div class="conversation-stats">
+                        <div class="stat">
+                            <i class="fas fa-comments"></i>
+                            <span>19 messages</span>
+                        </div>
+                        <div class="stat">
+                            <i class="fas fa-clock"></i>
+                            <span>35 min</span>
+                        </div>
+                    </div>
+                    <span>1 week ago</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="pagination">
+            <button class="pagination-btn">&laquo; Previous</button>
+            <button class="pagination-btn active">1</button>
+            <button class="pagination-btn">2</button>
+            <button class="pagination-btn">3</button>
+            <button class="pagination-btn">Next &raquo;</button>
+        </div>
+    </div>
+
+    <script>
+        // Search functionality
+        const searchBox = document.querySelector('.search-box');
+        const conversationCards = document.querySelectorAll('.conversation-card');
+        
+        searchBox.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            conversationCards.forEach(card => {
+                const title = card.querySelector('.conversation-title').textContent.toLowerCase();
+                const preview = card.querySelector('.conversation-preview').textContent.toLowerCase();
+                
+                if (title.includes(query) || preview.includes(query)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = query ? 'none' : 'block';
+                }
+            });
+        });
+        
+        // Filter functionality
+        const personaFilter = document.querySelectorAll('.filter-dropdown')[0];
+        personaFilter.addEventListener('change', (e) => {
+            const persona = e.target.value;
+            conversationCards.forEach(card => {
+                if (!persona || card.dataset.persona === persona) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+        
+        // Card click to open conversation
+        conversationCards.forEach(card => {
+            card.addEventListener('click', (e) => {
+                if (!e.target.closest('.conversation-actions')) {
+                    window.location.href = 'chat-main.html';
+                }
+            });
+        });
+        
+        // Action buttons
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.action-btn')) {
+                const action = e.target.title || e.target.closest('.action-btn').title;
+                alert(`${action} conversation...`);
+            }
+        });
+        
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Settings - Admin Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        
+        .page-header {
+            margin-bottom: 2rem;
+        }
+        
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        .settings-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+        
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .setting-item:last-child { border-bottom: none; }
+        
+        .setting-info h4 {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .setting-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+        }
+        
+        .toggle-input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--border);
+            transition: 0.3s;
+            border-radius: 30px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 24px;
+            width: 24px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+        
+        .toggle-input:checked + .toggle-slider {
+            background: var(--brand-blue);
+        }
+        
+        .toggle-input:checked + .toggle-slider:before {
+            transform: translateX(30px);
+        }
+        
+        .form-input, .form-select {
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            min-width: 200px;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary { background: var(--brand-blue); color: white; }
+        .btn-success { background: var(--success-green); color: white; }
+        .btn-danger { background: #E53E3E; color: white; }
+        .btn-secondary { background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary); }
+        
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .status-online {
+            background: rgba(69, 183, 209, 0.2);
+            color: var(--success-green);
+        }
+        
+        .status-warning {
+            background: rgba(255, 107, 107, 0.2);
+            color: var(--warm-orange);
+        }
+        
+        @media (max-width: 768px) {
+            .settings-grid { grid-template-columns: 1fr; }
+            .container { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="page-header">
+            <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem;">System Settings</h1>
+            <p style="color: var(--text-secondary);">Configure platform-wide settings and preferences</p>
+        </div>
+
+        <div class="settings-grid">
+            <!-- General Settings -->
+            <div class="settings-card">
+                <h3 class="card-title">General Settings</h3>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>Platform Name</h4>
+                        <p class="setting-description">Display name for the platform</p>
+                    </div>
+                    <input type="text" class="form-input" value="J StaR Platform">
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>Maintenance Mode</h4>
+                        <p class="setting-description">Enable to take the platform offline</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" class="toggle-input">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>User Registration</h4>
+                        <p class="setting-description">Allow new users to register</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" class="toggle-input" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>Default Theme</h4>
+                        <p class="setting-description">System-wide default theme</p>
+                    </div>
+                    <select class="form-select">
+                        <option value="light">Light</option>
+                        <option value="dark">Dark</option>
+                        <option value="auto" selected>Auto</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- AI Configuration -->
+            <div class="settings-card">
+                <h3 class="card-title">AI Configuration</h3>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>AI Model Provider</h4>
+                        <p class="setting-description">Primary AI service provider</p>
+                    </div>
+                    <select class="form-select">
+                        <option value="openai" selected>OpenAI GPT-4</option>
+                        <option value="anthropic">Anthropic Claude</option>
+                        <option value="local">Local Model</option>
+                    </select>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>Response Timeout</h4>
+                        <p class="setting-description">Maximum AI response time (seconds)</p>
+                    </div>
+                    <input type="number" class="form-input" value="30" min="10" max="120">
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>Content Moderation</h4>
+                        <p class="setting-description">Enable AI content filtering</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" class="toggle-input" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>Usage Analytics</h4>
+                        <p class="setting-description">Collect AI usage statistics</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" class="toggle-input" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Security Settings -->
+            <div class="settings-card">
+                <h3 class="card-title">Security & Privacy</h3>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>Two-Factor Authentication</h4>
+                        <p class="setting-description">Require 2FA for all admin accounts</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" class="toggle-input" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>Session Timeout</h4>
+                        <p class="setting-description">Auto-logout time (minutes)</p>
+                    </div>
+                    <input type="number" class="form-input" value="60" min="15" max="480">
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>Data Encryption</h4>
+                        <p class="setting-description">Encrypt sensitive user data</p>
+                    </div>
+                    <div class="status-indicator status-online">
+                        <i class="fas fa-shield-alt"></i> Enabled
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>Rate Limiting</h4>
+                        <p class="setting-description">API request rate limits</p>
+                    </div>
+                    <select class="form-select">
+                        <option value="strict">Strict (100/hour)</option>
+                        <option value="moderate" selected>Moderate (500/hour)</option>
+                        <option value="relaxed">Relaxed (1000/hour)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- System Health -->
+            <div class="settings-card">
+                <h3 class="card-title">System Health</h3>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>Database Status</h4>
+                        <p class="setting-description">Primary database connection</p>
+                    </div>
+                    <div class="status-indicator status-online">
+                        <i class="fas fa-database"></i> Online
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>AI Service Status</h4>
+                        <p class="setting-description">AI model availability</p>
+                    </div>
+                    <div class="status-indicator status-online">
+                        <i class="fas fa-brain"></i> Operational
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>Storage Usage</h4>
+                        <p class="setting-description">Current storage utilization</p>
+                    </div>
+                    <div class="status-indicator status-warning">
+                        <i class="fas fa-hdd"></i> 78% Used
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>Last Backup</h4>
+                        <p class="setting-description">System backup status</p>
+                    </div>
+                    <div style="text-align: right; font-size: 0.9rem; color: var(--text-secondary);">
+                        Dec 15, 2024<br>
+                        2:30 AM UTC
+                    </div>
+                </div>
+            </div>
+
+            <!-- Backup & Maintenance -->
+            <div class="settings-card">
+                <h3 class="card-title">Backup & Maintenance</h3>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>Auto Backup</h4>
+                        <p class="setting-description">Automatic daily backups</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" class="toggle-input" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>Backup Retention</h4>
+                        <p class="setting-description">Keep backups for (days)</p>
+                    </div>
+                    <input type="number" class="form-input" value="30" min="7" max="365">
+                </div>
+                
+                <div style="display: grid; gap: 1rem; margin-top: 1.5rem;">
+                    <button class="btn btn-primary">
+                        <i class="fas fa-save"></i> Create Backup Now
+                    </button>
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-download"></i> Download Latest Backup
+                    </button>
+                    <button class="btn btn-danger">
+                        <i class="fas fa-exclamation-triangle"></i> Reset System Settings
+                    </button>
+                </div>
+            </div>
+
+            <!-- Email & Notifications -->
+            <div class="settings-card">
+                <h3 class="card-title">Email & Notifications</h3>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>SMTP Server</h4>
+                        <p class="setting-description">Email service configuration</p>
+                    </div>
+                    <input type="text" class="form-input" placeholder="smtp.example.com">
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>Admin Notifications</h4>
+                        <p class="setting-description">Send system alerts to admins</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" class="toggle-input" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>User Welcome Emails</h4>
+                        <p class="setting-description">Send welcome email to new users</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" class="toggle-input" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div style="margin-top: 1.5rem;">
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-envelope"></i> Test Email Configuration
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
+            <button class="btn btn-secondary">Cancel Changes</button>
+            <button class="btn btn-success">
+                <i class="fas fa-save"></i> Save All Settings
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Settings interactions
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const action = this.textContent.trim();
+                alert(`${action} action triggered!`);
+            });
+        });
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

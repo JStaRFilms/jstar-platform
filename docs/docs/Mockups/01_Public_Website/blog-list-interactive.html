@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog | J StaR Films - Insights on Creativity, Technology & Faith</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .navbar-blur {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+        }
+        .dark .navbar-blur {
+            background: rgba(17, 24, 39, 0.9);
+        }
+        .blog-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .blog-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .dark .blog-card:hover {
+             box-shadow: 0 20px 25px -5px rgba(37, 99, 235, 0.2), 0 10px 10px -5px rgba(37, 99, 235, 0.1);
+        }
+        .category-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .category-btn.active {
+            background-image: linear-gradient(to right, #2563EB, #8B5CF6);
+            color: white;
+            font-weight: 600;
+        }
+        .pagination-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .pagination-btn.active {
+            background-image: linear-gradient(to right, #2563EB, #8B5CF6);
+            color: white;
+            border-color: transparent;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 antialiased">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 navbar-blur border-b border-gray-200 dark:border-gray-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <a href="homepage-unified.html" class="text-2xl font-bold bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">J StaR Films</a>
+                <div class="flex items-center space-x-4">
+                    <button onclick="document.documentElement.classList.toggle('dark')" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all" aria-label="Toggle theme">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-16">
+        <!-- Header -->
+        <header class="py-20 bg-white dark:bg-gray-800 border-b dark:border-gray-700">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h1 class="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white mb-4">The J StaR Blog</h1>
+                <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">Insights on creativity, technology, and faith from John Oluleke-Oke. Articles on video production, app development, and AI tools.</p>
+            </div>
+        </header>
+
+        <!-- Filters -->
+        <div class="sticky top-16 z-40 bg-white/70 dark:bg-gray-800/70 backdrop-blur-lg py-4 border-b dark:border-gray-700">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div class="flex items-center space-x-2 overflow-x-auto pb-2 sm:pb-0">
+                        <button class="category-btn active px-4 py-2 rounded-full text-sm flex-shrink-0">All Posts</button>
+                        <button class="category-btn px-4 py-2 rounded-full text-sm bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 flex-shrink-0">Video Production</button>
+                        <button class="category-btn px-4 py-2 rounded-full text-sm bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 flex-shrink-0">App Development</button>
+                        <button class="category-btn px-4 py-2 rounded-full text-sm bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 flex-shrink-0">AI & Tools</button>
+                        <button class="category-btn px-4 py-2 rounded-full text-sm bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 flex-shrink-0">Faith & Creativity</button>
+                    </div>
+                    <div class="relative flex-shrink-0 w-full sm:w-64">
+                        <input type="text" placeholder="Search articles..." class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-full bg-gray-100 dark:bg-gray-700 focus:ring-2 focus:ring-jstar-blue focus:border-transparent">
+                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Blog Grid -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                <!-- Card 1: Featured -->
+                <a href="blog-post-view.html" class="blog-card col-span-1 md:col-span-2 lg:col-span-3 bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg flex flex-col md:flex-row">
+                    <div class="md:w-1/2 h-64 md:h-auto bg-gradient-to-br from-jstar-blue to-faith-purple flex items-center justify-center text-white">
+                        <div class="text-center p-8">
+                            <h3 class="text-3xl font-bold">Featured Post Image</h3>
+                        </div>
+                    </div>
+                    <div class="md:w-1/2 p-8 flex flex-col justify-center">
+                        <div class="flex gap-2 mb-3">
+                            <span class="px-3 py-1 bg-jstar-blue/10 text-jstar-blue rounded-full text-xs font-medium">Video Production</span>
+                            <span class="px-3 py-1 bg-faith-purple/10 text-faith-purple rounded-full text-xs font-medium">Tutorial</span>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">The 5 Secrets to Creating Viral YouTube Thumbnails</h2>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4 flex-grow">Learn the proven techniques I use to create thumbnails that stop the scroll and drive massive engagement on YouTube.</p>
+                        <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-auto">
+                            <div class="w-8 h-8 bg-gradient-to-r from-jstar-blue to-faith-purple rounded-full flex items-center justify-center text-white font-bold mr-2 text-xs">JO</div>
+                            <span>John Oluleke-Oke</span>
+                            <span class="mx-2">&middot;</span>
+                            <span>Jan 15, 2024</span>
+                            <span class="mx-2">&middot;</span>
+                            <span>8 min read</span>
+                        </div>
+                    </div>
+                </a>
+                <!-- Card 2 -->
+                <a href="blog-post-view.html" class="blog-card bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg flex flex-col">
+                    <div class="h-48 bg-gradient-to-br from-faith-purple to-growth-green flex items-center justify-center text-white"><h3 class="text-xl font-bold">Post Image</h3></div>
+                    <div class="p-6 flex flex-col flex-grow">
+                        <div class="flex gap-2 mb-3">
+                            <span class="px-3 py-1 bg-faith-purple/10 text-faith-purple rounded-full text-xs font-medium">App Development</span>
+                        </div>
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Building Your First Mobile App with React Native</h2>
+                        <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-auto pt-4">
+                            <span>Jan 10, 2024</span><span class="mx-2">&middot;</span><span>12 min read</span>
+                        </div>
+                    </div>
+                </a>
+                <!-- Card 3 -->
+                <a href="blog-post-view.html" class="blog-card bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg flex flex-col">
+                    <div class="h-48 bg-gradient-to-br from-growth-green to-jstar-blue flex items-center justify-center text-white"><h3 class="text-xl font-bold">Post Image</h3></div>
+                    <div class="p-6 flex flex-col flex-grow">
+                        <div class="flex gap-2 mb-3">
+                            <span class="px-3 py-1 bg-growth-green/10 text-growth-green rounded-full text-xs font-medium">AI & Tools</span>
+                        </div>
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-3">How I Use AI to Script My YouTube Videos Faster</h2>
+                        <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-auto pt-4">
+                            <span>Jan 5, 2024</span><span class="mx-2">&middot;</span><span>6 min read</span>
+                        </div>
+                    </div>
+                </a>
+                <!-- Card 4 -->
+                <a href="blog-post-view.html" class="blog-card bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg flex flex-col">
+                    <div class="h-48 bg-gradient-to-br from-gray-500 to-gray-700 flex items-center justify-center text-white"><h3 class="text-xl font-bold">Post Image</h3></div>
+                    <div class="p-6 flex flex-col flex-grow">
+                        <div class="flex gap-2 mb-3">
+                            <span class="px-3 py-1 bg-gray-500/10 text-gray-600 dark:text-gray-400 rounded-full text-xs font-medium">Faith & Creativity</span>
+                        </div>
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Finding Purpose in Your Creative Work: A Faith-Based Approach</h2>
+                        <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-auto pt-4">
+                            <span>Dec 28, 2023</span><span class="mx-2">&middot;</span><span>10 min read</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex justify-center mt-16">
+                <nav class="flex items-center space-x-2">
+                    <button class="pagination-btn w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600">&laquo;</button>
+                    <button class="pagination-btn active w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 dark:border-gray-600">1</button>
+                    <button class="pagination-btn w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-700">2</button>
+                    <button class="pagination-btn w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-700">3</button>
+                    <span class="px-2">...</span>
+                    <button class="pagination-btn w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-700">10</button>
+                    <button class="pagination-btn w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600">&raquo;</button>
+                </nav>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>

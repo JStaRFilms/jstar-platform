@@ -1,0 +1,1426 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI-Powered Tools - Creator Growth Engine</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'jstar-blue': '#2563EB',
+            'faith-purple': '#8B5CF6',
+            'growth-green': '#059669',
+            'warning-yellow': '#F59E0B',
+            'danger-red': '#EF4444'
+          }
+        }
+      }
+    }
+    
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('-translate-x-full');
+    }
+    
+    function toggleDarkMode() {
+      document.documentElement.classList.toggle('dark');
+    }
+    
+    function showSection(sectionId) {
+      // Hide all sections
+      document.querySelectorAll('.dashboard-section').forEach(section => {
+        section.classList.add('hidden');
+      });
+      
+      // Show selected section
+      document.getElementById(sectionId).classList.remove('hidden');
+      
+      // Update active button
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('bg-jstar-blue', 'text-white');
+        btn.classList.add('text-gray-700', 'dark:text-gray-300', 'hover:bg-gray-100', 'dark:hover:bg-gray-700/50');
+      });
+      
+      event.target.classList.add('bg-jstar-blue', 'text-white');
+      event.target.classList.remove('text-gray-700', 'dark:text-gray-300', 'hover:bg-gray-100', 'dark:hover:bg-gray-700/50');
+    }
+    
+    function showNotificationSettings() {
+      document.getElementById('notification-settings').classList.toggle('hidden');
+    }
+    
+    function showUserMenu() {
+      document.getElementById('user-menu').classList.toggle('hidden');
+    }
+    
+    function generateContent() {
+      const prompt = document.getElementById('content-prompt').value;
+      if (!prompt) return;
+      
+      // Show loading state
+      const generateBtn = document.getElementById('generate-btn');
+      const originalText = generateBtn.textContent;
+      generateBtn.textContent = 'Generating...';
+      generateBtn.classList.add('bg-gray-300', 'cursor-not-allowed');
+      generateBtn.classList.remove('bg-jstar-blue', 'hover:bg-faith-purple');
+      
+      // Show loading spinner
+      document.getElementById('loading-spinner').classList.remove('hidden');
+      
+      // Simulate AI generation
+      setTimeout(() => {
+        // Restore button
+        generateBtn.textContent = originalText;
+        generateBtn.classList.remove('bg-gray-300', 'cursor-not-allowed');
+        generateBtn.classList.add('bg-jstar-blue', 'hover:bg-faith-purple');
+        
+        // Hide loading spinner
+        document.getElementById('loading-spinner').classList.add('hidden');
+        
+        // Show generated content
+        document.getElementById('generated-content').classList.remove('hidden');
+        document.getElementById('generated-content').scrollIntoView({ behavior: 'smooth' });
+        
+        // In real app, this would come from API
+        document.getElementById('content-output').textContent = `Based on your prompt "${prompt}", here's a generated content outline:
+
+1. Introduction: Start with a compelling story about how integrating faith and technology can transform content creation.
+2. The Problem: Discuss the challenges creators face when trying to maintain authenticity while using technology.
+3. Biblical Foundation: Reference Proverbs 3:5-6 and Colossians 3:23-24 as guiding principles.
+4. Practical Steps: Provide 5 actionable steps for integrating prayer into your content workflow.
+5. Case Study: Share a real example of a creator who successfully implemented this approach.
+6. Call to Action: Encourage readers to commit to one specific change this week.
+
+This outline follows best practices for faith-based content creation while providing practical value to your audience.`;
+      }, 2000);
+    }
+    
+    function analyzeContent() {
+      const content = document.getElementById('content-to-analyze').value;
+      if (!content) return;
+      
+      // Show loading state
+      const analyzeBtn = document.getElementById('analyze-btn');
+      const originalText = analyzeBtn.textContent;
+      analyzeBtn.textContent = 'Analyzing...';
+      analyzeBtn.classList.add('bg-gray-300', 'cursor-not-allowed');
+      analyzeBtn.classList.remove('bg-jstar-blue', 'hover:bg-faith-purple');
+      
+      // Show loading spinner
+      document.getElementById('analysis-loading').classList.remove('hidden');
+      
+      // Simulate AI analysis
+      setTimeout(() => {
+        // Restore button
+        analyzeBtn.textContent = originalText;
+        analyzeBtn.classList.remove('bg-gray-300', 'cursor-not-allowed');
+        analyzeBtn.classList.add('bg-jstar-blue', 'hover:bg-faith-purple');
+        
+        // Hide loading spinner
+        document.getElementById('analysis-loading').classList.add('hidden');
+        
+        // Show analysis results
+        document.getElementById('analysis-results').classList.remove('hidden');
+        document.getElementById('analysis-results').scrollIntoView({ behavior: 'smooth' });
+        
+        // In real app, this would come from API
+        document.getElementById('analysis-score').textContent = '85';
+        document.getElementById('analysis-score-bar').style.width = '85%';
+        document.getElementById('analysis-score-text').textContent = 'Strong alignment with biblical principles and practical value';
+        
+        // Update recommendations
+        document.getElementById('recommendation-1').innerHTML = '<strong>Improve scripture integration:</strong> Add specific scripture references to strengthen the biblical foundation.';
+        document.getElementById('recommendation-2').innerHTML = '<strong>Enhance practical application:</strong> Include more actionable steps for readers to implement.';
+        document.getElementById('recommendation-3').innerHTML = '<strong>Optimize structure:</strong> Consider adding a case study to illustrate real-world application.';
+        
+        // Update content preview
+        document.getElementById('content-preview').innerHTML = `Based on your content, here's an improved version:
+
+1. Introduction: Start with a compelling story about how integrating faith and technology can transform content creation.
+2. The Problem: Discuss the challenges creators face when trying to maintain authenticity while using technology.
+3. Biblical Foundation: Reference Proverbs 3:5-6 and Colossians 3:23-24 as guiding principles.
+4. Practical Steps: Provide 5 actionable steps for integrating prayer into your content workflow.
+5. Case Study: Share a real example of a creator who successfully implemented this approach.
+6. Call to Action: Encourage readers to commit to one specific change this week.
+
+This outline follows best practices for faith-based content creation while providing practical value to your audience.`;
+      }, 2000);
+    }
+    
+    function showTab(tabName) {
+      // Hide all tabs
+      document.querySelectorAll('.ai-tab').forEach(tab => {
+        tab.classList.add('hidden');
+      });
+      
+      // Show selected tab
+      document.getElementById(tabName).classList.remove('hidden');
+      
+      // Update active tab button
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('bg-jstar-blue', 'text-white');
+        btn.classList.add('text-gray-700', 'dark:text-gray-300', 'hover:bg-gray-100', 'dark:hover:bg-gray-700/50');
+      });
+      
+      event.target.classList.add('bg-jstar-blue', 'text-white');
+      event.target.classList.remove('text-gray-700', 'dark:text-gray-300', 'hover:bg-gray-100', 'dark:hover:bg-gray-700/50');
+    }
+    
+    function showRecommendationDetails() {
+      document.getElementById('recommendation-details').classList.remove('hidden');
+      document.getElementById('recommendation-details').scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    function closeRecommendationDetails() {
+      document.getElementById('recommendation-details').classList.add('hidden');
+    }
+    
+    function showFaithVerificationModal() {
+      document.getElementById('faith-verification-modal').classList.remove('hidden');
+      setTimeout(() => {
+        document.getElementById('faith-verification-modal').classList.add('opacity-100');
+      }, 10);
+    }
+    
+    function closeFaithVerificationModal() {
+      document.getElementById('faith-verification-modal').classList.remove('opacity-100');
+      setTimeout(() => {
+        document.getElementById('faith-verification-modal').classList.add('hidden');
+      }, 300);
+    }
+    
+    // Initialize chart data
+    document.addEventListener('DOMContentLoaded', function() {
+      // CONTENT ANALYSIS CHART
+      const contentAnalysisCtx = document.getElementById('content-analysis-chart').getContext('2d');
+      new Chart(contentAnalysisCtx, {
+        type: 'radar',
+        data: {
+          labels: ['Biblical Alignment', 'Practical Value', 'Engagement', 'Clarity', 'Authenticity'],
+          datasets: [{
+            label: 'Content Score',
+            data: [85, 80, 90, 88, 82],
+            backgroundColor: 'rgba(139, 92, 246, 0.2)',
+            borderColor: '#8B5CF6',
+            pointBackgroundColor: '#8B5CF6',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: '#8B5CF6'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            r: {
+              angleLines: {
+                display: true
+              },
+              suggestedMin: 50,
+              suggestedMax: 100
+            }
+          }
+        }
+      });
+      
+      // RECOMMENDATION CHART
+      const recommendationCtx = document.getElementById('recommendation-chart').getContext('2d');
+      new Chart(recommendationCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Content Improvement', 'Faith Integration', 'Engagement Boost', 'Structure Optimization'],
+          datasets: [{
+            data: [30, 25, 20, 25],
+            backgroundColor: [
+              '#2563EB',
+              '#8B5CF6',
+              '#F59E0B',
+              '#059669'
+            ]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '70%',
+          plugins: {
+            legend: {
+              position: 'right'
+            }
+          }
+        }
+      });
+    });
+    
+    // Simulate user tier (in real app this would come from auth)
+    const userTier = 'tier1';
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+  <!-- PRD: FR059 (AI-Powered Tools) -->
+  <div class="flex h-screen overflow-hidden">
+    <!-- SIDEBAR -->
+    <div id="sidebar" class="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-20">
+      <div class="p-5 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-jstar-blue to-faith-purple flex items-center justify-center mr-3">
+            <span class="text-white font-bold">J</span>
+          </div>
+          <div>
+            <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Admin • J StaR Films</p>
+          </div>
+        </div>
+      </div>
+      
+      <nav class="mt-5">
+        <a href="#" onclick="showSection('dashboard')" class="nav-btn flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
+          Dashboard
+        </a>
+        <a href="#" onclick="showSection('users')" class="nav-btn flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          User Management
+        </a>
+        <a href="#" onclick="showSection('content')" class="nav-btn flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          Content Management
+        </a>
+        <a href="#" onclick="showSection('moderation')" class="nav-btn flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          </svg>
+          Moderation
+        </a>
+        <a href="#" onclick="showSection('analytics')" class="nav-btn flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v3m-6 5h6" />
+          </svg>
+          Analytics
+        </a>
+        <a href="#" onclick="showSection('settings')" class="nav-btn flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          Settings
+        </a>
+      </nav>
+      
+      <div class="absolute bottom-0 w-64 p-5 border-t border-gray-200 dark:border-gray-700">
+        <a href="#" class="flex items-center text-gray-700 dark:text-gray-300 hover:text-jstar-blue">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0 0l-3-3m3 3l3-3" />
+          </svg>
+          Sign Out
+        </a>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+      <!-- TOP BAR -->
+      <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between px-6 py-4">
+          <div class="md:hidden">
+            <button onclick="toggleSidebar()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+          
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">AI-Powered Tools</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">AI-driven content and analytics tools</p>
+          </div>
+          
+          <div class="flex items-center space-x-4">
+            <div class="relative">
+              <button class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-lg font-medium flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                </svg>
+                More Tools
+              </button>
+              <div class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-10">
+                <div class="py-1">
+                  <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">YouTube Virality OS</a>
+                  <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">Client Magnet System</a>
+                  <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">Systems Launcher Toolkit</a>
+                </div>
+              </div>
+            </div>
+            
+            <div class="relative">
+              <button onclick="showNotificationSettings()" class="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+              </button>
+              <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+              
+              <div id="notification-settings" class="hidden absolute right-0 mt-2 w-80 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-10">
+                <div class="py-1 max-h-96 overflow-y-auto">
+                  <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                    <h3 class="font-medium text-gray-900 dark:text-white">Notifications</h3>
+                  </div>
+                  
+                  <a href="#" class="block px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+                    <div class="flex items-start">
+                      <div class="w-10 h-10 rounded-full bg-jstar-blue flex items-center justify-center text-white mr-3">
+                        J
+                      </div>
+                      <div>
+                        <p class="font-medium text-gray-900 dark:text-white">New user verification request</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">2 hours ago</p>
+                      </div>
+                    </div>
+                  </a>
+                  
+                  <a href="#" class="block px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+                    <div class="flex items-start">
+                      <div class="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center text-white mr-3">
+                        S
+                      </div>
+                      <div>
+                        <p class="font-medium text-gray-900 dark:text-white">New content moderation alert</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">5 hours ago</p>
+                      </div>
+                    </div>
+                  </a>
+                  
+                  <a href="#" class="block px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+                    <div class="flex items-start">
+                      <div class="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center text-white mr-3">
+                        M
+                      </div>
+                      <div>
+                        <p class="font-medium text-gray-900 dark:text-white">System performance alert</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">1 day ago</p>
+                      </div>
+                    </div>
+                  </a>
+                  
+                  <a href="#" class="block px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50">
+                    <div class="flex items-start">
+                      <div class="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white mr-3">
+                        R
+                      </div>
+                      <div>
+                        <p class="font-medium text-gray-900 dark:text-white">New faith verification request</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">2 days ago</p>
+                      </div>
+                    </div>
+                  </a>
+                </div>
+                
+                <div class="px-4 py-2 bg-gray-50 dark:bg-gray-700/50 rounded-b-md">
+                  <a href="#" class="text-jstar-blue hover:text-faith-purple text-sm">View all notifications</a>
+                </div>
+              </div>
+            </div>
+            
+            <div class="relative">
+              <button onclick="showUserMenu()" class="flex items-center">
+                <div class="w-8 h-8 rounded-full bg-jstar-blue flex items-center justify-center text-white mr-2">
+                  J
+                </div>
+                <div class="hidden md:block">
+                  <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">Admin</p>
+                </div>
+              </button>
+              
+              <div id="user-menu" class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-10">
+                <div class="py-1">
+                  <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">Profile</a>
+                  <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">Settings</a>
+                  <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">Help</a>
+                  <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">Sign out</a>
+                </div>
+              </div>
+            </div>
+            
+            <button onclick="toggleDarkMode()"
+                    class="p-2 rounded-full bg-jstar-blue text-white">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI TOOLS CONTENT -->
+      <div class="flex-1 overflow-y-auto p-6">
+        <!-- THEME TOGGLE -->
+        <div class="fixed top-4 right-4 z-50 md:hidden">
+          <button onclick="toggleDarkMode()"
+                  class="p-2 rounded-full bg-jstar-blue text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- AI TOOLS SECTION -->
+        <div id="ai-tools" class="dashboard-section">
+          <div class="mb-6">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">AI-Powered Tools</h2>
+            <p class="text-gray-600 dark:text-gray-400 mt-1">
+              <!-- PRD: AI-Powered Tools Description -->AI-driven content and analytics tools
+            </p>
+          </div>
+          
+          <!-- AI TOOLS TABS -->
+          <div class="mb-6 border-b border-gray-200 dark:border-gray-700">
+            <nav class="-mb-px flex space-x-8">
+              <button onclick="showTab('content-generator')" class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-jstar-blue text-jstar-blue dark:text-jstar-blue">
+                Content Generator
+              </button>
+              <button onclick="showTab('content-analyzer')" class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+                Content Analyzer
+              </button>
+              <button onclick="showTab('recommendations')" class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+                Recommendations
+              </button>
+            </nav>
+          </div>
+          
+          <!-- CONTENT GENERATOR TAB -->
+          <div id="content-generator" class="ai-tab">
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+              <div class="mb-6">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">AI Content Generator</h3>
+                <p class="text-gray-500 dark:text-gray-400 mt-1">Generate faith-based content outlines using AI</p>
+              </div>
+              
+              <div class="space-y-6">
+                <div>
+                  <label for="content-prompt" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Content Prompt
+                  </label>
+                  <textarea id="content-prompt" rows="4" placeholder="Describe the content you want to create (e.g., 'A blog post about integrating prayer into your content creation workflow')" 
+                            class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue"></textarea>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Content Type
+                  </label>
+                  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg cursor-pointer">
+                      <input type="radio" name="content-type" value="Blog Post" checked class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 dark:border-gray-600 mr-3">
+                      <div>
+                        <h4 class="font-medium text-gray-900 dark:text-white">Blog Post</h4>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Article-style content</p>
+                      </div>
+                    </label>
+                    
+                    <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg cursor-pointer">
+                      <input type="radio" name="content-type" value="Video Script" class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 dark:border-gray-600 mr-3">
+                      <div>
+                        <h4 class="font-medium text-gray-900 dark:text-white">Video Script</h4>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">YouTube video content</p>
+                      </div>
+                    </label>
+                    
+                    <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg cursor-pointer">
+                      <input type="radio" name="content-type" value="Social Media" class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 dark:border-gray-600 mr-3">
+                      <div>
+                        <h4 class="font-medium text-gray-900 dark:text-white">Social Media</h4>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Short-form platform content</p>
+                      </div>
+                    </label>
+                    
+                    <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg cursor-pointer">
+                      <input type="radio" name="content-type" value="Email Campaign" class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 dark:border-gray-600 mr-3">
+                      <div>
+                        <h4 class="font-medium text-gray-900 dark:text-white">Email Campaign</h4>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Newsletter content</p>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Faith Integration Level
+                  </label>
+                  <div class="grid grid-cols-3 gap-4">
+                    <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg cursor-pointer">
+                      <input type="radio" name="faith-level" value="Basic" class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 dark:border-gray-600 mr-3">
+                      <div>
+                        <h4 class="font-medium text-gray-900 dark:text-white">Basic</h4>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Mention faith principles</p>
+                      </div>
+                    </label>
+                    
+                    <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg cursor-pointer">
+                      <input type="radio" name="faith-level" value="Moderate" class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 dark:border-gray-600 mr-3">
+                      <div>
+                        <h4 class="font-medium text-gray-900 dark:text-white">Moderate</h4>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Integrate scripture references</p>
+                      </div>
+                    </label>
+                    
+                    <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg cursor-pointer">
+                      <input type="radio" name="faith-level" value="Deep" checked class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 dark:border-gray-600 mr-3">
+                      <div>
+                        <h4 class="font-medium text-gray-900 dark:text-white">Deep</h4>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Biblical principles throughout</p>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+                
+                <div class="flex justify-end">
+                  <button id="generate-btn" onclick="generateContent()" 
+                          class="px-4 py-2 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium flex items-center">
+                    <span>Generate Content</span>
+                    <div id="loading-spinner" class="hidden ml-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- GENERATED CONTENT -->
+            <div id="generated-content" class="hidden mt-6 bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+              <div class="flex justify-between items-start mb-6">
+                <div>
+                  <h3 class="text-2xl font-bold text-gray-900 dark:text-white">Generated Content Outline</h3>
+                  <p class="text-gray-600 dark:text-gray-400">AI-generated content based on your prompt</p>
+                </div>
+                <button onclick="document.getElementById('generated-content').classList.add('hidden')"
+                        class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              
+              <div class="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 mb-6" id="content-output">
+                <!-- Content will be generated here -->
+              </div>
+              
+              <div class="flex space-x-3">
+                <button class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-lg font-medium">
+                  Copy to Clipboard
+                </button>
+                <button class="px-4 py-2 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium">
+                  Save as Template
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- CONTENT ANALYZER TAB -->
+          <div id="content-analyzer" class="ai-tab hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+              <div class="mb-6">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">AI Content Analyzer</h3>
+                <p class="text-gray-500 dark:text-gray-400 mt-1">Analyze content for faith integration and quality</p>
+              </div>
+              
+              <div class="space-y-6">
+                <div>
+                  <label for="content-to-analyze" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Content to Analyze
+                  </label>
+                  <textarea id="content-to-analyze" rows="8" placeholder="Paste your content here for analysis..." 
+                            class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue"></textarea>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Analysis Focus
+                  </label>
+                  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg cursor-pointer">
+                      <input type="checkbox" value="Biblical Alignment" checked class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 dark:border-gray-600 mr-3">
+                      <div>
+                        <h4 class="font-medium text-gray-900 dark:text-white">Biblical Alignment</h4>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Scripture references</p>
+                      </div>
+                    </label>
+                    
+                    <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg cursor-pointer">
+                      <input type="checkbox" value="Practical Value" checked class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 dark:border-gray-600 mr-3">
+                      <div>
+                        <h4 class="font-medium text-gray-900 dark:text-white">Practical Value</h4>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Actionable insights</p>
+                      </div>
+                    </label>
+                    
+                    <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg cursor-pointer">
+                      <input type="checkbox" value="Engagement" checked class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 dark:border-gray-600 mr-3">
+                      <div>
+                        <h4 class="font-medium text-gray-900 dark:text-white">Engagement</h4>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Audience connection</p>
+                      </div>
+                    </label>
+                    
+                    <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg cursor-pointer">
+                      <input type="checkbox" value="Clarity" checked class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 dark:border-gray-600 mr-3">
+                      <div>
+                        <h4 class="font-medium text-gray-900 dark:text-white">Clarity</h4>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Clear communication</p>
+                      </div>
+                    </label>
+                    
+                    <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg cursor-pointer">
+                      <input type="checkbox" value="Authenticity" checked class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 dark:border-gray-600 mr-3">
+                      <div>
+                        <h4 class="font-medium text-gray-900 dark:text-white">Authenticity</h4>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Genuine voice</p>
+                      </div>
+                    </label>
+                    
+                    <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg cursor-pointer">
+                      <input type="checkbox" value="Structure" class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 dark:border-gray-600 mr-3">
+                      <div>
+                        <h4 class="font-medium text-gray-900 dark:text-white">Structure</h4>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Logical flow</p>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+                
+                <div class="flex justify-end">
+                  <button id="analyze-btn" onclick="analyzeContent()" 
+                          class="px-4 py-2 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium flex items-center">
+                    <span>Analyze Content</span>
+                    <div id="analysis-loading" class="hidden ml-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- ANALYSIS RESULTS -->
+            <div id="analysis-results" class="hidden mt-6">
+              <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2">
+                  <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-start mb-6">
+                      <div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white">Content Analysis</h3>
+                        <p class="text-gray-600 dark:text-gray-400">AI-powered analysis of your content</p>
+                      </div>
+                      <button onclick="document.getElementById('analysis-results').classList.add('hidden')"
+                              class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                    
+                    <div class="mb-6">
+                      <div class="flex justify-between mb-1">
+                        <span class="text-sm font-medium text-gray-900 dark:text-white">Overall Score</span>
+                        <span class="text-sm text-gray-500 dark:text-gray-400" id="analysis-score">0</span>
+                      </div>
+                      <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                        <div id="analysis-score-bar" class="bg-jstar-blue h-2.5 rounded-full" style="width: 0%"></div>
+                      </div>
+                      <p class="text-sm text-gray-600 dark:text-gray-400 mt-1" id="analysis-score-text">Analysis pending...</p>
+                    </div>
+                    
+                    <div class="h-64 mb-6">
+                      <canvas id="content-analysis-chart"></canvas>
+                    </div>
+                    
+                    <div class="space-y-4">
+                      <div class="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                        <h4 class="font-medium text-gray-900 dark:text-white mb-2">Key Recommendations</h4>
+                        <ul class="space-y-2" id="recommendations-list">
+                          <li id="recommendation-1" class="text-gray-600 dark:text-gray-400">Analysis pending...</li>
+                          <li id="recommendation-2" class="text-gray-600 dark:text-gray-400">Analysis pending...</li>
+                          <li id="recommendation-3" class="text-gray-600 dark:text-gray-400">Analysis pending...</li>
+                        </ul>
+                      </div>
+                      
+                      <div class="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                        <h4 class="font-medium text-gray-900 dark:text-white mb-2">Content Preview</h4>
+                        <div class="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300" id="content-preview">
+                          <!-- Content preview will be generated here -->
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="flex space-x-3 mt-6">
+                      <button class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-lg font-medium">
+                        Copy to Clipboard
+                      </button>
+                      <button class="px-4 py-2 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium">
+                        Save as Template
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                
+                <div>
+                  <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 mb-6">
+                    <h4 class="font-medium text-gray-900 dark:text-white mb-3">Analysis Breakdown</h4>
+                    
+                    <div class="h-64 mb-6">
+                      <canvas id="recommendation-chart"></canvas>
+                    </div>
+                    
+                    <div class="space-y-2">
+                      <div class="flex items-center">
+                        <div class="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
+                        <div class="flex-1">
+                          <p class="text-sm font-medium text-gray-900 dark:text-white">Content Improvement</p>
+                          <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                            <div class="bg-blue-500 h-1.5 rounded-full" style="width: 30%"></div>
+                          </div>
+                        </div>
+                        <span class="text-sm text-gray-600 dark:text-gray-400 ml-2">30%</span>
+                      </div>
+                      
+                      <div class="flex items-center">
+                        <div class="w-3 h-3 rounded-full bg-purple-500 mr-2"></div>
+                        <div class="flex-1">
+                          <p class="text-sm font-medium text-gray-900 dark:text-white">Faith Integration</p>
+                          <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                            <div class="bg-purple-500 h-1.5 rounded-full" style="width: 25%"></div>
+                          </div>
+                        </div>
+                        <span class="text-sm text-gray-600 dark:text-gray-400 ml-2">25%</span>
+                      </div>
+                      
+                      <div class="flex items-center">
+                        <div class="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
+                        <div class="flex-1">
+                          <p class="text-sm font-medium text-gray-900 dark:text-white">Engagement Boost</p>
+                          <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                            <div class="bg-yellow-500 h-1.5 rounded-full" style="width: 20%"></div>
+                          </div>
+                        </div>
+                        <span class="text-sm text-gray-600 dark:text-gray-400 ml-2">20%</span>
+                      </div>
+                      
+                      <div class="flex items-center">
+                        <div class="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+                        <div class="flex-1">
+                          <p class="text-sm font-medium text-gray-900 dark:text-white">Structure Optimization</p>
+                          <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                            <div class="bg-green-500 h-1.5 rounded-full" style="width: 25%"></div>
+                          </div>
+                        </div>
+                        <span class="text-sm text-gray-600 dark:text-gray-400 ml-2">25%</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+                    <h4 class="font-medium text-gray-900 dark:text-white mb-3">Recommendation Details</h4>
+                    
+                    <div class="space-y-3">
+                      <div class="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                        <h5 class="font-medium text-gray-900 dark:text-white mb-1">Improve scripture integration</h5>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">Add specific scripture references to strengthen the biblical foundation.</p>
+                        <button onclick="showRecommendationDetails()" class="mt-2 text-jstar-blue hover:text-faith-purple text-sm">
+                          View Details
+                        </button>
+                      </div>
+                      
+                      <div class="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                        <h5 class="font-medium text-gray-900 dark:text-white mb-1">Enhance practical application</h5>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">Include more actionable steps for readers to implement.</p>
+                        <button onclick="showRecommendationDetails()" class="mt-2 text-jstar-blue hover:text-faith-purple text-sm">
+                          View Details
+                        </button>
+                      </div>
+                      
+                      <div class="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                        <h5 class="font-medium text-gray-900 dark:text-white mb-1">Optimize structure</h5>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">Consider adding a case study to illustrate real-world application.</p>
+                        <button onclick="showRecommendationDetails()" class="mt-2 text-jstar-blue hover:text-faith-purple text-sm">
+                          View Details
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- RECOMMENDATIONS TAB -->
+          <div id="recommendations" class="ai-tab hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+              <div class="mb-6">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">AI Recommendations</h3>
+                <p class="text-gray-500 dark:text-gray-400 mt-1">Personalized recommendations based on your content</p>
+              </div>
+              
+              <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2">
+                  <div class="mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                      <h4 class="text-lg font-medium text-gray-900 dark:text-white">Content Recommendations</h4>
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        12 Recommendations
+                      </span>
+                    </div>
+                    
+                    <div class="space-y-4">
+                      <!-- RECOMMENDATION 1 -->
+                      <div class="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                        <div class="flex justify-between items-start">
+                          <div>
+                            <h5 class="font-medium text-gray-900 dark:text-white mb-1">Improve scripture integration</h5>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">Add specific scripture references to strengthen the biblical foundation of your content.</p>
+                            <div class="flex items-center">
+                              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-2">
+                                Content Improvement
+                              </span>
+                              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                Faith Integration
+                              </span>
+                            </div>
+                          </div>
+                          <button onclick="showRecommendationDetails()" class="text-jstar-blue hover:text-faith-purple text-sm">
+                            View Details
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <!-- RECOMMENDATION 2 -->
+                      <div class="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                        <div class="flex justify-between items-start">
+                          <div>
+                            <h5 class="font-medium text-gray-900 dark:text-white mb-1">Enhance practical application</h5>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">Include more actionable steps for readers to implement in their own content creation.</p>
+                            <div class="flex items-center">
+                              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-2">
+                                Content Improvement
+                              </span>
+                              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Practical Value
+                              </span>
+                            </div>
+                          </div>
+                          <button onclick="showRecommendationDetails()" class="text-jstar-blue hover:text-faith-purple text-sm">
+                            View Details
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <!-- RECOMMENDATION 3 -->
+                      <div class="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                        <div class="flex justify-between items-start">
+                          <div>
+                            <h5 class="font-medium text-gray-900 dark:text-white mb-1">Optimize structure</h5>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">Consider adding a case study to illustrate real-world application of your principles.</p>
+                            <div class="flex items-center">
+                              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-2">
+                                Content Improvement
+                              </span>
+                              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                Structure
+                              </span>
+                            </div>
+                          </div>
+                          <button onclick="showRecommendationDetails()" class="text-jstar-blue hover:text-faith-purple text-sm">
+                            View Details
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <!-- RECOMMENDATION 4 -->
+                      <div class="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                        <div class="flex justify-between items-start">
+                          <div>
+                            <h5 class="font-medium text-gray-900 dark:text-white mb-1">Increase engagement</h5>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">Add interactive elements like questions or reflection prompts to increase audience engagement.</p>
+                            <div class="flex items-center">
+                              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 mr-2">
+                                Engagement
+                              </span>
+                              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Practical Value
+                              </span>
+                            </div>
+                          </div>
+                          <button onclick="showRecommendationDetails()" class="text-jstar-blue hover:text-faith-purple text-sm">
+                            View Details
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <!-- RECOMMENDATION 5 -->
+                      <div class="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                        <div class="flex justify-between items-start">
+                          <div>
+                            <h5 class="font-medium text-gray-900 dark:text-white mb-1">Deepen faith integration</h5>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">Incorporate more biblical principles throughout your content, not just in the introduction.</p>
+                            <div class="flex items-center">
+                              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 mr-2">
+                                Faith Integration
+                              </span>
+                              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                Content Improvement
+                              </span>
+                            </div>
+                          </div>
+                          <button onclick="showRecommendationDetails()" class="text-jstar-blue hover:text-faith-purple text-sm">
+                            View Details
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="mt-4 flex justify-center">
+                      <button class="text-jstar-blue hover:text-faith-purple text-sm">
+                        View All 12 Recommendations
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div class="mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                      <h4 class="text-lg font-medium text-gray-900 dark:text-white">Community Recommendations</h4>
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                        5 Recommendations
+                      </span>
+                    </div>
+                    
+                    <div class="space-y-4">
+                      <!-- RECOMMENDATION 1 -->
+                      <div class="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                        <div class="flex justify-between items-start">
+                          <div>
+                            <h5 class="font-medium text-gray-900 dark:text-white mb-1">Host weekly prayer call</h5>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">Based on your content about prayer integration, consider hosting a weekly community prayer call.</p>
+                            <div class="flex items-center">
+                              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 mr-2">
+                                Community Building
+                              </span>
+                              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Faith Integration
+                              </span>
+                            </div>
+                          </div>
+                          <button onclick="showRecommendationDetails()" class="text-jstar-blue hover:text-faith-purple text-sm">
+                            View Details
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <!-- RECOMMENDATION 2 -->
+                      <div class="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                        <div class="flex justify-between items-start">
+                          <div>
+                            <h5 class="font-medium text-gray-900 dark:text-white mb-1">Create resource sharing channel</h5>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">Based on your content templates, consider creating a dedicated channel for resource sharing.</p>
+                            <div class="flex items-center">
+                              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 mr-2">
+                                Community Building
+                              </span>
+                              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                Content Improvement
+                              </span>
+                            </div>
+                          </div>
+                          <button onclick="showRecommendationDetails()" class="text-jstar-blue hover:text-faith-purple text-sm">
+                            View Details
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <!-- RECOMMENDATION 3 -->
+                      <div class="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                        <div class="flex justify-between items-start">
+                          <div>
+                            <h5 class="font-medium text-gray-900 dark:text-white mb-1">Launch monthly workshop</h5>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">Based on your faith integration content, consider hosting monthly workshops on practical application.</p>
+                            <div class="flex items-center">
+                              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 mr-2">
+                                Community Building
+                              </span>
+                              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Faith Integration
+                              </span>
+                            </div>
+                          </div>
+                          <button onclick="showRecommendationDetails()" class="text-jstar-blue hover:text-faith-purple text-sm">
+                            View Details
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="mt-4 flex justify-center">
+                      <button class="text-jstar-blue hover:text-faith-purple text-sm">
+                        View All 5 Recommendations
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                
+                <div>
+                  <div class="bg-gray-50 dark:bg-gray-900 rounded-xl p-6 mb-6">
+                    <h4 class="font-medium text-gray-900 dark:text-white mb-3">Recommendation Insights</h4>
+                    
+                    <div class="h-64 mb-6">
+                      <canvas id="recommendation-insights-chart"></canvas>
+                    </div>
+                    
+                    <div class="space-y-2">
+                      <div class="flex items-center">
+                        <div class="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
+                        <div class="flex-1">
+                          <p class="text-sm font-medium text-gray-900 dark:text-white">Content Improvement</p>
+                          <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                            <div class="bg-blue-500 h-1.5 rounded-full" style="width: 40%"></div>
+                          </div>
+                        </div>
+                        <span class="text-sm text-gray-600 dark:text-gray-400 ml-2">40%</span>
+                      </div>
+                      
+                      <div class="flex items-center">
+                        <div class="w-3 h-3 rounded-full bg-purple-500 mr-2"></div>
+                        <div class="flex-1">
+                          <p class="text-sm font-medium text-gray-900 dark:text-white">Faith Integration</p>
+                          <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                            <div class="bg-purple-500 h-1.5 rounded-full" style="width: 25%"></div>
+                          </div>
+                        </div>
+                        <span class="text-sm text-gray-600 dark:text-gray-400 ml-2">25%</span>
+                      </div>
+                      
+                      <div class="flex items-center">
+                        <div class="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
+                        <div class="flex-1">
+                          <p class="text-sm font-medium text-gray-900 dark:text-white">Engagement</p>
+                          <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                            <div class="bg-yellow-500 h-1.5 rounded-full" style="width: 15%"></div>
+                          </div>
+                        </div>
+                        <span class="text-sm text-gray-600 dark:text-gray-400 ml-2">15%</span>
+                      </div>
+                      
+                      <div class="flex items-center">
+                        <div class="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+                        <div class="flex-1">
+                          <p class="text-sm font-medium text-gray-900 dark:text-white">Community Building</p>
+                          <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                            <div class="bg-green-500 h-1.5 rounded-full" style="width: 20%"></div>
+                          </div>
+                        </div>
+                        <span class="text-sm text-gray-600 dark:text-gray-400 ml-2">20%</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="bg-gray-50 dark:bg-gray-900 rounded-xl p-6">
+                    <h4 class="font-medium text-gray-900 dark:text-white mb-3">Implementation Priority</h4>
+                    
+                    <div class="space-y-4">
+                      <div class="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                        <div>
+                          <p class="font-medium text-gray-900 dark:text-white">Improve scripture integration</p>
+                          <p class="text-xs text-gray-500 dark:text-gray-400">High priority</p>
+                        </div>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                          Critical
+                        </span>
+                      </div>
+                      
+                      <div class="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                        <div>
+                          <p class="font-medium text-gray-900 dark:text-white">Enhance practical application</p>
+                          <p class="text-xs text-gray-500 dark:text-gray-400">High priority</p>
+                        </div>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                          High
+                        </span>
+                      </div>
+                      
+                      <div class="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                        <div>
+                          <p class="font-medium text-gray-900 dark:text-white">Optimize structure</p>
+                          <p class="text-xs text-gray-500 dark:text-gray-400">Medium priority</p>
+                        </div>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                          Medium
+                        </span>
+                      </div>
+                      
+                      <div class="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                        <div>
+                          <p class="font-medium text-gray-900 dark:text-white">Increase engagement</p>
+                          <p class="text-xs text-gray-500 dark:text-gray-400">Medium priority</p>
+                        </div>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                          Medium
+                        </span>
+                      </div>
+                      
+                      <div class="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                        <div>
+                          <p class="font-medium text-gray-900 dark:text-white">Deepen faith integration</p>
+                          <p class="text-xs text-gray-500 dark:text-gray-400">Low priority</p>
+                        </div>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          Low
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- RECOMMENDATION DETAILS MODAL -->
+          <div id="recommendation-details" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden transition-opacity duration-300 opacity-0">
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-2xl">
+              <div class="flex justify-end">
+                <button onclick="closeRecommendationDetails()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              
+              <div class="text-center mb-6">
+                <div class="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Improve Scripture Integration</h3>
+                <p class="text-gray-600 dark:text-gray-400">Recommendation for enhancing biblical foundation in your content</p>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <h4 class="font-medium text-gray-900 dark:text-white mb-3">Current State</h4>
+                  
+                  <div class="space-y-3">
+                    <div class="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
+                      <p class="text-gray-600 dark:text-gray-400 text-sm">
+                        Your current content includes general references to faith principles but lacks specific scripture references that would strengthen the biblical foundation.
+                      </p>
+                    </div>
+                    
+                    <div class="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
+                      <h5 class="font-medium text-gray-900 dark:text-white mb-1">Key Areas for Improvement</h5>
+                      <ul class="list-disc pl-5 space-y-1 text-gray-600 dark:text-gray-400">
+                        <li>Specific scripture references are missing</li>
+                        <li>Biblical principles are mentioned but not deeply explored</li>
+                        <li>Application of scripture to content creation is vague</li>
+                        <li>No clear connection between scripture and practical steps</li>
+                      </ul>
+                    </div>
+                    
+                    <div class="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
+                      <h5 class="font-medium text-gray-900 dark:text-white mb-1">Content Examples</h5>
+                      <ul class="list-disc pl-5 space-y-1 text-gray-600 dark:text-gray-400">
+                        <li>"Pray before creating" (general statement)</li>
+                        <li>"Seek God's guidance" (lacks specific scripture)</li>
+                        <li>"Be faithful in your work" (needs biblical context)</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                
+                <div>
+                  <h4 class="font-medium text-gray-900 dark:text-white mb-3">Recommended Improvements</h4>
+                  
+                  <div class="space-y-3">
+                    <div class="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
+                      <h5 class="font-medium text-gray-900 dark:text-white mb-1">Specific Scripture References</h5>
+                      <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">
+                        Add specific scripture references that directly support your content points:
+                      </p>
+                      <ul class="list-disc pl-5 space-y-1 text-gray-600 dark:text-gray-400">
+                        <li>Proverbs 3:5-6 for guidance in content creation</li>
+                        <li>Colossians 3:23-24 for working with excellence</li>
+                        <li>Matthew 5:16 for letting your light shine through content</li>
+                        <li>2 Timothy 3:16-17 for scripture-based content</li>
+                      </ul>
+                    </div>
+                    
+                    <div class="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
+                      <h5 class="font-medium text-gray-900 dark:text-white mb-1">Practical Application Framework</h5>
+                      <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">
+                        Create a framework for applying scripture to content creation:
+                      </p>
+                      <ol class="list-decimal pl-5 space-y-1 text-gray-600 dark:text-gray-400">
+                        <li>Identify relevant scripture for your topic</li>
+                        <li>Explain the biblical principle in context</li>
+                        <li>Provide specific examples of application</li>
+                        <li>Create actionable steps for implementation</li>
+                        <li>Include reflection questions for readers</li>
+                      </ol>
+                    </div>
+                    
+                    <div class="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
+                      <h5 class="font-medium text-gray-900 dark:text-white mb-1">Implementation Example</h5>
+                      <p class="text-gray-600 dark:text-gray-400 text-sm">
+                        Instead of: "Pray before creating content"<br><br>
+                        Try: "Before starting your content creation process, spend time in prayer using Psalm 119:105: 'Your word is a lamp to my feet and a light to my path.' Ask God to illuminate your creative process and guide your decisions. Then, as you create, keep Colossians 3:23-24 in mind: 'Whatever you do, work at it with all your heart, as working for the Lord, not for human masters... It is the Lord Christ you are serving.' This mindset shift transforms content creation from a task into an act of worship."
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="flex justify-end space-x-3">
+                <button onclick="closeRecommendationDetails()"
+                        class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-lg font-medium">
+                  Close
+                </button>
+                <button class="px-4 py-2 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium">
+                  Implement Recommendation
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- FAITH VERIFICATION MODAL -->
+          <div id="faith-verification-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden transition-opacity duration-300 opacity-0">
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-2xl">
+              <div class="flex justify-end">
+                <button onclick="closeFaithVerificationModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              
+              <div class="text-center mb-6">
+                <div class="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Faith Verification Request</h3>
+                <p class="text-gray-600 dark:text-gray-400">Review and verify this user's faith integration practices</p>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <h4 class="font-medium text-gray-900 dark:text-white mb-3">User Information</h4>
+                  
+                  <div class="space-y-3">
+                    <div class="flex items-start">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-jstar-blue mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      <div>
+                        <p class="font-medium text-gray-900 dark:text-white">Sarah Johnson</p>
+                        <p class="text-gray-600 dark:text-gray-400">Content Creator</p>
+                      </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-jstar-blue mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.9c.52 0 1.02.13 1.46.36L19.7 10.6A6 6 0 0 1 21 12.02V19H3V6a.905.905 0 01.055-.189h.006z" />
+                      </svg>
+                      <div>
+                        <p class="font-medium text-gray-900 dark:text-white">Website</p>
+                        <p class="text-gray-600 dark:text-gray-400">sarahjohnson.com</p>
+                      </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-jstar-blue mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <div>
+                        <p class="font-medium text-gray-900 dark:text-white">Location</p>
+                        <p class="text-gray-600 dark:text-gray-400">Austin, TX</p>
+                      </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-jstar-blue mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                      <div>
+                        <p class="font-medium text-gray-900 dark:text-white">Joined</p>
+                        <p class="text-gray-600 dark:text-gray-400">March 2024</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div>
+                  <h4 class="font-medium text-gray-900 dark:text-white mb-3">Verification Details</h4>
+                  
+                  <div class="space-y-3">
+                    <div>
+                      <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Faith Integration Statement</p>
+                      <p class="text-gray-600 dark:text-gray-400 text-sm">
+                        "I integrate prayer into every aspect of my creative process, using scripture as a foundation for decision-making. My work is guided by Proverbs 3:5-6 and Colossians 3:23-24, seeking to create content that reflects God's character."
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Community Involvement</p>
+                      <p class="text-gray-600 dark:text-gray-400 text-sm">
+                        "I participate in weekly prayer calls and host monthly workshops on integrating faith with technology. My goal is to build a community where creators can grow together spiritually and professionally."
+                      </p>
+                    </div>
+                    
+                    <div class="flex items-start">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-jstar-blue mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <div>
+                        <p class="font-medium text-gray-900 dark:text-white">Verification Status</p>
+                        <p class="text-gray-600 dark:text-gray-400">Pending Review</p>
+                      </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-jstar-blue mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div>
+                        <p class="font-medium text-gray-900 dark:text-white">Requested Tier</p>
+                        <p class="text-gray-600 dark:text-gray-400">Tier 3</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="flex justify-end space-x-3">
+                <button onclick="closeFaithVerificationModal()"
+                        class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-lg font-medium">
+                  Cancel
+                </button>
+                <button class="px-4 py-2 bg-danger-red hover:bg-red-700 text-white rounded-lg font-medium">
+                  Reject
+                </button>
+                <button class="px-4 py-2 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium">
+                  Approve
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

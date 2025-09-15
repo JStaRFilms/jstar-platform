@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - Component Showcase</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Brand Colors */
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            
+            /* Light Theme */
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+            --shadow: rgba(0, 0, 0, 0.1);
+            
+            /* Semantic Colors */
+            --error: #E53E3E;
+            --warning: #DD6B20;
+            --info: #3182CE;
+            --success: #38A169;
+            
+            /* Spacing */
+            --space-xs: 0.25rem;
+            --space-sm: 0.5rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            --space-2xl: 3rem;
+            
+            /* Border Radius */
+            --radius-sm: 0.25rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --radius-full: 9999px;
+            
+            /* Typography */
+            --text-xs: 0.75rem;
+            --text-sm: 0.875rem;
+            --text-base: 1rem;
+            --text-lg: 1.125rem;
+            --text-xl: 1.25rem;
+            --text-2xl: 1.5rem;
+            --text-3xl: 1.875rem;
+            --text-4xl: 2.25rem;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            line-height: 1.6;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: var(--brand-blue);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 600;
+            z-index: 1000;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--space-xl);
+        }
+
+        h1 {
+            font-size: var(--text-4xl);
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: var(--space-2xl);
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        h2 {
+            font-size: var(--text-2xl);
+            font-weight: 600;
+            color: var(--brand-blue);
+            margin: var(--space-2xl) 0 var(--space-lg) 0;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: var(--space-sm);
+        }
+
+        .section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            margin-bottom: var(--space-xl);
+            box-shadow: var(--shadow-md);
+        }
+
+        .component-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-lg);
+            margin-bottom: var(--space-lg);
+        }
+
+        .component-demo {
+            padding: var(--space-lg);
+            background: var(--bg-primary);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+        }
+
+        /* Button Styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: var(--text-base);
+            margin: var(--space-xs);
+        }
+
+        .btn-primary {
+            background: var(--brand-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #3A7BC8;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--brand-blue);
+            color: var(--brand-blue);
+            padding: 10px 22px;
+        }
+
+        .btn-secondary:hover {
+            background: var(--brand-blue);
+            color: white;
+        }
+
+        .btn-cta {
+            background: var(--warm-orange);
+            color: white;
+            padding: 16px 32px;
+            border-radius: var(--radius-lg);
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-cta:hover {
+            background: #E55A5A;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--error);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: var(--text-sm);
+        }
+
+        .btn-lg {
+            padding: 16px 32px;
+            font-size: var(--text-lg);
+        }
+
+        /* Card Styles */
+        .card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-elevated {
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-header {
+            font-size: var(--text-lg);
+            font-weight: 600;
+            margin-bottom: var(--space-md);
+            color: var(--text-primary);
+        }
+
+        .card-content {
+            color: var(--text-secondary);
+            margin-bottom: var(--space-md);
+        }
+
+        .card-footer {
+            border-top: 1px solid var(--border);
+            padding-top: var(--space-md);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Input Styles */
+        .input-group {
+            margin-bottom: var(--space-md);
+        }
+
+        .input-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+            color: var(--text-primary);
+        }
+
+        .input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: var(--text-base);
+            transition: all 0.3s ease;
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: var(--brand-blue);
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+
+        .input-error {
+            border-color: var(--error);
+        }
+
+        .input-success {
+            border-color: var(--success);
+        }
+
+        .textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .select {
+            appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg fill="%234A5568" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        /* Badge/Tag Styles */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: var(--radius-full);
+            font-size: var(--text-sm);
+            font-weight: 600;
+            margin: 2px;
+        }
+
+        .badge-primary {
+            background: var(--brand-blue);
+            color: white;
+        }
+
+        .badge-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        .badge-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .badge-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .badge-error {
+            background: var(--error);
+            color: white;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-xl);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-lg);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: var(--space-md);
+        }
+
+        .modal-title {
+            font-size: var(--text-xl);
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: var(--text-xl);
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: var(--space-sm);
+            border-radius: var(--radius-md);
+        }
+
+        .modal-close:hover {
+            background: var(--bg-secondary);
+        }
+
+        /* Alert Styles */
+        .alert {
+            padding: var(--space-md);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-md);
+            border-left: 4px solid;
+        }
+
+        .alert-info {
+            background: rgba(49, 130, 206, 0.1);
+            border-color: var(--info);
+            color: var(--info);
+        }
+
+        .alert-success {
+            background: rgba(56, 161, 105, 0.1);
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .alert-warning {
+            background: rgba(221, 107, 32, 0.1);
+            border-color: var(--warning);
+            color: var(--warning);
+        }
+
+        .alert-error {
+            background: rgba(229, 62, 62, 0.1);
+            border-color: var(--error);
+            color: var(--error);
+        }
+
+        /* Navigation Styles */
+        .nav {
+            display: flex;
+            align-items: center;
+            padding: var(--space-md) 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: var(--space-lg);
+        }
+
+        .nav-brand {
+            font-size: var(--text-xl);
+            font-weight: 700;
+            color: var(--brand-blue);
+            text-decoration: none;
+            margin-right: auto;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: var(--space-lg);
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--brand-blue);
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--brand-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Progress Bar */
+        .progress {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--brand-blue);
+            border-radius: var(--radius-full);
+            transition: width 0.3s ease;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: var(--space-md);
+            }
+            
+            .component-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()">🌓 Toggle Theme</button>
+    
+    <div class="container">
+        <h1>J StaR Platform - Component Library</h1>
+        
+        <div class="section">
+            <h2>🔘 Buttons</h2>
+            <div class="component-grid">
+                <div class="component-demo">
+                    <h3>Primary Actions</h3>
+                    <button class="btn btn-primary">Primary Button</button>
+                    <button class="btn btn-secondary">Secondary Button</button>
+                    <button class="btn btn-cta">Call to Action</button>
+                </div>
+                <div class="component-demo">
+                    <h3>Semantic Colors</h3>
+                    <button class="btn btn-success">Success</button>
+                    <button class="btn btn-danger">Danger</button>
+                    <button class="btn" style="background: var(--warning); color: white;">Warning</button>
+                </div>
+                <div class="component-demo">
+                    <h3>Sizes</h3>
+                    <button class="btn btn-primary btn-sm">Small</button>
+                    <button class="btn btn-primary">Default</button>
+                    <button class="btn btn-primary btn-lg">Large</button>
+                </div>
+                <div class="component-demo">
+                    <h3>States</h3>
+                    <button class="btn btn-primary">Normal</button>
+                    <button class="btn btn-primary" disabled style="opacity: 0.5;">Disabled</button>
+                    <button class="btn btn-primary">
+                        <span class="spinner" style="margin-right: 8px; width: 16px; height: 16px;"></span>
+                        Loading
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📄 Cards</h2>
+            <div class="component-grid">
+                <div class="card">
+                    <div class="card-header">Standard Card</div>
+                    <div class="card-content">
+                        This is a standard card with hover effects and proper spacing.
+                    </div>
+                    <div class="card-footer">
+                        <span class="badge badge-primary">Featured</span>
+                        <button class="btn btn-primary btn-sm">Action</button>
+                    </div>
+                </div>
+                <div class="card card-elevated">
+                    <div class="card-header">Elevated Card</div>
+                    <div class="card-content">
+                        This card has enhanced shadow for more prominence.
+                    </div>
+                    <div class="card-footer">
+                        <span class="badge badge-success">New</span>
+                        <button class="btn btn-secondary btn-sm">Learn More</button>
+                    </div>
+                </div>
+                <div class="card" style="background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal)); color: white;">
+                    <div class="card-header" style="color: white;">Gradient Card</div>
+                    <div class="card-content" style="color: rgba(255,255,255,0.9);">
+                        Cards can feature gradient backgrounds for special content.
+                    </div>
+                    <div class="card-footer" style="border-color: rgba(255,255,255,0.2);">
+                        <span class="badge" style="background: rgba(255,255,255,0.2); color: white;">Premium</span>
+                        <button class="btn" style="background: white; color: var(--brand-blue);" class="btn-sm">Upgrade</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📝 Form Elements</h2>
+            <div class="component-grid">
+                <div class="component-demo">
+                    <h3>Input Fields</h3>
+                    <div class="input-group">
+                        <label class="input-label">Standard Input</label>
+                        <input class="input" type="text" placeholder="Enter text here...">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Email Input</label>
+                        <input class="input" type="email" placeholder="john@jstarfilms.com">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Password Input</label>
+                        <input class="input" type="password" placeholder="••••••••">
+                    </div>
+                </div>
+                <div class="component-demo">
+                    <h3>Selection & Text</h3>
+                    <div class="input-group">
+                        <label class="input-label">Select Dropdown</label>
+                        <select class="input select">
+                            <option>Choose an option</option>
+                            <option>Video Production</option>
+                            <option>App Development</option>
+                            <option>Consulting</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Textarea</label>
+                        <textarea class="input textarea" placeholder="Tell us about your project..."></textarea>
+                    </div>
+                </div>
+                <div class="component-demo">
+                    <h3>Input States</h3>
+                    <div class="input-group">
+                        <label class="input-label">Error State</label>
+                        <input class="input input-error" type="text" value="Invalid input">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Success State</label>
+                        <input class="input input-success" type="text" value="Valid input">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Disabled State</label>
+                        <input class="input" type="text" value="Disabled" disabled style="opacity: 0.5;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🏷️ Badges & Tags</h2>
+            <div class="component-demo">
+                <h3>Status Badges</h3>
+                <span class="badge badge-primary">Primary</span>
+                <span class="badge badge-secondary">Secondary</span>
+                <span class="badge badge-success">Success</span>
+                <span class="badge badge-warning">Warning</span>
+                <span class="badge badge-error">Error</span>
+                
+                <h3 style="margin-top: var(--space-lg);">Content Tags</h3>
+                <span class="badge badge-secondary">React</span>
+                <span class="badge badge-secondary">Next.js</span>
+                <span class="badge badge-secondary">TypeScript</span>
+                <span class="badge badge-secondary">Tailwind</span>
+                <span class="badge badge-secondary">AI Integration</span>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>⚠️ Alerts</h2>
+            <div class="alert alert-info">
+                <strong>Info:</strong> This is an informational message for users.
+            </div>
+            <div class="alert alert-success">
+                <strong>Success:</strong> Your action was completed successfully!
+            </div>
+            <div class="alert alert-warning">
+                <strong>Warning:</strong> Please review this information carefully.
+            </div>
+            <div class="alert alert-error">
+                <strong>Error:</strong> Something went wrong. Please try again.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🧭 Navigation</h2>
+            <div class="component-demo">
+                <nav class="nav">
+                    <a href="#" class="nav-brand">J StaR Films</a>
+                    <ul class="nav-links">
+                        <li><a href="#" class="nav-link active">Home</a></li>
+                        <li><a href="#" class="nav-link">About</a></li>
+                        <li><a href="#" class="nav-link">Portfolio</a></li>
+                        <li><a href="#" class="nav-link">Services</a></li>
+                        <li><a href="#" class="nav-link">Store</a></li>
+                        <li><a href="#" class="nav-link">Contact</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>⏳ Loading & Progress</h2>
+            <div class="component-grid">
+                <div class="component-demo">
+                    <h3>Loading Spinners</h3>
+                    <div style="display: flex; gap: var(--space-md); align-items: center;">
+                        <span class="spinner"></span>
+                        <span class="spinner" style="width: 32px; height: 32px; border-width: 4px;"></span>
+                        <span class="spinner" style="width: 40px; height: 40px; border-width: 5px;"></span>
+                    </div>
+                </div>
+                <div class="component-demo">
+                    <h3>Progress Bars</h3>
+                    <div style="margin-bottom: var(--space-md);">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: var(--space-sm);">
+                            <span>Upload Progress</span>
+                            <span>75%</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar" style="width: 75%;"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: var(--space-sm);">
+                            <span>Processing</span>
+                            <span>45%</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar" style="width: 45%; background: var(--creative-teal);"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔘 Interactive Demo</h2>
+            <div class="component-demo" style="text-align: center;">
+                <button class="btn btn-primary" onclick="showModal()">Open Modal Demo</button>
+                <button class="btn btn-secondary" onclick="showAlert()">Show Alert</button>
+                <button class="btn btn-cta" onclick="simulateLoading(this)">Simulate Loading</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Demo -->
+    <div class="modal-overlay" id="modalDemo">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Modal Example</h3>
+                <button class="modal-close" onclick="hideModal()">&times;</button>
+            </div>
+            <div>
+                <p>This is a modal dialog demonstration. It features:</p>
+                <ul style="margin: var(--space-md) 0; padding-left: var(--space-lg);">
+                    <li>Backdrop overlay</li>
+                    <li>Smooth animations</li>
+                    <li>Accessible design</li>
+                    <li>Responsive behavior</li>
+                </ul>
+                <div style="display: flex; gap: var(--space-md); justify-content: flex-end; margin-top: var(--space-lg);">
+                    <button class="btn btn-secondary" onclick="hideModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="hideModal()">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        function showModal() {
+            document.getElementById('modalDemo').classList.add('active');
+        }
+
+        function hideModal() {
+            document.getElementById('modalDemo').classList.remove('active');
+        }
+
+        function showAlert() {
+            alert('This would normally be a custom toast notification!');
+        }
+
+        function simulateLoading(button) {
+            const originalText = button.textContent;
+            button.innerHTML = '<span class="spinner" style="margin-right: 8px; width: 16px; height: 16px;"></span>Loading...';
+            button.disabled = true;
+            
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.disabled = false;
+            }, 2000);
+        }
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+
+        // Close modal on backdrop click
+        document.getElementById('modalDemo').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideModal();
+            }
+        });
+    </script>
+</body>
+</html>

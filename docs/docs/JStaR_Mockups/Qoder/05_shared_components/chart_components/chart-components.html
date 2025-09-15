@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chart Components - J StaR Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .chart-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .chart-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .chart-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        
+        .chart-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--brand-blue);
+        }
+        
+        .chart-change {
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .change-up { color: var(--success-green); }
+        .change-down { color: var(--warm-orange); }
+        
+        .chart-container {
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+            background: var(--bg-secondary);
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        /* Line Chart */
+        .line-chart {
+            position: relative;
+            height: 100%;
+        }
+        
+        .line-chart svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .line-path {
+            fill: none;
+            stroke: var(--brand-blue);
+            stroke-width: 2;
+            stroke-linecap: round;
+        }
+        
+        .line-area {
+            fill: url(#lineGradient);
+        }
+        
+        /* Bar Chart */
+        .bar-chart {
+            display: flex;
+            align-items: end;
+            justify-content: space-around;
+            height: 100%;
+            padding: 20px;
+        }
+        
+        .bar {
+            width: 20px;
+            background: var(--brand-blue);
+            border-radius: 2px 2px 0 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .bar:hover {
+            background: var(--creative-teal);
+            transform: scaleY(1.1);
+        }
+        
+        /* Pie Chart */
+        .pie-chart {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            position: relative;
+        }
+        
+        .pie-svg {
+            width: 150px;
+            height: 150px;
+            transform: rotate(-90deg);
+        }
+        
+        .pie-segment {
+            fill: none;
+            stroke-width: 30;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .pie-segment:hover {
+            stroke-width: 35;
+        }
+        
+        .pie-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        
+        .pie-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--brand-blue);
+        }
+        
+        .pie-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Progress Chart */
+        .progress-chart {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+            padding: 20px;
+        }
+        
+        .progress-item {
+            margin-bottom: 1rem;
+        }
+        
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .progress-label {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .progress-value {
+            font-weight: 600;
+            color: var(--brand-blue);
+            font-size: 0.9rem;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+        
+        /* Donut Chart */
+        .donut-chart {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            position: relative;
+        }
+        
+        .donut-svg {
+            width: 120px;
+            height: 120px;
+            transform: rotate(-90deg);
+        }
+        
+        .donut-bg {
+            fill: none;
+            stroke: var(--border);
+            stroke-width: 15;
+        }
+        
+        .donut-progress {
+            fill: none;
+            stroke: var(--brand-blue);
+            stroke-width: 15;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s ease;
+        }
+        
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .metric-item {
+            text-align: center;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 0.5rem;
+        }
+        
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--brand-blue);
+            margin-bottom: 0.25rem;
+        }
+        
+        .metric-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Legend */
+        .chart-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="page-title">Chart Components Library</h1>
+        
+        <div class="charts-grid">
+            <!-- Line Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <h3 class="chart-title">Revenue Growth</h3>
+                        <div class="chart-value">$47,294</div>
+                        <div class="chart-change change-up">
+                            <i class="fas fa-arrow-up"></i>
+                            +12.5% vs last month
+                        </div>
+                    </div>
+                    <select class="btn">
+                        <option>Last 7 days</option>
+                        <option>Last 30 days</option>
+                        <option>Last 90 days</option>
+                    </select>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="line-chart">
+                        <svg viewBox="0 0 400 200">
+                            <defs>
+                                <linearGradient id="lineGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" style="stop-color:var(--brand-blue);stop-opacity:0.3" />
+                                    <stop offset="100%" style="stop-color:var(--brand-blue);stop-opacity:0" />
+                                </linearGradient>
+                            </defs>
+                            <path class="line-area" d="M 20 180 L 60 140 L 100 120 L 140 90 L 180 100 L 220 70 L 260 60 L 300 40 L 340 50 L 380 30 L 380 180 Z"/>
+                            <path class="line-path" d="M 20 180 L 60 140 L 100 120 L 140 90 L 180 100 L 220 70 L 260 60 L 300 40 L 340 50 L 380 30"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bar Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <h3 class="chart-title">Monthly Visitors</h3>
+                        <div class="chart-value">156,847</div>
+                        <div class="chart-change change-up">
+                            <i class="fas fa-arrow-up"></i>
+                            +8.2% vs last month
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="bar-chart">
+                        <div class="bar" style="height: 60%;" title="Jan: 45K"></div>
+                        <div class="bar" style="height: 80%;" title="Feb: 52K"></div>
+                        <div class="bar" style="height: 45%;" title="Mar: 38K"></div>
+                        <div class="bar" style="height: 90%;" title="Apr: 61K"></div>
+                        <div class="bar" style="height: 70%;" title="May: 48K"></div>
+                        <div class="bar" style="height: 95%;" title="Jun: 67K"></div>
+                        <div class="bar" style="height: 85%;" title="Jul: 59K"></div>
+                    </div>
+                </div>
+                
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <div class="metric-value">67K</div>
+                        <div class="metric-label">This Month</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">59K</div>
+                        <div class="metric-label">Last Month</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pie Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <h3 class="chart-title">Traffic Sources</h3>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="pie-chart">
+                        <svg class="pie-svg" viewBox="0 0 100 100">
+                            <circle class="pie-segment" cx="50" cy="50" r="35" 
+                                stroke="var(--brand-blue)" 
+                                stroke-dasharray="65.97 164.93" 
+                                stroke-dashoffset="0">
+                            </circle>
+                            <circle class="pie-segment" cx="50" cy="50" r="35" 
+                                stroke="var(--creative-teal)" 
+                                stroke-dasharray="43.98 186.92" 
+                                stroke-dashoffset="-65.97">
+                            </circle>
+                            <circle class="pie-segment" cx="50" cy="50" r="35" 
+                                stroke="var(--warm-orange)" 
+                                stroke-dasharray="32.99 197.91" 
+                                stroke-dashoffset="-109.95">
+                            </circle>
+                            <circle class="pie-segment" cx="50" cy="50" r="35" 
+                                stroke="var(--success-green)" 
+                                stroke-dasharray="21.99 208.91" 
+                                stroke-dashoffset="-142.94">
+                            </circle>
+                        </svg>
+                        <div class="pie-center">
+                            <div class="pie-value">89.2K</div>
+                            <div class="pie-label">Total</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chart-legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: var(--brand-blue);"></div>
+                        <span>Organic (40%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: var(--creative-teal);"></div>
+                        <span>Social (25%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: var(--warm-orange);"></div>
+                        <span>Direct (20%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: var(--success-green);"></div>
+                        <span>Referral (15%)</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Progress Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <h3 class="chart-title">Goal Progress</h3>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="progress-chart">
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-label">Revenue Goal</span>
+                                <span class="progress-value">78%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 78%; background: var(--brand-blue);"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-label">User Acquisition</span>
+                                <span class="progress-value">92%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 92%; background: var(--success-green);"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-label">Content Creation</span>
+                                <span class="progress-value">65%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 65%; background: var(--creative-teal);"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span class="progress-label">Engagement Rate</span>
+                                <span class="progress-value">45%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 45%; background: var(--warm-orange);"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Donut Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <h3 class="chart-title">Storage Usage</h3>
+                        <div class="chart-value">73%</div>
+                        <div class="chart-change change-down">
+                            <i class="fas fa-arrow-down"></i>
+                            2.1GB available
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="donut-chart">
+                        <svg class="donut-svg" viewBox="0 0 100 100">
+                            <circle class="donut-bg" cx="50" cy="50" r="35"></circle>
+                            <circle class="donut-progress" cx="50" cy="50" r="35" 
+                                stroke-dasharray="219.91" 
+                                stroke-dashoffset="59.37">
+                            </circle>
+                        </svg>
+                        <div class="pie-center">
+                            <div class="pie-value">7.3GB</div>
+                            <div class="pie-label">Used</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <div class="metric-value">10GB</div>
+                        <div class="metric-label">Total</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">2.7GB</div>
+                        <div class="metric-label">Available</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Engagement Metrics -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <h3 class="chart-title">Engagement Metrics</h3>
+                    </div>
+                </div>
+                
+                <div class="metrics-grid" style="grid-template-columns: repeat(2, 1fr);">
+                    <div class="metric-item">
+                        <div class="metric-value">12.4%</div>
+                        <div class="metric-label">Engagement Rate</div>
+                        <div class="chart-change change-up" style="margin-top: 0.5rem;">
+                            <i class="fas fa-arrow-up"></i>
+                            +2.1%
+                        </div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">2,847</div>
+                        <div class="metric-label">Total Likes</div>
+                        <div class="chart-change change-up" style="margin-top: 0.5rem;">
+                            <i class="fas fa-arrow-up"></i>
+                            +156
+                        </div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">456</div>
+                        <div class="metric-label">Comments</div>
+                        <div class="chart-change change-up" style="margin-top: 0.5rem;">
+                            <i class="fas fa-arrow-up"></i>
+                            +23
+                        </div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">89</div>
+                        <div class="metric-label">Shares</div>
+                        <div class="chart-change change-down" style="margin-top: 0.5rem;">
+                            <i class="fas fa-arrow-down"></i>
+                            -5
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Bar chart hover effects
+        document.querySelectorAll('.bar').forEach(bar => {
+            bar.addEventListener('mouseenter', function() {
+                const tooltip = this.getAttribute('title');
+                // In a real implementation, you'd show a proper tooltip
+                console.log('Tooltip:', tooltip);
+            });
+        });
+        
+        // Animate progress bars on load
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                document.querySelectorAll('.progress-fill').forEach(fill => {
+                    const width = fill.style.width;
+                    fill.style.width = '0%';
+                    setTimeout(() => {
+                        fill.style.width = width;
+                    }, 100);
+                });
+            }, 500);
+        });
+        
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

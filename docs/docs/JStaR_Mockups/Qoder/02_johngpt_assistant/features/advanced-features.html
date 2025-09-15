@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Features - JohnGPT Assistant</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            color: white;
+            padding: 3rem 2rem;
+            border-radius: 1rem;
+            margin: 0 0 3rem 0;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+        
+        .feature-card {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-card.premium {
+            border-color: var(--warm-orange);
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(255, 142, 83, 0.1));
+        }
+        
+        .premium-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--warm-orange);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--brand-blue);
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            margin-bottom: 1.5rem;
+        }
+        
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-description {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.7;
+        }
+        
+        .feature-list {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+        
+        .feature-list li {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .feature-list li::before {
+            content: '✦';
+            color: var(--success-green);
+            font-weight: 600;
+        }
+        
+        .demo-section {
+            background: var(--bg-primary);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            border-left: 4px solid var(--brand-blue);
+            margin-bottom: 1.5rem;
+        }
+        
+        .demo-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--brand-blue);
+            margin-bottom: 0.5rem;
+        }
+        
+        .demo-content {
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        .btn-premium {
+            background: var(--warm-orange);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .pricing-note {
+            background: var(--bg-secondary);
+            border: 2px dashed var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+        
+        .pricing-note h3 {
+            color: var(--brand-blue);
+            margin-bottom: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .features-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Advanced Features</h1>
+            <p style="font-size: 1.1rem; opacity: 0.9;">
+                Unlock the full potential of JohnGPT with advanced capabilities designed for power users and professionals.
+            </p>
+        </div>
+
+        <div class="features-grid">
+            <!-- Custom Model Training -->
+            <div class="feature-card premium">
+                <div class="premium-badge">Premium</div>
+                <div class="feature-icon" style="background: var(--warm-orange);">🧠</div>
+                <h3 class="feature-title">Custom Model Training</h3>
+                <p class="feature-description">
+                    Train JohnGPT on your specific knowledge base, writing style, and business context for truly personalized assistance.
+                </p>
+                <ul class="feature-list">
+                    <li>Upload your documents and content</li>
+                    <li>Fine-tune responses to your style</li>
+                    <li>Create industry-specific knowledge</li>
+                    <li>Maintain context across sessions</li>
+                </ul>
+                <div class="demo-section">
+                    <div class="demo-title">Example Training Data:</div>
+                    <div class="demo-content">
+                        "Your brand voice guidelines.pdf" → Personalized responses<br>
+                        "Project templates.docx" → Contextual suggestions
+                    </div>
+                </div>
+                <button class="btn btn-premium">
+                    <i class="fas fa-rocket"></i>
+                    Upgrade for Training
+                </button>
+            </div>
+
+            <!-- Batch Processing -->
+            <div class="feature-card premium">
+                <div class="premium-badge">Premium</div>
+                <div class="feature-icon" style="background: var(--success-green);">⚡</div>
+                <h3 class="feature-title">Batch Processing</h3>
+                <p class="feature-description">
+                    Process multiple tasks simultaneously with advanced queuing and priority management.
+                </p>
+                <ul class="feature-list">
+                    <li>Queue up to 50 tasks at once</li>
+                    <li>Set priority levels for urgent items</li>
+                    <li>Automatic retry on failures</li>
+                    <li>Progress tracking and notifications</li>
+                </ul>
+                <div class="demo-section">
+                    <div class="demo-title">Batch Operations:</div>
+                    <div class="demo-content">
+                        • Generate 20 social media posts<br>
+                        • Analyze 15 competitor websites<br>
+                        • Create 10 video script outlines
+                    </div>
+                </div>
+                <button class="btn btn-premium">
+                    <i class="fas fa-layer-group"></i>
+                    Enable Batch Mode
+                </button>
+            </div>
+
+            <!-- Advanced Analytics -->
+            <div class="feature-card">
+                <div class="feature-icon" style="background: var(--creative-teal);">📊</div>
+                <h3 class="feature-title">Usage Analytics</h3>
+                <p class="feature-description">
+                    Deep insights into your AI usage patterns, productivity gains, and optimization opportunities.
+                </p>
+                <ul class="feature-list">
+                    <li>Conversation topic analysis</li>
+                    <li>Productivity metrics tracking</li>
+                    <li>Time saved calculations</li>
+                    <li>Usage pattern recommendations</li>
+                </ul>
+                <div class="demo-section">
+                    <div class="demo-title">This Month's Stats:</div>
+                    <div class="demo-content">
+                        💬 127 conversations | ⏱️ 23 hours saved<br>
+                        🎯 Top topics: Video strategy, Code review
+                    </div>
+                </div>
+                <button class="btn btn-primary">
+                    <i class="fas fa-chart-line"></i>
+                    View Analytics
+                </button>
+            </div>
+
+            <!-- API Access -->
+            <div class="feature-card premium">
+                <div class="premium-badge">Premium</div>
+                <div class="feature-icon" style="background: var(--brand-blue);">🔌</div>
+                <h3 class="feature-title">API Access</h3>
+                <p class="feature-description">
+                    Integrate JohnGPT directly into your applications with our comprehensive REST API.
+                </p>
+                <ul class="feature-list">
+                    <li>RESTful API endpoints</li>
+                    <li>Webhook support for events</li>
+                    <li>Rate limiting and quotas</li>
+                    <li>Comprehensive documentation</li>
+                </ul>
+                <div class="demo-section">
+                    <div class="demo-title">API Example:</div>
+                    <div class="demo-content">
+                        POST /api/v1/chat<br>
+                        {"message": "Generate video outline", "persona": "creative"}
+                    </div>
+                </div>
+                <button class="btn btn-premium">
+                    <i class="fas fa-code"></i>
+                    Get API Access
+                </button>
+            </div>
+
+            <!-- Voice Interactions -->
+            <div class="feature-card">
+                <div class="feature-icon" style="background: var(--warm-orange);">🎤</div>
+                <h3 class="feature-title">Voice Conversations</h3>
+                <p class="feature-description">
+                    Have natural voice conversations with JohnGPT for hands-free productivity.
+                </p>
+                <ul class="feature-list">
+                    <li>Natural speech recognition</li>
+                    <li>Voice response synthesis</li>
+                    <li>Multi-language support</li>
+                    <li>Background conversation mode</li>
+                </ul>
+                <div class="demo-section">
+                    <div class="demo-title">Voice Commands:</div>
+                    <div class="demo-content">
+                        "Hey JohnGPT, help me brainstorm video ideas"<br>
+                        "Switch to Systems Mentor mode"
+                    </div>
+                </div>
+                <button class="btn btn-primary">
+                    <i class="fas fa-microphone"></i>
+                    Try Voice Mode
+                </button>
+            </div>
+
+            <!-- Collaborative Features -->
+            <div class="feature-card premium">
+                <div class="premium-badge">Premium</div>
+                <div class="feature-icon" style="background: var(--success-green);">👥</div>
+                <h3 class="feature-title">Team Collaboration</h3>
+                <p class="feature-description">
+                    Share conversations, create team workspaces, and collaborate on projects with AI assistance.
+                </p>
+                <ul class="feature-list">
+                    <li>Shared team workspaces</li>
+                    <li>Conversation sharing and commenting</li>
+                    <li>Role-based access controls</li>
+                    <li>Team analytics and insights</li>
+                </ul>
+                <div class="demo-section">
+                    <div class="demo-title">Team Features:</div>
+                    <div class="demo-content">
+                        🏢 Creative Team Workspace (5 members)<br>
+                        📋 Shared project conversations
+                    </div>
+                </div>
+                <button class="btn btn-premium">
+                    <i class="fas fa-users"></i>
+                    Create Team
+                </button>
+            </div>
+        </div>
+
+        <div class="pricing-note">
+            <h3>Unlock Advanced Features</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                Upgrade to JohnGPT Pro to access all advanced features, unlimited usage, and priority support.
+            </p>
+            <button class="btn btn-premium" style="font-size: 1.1rem; padding: 1rem 2rem;">
+                <i class="fas fa-crown"></i>
+                Upgrade to Pro - $29/month
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Feature interactions
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const action = this.textContent.trim();
+                if (action.includes('Upgrade')) {
+                    alert('Redirecting to upgrade page...');
+                } else {
+                    alert(`${action} feature activated!`);
+                }
+            });
+        });
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

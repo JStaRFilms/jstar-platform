@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JOHNGPT | Mobile Chat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #171717;
+            --bg-secondary: #000000;
+            --bg-tertiary: #262626;
+            --text-primary: #f5f5f5;
+            --text-secondary: #a3a3a3;
+            --accent-purple: #8B5CF6;
+            --accent-blue: #3B82F6;
+        }
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #333; /* Mock background for the phone frame */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg-tertiary); }
+        ::-webkit-scrollbar-thumb { background-color: #555; border-radius: 4px; }
+
+        /* Prevents iOS zoom on input focus */
+        textarea {
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div id="mobile-frame" class="w-full max-w-sm h-full sm:h-[90vh] sm:max-h-[800px] bg-neutral-900 flex flex-col shadow-2xl sm:rounded-3xl overflow-hidden">
+        
+        <!-- Header -->
+        <header class="flex-shrink-0 flex items-center justify-between p-4 bg-black/50 backdrop-blur-sm border-b border-neutral-800">
+            <button class="p-2 -ml-2 text-neutral-400 hover:text-white transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
+            </button>
+            <div class="text-center">
+                <h1 class="font-semibold text-white">Brand Identity</h1>
+                <p class="text-xs text-neutral-400">JOHNGPT is generating...</p>
+            </div>
+            <button class="p-2 -mr-2 text-neutral-400 hover:text-white transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" /></svg>
+            </button>
+        </header>
+
+        <!-- Messages Area -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-6">
+            
+            <!-- User Message with Image -->
+            <div class="flex items-start gap-3 justify-end">
+                <div class="bg-accent-blue p-3 rounded-2xl rounded-br-lg max-w-[85%]">
+                    <p class="text-white">Hey, I'm working on a brand identity. Help me brainstorm a modern color palette for this logo draft.</p>
+                     <div class="mt-2 bg-sky-900/50 p-2 rounded-lg flex items-center gap-2 border border-sky-400/30">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-sky-300 flex-shrink-0"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                        <span class="text-sm font-medium truncate text-neutral-200">logo_draft.png</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Message with Rich Content -->
+            <div class="flex items-end gap-3">
+                <div class="w-8 h-8 flex-shrink-0 rounded-full bg-gradient-to-br from-accent-blue to-accent-purple"></div>
+                <div class="bg-neutral-800 p-3 rounded-2xl rounded-bl-lg max-w-[85%] space-y-3">
+                    <p class="text-neutral-300">Great start! Based on a modern, creative feel, here's a proposed dark mode color palette and the CSS variables for it.</p>
+                    
+                    <!-- Interactive Component: Color Palette -->
+                    <div class="bg-neutral-900/70 p-3 rounded-xl">
+                        <h3 class="font-semibold text-white text-sm mb-2">Dark Mode Palette</h3>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div class="space-y-1">
+                                <div class="h-10 w-full rounded" style="background-color: #171717;"></div>
+                                <div class="text-xs"><p class="font-medium text-white">BG</p><p class="text-neutral-400 font-mono">#171717</p></div>
+                            </div>
+                            <div class="space-y-1">
+                                <div class="h-10 w-full rounded" style="background-color: #3B82F6;"></div>
+                                <div class="text-xs"><p class="font-medium text-white">Primary</p><p class="text-neutral-400 font-mono">#3B82F6</p></div>
+                            </div>
+                            <div class="space-y-1">
+                                <div class="h-10 w-full rounded" style="background-color: #8B5CF6;"></div>
+                                <div class="text-xs"><p class="font-medium text-white">Accent</p><p class="text-neutral-400 font-mono">#8B5CF6</p></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Code Block Component -->
+                    <div class="bg-black/50 rounded-xl overflow-hidden border border-neutral-700/80">
+                        <div class="flex justify-between items-center bg-neutral-900/80 px-3 py-1.5">
+                            <span class="text-xs font-semibold text-neutral-400">CSS Variables</span>
+                            <button class="flex items-center gap-1.5 text-xs text-neutral-400 hover:text-white transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                <span class="text-xs">Copy</span>
+                            </button>
+                        </div>
+                        <pre class="p-3 text-xs font-mono overflow-x-auto"><code class="language-css"><span style="color: #8B5CF6;">:root</span> {
+  <span style="color: #3B82F6;">--bg</span>: <span style="color: #a3a3a3;">#171717</span>;
+  <span style="color: #3B82F6;">--primary</span>: <span style="color: #a3a3a3;">#3B82F6</span>;
+  <span style="color: #3B82F6;">--accent</span>: <span style="color: #a3a3a3;">#8B5CF6</span>;
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
+        <!-- Chat Input -->
+        <footer class="flex-shrink-0 p-3 bg-black/50 border-t border-neutral-800">
+            <div class="w-full max-w-4xl mx-auto">
+                <button class="w-full flex items-center justify-center gap-2 text-sm bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-1.5 mb-2 hover:bg-neutral-700 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-accent-purple" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
+                    <span class="font-medium text-white">Creative Director</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9l4-4 4 4m0 6l-4 4-4-4" /></svg>
+                </button>
+                <div class="relative flex items-end gap-2">
+                    <button class="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-neutral-800 text-neutral-400 rounded-full hover:bg-neutral-700 transition-colors">
+                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                    </button>
+                    <textarea id="chat-input" rows="1" class="w-full bg-neutral-800 border border-neutral-700 rounded-2xl resize-none p-2.5 pr-10 text-white focus:ring-2 focus:ring-accent-purple focus:outline-none" placeholder="Message JOHNGPT..."></textarea>
+                    <button class="absolute right-12 bottom-2 w-8 h-8 flex items-center justify-center bg-accent-purple text-white rounded-full hover:bg-violet-500 transition-colors disabled:bg-neutral-600 disabled:cursor-not-allowed">
+                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                    </button>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const textarea = document.getElementById('chat-input');
+        textarea.addEventListener('input', () => {
+            textarea.style.height = 'auto';
+            let scrollHeight = textarea.scrollHeight;
+            let maxHeight = 120; // Corresponds to approx 5 rows
+            if (scrollHeight > maxHeight) {
+                textarea.style.height = `${maxHeight}px`;
+                textarea.style.overflowY = 'auto';
+            } else {
+                textarea.style.height = `${scrollHeight}px`;
+                textarea.style.overflowY = 'hidden';
+            }
+        });
+    </script>
+</body>
+</html>

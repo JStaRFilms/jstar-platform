@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Slot Machine | JohnGPT Creator Assistant</title>
+    <meta name="description" content="Compare outputs from multiple AI models simultaneously with JohnGPT's Agent Slot Machine. Test Gemini, GPT-4o, and Llama3 side-by-side.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'obsidian-bg': '#202020',
+                        'obsidian-sidebar': '#161618',
+                        'obsidian-text': '#dcddde',
+                        'obsidian-text-muted': '#888888',
+                        'obsidian-accent': '#7c3aed',
+                        'obsidian-link': '#8b5cf6'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --growth-green: #059669;
+            --obsidian-bg: #202020;
+            --obsidian-sidebar: #161618;
+            --obsidian-text: #dcddde;
+            --obsidian-text-muted: #888888;
+            --obsidian-accent: #7c3aed;
+            --obsidian-link: #8b5cf6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --transition-normal: 300ms;
+        }
+        
+        .slot-machine-container {
+            display: flex;
+            height: calc(100vh - 4rem);
+            margin-top: 4rem;
+        }
+        
+        .sidebar {
+            width: 280px;
+            background: var(--obsidian-sidebar);
+            border-right: 1px solid #333;
+            overflow-y: auto;
+            transition: all var(--transition-normal) ease;
+        }
+        
+        .main-content {
+            flex: 1;
+            background: var(--obsidian-bg);
+            color: var(--obsidian-text);
+            overflow-y: auto;
+        }
+        
+        .navbar-blur {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .dark .navbar-blur {
+            background: rgba(17, 24, 39, 0.9);
+        }
+        
+        .model-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: all var(--transition-normal) ease;
+        }
+        
+        .model-card:hover {
+            border-color: var(--obsidian-link);
+            transform: translateY(-2px);
+        }
+        
+        .model-card.active {
+            background: rgba(124, 58, 237, 0.1);
+            border-color: var(--obsidian-link);
+        }
+        
+        .response-container {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid #333;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            height: 100%;
+            overflow-y: auto;
+        }
+        
+        .action-button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+        
+        .action-button:hover {
+            background: rgba(124, 58, 235, 0.2);
+            border-color: var(--obsidian-link);
+        }
+        
+        .form-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            color: var(--obsidian-text);
+            width: 100%;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--obsidian-link);
+        }
+        
+        .form-textarea {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            color: var(--obsidian-text);
+            width: 100%;
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--obsidian-link);
+        }
+        
+        .tier-indicator {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+        }
+        
+        .tier-1 { background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%); }
+        .tier-2 { background: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%); }
+        .tier-3 { background: linear-gradient(135deg, var(--faith-purple) 0%, var(--growth-green) 100%); }
+        .admin { background: linear-gradient(135deg, #EF4444 0%, #F87171 100%); }
+        
+        .model-tag {
+            display: inline-block;
+            background: rgba(124, 58, 237, 0.2);
+            color: #c4b5fd;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .spin-button {
+            background: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .spin-button:hover {
+            transform: scale(1.05);
+        }
+        
+        .spin-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .spin-animation {
+            animation: spin 0.5s ease-in-out;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .comparison-result {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid #333;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 navbar-blur border-b border-gray-200 dark:border-gray-700 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/" class="text-2xl font-bold bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">
+                        J StaR Films
+                    </a>
+                    <span class="mx-4 text-gray-300 dark:text-gray-600">/</span>
+                    <span class="text-gray-900 dark:text-white font-medium">JohnGPT</span>
+                    <span class="mx-4 text-gray-300 dark:text-gray-600">/</span>
+                    <span class="text-gray-900 dark:text-white font-medium">Agent Slot Machine</span>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="/" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Home</a>
+                    <a href="/about" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">About</a>
+                    <a href="/portfolio" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Portfolio</a>
+                    <a href="/services" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Services</a>
+                    <a href="/blog" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Blog</a>
+                    <a href="/store" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Store</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button onclick="document.documentElement.classList.toggle('dark')" 
+                            class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
+                            aria-label="Toggle theme">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </button>
+                    <button class="px-4 py-2 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold text-sm">
+                        Sign In
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Agent Slot Machine Interface -->
+    <div class="slot-machine-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="p-4">
+                <button class="w-full py-3 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold mb-4 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    New Comparison
+                </button>
+                
+                <div class="text-xs text-gray-500 uppercase tracking-wider mb-2">Recent Comparisons</div>
+                <div class="conversation-item active bg-gray-800 rounded-lg p-3 mb-2 cursor-pointer">
+                    <div class="flex justify-between">
+                        <span class="truncate text-sm">YouTube Script Framework</span>
+                        <span class="text-xs text-gray-500">Today</span>
+                    </div>
+                    <div class="text-xs text-gray-500 truncate mt-1">Gemini, GPT-4o, Llama3</div>
+                </div>
+                
+                <div class="conversation-item bg-gray-800 rounded-lg p-3 mb-2 cursor-pointer">
+                    <div class="flex justify-between">
+                        <span class="truncate text-sm">Wedding Pricing Strategy</span>
+                        <span class="text-xs text-gray-500">Jun 12</span>
+                    </div>
+                    <div class="text-xs text-gray-500 truncate mt-1">Gemini, Claude, GPT-4o</div>
+                </div>
+                
+                <div class="conversation-item bg-gray-800 rounded-lg p-3 mb-2 cursor-pointer">
+                    <div class="flex justify-between">
+                        <span class="truncate text-sm">App Feature Prioritization</span>
+                        <span class="text-xs text-gray-500">Jun 8</span>
+                    </div>
+                    <div class="text-xs text-gray-500 truncate mt-1">GPT-4o, Llama3, Claude</div>
+                </div>
+                
+                <div class="text-xs text-gray-500 uppercase tracking-wider mt-6 mb-2">Model Library</div>
+                <div class="model-card active relative mb-3">
+                    <div class="tier-indicator admin text-white">ADMIN</div>
+                    <h3 class="font-bold mb-1">Gemini Pro</h3>
+                    <p class="text-xs text-gray-400 mb-2">Google's advanced multimodal model</p>
+                    <div class="flex flex-wrap">
+                        <span class="model-tag">Multimodal</span>
+                        <span class="model-tag">Creative</span>
+                        <span class="model-tag">Analytical</span>
+                    </div>
+                </div>
+                
+                <div class="model-card relative mb-3">
+                    <div class="tier-indicator admin text-white">ADMIN</div>
+                    <h3 class="font-bold mb-1">GPT-4o</h3>
+                    <p class="text-xs text-gray-400 mb-2">OpenAI's most capable model</p>
+                    <div class="flex flex-wrap">
+                        <span class="model-tag">Reasoning</span>
+                        <span class="model-tag">Writing</span>
+                        <span class="model-tag">Coding</span>
+                    </div>
+                </div>
+                
+                <div class="model-card relative mb-3">
+                    <div class="tier-indicator admin text-white">ADMIN</div>
+                    <h3 class="font-bold mb-1">Llama 3 70B</h3>
+                    <p class="text-xs text-gray-400 mb-2">Meta's open-source powerhouse</p>
+                    <div class="flex flex-wrap">
+                        <span class="model-tag">Open-source</span>
+                        <span class="model-tag">Efficient</span>
+                        <span class="model-tag">Versatile</span>
+                    </div>
+                </div>
+                
+                <div class="model-card relative">
+                    <div class="tier-indicator tier-3 text-white">TIER 3</div>
+                    <h3 class="font-bold mb-1">Claude 3 Opus</h3>
+                    <p class="text-xs text-gray-400 mb-2">Anthropic's reasoning specialist</p>
+                    <div class="flex flex-wrap">
+                        <span class="model-tag">Reasoning</span>
+                        <span class="model-tag">Analysis</span>
+                        <span class="model-tag">Safety</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="p-6 h-full flex flex-col">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h1 class="text-2xl font-bold mb-2">Agent Slot Machine</h1>
+                        <p class="text-gray-400">Compare outputs from multiple AI models simultaneously</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="action-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                            </svg>
+                            Export Results
+                        </button>
+                        <button class="action-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                            </svg>
+                            Save to Vault
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Input Section -->
+                <div class="bg-gray-800 rounded-xl p-6 mb-6">
+                    <h2 class="text-lg font-bold mb-4">Comparison Prompt</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Your Prompt</label>
+                            <textarea class="form-textarea" placeholder="Enter your prompt here...">Create a framework for YouTube video scripts that includes a compelling hook, valuable main content, and a clear call-to-action. The framework should be adaptable for different content types while maintaining consistent engagement.</textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Selected Models</label>
+                            <div class="bg-gray-900 rounded-lg p-4 mb-4">
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="px-3 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full text-sm">Gemini Pro</span>
+                                    <span class="px-3 py-1 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-full text-sm">GPT-4o</span>
+                                    <span class="px-3 py-1 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-full text-sm">Llama 3 70B</span>
+                                </div>
+                            </div>
+                            <button class="spin-button w-full" id="spin-button">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                                Run Comparison
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Results Section -->
+                <div class="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Gemini Pro Response -->
+                    <div class="flex flex-col">
+                        <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-t-lg p-3 text-center font-bold">
+                            Gemini Pro
+                        </div>
+                        <div class="response-container flex-1">
+                            <div class="comparison-result">
+                                <h3 class="font-bold mb-2">YouTube Script Framework</h3>
+                                <p class="text-sm text-gray-300 mb-3">Here's a comprehensive framework for creating engaging YouTube video scripts:</p>
+                                
+                                <div class="space-y-3">
+                                    <div>
+                                        <h4 class="font-semibold text-blue-400">1. Opening Hook (0:00-0:15)</h4>
+                                        <p class="text-sm">Start with a bold statement, surprising fact, or provocative question that directly relates to your viewer's main pain point.</p>
+                                    </div>
+                                    
+                                    <div>
+                                        <h4 class="font-semibold text-blue-400">2. Problem Validation (0:15-0:45)</h4>
+                                        <p class="text-sm">Acknowledge and empathize with your audience's struggles. Show you understand their specific challenges.</p>
+                                    </div>
+                                    
+                                    <div>
+                                        <h4 class="font-semibold text-blue-400">3. Solution Preview (0:45-1:15)</h4>
+                                        <p class="text-sm">Tease the value you'll provide. Create anticipation for the transformation you'll offer.</p>
+                                    </div>
+                                    
+                                    <div>
+                                        <h4 class="font-semibold text-blue-400">4. Main Content (1:15-8:00)</h4>
+                                        <p class="text-sm">Deliver on your promise with actionable insights, step-by-step instructions, or compelling storytelling.</p>
+                                    </div>
+                                    
+                                    <div>
+                                        <h4 class="font-semibold text-blue-400">5. Call-to-Action (8:00-8:30)</h4>
+                                        <p class="text-sm">Guide viewers to the next step - subscribe, comment, watch another video, or visit a link.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4 pt-3 border-t border-gray-700">
+                                    <div class="text-xs text-gray-400">Response Time: 2.4s</div>
+                                    <div class="flex space-x-2 mt-2">
+                                        <button class="text-xs text-blue-400 hover:text-blue-300">Copy</button>
+                                        <button class="text-xs text-blue-400 hover:text-blue-300">Save</button>
+                                        <button class="text-xs text-blue-400 hover:text-blue-300">Share</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- GPT-4o Response -->
+                    <div class="flex flex-col">
+                        <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-t-lg p-3 text-center font-bold">
+                            GPT-4o
+                        </div>
+                        <div class="response-container flex-1">
+                            <div class="comparison-result">
+                                <h3 class="font-bold mb-2">YouTube Script Structure</h3>
+                                <p class="text-sm text-gray-300 mb-3">Here's an effective framework for YouTube video scripts that drives engagement:</p>
+                                
+                                <div class="space-y-3">
+                                    <div>
+                                        <h4 class="font-semibold text-green-400">1. The Curiosity Gap (0:00-0:10)</h4>
+                                        <p class="text-sm">Pose a question or present a scenario that creates immediate intrigue. Make viewers curious about the answer.</p>
+                                    </div>
+                                    
+                                    <div>
+                                        <h4 class="font-semibold text-green-400">2. Relatability Bridge (0:10-0:30)</h4>
+                                        <p class="text-sm">Connect with your audience by sharing a personal experience or common frustration they can relate to.</p>
+                                    </div>
+                                    
+                                    <div>
+                                        <h4 class="font-semibold text-green-400">3. Value Proposition (0:30-1:00)</h4>
+                                        <p class="text-sm">Clearly state what viewers will gain by watching the entire video. Set clear expectations.</p>
+                                    </div>
+                                    
+                                    <div>
+                                        <h4 class="font-semibold text-green-400">4. Content Delivery (1:00-7:30)</h4>
+                                        <p class="text-sm">Organize your main points with clear transitions. Use the "Rule of Three" for memorable takeaways.</p>
+                                    </div>
+                                    
+                                    <div>
+                                        <h4 class="font-semibold text-green-400">5. Engagement Catalyst (7:30-8:00)</h4>
+                                        <p class="text-sm">End with a thought-provoking question or challenge that encourages comments and interaction.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4 pt-3 border-t border-gray-700">
+                                    <div class="text-xs text-gray-400">Response Time: 3.1s</div>
+                                    <div class="flex space-x-2 mt-2">
+                                        <button class="text-xs text-green-400 hover:text-green-300">Copy</button>
+                                        <button class="text-xs text-green-400 hover:text-green-300">Save</button>
+                                        <button class="text-xs text-green-400 hover:text-green-300">Share</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Llama 3 Response -->
+                    <div class="flex flex-col">
+                        <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-t-lg p-3 text-center font-bold">
+                            Llama 3 70B
+                        </div>
+                        <div class="response-container flex-1">
+                            <div class="comparison-result">
+                                <h3 class="font-bold mb-2">Video Script Template</h3>
+                                <p class="text-sm text-gray-300 mb-3">Here's a versatile framework for creating compelling YouTube content:</p>
+                                
+                                <div class="space-y-3">
+                                    <div>
+                                        <h4 class="font-semibold text-purple-400">1. The Promise Hook (0:00-0:12)</h4>
+                                        <p class="text-sm">Make a specific, valuable promise about what viewers will learn or achieve by watching your video.</p>
+                                    </div>
+                                    
+                                    <div>
+                                        <h4 class="font-semibold text-purple-400">2. Credibility Establisher (0:12-0:30)</h4>
+                                        <p class="text-sm">Briefly establish your authority or share a relevant success story to build trust immediately.</p>
+                                    </div>
+                                    
+                                    <div>
+                                        <h4 class="font-semibold text-purple-400">3. Problem Spotlight (0:30-1:00)</h4>
+                                        <p class="text-sm">Deep-dive into the specific problem your audience faces, making it tangible and urgent.</p>
+                                    </div>
+                                    
+                                    <div>
+                                        <h4 class="font-semibold text-purple-400">4. Solution Journey (1:00-7:00)</h4>
+                                        <p class="text-sm">Present your solution through examples, demonstrations, or step-by-step guidance with clear benefits.</p>
+                                    </div>
+                                    
+                                    <div>
+                                        <h4 class="font-semibold text-purple-400">5. Community Connector (7:00-7:30)</h4>
+                                        <p class="text-sm">Invite viewers to join a community, share their experiences, or engage with related content.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4 pt-3 border-t border-gray-700">
+                                    <div class="text-xs text-gray-400">Response Time: 2.8s</div>
+                                    <div class="flex space-x-2 mt-2">
+                                        <button class="text-xs text-purple-400 hover:text-purple-300">Copy</button>
+                                        <button class="text-xs text-purple-400 hover:text-purple-300">Save</button>
+                                        <button class="text-xs text-purple-400 hover:text-purple-300">Share</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Analysis Section -->
+                <div class="bg-gray-800 rounded-xl p-6 mt-6">
+                    <h2 class="text-lg font-bold mb-4">Comparison Analysis</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-gray-900 rounded-lg p-4">
+                            <h3 class="font-bold text-blue-400 mb-2">Gemini Pro</h3>
+                            <p class="text-sm text-gray-300">Structured approach with clear timecodes. Emphasizes empathy and transformation.</p>
+                            <div class="mt-3 pt-3 border-t border-gray-700">
+                                <div class="text-xs text-gray-400">Strength: Organization</div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-900 rounded-lg p-4">
+                            <h3 class="font-bold text-green-400 mb-2">GPT-4o</h3>
+                            <p class="text-sm text-gray-300">Psychologically-driven framework focusing on curiosity and engagement tactics.</p>
+                            <div class="mt-3 pt-3 border-t border-gray-700">
+                                <div class="text-xs text-gray-400">Strength: Psychology</div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-900 rounded-lg p-4">
+                            <h3 class="font-bold text-purple-400 mb-2">Llama 3 70B</h3>
+                            <p class="text-sm text-gray-300">Value-focused approach with emphasis on credibility and community building.</p>
+                            <div class="mt-3 pt-3 border-t border-gray-700">
+                                <div class="text-xs text-gray-400">Strength: Trust-building</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme management
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Model selection
+        document.querySelectorAll('.model-card').forEach(card => {
+            card.addEventListener('click', function() {
+                this.classList.toggle('active');
+            });
+        });
+        
+        // Spin button functionality
+        const spinButton = document.getElementById('spin-button');
+        spinButton.addEventListener('click', function() {
+            // Add spin animation
+            const icon = this.querySelector('svg');
+            icon.classList.add('spin-animation');
+            
+            // Disable button during "processing"
+            this.disabled = true;
+            this.textContent = 'Processing...';
+            
+            // Simulate processing time
+            setTimeout(() => {
+                icon.classList.remove('spin-animation');
+                this.disabled = false;
+                this.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>Run Comparison';
+                
+                // In a real implementation, this would fetch new results from the AI models
+                console.log('Comparison completed');
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

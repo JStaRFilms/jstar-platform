@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Community Chat - Creator Growth Engine</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'jstar-blue': '#2563EB',
+            'faith-purple': '#8B5CF6',
+            'growth-green': '#059669',
+            'warning-yellow': '#F59E0B'
+          }
+        }
+      }
+    }
+    
+    function selectChannel(channelId) {
+      // Hide all channels
+      document.querySelectorAll('.channel-content').forEach(channel => {
+        channel.classList.add('hidden');
+      });
+      
+      // Show selected channel
+      document.getElementById(channelId).classList.remove('hidden');
+      
+      // Update active button
+      document.querySelectorAll('.channel-btn').forEach(btn => {
+        btn.classList.remove('bg-jstar-blue', 'text-white');
+        btn.classList.add('text-gray-700', 'dark:text-gray-300', 'hover:bg-gray-100', 'dark:hover:bg-gray-700/50');
+      });
+      
+      event.target.classList.add('bg-jstar-blue', 'text-white');
+      event.target.classList.remove('text-gray-700', 'dark:text-gray-300', 'hover:bg-gray-100', 'dark:hover:bg-gray-700/50');
+    }
+    
+    function sendMessage() {
+      const input = document.getElementById('message-input');
+      const content = input.value.trim();
+      
+      if (!content) return;
+      
+      const channelId = Array.from(document.querySelectorAll('.channel-content:not(.hidden)'))
+        .map(el => el.id)[0];
+      
+      const messagesContainer = document.querySelector(`#${channelId} .messages`);
+      
+      // Create new message element
+      const newMessage = document.createElement('div');
+      newMessage.className = 'message flex items-start mb-4';
+      
+      newMessage.innerHTML = `
+        <div class="w-10 h-10 rounded-full bg-jstar-blue flex items-center justify-center text-white mr-3 flex-shrink-0">
+          J
+        </div>
+        <div class="flex-1">
+          <div class="flex items-baseline mb-1">
+            <h4 class="font-medium text-gray-900 dark:text-white mr-2">John Oluleke-Oke</h4>
+            <span class="text-xs text-gray-500 dark:text-gray-400">Just now</span>
+          </div>
+          <p class="text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">${content}</p>
+        </div>
+      `;
+      
+      messagesContainer.appendChild(newMessage);
+      input.value = '';
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+    
+    function startNewChat() {
+      document.getElementById('new-chat-modal').classList.remove('hidden');
+      setTimeout(() => {
+        document.getElementById('new-chat-modal').classList.add('opacity-100');
+      }, 10);
+    }
+    
+    function closeNewChatModal() {
+      document.getElementById('new-chat-modal').classList.remove('opacity-100');
+      setTimeout(() => {
+        document.getElementById('new-chat-modal').classList.add('hidden');
+      }, 300);
+    }
+    
+    function createNewChat() {
+      const chatName = document.getElementById('chat-name').value;
+      const participants = Array.from(document.querySelectorAll('#participant-list input:checked'))
+        .map(input => input.value);
+      
+      if (!chatName || participants.length === 0) return;
+      
+      // Close modal
+      closeNewChatModal();
+      
+      // Add new channel to sidebar
+      const channelsList = document.getElementById('channels-list');
+      const newChannel = document.createElement('button');
+      newChannel.className = 'channel-btn w-full text-left px-4 py-2 rounded-lg flex items-center mb-1';
+      newChannel.innerHTML = `
+        <div class="w-8 h-8 rounded-full bg-jstar-blue flex items-center justify-center text-white mr-2 flex-shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+          </svg>
+        </div>
+        <span class="truncate">${chatName}</span>
+      `;
+      
+      newChannel.onclick = function() {
+        selectChannel('channel-custom');
+      };
+      
+      channelsList.prepend(newChannel);
+      
+      // Create new channel content
+      const channelsContainer = document.getElementById('channels-container');
+      const newChannelContent = document.createElement('div');
+      newChannelContent.id = 'channel-custom';
+      newChannelContent.className = 'channel-content hidden flex-1 flex-col overflow-hidden';
+      newChannelContent.innerHTML = `
+        <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 class="font-bold text-gray-900 dark:text-white">${chatName}</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400">${participants.length} participants</p>
+        </div>
+        <div class="messages flex-1 overflow-y-auto p-4 space-y-4">
+          <div class="message flex items-start">
+            <div class="w-10 h-10 rounded-full bg-jstar-blue flex items-center justify-center text-white mr-3 flex-shrink-0">
+              J
+            </div>
+            <div class="flex-1">
+              <div class="flex items-baseline mb-1">
+                <h4 class="font-medium text-gray-900 dark:text-white mr-2">John Oluleke-Oke</h4>
+                <span class="text-xs text-gray-500 dark:text-gray-400">Just now</span>
+              </div>
+              <p class="text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">Welcome to our new chat group! Looking forward to discussing faith and content creation together.</p>
+            </div>
+          </div>
+        </div>
+        <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+          <div class="flex">
+            <input type="text" id="message-input" placeholder="Type your message..." 
+                   class="flex-1 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+            <button onclick="sendMessage()"
+                    class="bg-jstar-blue hover:bg-faith-purple text-white rounded-r-lg px-4 py-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      `;
+      
+      channelsContainer.appendChild(newChannelContent);
+      
+      // Select the new channel
+      selectChannel('channel-custom');
+    }
+    
+    function filterParticipants() {
+      const searchTerm = document.getElementById('participant-search').value.toLowerCase();
+      const participants = document.querySelectorAll('#participant-list li');
+      
+      participants.forEach(participant => {
+        const name = participant.querySelector('label').textContent.toLowerCase();
+        if (name.includes(searchTerm)) {
+          participant.classList.remove('hidden');
+        } else {
+          participant.classList.add('hidden');
+        }
+      });
+    }
+    
+    // Simulate user tier (in real app this would come from auth)
+    const userTier = 'tier1';
+  </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+  <!-- PRD: FR048 (Community Chat) -->
+  <div class="flex h-screen">
+    <!-- SIDEBAR -->
+    <div class="w-64 min-h-screen bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 hidden md:block">
+      <div class="p-5 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-jstar-blue to-faith-purple flex items-center justify-center mr-3">
+            <span class="text-white font-bold">J</span>
+          </div>
+          <div>
+            <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Admin • J StaR Films</p>
+          </div>
+        </div>
+      </div>
+      
+      <nav class="mt-5">
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
+          Dashboard
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          User Management
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          Content Management
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          </svg>
+          JohnGPT Settings
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v3m-6 5h6" />
+          </svg>
+          Analytics
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 bg-jstar-blue/10 dark:bg-jstar-blue/20 border-l-4 border-jstar-blue text-jstar-blue dark:text-white font-medium">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          Settings
+        </a>
+      </nav>
+      
+      <div class="absolute bottom-0 w-64 p-5 border-t border-gray-200 dark:border-gray-700">
+        <a href="#" class="flex items-center text-gray-700 dark:text-gray-300 hover:text-jstar-blue">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0 0l-3-3m3 3l3-3" />
+          </svg>
+          Sign Out
+        </a>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="flex-1 flex flex-col">
+      <!-- TOP BAR -->
+      <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between px-6 py-4">
+          <div class="md:hidden">
+            <button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+          
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Community Chat</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Real-time discussions with faith-driven creators</p>
+          </div>
+          
+          <div class="flex items-center space-x-4">
+            <div class="relative">
+              <button class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-lg font-medium flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                </svg>
+                More Tools
+              </button>
+              <div class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-10">
+                <div class="py-1">
+                  <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">YouTube Virality OS</a>
+                  <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">Client Magnet System</a>
+                  <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">Systems Launcher Toolkit</a>
+                </div>
+              </div>
+            </div>
+            
+            <div class="relative">
+              <button class="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+              </button>
+              <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+            </div>
+            
+            <div class="hidden md:flex items-center">
+              <div class="w-8 h-8 rounded-full bg-jstar-blue flex items-center justify-center text-white mr-3">
+                J
+              </div>
+              <div>
+                <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Admin</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COMMUNITY CHAT CONTENT -->
+      <div class="flex-1 flex overflow-hidden">
+        <!-- CHANNELS LIST -->
+        <div class="w-64 border-r border-gray-200 dark:border-gray-700 p-4 hidden md:block">
+          <div class="mb-4">
+            <button onclick="startNewChat()"
+                    class="w-full px-4 py-2 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium">
+              + New Chat
+            </button>
+          </div>
+          
+          <div class="mb-4">
+            <input type="text" placeholder="Search channels..." 
+                   class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+          </div>
+          
+          <div class="font-medium text-gray-500 dark:text-gray-400 mb-2">General Channels</div>
+          
+          <div id="channels-list" class="space-y-1">
+            <button onclick="selectChannel('channel-general')" class="channel-btn w-full text-left px-4 py-2 rounded-lg flex items-center bg-jstar-blue text-white">
+              <div class="w-8 h-8 rounded-full bg-jstar-blue flex items-center justify-center text-white mr-2 flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                </svg>
+              </div>
+              <span class="truncate">General</span>
+            </button>
+            
+            <button onclick="selectChannel('channel-faith')" class="channel-btn w-full text-left px-4 py-2 rounded-lg flex items-center text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">
+              <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-800 mr-2 flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                </svg>
+              </div>
+              <span class="truncate">Faith Integration</span>
+            </button>
+            
+            <button onclick="selectChannel('channel-content')" class="channel-btn w-full text-left px-4 py-2 rounded-lg flex items-center text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">
+              <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-800 mr-2 flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                </svg>
+              </div>
+              <span class="truncate">Content Creation</span>
+            </button>
+            
+            <button onclick="selectChannel('channel-client')" class="channel-btn w-full text-left px-4 py-2 rounded-lg flex items-center text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">
+              <div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-800 mr-2 flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                </svg>
+              </div>
+              <span class="truncate">Client Acquisition</span>
+            </button>
+          </div>
+          
+          <div class="border-t border-gray-200 dark:border-gray-700 my-4"></div>
+          
+          <div class="font-medium text-gray-500 dark:text-gray-400 mb-2">Direct Messages</div>
+          
+          <div class="space-y-1">
+            <button class="w-full text-left px-4 py-2 rounded-lg flex items-center text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">
+              <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-700 dark:text-gray-300 mr-2 flex-shrink-0">
+                S
+              </div>
+              <span class="truncate">Sarah Johnson</span>
+            </button>
+            
+            <button class="w-full text-left px-4 py-2 rounded-lg flex items-center text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">
+              <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-700 dark:text-gray-300 mr-2 flex-shrink-0">
+                M
+              </div>
+              <span class="truncate">Michael Thompson</span>
+            </button>
+            
+            <button class="w-full text-left px-4 py-2 rounded-lg flex items-center text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">
+              <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-700 dark:text-gray-300 mr-2 flex-shrink-0">
+                D
+              </div>
+              <span class="truncate">David Williams</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- CHANNEL CONTENT -->
+        <div class="flex-1 flex flex-col overflow-hidden" id="channels-container">
+          <!-- GENERAL CHANNEL -->
+          <div id="channel-general" class="channel-content flex-1 flex-col overflow-hidden">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+              <h3 class="font-bold text-gray-900 dark:text-white">General</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Discussion about all things creator growth</p>
+            </div>
+            <div class="messages flex-1 overflow-y-auto p-4 space-y-4">
+              <!-- MESSAGE 1 -->
+              <div class="message flex items-start">
+                <div class="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center text-white mr-3 flex-shrink-0">
+                  S
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-baseline mb-1">
+                    <h4 class="font-medium text-gray-900 dark:text-white mr-2">Sarah Johnson</h4>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">2 days ago</span>
+                  </div>
+                  <p class="text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
+                    Has anyone else found it challenging to maintain spiritual connection while focusing on technical aspects of content creation?
+                  </p>
+                </div>
+              </div>
+              
+              <!-- MESSAGE 2 -->
+              <div class="message flex items-start">
+                <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white mr-3 flex-shrink-0">
+                  M
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-baseline mb-1">
+                    <h4 class="font-medium text-gray-900 dark:text-white mr-2">Michael Thompson</h4>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">1 day ago</span>
+                  </div>
+                  <p class="text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
+                    I've found it helpful to start each content session with a specific prayer using Proverbs 3:5-6 as my foundation. I pray for guidance not just in what to create, but how to create it with excellence that honors God.
+                  </p>
+                </div>
+              </div>
+              
+              <!-- MESSAGE 3 -->
+              <div class="message flex items-start">
+                <div class="w-10 h-10 rounded-full bg-jstar-blue flex items-center justify-center text-white mr-3 flex-shrink-0">
+                  J
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-baseline mb-1">
+                    <h4 class="font-medium text-gray-900 dark:text-white mr-2">John Oluleke-Oke</h4>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">Just now</span>
+                  </div>
+                  <p class="text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
+                    Great question! In my workflow, I use the Faith Integration Framework to structure prayer points before each content creation session. I've found that starting with prayer focused on serving my audience with dignity (Matthew 22:39) helps keep my work centered.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+              <div class="flex">
+                <input type="text" id="message-input" placeholder="Type your message..." 
+                       class="flex-1 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                <button onclick="sendMessage()"
+                        class="bg-jstar-blue hover:bg-faith-purple text-white rounded-r-lg px-4 py-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- FAITH INTEGRATION CHANNEL -->
+          <div id="channel-faith" class="channel-content hidden flex-1 flex-col overflow-hidden">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+              <h3 class="font-bold text-gray-900 dark:text-white">Faith Integration</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Discussion about integrating faith with creativity</p>
+            </div>
+            <div class="messages flex-1 overflow-y-auto p-4 space-y-4">
+              <!-- MESSAGE 1 -->
+              <div class="message flex items-start">
+                <div class="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center text-white mr-3 flex-shrink-0">
+                  S
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-baseline mb-1">
+                    <h4 class="font-medium text-gray-900 dark:text-white mr-2">Sarah Johnson</h4>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">3 days ago</span>
+                  </div>
+                  <p class="text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
+                    How do you consistently integrate prayer into your content creation process? I find it challenging to maintain that spiritual connection while focusing on technical aspects.
+                  </p>
+                </div>
+              </div>
+              
+              <!-- MESSAGE 2 -->
+              <div class="message flex items-start">
+                <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white mr-3 flex-shrink-0">
+                  M
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-baseline mb-1">
+                    <h4 class="font-medium text-gray-900 dark:text-white mr-2">Michael Thompson</h4>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">2 days ago</span>
+                  </div>
+                  <p class="text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
+                    I've found it helpful to start each content session with a specific prayer using Proverbs 3:5-6 as my foundation. I pray for guidance not just in what to create, but how to create it with excellence that honors God.
+                  </p>
+                </div>
+              </div>
+              
+              <!-- MESSAGE 3 -->
+              <div class="message flex items-start">
+                <div class="w-10 h-10 rounded-full bg-jstar-blue flex items-center justify-center text-white mr-3 flex-shrink-0">
+                  J
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-baseline mb-1">
+                    <h4 class="font-medium text-gray-900 dark:text-white mr-2">John Oluleke-Oke</h4>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">1 day ago</span>
+                  </div>
+                  <p class="text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
+                    Great question! In my workflow, I use the Faith Integration Framework to structure prayer points before each content creation session. I've found that starting with prayer focused on serving my audience with dignity (Matthew 22:39) helps keep my work centered.
+                  </p>
+                </div>
+              </div>
+              
+              <!-- MESSAGE 4 -->
+              <div class="message flex items-start">
+                <div class="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center text-white mr-3 flex-shrink-0">
+                  R
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-baseline mb-1">
+                    <h4 class="font-medium text-gray-900 dark:text-white mr-2">Rachel Martinez</h4>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">12 hours ago</span>
+                  </div>
+                  <p class="text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
+                    As a developer, I'm trying to be more intentional about how biblical principles inform my work. Curious how others approach this in practical terms.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+              <div class="flex">
+                <input type="text" id="message-input" placeholder="Type your message..." 
+                       class="flex-1 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                <button onclick="sendMessage()"
+                        class="bg-jstar-blue hover:bg-faith-purple text-white rounded-r-lg px-4 py-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- CONTENT CREATION CHANNEL -->
+          <div id="channel-content" class="channel-content hidden flex-1 flex-col overflow-hidden">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+              <h3 class="font-bold text-gray-900 dark:text-white">Content Creation</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Discussion about content strategy and creation</p>
+            </div>
+            <div class="messages flex-1 overflow-y-auto p-4 space-y-4">
+              <!-- MESSAGE 1 -->
+              <div class="message flex items-start">
+                <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white mr-3 flex-shrink-0">
+                  M
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-baseline mb-1">
+                    <h4 class="font-medium text-gray-900 dark:text-white mr-2">Michael Thompson</h4>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">1 day ago</span>
+                  </div>
+                  <p class="text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
+                    When I hit creative blocks, I've been trying to apply Proverbs 3:5-6 more intentionally. Would love to hear how others navigate this spiritually.
+                  </p>
+                </div>
+              </div>
+              
+              <!-- MESSAGE 2 -->
+              <div class="message flex items-start">
+                <div class="w-10 h-10 rounded-full bg-jstar-blue flex items-center justify-center text-white mr-3 flex-shrink-0">
+                  J
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-baseline mb-1">
+                    <h4 class="font-medium text-gray-900 dark:text-white mr-2">John Oluleke-Oke</h4>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">12 hours ago</span>
+                  </div>
+                  <p class="text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
+                    I use the "Prayerful Planning Framework" from the Systems Launcher. Before starting any content, I spend 10 minutes in prayer using a scripture relevant to the topic. This has dramatically improved my creative flow and content quality.
+                  </p>
+                </div>
+              </div>
+              
+              <!-- MESSAGE 3 -->
+              <div class="message flex items-start">
+                <div class="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center text-white mr-3 flex-shrink-0">
+                  R
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-baseline mb-1">
+                    <h4 class="font-medium text-gray-900 dark:text-white mr-2">Rachel Martinez</h4>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">5 hours ago</span>
+                  </div>
+                  <p class="text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
+                    How do you balance creating click-worthy YouTube titles while staying true to biblical principles of honesty and integrity? Would love some examples.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+              <div class="flex">
+                <input type="text" id="message-input" placeholder="Type your message..." 
+                       class="flex-1 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                <button onclick="sendMessage()"
+                        class="bg-jstar-blue hover:bg-faith-purple text-white rounded-r-lg px-4 py-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- CLIENT ACQUISITION CHANNEL -->
+          <div id="channel-client" class="channel-content hidden flex-1 flex-col overflow-hidden">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+              <h3 class="font-bold text-gray-900 dark:text-white">Client Acquisition</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Discussion about finding and serving clients</p>
+            </div>
+            <div class="messages flex-1 overflow-y-auto p-4 space-y-4">
+              <!-- MESSAGE 1 -->
+              <div class="message flex items-start">
+                <div class="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center text-white mr-3 flex-shrink-0">
+                  D
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-baseline mb-1">
+                    <h4 class="font-medium text-gray-900 dark:text-white mr-2">David Williams</h4>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">5 hours ago</span>
+                  </div>
+                  <p class="text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
+                    How do you communicate your faith-based approach to potential clients without alienating those who don't share your beliefs? Looking for practical strategies.
+                  </p>
+                </div>
+              </div>
+              
+              <!-- MESSAGE 2 -->
+              <div class="message flex items-start">
+                <div class="w-10 h-10 rounded-full bg-jstar-blue flex items-center justify-center text-white mr-3 flex-shrink-0">
+                  J
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-baseline mb-1">
+                    <h4 class="font-medium text-gray-900 dark:text-white mr-2">John Oluleke-Oke</h4>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">2 hours ago</span>
+                  </div>
+                  <p class="text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
+                    In my Client Magnet System, I focus on shared values rather than specific religious language. For example, instead of saying "Christian values," I might say "values of integrity, excellence, and service." This allows me to connect with a wider audience while staying true to my beliefs.
+                  </p>
+                </div>
+              </div>
+              
+              <!-- MESSAGE 3 -->
+              <div class="message flex items-start">
+                <div class="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center text-white mr-3 flex-shrink-0">
+                  S
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-baseline mb-1">
+                    <h4 class="font-medium text-gray-900 dark:text-white mr-2">Sarah Williams</h4>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">1 hour ago</span>
+                  </div>
+                  <p class="text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
+                    How do you determine pricing that's fair to you and your clients while honoring God? Struggling with the tension between charging what I'm worth and being generous.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+              <div class="flex">
+                <input type="text" id="message-input" placeholder="Type your message..." 
+                       class="flex-1 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                <button onclick="sendMessage()"
+                        class="bg-jstar-blue hover:bg-faith-purple text-white rounded-r-lg px-4 py-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- NEW CHAT MODAL -->
+      <div id="new-chat-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden transition-opacity duration-300 opacity-0">
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-2xl">
+          <div class="flex justify-end mb-4">
+            <button onclick="closeNewChatModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          
+          <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Start New Chat</h3>
+          
+          <div class="mb-6">
+            <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Chat Name</label>
+            <input type="text" id="chat-name" placeholder="Enter chat name" 
+                   class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+          </div>
+          
+          <div class="mb-6">
+            <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Participants</label>
+            <input type="text" id="participant-search" placeholder="Search participants..." 
+                   oninput="filterParticipants()"
+                   class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue mb-2">
+            <ul id="participant-list" class="max-h-60 overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-700 p-2">
+              <li>
+                <label class="flex items-center p-2 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded cursor-pointer">
+                  <input type="checkbox" value="sarah" class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 dark:border-gray-600 mr-3">
+                  <div class="flex items-center">
+                    <div class="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white mr-2">
+                      S
+                    </div>
+                    <div>
+                      <h4 class="font-medium text-gray-900 dark:text-white">Sarah Johnson</h4>
+                      <p class="text-xs text-gray-500 dark:text-gray-400">Content Creator</p>
+                    </div>
+                  </div>
+                </label>
+              </li>
+              
+              <li>
+                <label class="flex items-center p-2 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded cursor-pointer">
+                  <input type="checkbox" value="michael" class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 dark:border-gray-600 mr-3">
+                  <div class="flex items-center">
+                    <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white mr-2">
+                      M
+                    </div>
+                    <div>
+                      <h4 class="font-medium text-gray-900 dark:text-white">Michael Thompson</h4>
+                      <p class="text-xs text-gray-500 dark:text-gray-400">App Developer</p>
+                    </div>
+                  </div>
+                </label>
+              </li>
+              
+              <li>
+                <label class="flex items-center p-2 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded cursor-pointer">
+                  <input type="checkbox" value="david" class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 dark:border-gray-600 mr-3">
+                  <div class="flex items-center">
+                    <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white mr-2">
+                      D
+                    </div>
+                    <div>
+                      <h4 class="font-medium text-gray-900 dark:text-white">David Williams</h4>
+                      <p class="text-xs text-gray-500 dark:text-gray-400">Church Leader</p>
+                    </div>
+                  </div>
+                </label>
+              </li>
+              
+              <li>
+                <label class="flex items-center p-2 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded cursor-pointer">
+                  <input type="checkbox" value="rachel" class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 dark:border-gray-600 mr-3">
+                  <div class="flex items-center">
+                    <div class="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center text-white mr-2">
+                      R
+                    </div>
+                    <div>
+                      <h4 class="font-medium text-gray-900 dark:text-white">Rachel Martinez</h4>
+                      <p class="text-xs text-gray-500 dark:text-gray-400">Small Business Owner</p>
+                    </div>
+                  </div>
+                </label>
+              </li>
+              
+              <li>
+                <label class="flex items-center p-2 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded cursor-pointer">
+                  <input type="checkbox" value="mark" class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 dark:border-gray-600 mr-3">
+                  <div class="flex items-center">
+                    <div class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white mr-2">
+                      M
+                    </div>
+                    <div>
+                      <h4 class="font-medium text-gray-900 dark:text-white">Mark Johnson</h4>
+                      <p class="text-xs text-gray-500 dark:text-gray-400">Video Editor</p>
+                    </div>
+                  </div>
+                </label>
+              </li>
+            </ul>
+          </div>
+          
+          <div class="flex justify-end space-x-3">
+            <button onclick="closeNewChatModal()" 
+                    class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-lg font-medium">
+              Cancel
+            </button>
+            <button onclick="createNewChat()" 
+                    class="px-4 py-2 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium">
+              Create Chat
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- TIER 3 FEATURES -->
+      <div class="bg-gray-50 dark:bg-gray-900 rounded-xl p-6 m-6 border border-gray-200 dark:border-gray-700">
+        <div class="flex flex-col md:flex-row md:items-start">
+          <div class="md:mr-4 mb-3 md:mb-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-gray-900 dark:text-white mb-1">Tier 3 Exclusive Features</h3>
+            <p class="text-gray-700 dark:text-gray-300 mb-3">
+              <!-- PRD: Tier 3 Features -->These advanced community chat features are available to Tier 3 subscribers:
+            </p>
+            <ul class="list-disc pl-5 space-y-1 text-gray-700 dark:text-gray-300 mb-4">
+              <li>Real-time chat with faith-based content moderation (FR048)</li>
+              <li>JohnGPT-powered message suggestions with biblical alignment</li>
+              <li>Private group creation with faith-based filtering</li>
+              <li>Integration with prayer tools for spiritual accountability</li>
+              <li>Community events calendar integration</li>
+            </ul>
+            <button class="bg-gradient-to-r from-jstar-blue to-faith-purple text-white font-medium py-2 px-4 rounded-full">
+              Upgrade to Tier 3 for Full Access
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

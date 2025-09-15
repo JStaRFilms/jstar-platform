@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio - J StaR Films</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'jstar-blue': '#2563EB',
+            'faith-purple': '#8B5CF6'
+          }
+        }
+      }
+    }
+    
+    // Portfolio filtering logic
+    function filterPortfolio(category) {
+      document.querySelectorAll('.portfolio-item').forEach(item => {
+        if (category === 'all' || item.dataset.category.includes(category)) {
+          item.classList.remove('hidden');
+        } else {
+          item.classList.add('hidden');
+        }
+      });
+      
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('bg-jstar-blue', 'text-white');
+        btn.classList.add('bg-gray-200', 'text-gray-800', 'dark:bg-gray-700', 'dark:text-gray-300');
+      });
+      
+      event.target.classList.remove('bg-gray-200', 'text-gray-800', 'dark:bg-gray-700', 'dark:text-gray-300');
+      event.target.classList.add('bg-jstar-blue', 'text-white');
+    }
+  </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+  <div class="max-w-7xl mx-auto px-6 py-12">
+    <!-- PRD: FR005 (Multi-Faceted Portfolio) -->
+    <header class="text-center mb-12">
+      <h1 class="text-4xl font-bold mb-4 text-gray-900 dark:text-white">My Creative Work</h1>
+      <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+        <!-- PRD: Portfolio Description -->A collection of film projects, app developments, and creative systems I've built across multiple disciplines
+      </p>
+    </header>
+
+    <!-- THEME TOGGLE -->
+    <div class="fixed top-4 right-4 z-50">
+      <button onclick="document.documentElement.classList.toggle('dark')" 
+              class="p-2 rounded-full bg-jstar-blue text-white">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- FILTER CONTROLS -->
+    <div class="flex flex-wrap justify-center gap-2 mb-10">
+      <button onclick="filterPortfolio('all')" class="filter-btn bg-jstar-blue text-white px-4 py-2 rounded-full font-medium">All</button>
+      <button onclick="filterPortfolio('film')" class="filter-btn bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300 px-4 py-2 rounded-full font-medium">Film</button>
+      <button onclick="filterPortfolio('app')" class="filter-btn bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300 px-4 py-2 rounded-full font-medium">Apps</button>
+      <button onclick="filterPortfolio('event')" class="filter-btn bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300 px-4 py-2 rounded-full font-medium">Events</button>
+      <button onclick="filterPortfolio('ai')" class="filter-btn bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300 px-4 py-2 rounded-full font-medium">AI Tools</button>
+    </div>
+
+    <!-- PORTFOLIO GRID -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      <!-- FILM PROJECT -->
+      <div class="portfolio-item" data-category="film">
+        <div class="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-gray-700 group">
+          <div class="h-56 bg-gradient-to-r from-jstar-blue to-faith-purple flex items-center justify-center">
+            <span class="text-white font-bold text-xl">Film Project Thumbnail</span>
+          </div>
+          <div class="p-6">
+            <span class="inline-block px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full mb-2">Documentary</span>
+            <h3 class="text-xl font-bold mb-2 text-gray-900 dark:text-white">Faith in Tech: The Documentary</h3>
+            <p class="text-gray-600 dark:text-gray-400 mb-4">Explores the intersection of Christian faith and software development through personal stories.</p>
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-500 dark:text-gray-400">2023 • 45 min</span>
+              <button class="text-jstar-blue hover:text-faith-purple font-medium">View Case Study →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- APP PROJECT (TIER 2+) -->
+      <div class="portfolio-item" data-category="app ai">
+        <div class="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-gray-700 relative">
+          <div class="h-56 bg-gradient-to-r from-faith-purple to-jstar-blue flex items-center justify-center">
+            <span class="text-white font-bold text-xl">App Interface Preview</span>
+          </div>
+          <div class="absolute top-3 right-3">
+            <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">Premium</span>
+          </div>
+          <div class="p-6">
+            <span class="inline-block px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full mb-2">Creator Tool</span>
+            <h3 class="text-xl font-bold mb-2 text-gray-900 dark:text-white">Virality OS Dashboard</h3>
+            <p class="text-gray-600 dark:text-gray-400 mb-4">YouTube analytics platform that predicts viral potential of video ideas.</p>
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-500 dark:text-gray-400">2024 • SaaS Platform</span>
+              <button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 font-medium cursor-not-allowed flex items-center">
+                View Demo <span class="ml-1 text-yellow-500">→</span>
+              </button>
+            </div>
+            <div class="mt-2 text-xs text-yellow-600 dark:text-yellow-400">
+              *Requires Tier 2+ subscription
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EVENT COVERAGE -->
+      <div class="portfolio-item" data-category="event">
+        <div class="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-gray-700">
+          <div class="h-56 bg-gradient-to-r from-jstar-blue/50 to-faith-purple/50 flex items-center justify-center">
+            <span class="text-white font-bold text-xl">Event Coverage Snippet</span>
+          </div>
+          <div class="p-6">
+            <span class="inline-block px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full mb-2">Live Streaming</span>
+            <h3 class="text-xl font-bold mb-2 text-gray-900 dark:text-white">Global Faith Summit 2023</h3>
+            <p class="text-gray-600 dark:text-gray-400 mb-4">Multi-camera production for international conference with 12k+ live viewers.</p>
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-500 dark:text-gray-400">2023 • Live Stream</span>
+              <button class="text-jstar-blue hover:text-faith-purple font-medium">Watch Highlights →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LIGHTBOX DEMO (FR005) -->
+    <div class="mt-16 bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+      <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Case Study Preview</h2>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div>
+          <h3 class="text-xl font-semibold mb-3 text-gray-900 dark:text-white">Virality OS: Project Overview</h3>
+          <p class="text-gray-700 dark:text-gray-300 mb-4">A deep dive into how I built the YouTube analytics platform that predicts viral potential with 87% accuracy.</p>
+          
+          <div class="space-y-3 mb-6">
+            <div>
+              <h4 class="font-medium text-gray-900 dark:text-white mb-1">Challenge</h4>
+              <p class="text-gray-600 dark:text-gray-400">Creators struggle to understand why some videos go viral while others don't.</p>
+            </div>
+            <div>
+              <h4 class="font-medium text-gray-900 dark:text-white mb-1">Solution</h4>
+              <p class="text-gray-600 dark:text-gray-400">Multi-tiered virality scoring system analyzing title, thumbnail, and content strategy.</p>
+            </div>
+          </div>
+          
+          <button class="bg-jstar-blue hover:bg-faith-purple text-white font-medium py-2 px-4 rounded-full">
+            View Full Case Study
+          </button>
+        </div>
+        <div class="bg-gray-200 dark:bg-gray-700 rounded-xl flex items-center justify-center p-4">
+          <div class="text-center">
+            <div class="w-16 h-16 rounded-full bg-jstar-blue flex items-center justify-center mb-3 mx-auto">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <p class="text-gray-700 dark:text-gray-300">Case Study Media Preview</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

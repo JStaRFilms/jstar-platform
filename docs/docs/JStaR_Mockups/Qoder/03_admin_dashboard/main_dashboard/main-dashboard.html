@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Admin Dashboard - J StaR Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .admin-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-primary);
+            border-right: 1px solid var(--border);
+            padding: 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            color: white;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .admin-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .nav-menu {
+            list-style: none;
+            padding: 1rem 0;
+        }
+        
+        .nav-item {
+            margin-bottom: 0.25rem;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover,
+        .nav-link.active {
+            background: var(--bg-secondary);
+            color: var(--brand-blue);
+            border-right: 3px solid var(--brand-blue);
+        }
+        
+        .nav-icon {
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 2rem;
+        }
+        
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            background: var(--bg-primary);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border);
+        }
+        
+        .header-left h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header-subtitle {
+            color: var(--text-secondary);
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary { background: var(--brand-blue); color: white; }
+        .btn-secondary { background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary); }
+        
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+        
+        .stat-card.users::before { background: var(--brand-blue); }
+        .stat-card.revenue::before { background: var(--success-green); }
+        .stat-card.content::before { background: var(--creative-teal); }
+        .stat-card.ai::before { background: var(--warm-orange); }
+        
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+        }
+        
+        .stat-trend {
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .trend-up { color: var(--success-green); }
+        .trend-down { color: var(--warm-orange); }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+        }
+        
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+        
+        /* Chart Area */
+        .chart-container {
+            height: 300px;
+            background: var(--bg-secondary);
+            border-radius: 0.5rem;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: end;
+            justify-content: space-around;
+            padding: 2rem;
+        }
+        
+        .chart-bar {
+            width: 30px;
+            background: linear-gradient(to top, var(--brand-blue), var(--creative-teal));
+            border-radius: 4px 4px 0 0;
+            margin: 0 2px;
+            position: relative;
+        }
+        
+        .chart-value {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        /* Activity Feed */
+        .activity-feed {
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .activity-item:last-child { border-bottom: none; }
+        
+        .activity-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--brand-blue);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        .activity-content {
+            flex: 1;
+        }
+        
+        .activity-text {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .activity-time {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .activity-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .badge-new { background: rgba(74, 144, 226, 0.2); color: var(--brand-blue); }
+        .badge-success { background: rgba(69, 183, 209, 0.2); color: var(--success-green); }
+        .badge-warning { background: rgba(255, 107, 107, 0.2); color: var(--warm-orange); }
+        
+        /* Quick Actions */
+        .quick-actions {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+        }
+        
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .action-card {
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 0.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .action-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--brand-blue);
+        }
+        
+        .action-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.5rem;
+            color: white;
+            font-size: 1.1rem;
+        }
+        
+        .action-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .actions-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">J StaR Admin</div>
+                <div class="admin-subtitle">Content Management System</div>
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active">
+                            <i class="nav-icon fas fa-home"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-users"></i>
+                            Users
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-edit"></i>
+                            Content
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-chart-bar"></i>
+                            Analytics
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-robot"></i>
+                            JohnGPT
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-credit-card"></i>
+                            Billing
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-shield-alt"></i>
+                            Security
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-cog"></i>
+                            Settings
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="header-left">
+                    <h1>Dashboard Overview</h1>
+                    <p class="header-subtitle">Welcome back! Here's what's happening with your platform.</p>
+                </div>
+                
+                <div class="header-actions">
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-download"></i>
+                        Export Data
+                    </button>
+                    <button class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        New Content
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card users">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: var(--brand-blue);">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-trend trend-up">
+                            <i class="fas fa-arrow-up"></i>
+                            +12%
+                        </div>
+                    </div>
+                    <div class="stat-value">2,847</div>
+                    <div class="stat-label">Total Users</div>
+                </div>
+
+                <div class="stat-card revenue">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: var(--success-green);">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="stat-trend trend-up">
+                            <i class="fas fa-arrow-up"></i>
+                            +23%
+                        </div>
+                    </div>
+                    <div class="stat-value">$47.2K</div>
+                    <div class="stat-label">Monthly Revenue</div>
+                </div>
+
+                <div class="stat-card content">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: var(--creative-teal);">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                        <div class="stat-trend trend-up">
+                            <i class="fas fa-arrow-up"></i>
+                            +8%
+                        </div>
+                    </div>
+                    <div class="stat-value">347</div>
+                    <div class="stat-label">Published Posts</div>
+                </div>
+
+                <div class="stat-card ai">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: var(--warm-orange);">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="stat-trend trend-up">
+                            <i class="fas fa-arrow-up"></i>
+                            +45%
+                        </div>
+                    </div>
+                    <div class="stat-value">1.2K</div>
+                    <div class="stat-label">AI Interactions</div>
+                </div>
+            </div>
+
+            <!-- Dashboard Grid -->
+            <div class="dashboard-grid">
+                <!-- Analytics Chart -->
+                <div class="card">
+                    <div class="card-title">
+                        Analytics Overview
+                        <button class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                            View Details
+                        </button>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <div class="chart-bar" style="height: 60%;">
+                            <div class="chart-value">847</div>
+                        </div>
+                        <div class="chart-bar" style="height: 80%;">
+                            <div class="chart-value">1.2K</div>
+                        </div>
+                        <div class="chart-bar" style="height: 45%;">
+                            <div class="chart-value">632</div>
+                        </div>
+                        <div class="chart-bar" style="height: 90%;">
+                            <div class="chart-value">1.8K</div>
+                        </div>
+                        <div class="chart-bar" style="height: 70%;">
+                            <div class="chart-value">1.1K</div>
+                        </div>
+                        <div class="chart-bar" style="height: 95%;">
+                            <div class="chart-value">2.1K</div>
+                        </div>
+                        <div class="chart-bar" style="height: 85%;">
+                            <div class="chart-value">1.7K</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="card">
+                    <div class="card-title">Recent Activity</div>
+                    
+                    <div class="activity-feed">
+                        <div class="activity-item">
+                            <div class="activity-avatar">SM</div>
+                            <div class="activity-content">
+                                <div class="activity-text">Sarah Martinez published a new blog post</div>
+                                <div class="activity-time">2 minutes ago</div>
+                            </div>
+                            <div class="activity-badge badge-new">NEW</div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-avatar" style="background: var(--success-green);">JD</div>
+                            <div class="activity-content">
+                                <div class="activity-text">John Doe updated user permissions</div>
+                                <div class="activity-time">15 minutes ago</div>
+                            </div>
+                            <div class="activity-badge badge-success">DONE</div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-avatar" style="background: var(--creative-teal);">AL</div>
+                            <div class="activity-content">
+                                <div class="activity-text">Anna Lee added 3 new products</div>
+                                <div class="activity-time">1 hour ago</div>
+                            </div>
+                            <div class="activity-badge badge-success">LIVE</div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-avatar" style="background: var(--warm-orange);">RT</div>
+                            <div class="activity-content">
+                                <div class="activity-text">Robert Taylor reported a bug</div>
+                                <div class="activity-time">2 hours ago</div>
+                            </div>
+                            <div class="activity-badge badge-warning">ISSUE</div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-avatar" style="background: var(--brand-blue);">MJ</div>
+                            <div class="activity-content">
+                                <div class="activity-text">Mike Johnson completed backup</div>
+                                <div class="activity-time">3 hours ago</div>
+                            </div>
+                            <div class="activity-badge badge-success">DONE</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <h2 class="card-title">Quick Actions</h2>
+                
+                <div class="actions-grid">
+                    <div class="action-card" onclick="quickAction('create-post')">
+                        <div class="action-icon" style="background: var(--brand-blue);">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                        <div class="action-label">Create New Post</div>
+                    </div>
+                    
+                    <div class="action-card" onclick="quickAction('manage-users')">
+                        <div class="action-icon" style="background: var(--success-green);">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="action-label">Manage Users</div>
+                    </div>
+                    
+                    <div class="action-card" onclick="quickAction('view-analytics')">
+                        <div class="action-icon" style="background: var(--creative-teal);">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="action-label">View Analytics</div>
+                    </div>
+                    
+                    <div class="action-card" onclick="quickAction('ai-tools')">
+                        <div class="action-icon" style="background: var(--warm-orange);">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="action-label">AI Tools</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Quick action handlers
+        function quickAction(action) {
+            const actions = {
+                'create-post': 'Opening post editor...',
+                'manage-users': 'Loading user management...',
+                'view-analytics': 'Opening analytics dashboard...',
+                'ai-tools': 'Launching AI tools...'
+            };
+            
+            alert(actions[action] || 'Feature coming soon!');
+        }
+
+        // Navigation handlers
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Chart animation
+        function animateChart() {
+            const bars = document.querySelectorAll('.chart-bar');
+            bars.forEach((bar, index) => {
+                bar.style.height = '0%';
+                setTimeout(() => {
+                    bar.style.height = bar.getAttribute('style').match(/height: (\d+%)/)[1];
+                }, index * 100);
+            });
+        }
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+        
+        // Animate chart on load
+        setTimeout(animateChart, 500);
+    </script>
+</body>
+</html>

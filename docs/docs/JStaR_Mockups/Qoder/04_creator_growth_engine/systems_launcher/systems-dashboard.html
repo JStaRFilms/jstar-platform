@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Systems Launcher - Creator Growth Engine</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+            --system-purple: #8B5CF6;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, var(--system-purple), var(--brand-blue));
+            padding: 2rem;
+            border-radius: 1rem;
+            color: white;
+        }
+        
+        .automation-score {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        .score-number {
+            font-size: 3rem;
+            font-weight: 700;
+        }
+        
+        .score-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .systems-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .system-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .system-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+        
+        .system-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .system-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        
+        .system-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .system-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .system-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-active {
+            background: rgba(69, 183, 209, 0.2);
+            color: var(--success-green);
+        }
+        
+        .status-paused {
+            background: rgba(255, 107, 107, 0.2);
+            color: var(--warm-orange);
+        }
+        
+        .status-draft {
+            background: rgba(74, 85, 104, 0.2);
+            color: var(--text-secondary);
+        }
+        
+        .system-metrics {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+        
+        .metric {
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .metric-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--bg-primary);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .recent-activity {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .activity-item:last-child { border-bottom: none; }
+        
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .activity-content {
+            flex: 1;
+        }
+        
+        .activity-title {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .activity-time {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        .floating-add {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--system-purple), var(--brand-blue));
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .floating-add:hover {
+            transform: scale(1.1);
+        }
+        
+        .templates-section {
+            margin-bottom: 2rem;
+        }
+        
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+        
+        .template-card {
+            background: var(--bg-primary);
+            border: 2px dashed var(--border);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .template-card:hover {
+            border-color: var(--system-purple);
+            background: rgba(139, 92, 246, 0.05);
+        }
+        
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .header { flex-direction: column; gap: 1.5rem; text-align: center; }
+            .systems-grid { grid-template-columns: 1fr; }
+            .floating-add { bottom: 1rem; right: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem;">⚙️ Systems Launcher</h1>
+                <p style="font-size: 1.2rem; opacity: 0.9;">Automate everything, scale effortlessly</p>
+            </div>
+            <div class="automation-score">
+                <div class="score-number">87%</div>
+                <div class="score-label">Automation Score</div>
+            </div>
+        </div>
+
+        <div class="quick-stats">
+            <div class="stat-card">
+                <div class="stat-number" style="color: var(--system-purple);">23</div>
+                <div style="color: var(--text-secondary);">Active Systems</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color: var(--success-green);">47.2K</div>
+                <div style="color: var(--text-secondary);">Tasks Automated</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color: var(--warm-orange);">127h</div>
+                <div style="color: var(--text-secondary);">Time Saved/Week</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color: var(--brand-blue);">99.2%</div>
+                <div style="color: var(--text-secondary);">Uptime</div>
+            </div>
+        </div>
+
+        <div class="systems-grid">
+            <div class="system-card">
+                <div class="system-icon" style="background: var(--success-green);">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <div class="system-header">
+                    <div class="system-title">Email Marketing Automation</div>
+                    <div class="system-status status-active">Active</div>
+                </div>
+                <div class="system-description">
+                    Automated welcome series, nurture sequences, and customer onboarding workflows.
+                </div>
+                <div class="system-metrics">
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--success-green);">2,347</div>
+                        <div class="metric-label">Emails Sent</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--brand-blue);">34.2%</div>
+                        <div class="metric-label">Open Rate</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--warm-orange);">127</div>
+                        <div class="metric-label">Conversions</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="system-card">
+                <div class="system-icon" style="background: var(--brand-blue);">
+                    <i class="fas fa-share-alt"></i>
+                </div>
+                <div class="system-header">
+                    <div class="system-title">Social Media Scheduler</div>
+                    <div class="system-status status-active">Active</div>
+                </div>
+                <div class="system-description">
+                    Auto-post content across platforms with optimal timing and engagement tracking.
+                </div>
+                <div class="system-metrics">
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--success-green);">89</div>
+                        <div class="metric-label">Posts/Week</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--brand-blue);">12.4K</div>
+                        <div class="metric-label">Reach</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--warm-orange);">847</div>
+                        <div class="metric-label">Engagements</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="system-card">
+                <div class="system-icon" style="background: var(--creative-teal);">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="system-header">
+                    <div class="system-title">Lead Nurturing System</div>
+                    <div class="system-status status-active">Active</div>
+                </div>
+                <div class="system-description">
+                    Automated lead scoring, segmentation, and personalized follow-up sequences.
+                </div>
+                <div class="system-metrics">
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--success-green);">1,247</div>
+                        <div class="metric-label">Active Leads</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--brand-blue);">67.3%</div>
+                        <div class="metric-label">Engagement</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--warm-orange);">89</div>
+                        <div class="metric-label">Qualified</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="system-card">
+                <div class="system-icon" style="background: var(--warm-orange);">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="system-header">
+                    <div class="system-title">Appointment Booking</div>
+                    <div class="system-status status-active">Active</div>
+                </div>
+                <div class="system-description">
+                    Smart scheduling with automatic confirmations, reminders, and rescheduling.
+                </div>
+                <div class="system-metrics">
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--success-green);">147</div>
+                        <div class="metric-label">Bookings</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--brand-blue);">92.1%</div>
+                        <div class="metric-label">Show Rate</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--warm-orange);">4.7</div>
+                        <div class="metric-label">Avg Rating</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="system-card">
+                <div class="system-icon" style="background: var(--system-purple);">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                </div>
+                <div class="system-header">
+                    <div class="system-title">Invoice & Payment System</div>
+                    <div class="system-status status-active">Active</div>
+                </div>
+                <div class="system-description">
+                    Automated invoicing, payment processing, and financial tracking workflows.
+                </div>
+                <div class="system-metrics">
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--success-green);">$47.2K</div>
+                        <div class="metric-label">Processed</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--brand-blue);">97.8%</div>
+                        <div class="metric-label">Success Rate</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--warm-orange);">2.1</div>
+                        <div class="metric-label">Avg Days</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="system-card">
+                <div class="system-icon" style="background: var(--text-secondary);">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <div class="system-header">
+                    <div class="system-title">Content Backup System</div>
+                    <div class="system-status status-paused">Paused</div>
+                </div>
+                <div class="system-description">
+                    Automated backup and versioning for all content across platforms and databases.
+                </div>
+                <div class="system-metrics">
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--success-green);">12.7GB</div>
+                        <div class="metric-label">Backed Up</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--brand-blue);">Daily</div>
+                        <div class="metric-label">Frequency</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--warm-orange);">30</div>
+                        <div class="metric-label">Retention</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="templates-section">
+            <h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem;">
+                🚀 Quick Launch Templates
+            </h2>
+            
+            <div class="templates-grid">
+                <div class="template-card" onclick="alert('Launch Customer Onboarding system!')">
+                    <div style="font-size: 2rem; margin-bottom: 1rem;">👋</div>
+                    <h3>Customer Onboarding</h3>
+                    <p style="color: var(--text-secondary); margin-top: 0.5rem;">Welcome series + product tours</p>
+                </div>
+                
+                <div class="template-card" onclick="alert('Launch Lead Qualification system!')">
+                    <div style="font-size: 2rem; margin-bottom: 1rem;">🎯</div>
+                    <h3>Lead Qualification</h3>
+                    <p style="color: var(--text-secondary); margin-top: 0.5rem;">Scoring + routing workflows</p>
+                </div>
+                
+                <div class="template-card" onclick="alert('Launch Content Distribution system!')">
+                    <div style="font-size: 2rem; margin-bottom: 1rem;">📤</div>
+                    <h3>Content Distribution</h3>
+                    <p style="color: var(--text-secondary); margin-top: 0.5rem;">Multi-platform publishing</p>
+                </div>
+                
+                <div class="template-card" onclick="alert('Launch Customer Support system!')">
+                    <div style="font-size: 2rem; margin-bottom: 1rem;">🎧</div>
+                    <h3>Customer Support</h3>
+                    <p style="color: var(--text-secondary); margin-top: 0.5rem;">Ticket routing + responses</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="recent-activity">
+            <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem;">Recent Activity</h2>
+            
+            <div class="activity-item">
+                <div class="activity-icon" style="background: var(--success-green);">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">Email Marketing Automation sent 347 emails</div>
+                    <div class="activity-time">2 minutes ago</div>
+                </div>
+            </div>
+            
+            <div class="activity-item">
+                <div class="activity-icon" style="background: var(--brand-blue);">
+                    <i class="fas fa-calendar"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">New appointment booked: Sarah Martinez - Strategy Call</div>
+                    <div class="activity-time">15 minutes ago</div>
+                </div>
+            </div>
+            
+            <div class="activity-item">
+                <div class="activity-icon" style="background: var(--warm-orange);">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">Invoice #1247 paid automatically - $2,500</div>
+                    <div class="activity-time">1 hour ago</div>
+                </div>
+            </div>
+            
+            <div class="activity-item">
+                <div class="activity-icon" style="background: var(--creative-teal);">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">89 leads qualified through nurturing system</div>
+                    <div class="activity-time">3 hours ago</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="floating-add" onclick="alert('Create new automation system!')">
+        <i class="fas fa-plus"></i>
+    </button>
+
+    <script>
+        // System card interactions
+        document.querySelectorAll('.system-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const title = card.querySelector('.system-title').textContent;
+                alert(`Opening system details for "${title}"`);
+            });
+        });
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

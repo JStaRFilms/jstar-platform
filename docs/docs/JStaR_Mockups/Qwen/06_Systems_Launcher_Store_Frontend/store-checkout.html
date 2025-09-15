@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - J StaR Films Store</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'jstar-blue': '#2563EB',
+            'faith-purple': '#8B5CF6',
+            'growth-green': '#059669',
+            'warning-yellow': '#F59E0B'
+          }
+        }
+      }
+    }
+    
+    function selectPaymentMethod(method) {
+      document.querySelectorAll('.payment-method').forEach(card => {
+        card.classList.remove('border-jstar-blue', 'bg-blue-50', 'dark:bg-blue-900/20');
+        card.classList.add('border-gray-200', 'dark:border-gray-700');
+      });
+      
+      document.getElementById(method).classList.add('border-jstar-blue', 'bg-blue-50', 'dark:bg-blue-900/20');
+      document.getElementById(method).classList.remove('border-gray-200', 'dark:border-gray-700');
+    }
+    
+    function applyDiscount() {
+      const code = document.getElementById('discount-code').value;
+      const discountMessage = document.getElementById('discount-message');
+      
+      if (code === 'FAITH20') {
+        discountMessage.className = 'mt-2 text-green-600 dark:text-green-400';
+        discountMessage.textContent = '20% discount applied!';
+        
+        // Update totals
+        document.getElementById('discount-amount').textContent = '-$59.80';
+        document.getElementById('total-amount').textContent = '$239.20';
+      } else {
+        discountMessage.className = 'mt-2 text-red-600 dark:text-red-400';
+        discountMessage.textContent = 'Invalid discount code';
+      }
+    }
+    
+    function completeCheckout() {
+      const checkoutBtn = document.getElementById('checkout-btn');
+      const originalText = checkoutBtn.innerHTML;
+      checkoutBtn.innerHTML = '<svg class="animate-spin h-5 w-5 mr-2 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Processing...';
+      
+      setTimeout(() => {
+        checkoutBtn.innerHTML = 'Complete Checkout';
+        
+        // Show success message
+        document.getElementById('checkout-success').classList.remove('hidden');
+        
+        // Hide form
+        setTimeout(() => {
+          document.getElementById('checkout-form').classList.add('hidden');
+          document.getElementById('order-summary').classList.add('hidden');
+        }, 1000);
+      }, 2000);
+    }
+    
+    function goToStore() {
+      window.location.href = 'store-landing-page.html';
+    }
+    
+    // Simulate user tier (in real app this would come from auth)
+    const userTier = 'tier1';
+  </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+  <!-- PRD: FR046 (Checkout Flow) -->
+  <div class="flex flex-col min-h-screen">
+    <!-- HEADER -->
+    <header class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center py-4">
+          <div class="flex items-center">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-jstar-blue to-faith-purple flex items-center justify-center mr-3">
+              <span class="text-white font-bold">J</span>
+            </div>
+            <h1 class="text-xl font-bold text-gray-900 dark:text-white">J StaR Films Store</h1>
+          </div>
+          
+          <div class="flex items-center space-x-4">
+            <div class="relative">
+              <input type="text" placeholder="Search products..." 
+                     class="bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+              <div class="absolute left-3 top-2.5 text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            </div>
+            
+            <button class="relative p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              <span class="absolute top-0 right-0 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">1</span>
+            </button>
+            
+            <div class="flex items-center space-x-2">
+              <div class="w-8 h-8 rounded-full bg-jstar-blue flex items-center justify-center text-white">
+                J
+              </div>
+              <div class="hidden md:block">
+                <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Tier 1</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- BREADCRUMBS -->
+        <nav class="flex mb-6" aria-label="Breadcrumb">
+          <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+              <a href="#" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-jstar-blue dark:text-gray-400 dark:hover:text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Store
+              </a>
+            </li>
+            <li aria-current="page">
+              <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+                <a href="#" class="ml-1 text-sm font-medium text-gray-700 hover:text-jstar-blue md:ml-2 dark:text-gray-400 dark:hover:text-white">Creator Growth Engine Suite</a>
+              </div>
+            </li>
+            <li aria-current="page">
+              <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+                <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">Checkout</span>
+              </div>
+            </li>
+          </ol>
+        </nav>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <!-- CHECKOUT FORM -->
+          <div id="checkout-form" class="lg:col-span-2">
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 mb-6">
+              <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Billing Information</h2>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">First Name</label>
+                  <input type="text" value="John" 
+                         class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Last Name</label>
+                  <input type="text" value="Oluleke-Oke" 
+                         class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                </div>
+                
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Email Address</label>
+                  <input type="email" value="john@jstarfilms.com" 
+                         class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                </div>
+                
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Address</label>
+                  <input type="text" value="123 Faith Avenue" 
+                         class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">City</label>
+                  <input type="text" value="Nashville" 
+                         class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">State</label>
+                  <select class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                    <option>TN</option>
+                    <option>CA</option>
+                    <option>NY</option>
+                    <option>TX</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">ZIP Code</label>
+                  <input type="text" value="37211" 
+                         class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Country</label>
+                  <select class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                    <option>United States</option>
+                    <option>Canada</option>
+                    <option>United Kingdom</option>
+                    <option>Australia</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 mb-6">
+              <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Payment Method</h2>
+              
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div id="credit-card" class="payment-method bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 cursor-pointer" onclick="selectPaymentMethod('credit-card')">
+                  <div class="flex justify-between items-start mb-2">
+                    <div class="w-8 h-8 rounded-full bg-jstar-blue/10 flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-jstar-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                      </svg>
+                    </div>
+                    <input type="radio" name="payment-method" checked class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 dark:border-gray-600">
+                  </div>
+                  <h3 class="font-medium text-gray-900 dark:text-white mb-1">Credit Card</h3>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">Visa, Mastercard, Amex</p>
+                </div>
+                
+                <div id="paypal" class="payment-method bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 cursor-pointer" onclick="selectPaymentMethod('paypal')">
+                  <div class="flex justify-between items-start mb-2">
+                    <div class="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24" stroke="none">
+                        <path d="M19.25 4H4.75C3.784 4 3 4.784 3 5.75v12.5C3 19.216 3.784 20 4.75 20h14.5c.966 0 1.75-.784 1.75-1.75V5.75C21 4.784 20.216 4 19.25 4zm-5.5 11.5h-2.5c-.69 0-1.25-.56-1.25-1.25v-1.25c0-.69.56-1.25 1.25-1.25h1.25v-1.25h-1.25c-.69 0-1.25-.56-1.25-1.25v-1.25c0-.69.56-1.25 1.25-1.25h2.5c.69 0 1.25.56 1.25 1.25v3.75c0 .69-.56 1.25-1.25 1.25zm-5 0h-1.5c-.69 0-1.25-.56-1.25-1.25v-1.25c0-.69.56-1.25 1.25-1.25h.25v-1.25h-.25c-.69 0-1.25-.56-1.25-1.25v-1.25c0-.69.56-1.25 1.25-1.25h1.5c.69 0 1.25.56 1.25 1.25v3.75c0 .69-.56 1.25-1.25 1.25z" />
+                      </svg>
+                    </div>
+                    <input type="radio" name="payment-method" class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 dark:border-gray-600">
+                  </div>
+                  <h3 class="font-medium text-gray-900 dark:text-white mb-1">PayPal</h3>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">Secure checkout</p>
+                </div>
+                
+                <div id="apple-pay" class="payment-method bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 cursor-pointer" onclick="selectPaymentMethod('apple-pay')">
+                  <div class="flex justify-between items-start mb-2">
+                    <div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-700 dark:text-gray-300" fill="currentColor" viewBox="0 0 24 24" stroke="none">
+                        <path d="M17.65 19.65c.55.55 1.32.86 2.15.86 1.73 0 3.14-1.4 3.14-3.14 0-1.73-1.4-3.14-3.14-3.14-1.73 0-3.14 1.4-3.14 3.14 0 .83.31 1.6.86 2.15zm-12.15-7.65c.74 1.27 1.17 2.71 1.17 4.25 0 5.52 4.48 10 10 10 .97 0 1.92-.13 2.82-.37-1.12-.85-2.06-2.22-2.06-3.08 0-2.04 3.47-2.5 3.47-5.69 0-2.84-2.55-4.89-5.82-4.89-3.19 0-5.69 2.04-5.69 4.89 0 2.91 2.12 4.89 5.21 4.89 1.16 0 2.25-.43 2.98-1.1l1.32 1.32c-.83.78-1.96 1.28-3.29 1.28-3.61 0-6.54-2.93-6.54-6.54s2.93-6.54 6.54-6.54c3.31 0 5.97 2.47 6.45 5.59.05.32.07.65.07.99 0 6.07-4.93 11-11 11-1.49 0-2.91-.33-4.17-.93l-1.86 1.86c.74.96 1.65 1.8 2.7 2.48z" />
+                      </svg>
+                    </div>
+                    <input type="radio" name="payment-method" class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 dark:border-gray-600">
+                  </div>
+                  <h3 class="font-medium text-gray-900 dark:text-white mb-1">Apple Pay</h3>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">Fast & secure</p>
+                </div>
+              </div>
+              
+              <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
+                <div class="mb-4">
+                  <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Card Number</label>
+                  <div class="flex">
+                    <input type="text" value="4242 4242 4242 4242" 
+                           class="flex-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-l-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                    <div class="bg-white dark:bg-gray-800 border border-l-0 border-gray-300 dark:border-gray-600 rounded-r-lg px-3 py-2 flex items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Expiration Date</label>
+                    <input type="text" value="12/28" 
+                           class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">CVV</label>
+                    <input type="text" value="123" 
+                           class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                  </div>
+                </div>
+                
+                <div class="mb-4">
+                  <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Name on Card</label>
+                  <input type="text" value="John Oluleke-Oke" 
+                         class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                </div>
+                
+                <div class="flex items-start">
+                  <input type="checkbox" checked class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 dark:border-gray-600 mr-2 mt-1">
+                  <p class="text-sm text-gray-600 dark:text-gray-400">
+                    Save this payment method for future purchases
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 mb-6">
+              <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Discount Code</h2>
+              
+              <div class="flex">
+                <input type="text" id="discount-code" placeholder="Enter discount code" 
+                       class="flex-1 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                <button onclick="applyDiscount()"
+                        class="bg-jstar-blue hover:bg-faith-purple text-white rounded-r-lg px-4 py-2">
+                  Apply
+                </button>
+              </div>
+              <p id="discount-message" class="mt-2 text-gray-500 dark:text-gray-400">Have a discount code? Enter it here</p>
+            </div>
+            
+            <button id="checkout-btn" onclick="completeCheckout()"
+                    class="w-full px-6 py-3 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-bold text-lg">
+              Complete Checkout
+            </button>
+          </div>
+          
+          <!-- ORDER SUMMARY -->
+          <div id="order-summary" class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Order Summary</h2>
+            
+            <div class="flex justify-between mb-6">
+              <div>
+                <h3 class="font-medium text-gray-900 dark:text-white">Creator Growth Engine Suite</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Monthly subscription</p>
+              </div>
+              <p class="font-medium text-gray-900 dark:text-white">$299.00</p>
+            </div>
+            
+            <div class="border-t border-gray-200 dark:border-gray-700 pt-4 mb-6">
+              <div class="flex justify-between text-gray-700 dark:text-gray-300 mb-2">
+                <span>Subtotal</span>
+                <span>$299.00</span>
+              </div>
+              <div class="flex justify-between text-gray-700 dark:text-gray-300 mb-2">
+                <span>Tax</span>
+                <span>$0.00</span>
+              </div>
+              <div class="flex justify-between text-gray-700 dark:text-gray-300" id="discount-row">
+                <span>Discount</span>
+                <span id="discount-amount">$0.00</span>
+              </div>
+            </div>
+            
+            <div class="border-t border-gray-200 dark:border-gray-700 pt-4 mb-6">
+              <div class="flex justify-between font-bold text-gray-900 dark:text-white">
+                <span>Total</span>
+                <span id="total-amount">$299.00</span>
+              </div>
+            </div>
+            
+            <div class="bg-yellow-50 dark:bg-yellow-900/20 rounded-xl p-4 border border-yellow-200 dark:border-yellow-800 mb-6">
+              <div class="flex">
+                <div class="flex-shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div class="ml-3">
+                  <h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                    Tier 3 Access Required
+                  </h3>
+                  <div class="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
+                    <p>
+                      This product requires Tier 3 access. Your account will be upgraded to Tier 3 upon purchase.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
+              <div class="flex items-start mb-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <p>Access to all Creator Growth Engine tools</p>
+              </div>
+              <div class="flex items-start mb-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <p>YouTube Virality OS with CTR prediction</p>
+              </div>
+              <div class="flex items-start mb-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <p>Client Magnet System with automated sequences</p>
+              </div>
+              <div class="flex items-start mb-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <p>Systems Launcher Toolkit with implementation tracker</p>
+              </div>
+              <div class="flex items-start">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <p>Faith Integration Framework with prayer tools</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- CHECKOUT SUCCESS -->
+          <div id="checkout-success" class="hidden lg:col-span-3 bg-white dark:bg-gray-800 rounded-xl p-12 border border-gray-200 dark:border-gray-700 text-center">
+            <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Order Confirmed!</h2>
+            <p class="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
+              Thank you for your purchase! Your Creator Growth Engine Suite subscription is now active. 
+              You'll receive an email confirmation shortly.
+            </p>
+            
+            <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-6 max-w-md mx-auto mb-6">
+              <div class="flex justify-between mb-2">
+                <span class="text-gray-600 dark:text-gray-400">Order #</span>
+                <span class="font-medium text-gray-900 dark:text-white">CGE-749283</span>
+              </div>
+              <div class="flex justify-between mb-2">
+                <span class="text-gray-600 dark:text-gray-400">Date</span>
+                <span class="font-medium text-gray-900 dark:text-white">June 18, 2024</span>
+              </div>
+              <div class="flex justify-between mb-2">
+                <span class="text-gray-600 dark:text-gray-400">Total</span>
+                <span class="font-medium text-gray-900 dark:text-white">$299.00</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600 dark:text-gray-400">Payment Method</span>
+                <span class="font-medium text-gray-900 dark:text-white">Credit Card •••• 4242</span>
+              </div>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row sm:justify-center gap-4">
+              <button onclick="goToStore()"
+                      class="px-6 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-lg font-medium">
+                Continue Shopping
+              </button>
+              <button onclick="window.location.href = 'cge-virality-os.html'"
+                      class="px-6 py-3 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium">
+                Go to Creator Growth Engine
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div>
+            <div class="flex items-center mb-4">
+              <div class="w-8 h-8 rounded-full bg-gradient-to-br from-jstar-blue to-faith-purple flex items-center justify-center mr-2">
+                <span class="text-white font-bold">J</span>
+              </div>
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white">J StaR Films</h3>
+            </div>
+            <p class="text-gray-600 dark:text-gray-400">
+              Tools and systems for filmmakers, developers, and faith-driven creators to multiply their impact.
+            </p>
+          </div>
+          
+          <div>
+            <h4 class="font-bold text-gray-900 dark:text-white mb-4">Products</h4>
+            <ul class="space-y-2">
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">Creator Growth Engine</a></li>
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">JohnGPT Access</a></li>
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">Systems Launcher Toolkit</a></li>
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">Faith Integration Framework</a></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h4 class="font-bold text-gray-900 dark:text-white mb-4">Resources</h4>
+            <ul class="space-y-2">
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">Blog</a></li>
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">YouTube Channel</a></li>
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">Community</a></li>
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">Free Resources</a></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h4 class="font-bold text-gray-900 dark:text-white mb-4">Connect</h4>
+            <ul class="space-y-2">
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">Twitter</a></li>
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">Instagram</a></li>
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">LinkedIn</a></li>
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">YouTube</a></li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="border-t border-gray-200 dark:border-gray-700 mt-8 pt-8 text-center text-gray-500 dark:text-gray-400">
+          <p>&copy; 2024 J StaR Films. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>

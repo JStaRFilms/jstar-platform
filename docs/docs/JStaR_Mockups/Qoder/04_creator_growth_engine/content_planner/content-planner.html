@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Planner - J StaR Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: var(--bg-primary);
+            border: 2px solid var(--border);
+            color: var(--text-primary);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        /* Calendar View */
+        .calendar-container {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+        
+        .calendar-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .calendar-nav {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .nav-btn {
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+            padding: 0.5rem;
+            cursor: pointer;
+            color: var(--text-primary);
+        }
+        
+        .current-month {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin: 0 1rem;
+        }
+        
+        .view-toggle {
+            display: flex;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .view-btn {
+            padding: 0.5rem 1rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+        }
+        
+        .view-btn.active {
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .calendar-day-header {
+            padding: 1rem;
+            text-align: center;
+            font-weight: 600;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        
+        .calendar-day-header:last-child { border-right: none; }
+        
+        .calendar-day {
+            min-height: 120px;
+            padding: 0.5rem;
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            position: relative;
+        }
+        
+        .calendar-day:last-child { border-right: none; }
+        
+        .day-number {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+        
+        .day-number.today {
+            background: var(--brand-blue);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+        
+        .content-item {
+            background: var(--creative-teal);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            margin-bottom: 0.25rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .content-item:hover {
+            transform: scale(1.02);
+        }
+        
+        .content-item.blog { background: var(--brand-blue); }
+        .content-item.social { background: var(--creative-teal); }
+        .content-item.video { background: var(--warm-orange); }
+        .content-item.email { background: var(--success-green); }
+        
+        /* Content Ideas Panel */
+        .content-ideas {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+        }
+        
+        .main-content-area {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+        }
+        
+        .content-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .content-tab {
+            padding: 0.75rem 1rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .content-tab.active {
+            color: var(--brand-blue);
+            border-bottom-color: var(--brand-blue);
+        }
+        
+        .ideas-list {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .idea-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .idea-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .idea-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .idea-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .idea-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+        }
+        
+        .idea-type {
+            padding: 0.25rem 0.5rem;
+            border-radius: 1rem;
+            font-weight: 500;
+        }
+        
+        .viral-score {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            color: var(--warm-orange);
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            height: fit-content;
+        }
+        
+        .sidebar-section {
+            margin-bottom: 2rem;
+        }
+        
+        .sidebar-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .ai-suggestions {
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            color: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .ai-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .suggestion-text {
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .generate-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+        
+        .generate-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        /* Analytics Quick View */
+        .analytics-preview {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .metric-card {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--brand-blue);
+        }
+        
+        .metric-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Trending Topics */
+        .trending-topics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .topic-tag {
+            background: rgba(74, 144, 226, 0.1);
+            color: var(--brand-blue);
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .topic-tag:hover {
+            background: var(--brand-blue);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1 class="page-title">Content Planner</h1>
+            <div class="header-actions">
+                <button class="btn btn-secondary">
+                    <i class="fas fa-download"></i>
+                    Export
+                </button>
+                <button class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    Add Content
+                </button>
+            </div>
+        </div>
+        
+        <!-- Calendar View -->
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <div class="calendar-nav">
+                    <button class="nav-btn"><i class="fas fa-chevron-left"></i></button>
+                    <div class="current-month">March 2024</div>
+                    <button class="nav-btn"><i class="fas fa-chevron-right"></i></button>
+                </div>
+                
+                <div class="view-toggle">
+                    <button class="view-btn active">Month</button>
+                    <button class="view-btn">Week</button>
+                    <button class="view-btn">Day</button>
+                </div>
+            </div>
+            
+            <div class="calendar-grid">
+                <div class="calendar-day-header">Sun</div>
+                <div class="calendar-day-header">Mon</div>
+                <div class="calendar-day-header">Tue</div>
+                <div class="calendar-day-header">Wed</div>
+                <div class="calendar-day-header">Thu</div>
+                <div class="calendar-day-header">Fri</div>
+                <div class="calendar-day-header">Sat</div>
+                
+                <!-- Week 1 -->
+                <div class="calendar-day">
+                    <div class="day-number">25</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">26</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">27</div>
+                    <div class="content-item blog">Blog: AI Trends 2024</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">28</div>
+                    <div class="content-item social">LinkedIn Post</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">1</div>
+                    <div class="content-item video">YouTube Video</div>
+                    <div class="content-item email">Newsletter</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">2</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">3</div>
+                    <div class="content-item social">Twitter Thread</div>
+                </div>
+                
+                <!-- Week 2 -->
+                <div class="calendar-day">
+                    <div class="day-number">4</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">5</div>
+                    <div class="content-item blog">Case Study</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">6</div>
+                    <div class="content-item social">Instagram Reel</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">7</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">8</div>
+                    <div class="content-item email">Weekly Update</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">9</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">10</div>
+                    <div class="content-item video">Tutorial</div>
+                </div>
+                
+                <!-- Week 3 -->
+                <div class="calendar-day">
+                    <div class="day-number">11</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">12</div>
+                    <div class="content-item social">Facebook Post</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">13</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">14</div>
+                    <div class="content-item blog">Product Update</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number today">15</div>
+                    <div class="content-item social">Story Series</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">16</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">17</div>
+                    <div class="content-item video">Webinar</div>
+                </div>
+                
+                <!-- Week 4 -->
+                <div class="calendar-day">
+                    <div class="day-number">18</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">19</div>
+                    <div class="content-item email">Product Launch</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">20</div>
+                    <div class="content-item social">Live Stream</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">21</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">22</div>
+                    <div class="content-item blog">Guest Post</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">23</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">24</div>
+                    <div class="content-item social">Community Post</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Content Ideas Section -->
+        <div class="content-ideas">
+            <div class="main-content-area">
+                <div class="content-tabs">
+                    <button class="content-tab active">AI Generated</button>
+                    <button class="content-tab">Trending</button>
+                    <button class="content-tab">Templates</button>
+                    <button class="content-tab">Saved</button>
+                </div>
+                
+                <div class="ideas-list">
+                    <div class="idea-card">
+                        <div class="idea-title">5 AI Tools Every Entrepreneur Needs</div>
+                        <div class="idea-description">Explore the latest AI tools that can revolutionize your business operations and boost productivity.</div>
+                        <div class="idea-meta">
+                            <span class="idea-type blog" style="background: rgba(74, 144, 226, 0.2); color: var(--brand-blue);">Blog Post</span>
+                            <div class="viral-score">
+                                <i class="fas fa-fire"></i>
+                                <span>92% Viral Score</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="idea-card">
+                        <div class="idea-title">Behind the Scenes: Building a SaaS Startup</div>
+                        <div class="idea-description">Share your entrepreneurial journey and lessons learned while building your startup from scratch.</div>
+                        <div class="idea-meta">
+                            <span class="idea-type video" style="background: rgba(255, 107, 107, 0.2); color: var(--warm-orange);">Video</span>
+                            <div class="viral-score">
+                                <i class="fas fa-fire"></i>
+                                <span>87% Viral Score</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="idea-card">
+                        <div class="idea-title">The Future of Remote Work</div>
+                        <div class="idea-description">Discuss emerging trends in remote work and how businesses can adapt to the changing landscape.</div>
+                        <div class="idea-meta">
+                            <span class="idea-type social" style="background: rgba(78, 205, 196, 0.2); color: var(--creative-teal);">Social Post</span>
+                            <div class="viral-score">
+                                <i class="fas fa-fire"></i>
+                                <span>84% Viral Score</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="idea-card">
+                        <div class="idea-title">Weekly Industry Newsletter</div>
+                        <div class="idea-description">Curate the latest industry news, trends, and insights for your subscribers.</div>
+                        <div class="idea-meta">
+                            <span class="idea-type email" style="background: rgba(69, 183, 209, 0.2); color: var(--success-green);">Email</span>
+                            <div class="viral-score">
+                                <i class="fas fa-fire"></i>
+                                <span>76% Viral Score</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="sidebar-section">
+                    <div class="ai-suggestions">
+                        <div class="ai-icon">🤖</div>
+                        <div class="suggestion-text">
+                            Based on your recent content performance, I suggest focusing on AI and automation topics this week.
+                        </div>
+                        <button class="generate-btn">Generate More Ideas</button>
+                    </div>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">This Month's Performance</h3>
+                    <div class="analytics-preview">
+                        <div class="metric-card">
+                            <div class="metric-value">2.4M</div>
+                            <div class="metric-label">Total Reach</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">156K</div>
+                            <div class="metric-label">Engagements</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">12.4%</div>
+                            <div class="metric-label">Engagement Rate</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">847</div>
+                            <div class="metric-label">New Followers</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">Trending Topics</h3>
+                    <div class="trending-topics">
+                        <span class="topic-tag">#AI</span>
+                        <span class="topic-tag">#Entrepreneurship</span>
+                        <span class="topic-tag">#SaaS</span>
+                        <span class="topic-tag">#Productivity</span>
+                        <span class="topic-tag">#RemoteWork</span>
+                        <span class="topic-tag">#Marketing</span>
+                        <span class="topic-tag">#Innovation</span>
+                        <span class="topic-tag">#Leadership</span>
+                    </div>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">Content Goals</h3>
+                    <div style="color: var(--text-secondary); font-size: 0.9rem;">
+                        <div style="margin-bottom: 0.5rem;">
+                            <strong>March Target:</strong> 24 posts
+                        </div>
+                        <div style="margin-bottom: 0.5rem;">
+                            <strong>Completed:</strong> 15 posts (62%)
+                        </div>
+                        <div style="background: var(--bg-secondary); height: 8px; border-radius: 4px; overflow: hidden;">
+                            <div style="background: var(--success-green); height: 100%; width: 62%; transition: width 0.3s ease;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Calendar navigation
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Calendar navigation logic would go here
+                console.log('Calendar navigation clicked');
+            });
+        });
+        
+        // View toggle
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // Content tabs
+        document.querySelectorAll('.content-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.content-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // Content item clicks
+        document.querySelectorAll('.content-item').forEach(item => {
+            item.addEventListener('click', function() {
+                alert(`Opening content item: ${this.textContent}`);
+            });
+        });
+        
+        // Idea card clicks
+        document.querySelectorAll('.idea-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const title = this.querySelector('.idea-title').textContent;
+                alert(`Opening idea: ${title}`);
+            });
+        });
+        
+        // Topic tag clicks
+        document.querySelectorAll('.topic-tag').forEach(tag => {
+            tag.addEventListener('click', function() {
+                alert(`Searching for content with topic: ${this.textContent}`);
+            });
+        });
+        
+        // Generate more ideas
+        document.querySelector('.generate-btn').addEventListener('click', function() {
+            this.textContent = 'Generating...';
+            setTimeout(() => {
+                this.textContent = 'Generate More Ideas';
+                alert('New AI-generated content ideas added!');
+            }, 2000);
+        });
+        
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

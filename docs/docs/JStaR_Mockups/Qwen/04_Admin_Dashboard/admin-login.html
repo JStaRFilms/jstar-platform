@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login - J StaR Platform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'jstar-blue': '#2563EB',
+            'faith-purple': '#8B5CF6'
+          }
+        }
+      }
+    }
+    
+    function login() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      
+      // Simple validation
+      if (!email || !password) {
+        alert('Please enter both email and password');
+        return;
+      }
+      
+      // In real implementation, this would make an API call
+      document.getElementById('login-form').classList.add('hidden');
+      document.getElementById('loading').classList.remove('hidden');
+      
+      setTimeout(() => {
+        // Redirect to dashboard
+        window.location.href = 'admin-dashboard.html';
+      }, 1500);
+    }
+  </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen flex items-center justify-center transition-colors">
+  <!-- THEME TOGGLE -->
+  <div class="fixed top-4 right-4 z-50">
+    <button onclick="document.documentElement.classList.toggle('dark')" 
+            class="p-2 rounded-full bg-jstar-blue text-white">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+      </svg>
+    </button>
+  </div>
+
+  <div class="max-w-md w-full mx-6">
+    <!-- PRD: FR024 (Secure Admin Access) -->
+    <div class="text-center mb-8">
+      <div class="w-16 h-16 rounded-full bg-gradient-to-br from-jstar-blue to-faith-purple flex items-center justify-center mx-auto mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v-2H5v-2H3v-2h2V9H3V7h2V5h2V3h2v2h2V3h2v2h2V7zm-10 5h2V7h-2v5zm4 0h2V7h-2v5z" />
+        </svg>
+      </div>
+      <h1 class="text-3xl font-bold mb-2 text-gray-900 dark:text-white">Admin Dashboard</h1>
+      <p class="text-gray-600 dark:text-gray-400">
+        <!-- PRD: Login Description -->Secure access to the J StaR Creative Operating System
+      </p>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <div id="login-form" class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-200 dark:border-gray-700">
+      <div class="p-8">
+        <form onsubmit="event.preventDefault(); login()" class="space-y-6">
+          <div>
+            <label for="email" class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Email Address</label>
+            <input type="email" id="email" 
+                   class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue"
+                   placeholder="you@example.com">
+          </div>
+          
+          <div>
+            <label for="password" class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Password</label>
+            <input type="password" id="password" 
+                   class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue"
+                   placeholder="••••••••">
+          </div>
+          
+          <div class="flex items-center justify-between">
+            <div class="flex items-center">
+              <input type="checkbox" id="remember" class="h-4 w-4 text-jstar-blue focus:ring-jstar-blue border-gray-300 rounded">
+              <label for="remember" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">Remember me</label>
+            </div>
+            <a href="#" class="text-sm text-jstar-blue hover:text-faith-purple">Forgot password?</a>
+          </div>
+          
+          <button type="submit" class="w-full bg-jstar-blue hover:bg-faith-purple text-white font-bold py-3 px-4 rounded-lg transition">
+            Sign In
+          </button>
+        </form>
+      </div>
+      
+      <div class="px-8 py-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700">
+        <p class="text-center text-sm text-gray-600 dark:text-gray-400">
+          <!-- PRD: Security -->Two-factor authentication available for enhanced security
+        </p>
+      </div>
+    </div>
+    
+    <!-- LOADING STATE -->
+    <div id="loading" class="hidden text-center py-8">
+      <div class="w-12 h-12 rounded-full border-4 border-jstar-blue border-t-transparent mx-auto animate-spin mb-4"></div>
+      <p class="text-gray-700 dark:text-gray-300">Authenticating...</p>
+    </div>
+    
+    <!-- SECURITY NOTES -->
+    <div class="mt-6 bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
+      <h2 class="text-lg font-bold mb-3 text-gray-900 dark:text-white">Security Features</h2>
+      
+      <ul class="space-y-2 text-gray-700 dark:text-gray-300">
+        <li class="flex items-start">
+          <svg class="h-5 w-5 text-green-500 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+          <span>JWT-based authentication with 15-minute session expiration</span>
+        </li>
+        <li class="flex items-start">
+          <svg class="h-5 w-5 text-green-500 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+          <span>Automatic logout after 30 minutes of inactivity</span>
+        </li>
+        <li class="flex items-start">
+          <svg class="h-5 w-5 text-green-500 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+          <span>IP address tracking for login security</span>
+        </li>
+      </ul>
+      
+      <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+        <p class="text-blue-800 dark:text-blue-200">
+          <strong>Admin Note:</strong> This is a local development environment. 
+          In production, all credentials are handled securely on the backend.
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

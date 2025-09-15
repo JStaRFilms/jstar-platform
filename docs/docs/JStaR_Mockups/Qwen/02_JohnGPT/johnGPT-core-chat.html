@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JohnGPT Assistant - J StaR Films</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'jstar-blue': '#2563EB',
+            'faith-purple': '#8B5CF6',
+            'growth-green': '#059669'
+          }
+        }
+      }
+    }
+    
+    // Simulate chat responses
+    function sendMessage() {
+      const input = document.getElementById('message-input');
+      const message = input.value.trim();
+      if (!message) return;
+      
+      // Add user message
+      addMessage(message, 'user');
+      input.value = '';
+      
+      // Simulate AI response after delay
+      setTimeout(() => {
+        const responses = [
+          `Here's a YouTube title formula based on your niche:\n\n**The Number Hook**\n\`5 [Adjective] [Noun] That [Benefit]\`\n\nExample: "5 Hidden YouTube Features That Skyrocket Your Views"`,
+          `Let's break down your video concept:\n\n## Virality Score Analysis\n- **Title**: 8.2/10 (strong curiosity gap)\n- **Thumbnail**: 6.7/10 (needs higher contrast)\n- **Hook**: 9.1/10 (excellent problem-agitate-solve)\n\n> Pro Tip: Add a personal story at 2:15 for retention`,
+          `Here's the JavaScript code for your local AI setup:\n\n\`\`\`javascript\n// Ollama API integration\nasync function queryModel(prompt) {\n  const response = await fetch('http://localhost:11434/api/generate', {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify({ model: 'llama3', prompt })\n  });\n  return response.json();\n}\n\`\`\``
+        ];
+        addMessage(responses[Math.floor(Math.random() * responses.length)], 'ai');
+      }, 1000);
+    }
+    
+    function addMessage(content, sender) {
+      const chatContainer = document.getElementById('chat-messages');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start'}`;
+      
+      if (sender === 'ai') {
+        messageDiv.innerHTML = `
+          <div class="max-w-2xl">
+            <div class="flex items-start">
+              <div class="w-8 h-8 rounded-full bg-jstar-blue flex items-center justify-center mr-3 flex-shrink-0 text-white">JG</div>
+              <div class="bg-gray-100 dark:bg-gray-700 rounded-2xl p-4">
+                ${renderMarkdown(content)}
+                <button class="mt-2 text-xs text-jstar-blue hover:text-faith-purple flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                  </svg>
+                  Save to Vault
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      } else {
+        messageDiv.innerHTML = `
+          <div class="max-w-2xl">
+            <div class="bg-jstar-blue text-white rounded-2xl p-4">
+              ${content}
+            </div>
+          </div>
+        `;
+      }
+      
+      chatContainer.appendChild(messageDiv);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+    
+    // Basic markdown rendering
+    function renderMarkdown(text) {
+      // Convert code blocks
+      text = text.replace(/```(\w+)?\n([\s\S]*?)```/g, 
+        (match, lang, code) => `<pre class="mt-2 p-3 bg-gray-800 rounded-lg overflow-x-auto text-sm"><code class="text-green-400">${escapeHtml(code)}</code></pre>`);
+      
+      // Convert headers
+      text = text.replace(/## (.*)/g, '<h3 class="font-semibold mt-4 mb-2 text-gray-900 dark:text-white">$1</h3>');
+      
+      // Convert blockquotes
+      text = text.replace(/> (.*)/g, '<blockquote class="mt-2 pl-3 border-l-4 border-jstar-blue bg-gray-50 dark:bg-gray-900/50 p-2 text-gray-700 dark:text-gray-300">$1</blockquote>');
+      
+      return text;
+    }
+    
+    function escapeHtml(unsafe) {
+      return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "<")
+        .replace(/>/g, ">")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+  </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+  <div class="max-w-4xl mx-auto p-6">
+    <!-- PRD: FR013 (Access JohnGPT) + FR015 (Markdown/Code) -->
+    <header class="text-center mb-8">
+      <div class="w-16 h-16 rounded-full bg-gradient-to-br from-jstar-blue to-faith-purple flex items-center justify-center mx-auto mb-4">
+        <span class="text-white text-2xl font-bold">JG</span>
+      </div>
+      <h1 class="text-3xl font-bold mb-2 text-gray-900 dark:text-white">JohnGPT Assistant</h1>
+      <p class="text-xl text-gray-600 dark:text-gray-400">
+        <!-- PRD: Brand Voice -->Your friendly, humorous, practical, and faith-grounded AI creative partner
+      </p>
+    </header>
+
+    <!-- THEME TOGGLE -->
+    <div class="fixed top-4 right-4 z-50">
+      <button onclick="document.documentElement.classList.toggle('dark')" 
+              class="p-2 rounded-full bg-jstar-blue text-white">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- CHAT INTERFACE -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-200 dark:border-gray-700">
+      <!-- CHAT HEADER -->
+      <div class="p-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-8 h-8 rounded-full bg-jstar-blue flex items-center justify-center text-white">
+            JG
+          </div>
+          <select class="bg-transparent border-none focus:outline-none text-sm font-medium">
+            <option>Creative Director</option> <!-- FR017 -->
+            <option>Systems Mentor</option>
+            <option>Faith Guide</option>
+          </select>
+        </div>
+        <div class="flex space-x-2">
+          <button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 00.894.553l2 1a1 1 0 001.106-1.647l-2-1A1 1 0 009 9z" clip-rule="evenodd" />
+            </svg>
+          </button>
+          <button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- CHAT MESSAGES -->
+      <div id="chat-messages" class="h-[60vh] overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-900/50">
+        <!-- AI Greeting -->
+        <div class="flex justify-start">
+          <div class="max-w-2xl">
+            <div class="flex items-start">
+              <div class="w-8 h-8 rounded-full bg-jstar-blue flex items-center justify-center mr-3 flex-shrink-0 text-white">JG</div>
+              <div class="bg-gray-100 dark:bg-gray-700 rounded-2xl p-4">
+                <p class="text-gray-800 dark:text-gray-200">Hey there! I'm JohnGPT, your AI creative partner. 😊</p>
+                <p class="text-gray-800 dark:text-gray-200 mt-2">How can I help you today? Here are some things I can do:</p>
+                <ul class="mt-2 pl-5 space-y-1 text-gray-800 dark:text-gray-200 list-disc">
+                  <li>Analyze YouTube video performance</li>
+                  <li>Generate viral title formulas</li>
+                  <li>Help with faith-based content creation</li>
+                  <li>Debug your code (local AI setup)</li>
+                </ul>
+                <p class="text-gray-800 dark:text-gray-200 mt-2">Just ask me anything!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INPUT AREA -->
+      <div class="p-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+        <div class="flex space-x-2">
+          <input id="message-input" type="text" 
+                 placeholder="Ask me about YouTube virality, faith-based creativity, or AI tools..." 
+                 class="flex-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue"
+                 onkeypress="if (event.key === 'Enter') sendMessage()">
+          <button onclick="sendMessage()" class="bg-jstar-blue hover:bg-faith-purple text-white rounded-full p-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M2.166 4.999a1.959 1.959 0 010-2.998c5.905-3.001 12.04-3.001 17.945 0a1.959 1.959 0 010 2.998Z" clip-rule="evenodd" />
+              <path fill-rule="evenodd" d="M9.54 8.47c-1.332-.602-2.753-.602-4.085 0-1.333.601-2.513 1.81-3.449 3.441a1.96 1.96 0 000 1.178c.936 1.631 2.116 2.84 3.449 3.441 1.332.602 2.753.602 4.085 0 1.333-.601 2.513-1.81 3.45-3.441a1.96 1.96 0 000-1.178c-.937-1.631-2.117-2.84-3.45-3.441Zm4.016 3.441c.275.475.439.999.481 1.537.041.538-.07.107-.326 1.582a2 2 0 01-1.842 1.442c-.92.073-1.785-.392-2.299-1.188a5.985 5.985 0 01-.481-1.537c-.042-.538.07-1.107.326-1.582a2 2 0 011.842-1.442c.92-.073 1.785.392 2.299 1.188Z" clip-rule="evenodd" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEMO INSTRUCTIONS -->
+    <div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+      <p class="text-blue-800 dark:text-blue-200">
+        <strong>Try it out:</strong> Type "Show me YouTube title formulas" or "How do I set up local AI?" 
+        to see JohnGPT's responses with proper markdown/code rendering (FR015).
+      </p>
+    </div>
+
+    <!-- TIER 1+ FEATURES -->
+    <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700">
+        <h3 class="text-lg font-bold mb-3 text-gray-900 dark:text-white">Conversation History</h3>
+        <p class="text-gray-600 dark:text-gray-400 mb-4">
+          <!-- PRD: FR018 -->Save and revisit your previous conversations
+        </p>
+        <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-3">
+          <div class="flex justify-between items-center mb-2">
+            <span class="font-medium">YouTube Title Analysis</span>
+            <span class="text-xs text-gray-500 dark:text-gray-400">Today, 10:24 AM</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-xs text-gray-500 dark:text-gray-400">3 messages</span>
+            <button class="text-jstar-blue hover:text-faith-purple text-sm">Resume →</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700">
+        <h3 class="text-lg font-bold mb-3 text-gray-900 dark:text-white">Prompt Library</h3>
+        <p class="text-gray-600 dark:text-gray-400 mb-4">
+          <!-- PRD: FR019 -->Save and reuse your favorite prompts
+        </p>
+        <div class="space-y-2">
+          <div class="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-900 rounded">
+            <span>Viral Title Generator</span>
+            <button class="text-jstar-blue hover:text-faith-purple text-sm">Use</button>
+          </div>
+          <div class="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-900 rounded">
+            <span>Script Hook Builder</span>
+            <button class="text-jstar-blue hover:text-faith-purple text-sm">Use</button>
+          </div>
+          <div class="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-900 rounded">
+            <span>Faith Integration Prompt</span>
+            <button class="text-jstar-blue hover:text-faith-purple text-sm">Use</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

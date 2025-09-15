@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Creator Growth Engine Suite - J StaR Films Store</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'jstar-blue': '#2563EB',
+            'faith-purple': '#8B5CF6',
+            'growth-green': '#059669',
+            'warning-yellow': '#F59E0B'
+          }
+        }
+      }
+    }
+    
+    function addToCart() {
+      const cartBtn = document.getElementById('cart-btn');
+      const originalText = cartBtn.innerHTML;
+      cartBtn.innerHTML = '<svg class="animate-spin h-5 w-5 mr-2 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Adding...';
+      
+      setTimeout(() => {
+        cartBtn.innerHTML = originalText;
+        const successMsg = document.getElementById('product-added');
+        successMsg.classList.remove('hidden');
+        
+        setTimeout(() => {
+          successMsg.classList.add('hidden');
+        }, 3000);
+      }, 1500);
+    }
+    
+    function showTab(tabId) {
+      // Hide all tabs
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.add('hidden');
+      });
+      
+      // Show selected tab
+      document.getElementById(tabId).classList.remove('hidden');
+      
+      // Update active tab button
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('border-jstar-blue', 'text-jstar-blue');
+        btn.classList.add('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+      });
+      
+      event.target.classList.remove('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+      event.target.classList.add('border-jstar-blue', 'text-jstar-blue');
+    }
+    
+    function showUpgradeModal() {
+      document.getElementById('upgrade-modal').classList.remove('hidden');
+      setTimeout(() => {
+        document.getElementById('upgrade-modal').classList.add('opacity-100');
+      }, 10);
+    }
+    
+    function closeUpgradeModal() {
+      document.getElementById('upgrade-modal').classList.remove('opacity-100');
+      setTimeout(() => {
+        document.getElementById('upgrade-modal').classList.add('hidden');
+      }, 300);
+    }
+    
+    // Simulate user tier (in real app this would come from auth)
+    const userTier = 'tier1';
+  </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+  <!-- PRD: FR045 (Product Detail Page) -->
+  <div class="flex flex-col min-h-screen">
+    <!-- HEADER -->
+    <header class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center py-4">
+          <div class="flex items-center">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-jstar-blue to-faith-purple flex items-center justify-center mr-3">
+              <span class="text-white font-bold">J</span>
+            </div>
+            <h1 class="text-xl font-bold text-gray-900 dark:text-white">J StaR Films Store</h1>
+          </div>
+          
+          <div class="flex items-center space-x-4">
+            <div class="relative">
+              <input type="text" placeholder="Search products..." 
+                     class="bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+              <div class="absolute left-3 top-2.5 text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            </div>
+            
+            <button id="cart-btn" onclick="addToCart()"
+                    class="relative p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              <span class="absolute top-0 right-0 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">0</span>
+            </button>
+            
+            <div class="flex items-center space-x-2">
+              <div class="w-8 h-8 rounded-full bg-jstar-blue flex items-center justify-center text-white">
+                J
+              </div>
+              <div class="hidden md:block">
+                <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Tier 1</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- BREADCRUMBS -->
+        <nav class="flex mb-6" aria-label="Breadcrumb">
+          <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+              <a href="#" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-jstar-blue dark:text-gray-400 dark:hover:text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Store
+              </a>
+            </li>
+            <li aria-current="page">
+              <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+                <a href="#" class="ml-1 text-sm font-medium text-gray-700 hover:text-jstar-blue md:ml-2 dark:text-gray-400 dark:hover:text-white">Digital Products</a>
+              </div>
+            </li>
+            <li aria-current="page">
+              <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+                <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">Creator Growth Engine Suite</span>
+              </div>
+            </li>
+          </ol>
+        </nav>
+        
+        <!-- PRODUCT DETAILS -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <!-- PRODUCT IMAGES -->
+          <div>
+            <div class="bg-gray-100 dark:bg-gray-800 rounded-xl p-8 mb-6">
+              <img src="https://images.unsplash.com/photo-1551650975-87deedd944c3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80" 
+                   alt="Creator Growth Engine Suite" 
+                   class="w-full h-auto rounded-lg">
+            </div>
+            
+            <div class="grid grid-cols-4 gap-4">
+              <div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-2 cursor-pointer border-2 border-jstar-blue">
+                <img src="https://images.unsplash.com/photo-1551650975-87deedd944c3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80" 
+                     alt="Dashboard view" 
+                     class="w-full h-auto rounded">
+              </div>
+              <div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-2 cursor-pointer">
+                <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80" 
+                     alt="Analytics view" 
+                     class="w-full h-auto rounded">
+              </div>
+              <div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-2 cursor-pointer">
+                <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80" 
+                     alt="Content creation view" 
+                     class="w-full h-auto rounded">
+              </div>
+              <div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-2 cursor-pointer">
+                <img src="https://images.unsplash.com/photo-1547658719-da2b51169166?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80" 
+                     alt="Community view" 
+                     class="w-full h-auto rounded">
+              </div>
+            </div>
+          </div>
+          
+          <!-- PRODUCT INFO -->
+          <div>
+            <div class="flex justify-between items-start mb-4">
+              <span class="inline-block px-2 py-1 bg-green-100 text-green-800 text-xs rounded">Tier 3 Exclusive</span>
+              <div class="flex space-x-2">
+                <button class="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  </svg>
+                </button>
+                <button class="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367.684 3 3 0 00-5.367-.684z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Creator Growth Engine Suite</h1>
+            <p class="text-gray-600 dark:text-gray-400 mb-6">The complete system for filmmakers, developers, and faith-driven creators to multiply their impact</p>
+            
+            <div class="mb-6">
+              <div class="flex items-baseline">
+                <span class="text-4xl font-bold text-gray-900 dark:text-white">$299</span>
+                <span class="ml-2 text-gray-500 dark:text-gray-400">/month</span>
+              </div>
+              <p class="text-gray-500 dark:text-gray-400 mt-1">Billed monthly • Cancel anytime</p>
+            </div>
+            
+            <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 mb-6">
+              <div class="flex items-start mb-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <p>Access to all Creator Growth Engine tools</p>
+              </div>
+              <div class="flex items-start mb-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <p>YouTube Virality OS with CTR prediction</p>
+              </div>
+              <div class="flex items-start mb-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <p>Client Magnet System with automated sequences</p>
+              </div>
+              <div class="flex items-start mb-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <p>Systems Launcher Toolkit with implementation tracker</p>
+              </div>
+              <div class="flex items-start">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <p>Faith Integration Framework with prayer tools</p>
+              </div>
+            </div>
+            
+            <button onclick="userTier === 'tier3' ? addToCart() : showUpgradeModal()"
+                    class="w-full px-6 py-3 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-bold text-lg mb-4">
+              {userTier === 'tier3' ? 'Add to Cart' : 'Upgrade to Access'}
+            </button>
+            
+            <div class="text-center text-sm text-gray-500 dark:text-gray-400">
+              <span>Not sure which tier is right for you? </span>
+              <a href="#" class="text-jstar-blue hover:text-faith-purple font-medium">Compare Tiers</a>
+            </div>
+            
+            <!-- TIER REQUIREMENT -->
+            <div class="mt-8 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl p-6 border border-yellow-200 dark:border-yellow-800">
+              <div class="flex">
+                <div class="flex-shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div class="ml-3">
+                  <h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                    Tier 3 Access Required
+                  </h3>
+                  <div class="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
+                    <p>
+                      The Creator Growth Engine Suite is only available to Tier 3 subscribers. 
+                      <a href="#" onclick="showUpgradeModal()" class="font-medium text-jstar-blue hover:text-faith-purple">Upgrade to Tier 3</a> to get full access.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- PRODUCT TABS -->
+        <div class="mt-12">
+          <div class="border-b border-gray-200 dark:border-gray-700">
+            <nav class="-mb-px flex space-x-8">
+              <a href="#" onclick="showTab('description')" class="tab-btn border-jstar-blue text-jstar-blue whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm">
+                Description
+              </a>
+              <a href="#" onclick="showTab('features')" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300 whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm">
+                Features
+              </a>
+              <a href="#" onclick="showTab('testimonials')" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300 whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm">
+                Testimonials
+              </a>
+              <a href="#" onclick="showTab('faqs')" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300 whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm">
+                FAQs
+              </a>
+            </nav>
+          </div>
+          
+          <!-- DESCRIPTION TAB -->
+          <div id="description" class="tab-content pt-6">
+            <div class="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300">
+              <p>
+                The Creator Growth Engine Suite is the complete system for filmmakers, developers, and faith-driven creators who want to multiply their impact. 
+                It combines all our most powerful tools into one cohesive system that helps you create content, attract clients, and integrate your faith 
+                with your creative work.
+              </p>
+              
+              <h3>Why This Matters</h3>
+              <p>
+                In today's digital landscape, creators face a constant tension between chasing metrics and creating work that truly matters. 
+                My approach centers on <strong>integrating spiritual principles</strong> with cutting-edge technology to produce content that:
+              </p>
+              
+              <ul>
+                <li>Honors God through excellence</li>
+                <li>Serves audiences with dignity</li>
+                <li>Creates sustainable impact</li>
+              </ul>
+              
+              <h3>How It Works</h3>
+              <p>
+                The Creator Growth Engine Suite brings together four powerful systems that work together seamlessly:
+              </p>
+              
+              <ol>
+                <li><strong>YouTube Virality OS</strong> - Analyze, optimize, and predict the performance of your YouTube content</li>
+                <li><strong>Client Magnet System</strong> - Automated outreach sequences to attract ideal clients</li>
+                <li><strong>Systems Launcher Toolkit</strong> - Proven workflow templates with implementation tracking</li>
+                <li><strong>Faith Integration Framework</strong> - Build systems that honor God while creating impactful content</li>
+              </ol>
+              
+              <h3>Real Results</h3>
+              <p>
+                This framework has helped me build systems that multiply impact while staying grounded in my Christian faith. 
+                The result? Content that resonates globally while honoring God and serving audiences with integrity.
+              </p>
+            </div>
+          </div>
+          
+          <!-- FEATURES TAB -->
+          <div id="features" class="tab-content pt-6 hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- FEATURE 1 -->
+              <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+                <div class="w-12 h-12 rounded-lg bg-jstar-blue/10 flex items-center justify-center mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-jstar-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">YouTube Virality OS</h3>
+                <p class="text-gray-600 dark:text-gray-400 mb-4">
+                  Analyze, optimize, and predict the performance of your YouTube content
+                </p>
+                <ul class="space-y-2">
+                  <li class="flex items-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Virality Score Calculator for YouTube titles</span>
+                  </li>
+                  <li class="flex items-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Thumbnail A/B testing with CTR prediction</span>
+                  </li>
+                  <li class="flex items-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Content calendar with performance forecasting</span>
+                  </li>
+                  <li class="flex items-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Automated YouTube SEO optimization</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <!-- FEATURE 2 -->
+              <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+                <div class="w-12 h-12 rounded-lg bg-faith-purple/10 flex items-center justify-center mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-faith-purple" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Client Magnet System</h3>
+                <p class="text-gray-600 dark:text-gray-400 mb-4">
+                  Automated outreach sequences to attract ideal clients
+                </p>
+                <ul class="space-y-2">
+                  <li class="flex items-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Automated outreach sequences with JohnGPT optimization</span>
+                  </li>
+                  <li class="flex items-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Lead capture forms with faith-based filtering</span>
+                  </li>
+                  <li class="flex items-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Conversion analytics dashboard with performance metrics</span>
+                  </li>
+                  <li class="flex items-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Integration with email service providers</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <!-- FEATURE 3 -->
+              <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+                <div class="w-12 h-12 rounded-lg bg-warning-yellow/10 flex items-center justify-center mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-warning-yellow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                  </svg>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Systems Launcher Toolkit</h3>
+                <p class="text-gray-600 dark:text-gray-400 mb-4">
+                  Proven workflow templates with implementation tracking
+                </p>
+                <ul class="space-y-2">
+                  <li class="flex items-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Full template library with faith-based customization</span>
+                  </li>
+                  <li class="flex items-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Step-by-step implementation tracker with progress monitoring</span>
+                  </li>
+                  <li class="flex items-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>JohnGPT-powered system adaptation recommendations</span>
+                  </li>
+                  <li class="flex items-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Integration with content creation and client acquisition systems</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <!-- FEATURE 4 -->
+              <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+                <div class="w-12 h-12 rounded-lg bg-growth-green/10 flex items-center justify-center mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-growth-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Faith Integration Framework</h3>
+                <p class="text-gray-600 dark:text-gray-400 mb-4">
+                  Build systems that honor God while creating impactful content
+                </p>
+                <ul class="space-y-2">
+                  <li class="flex items-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Customizable faith-based content frameworks</span>
+                  </li>
+                  <li class="flex items-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Prayer integration with JohnGPT-powered prayer generation</span>
+                  </li>
+                  <li class="flex items-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Scripture library with topical organization</span>
+                  </li>
+                  <li class="flex items-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Community accountability groups for faith-based creators</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          
+          <!-- TESTIMONIALS TAB -->
+          <div id="testimonials" class="tab-content pt-6 hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- TESTIMONIAL 1 -->
+              <div class="bg-gray-50 dark:bg-gray-900 p-6 rounded-xl">
+                <div class="flex items-center mb-4">
+                  <div class="w-10 h-10 rounded-full bg-jstar-blue flex items-center justify-center text-white mr-3">
+                    S
+                  </div>
+                  <div>
+                    <h4 class="font-bold text-gray-900 dark:text-white">Sarah Johnson</h4>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Content Creator</p>
+                  </div>
+                </div>
+                <div class="flex mb-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" stroke="currentColor">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" stroke="currentColor">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" stroke="currentColor">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" stroke="currentColor">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" stroke="currentColor">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                </div>
+                <p class="text-gray-700 dark:text-gray-300 italic mb-4">
+                  "John's approach to integrating faith and technology has transformed how I create content. 
+                  His tools have helped me grow from 0 to 50k subscribers in just 6 months. The Creator Growth Engine Suite 
+                  is the most comprehensive system I've ever used for content creation."
+                </p>
+                <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span>6 months ago</span>
+                </div>
+              </div>
+              
+              <!-- TESTIMONIAL 2 -->
+              <div class="bg-gray-50 dark:bg-gray-900 p-6 rounded-xl">
+                <div class="flex items-center mb-4">
+                  <div class="w-10 h-10 rounded-full bg-faith-purple flex items-center justify-center text-white mr-3">
+                    M
+                  </div>
+                  <div>
+                    <h4 class="font-bold text-gray-900 dark:text-white">Michael Thompson</h4>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">App Developer</p>
+                  </div>
+                </div>
+                <div class="flex mb-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" stroke="currentColor">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" stroke="currentColor">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" stroke="currentColor">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" stroke="currentColor">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" stroke="currentColor">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                </div>
+                <p class="text-gray-700 dark:text-gray-300 italic mb-4">
+                  "As a developer, I was skeptical about faith-based tools, but JohnGPT has completely changed my workflow. 
+                  The Creator Growth Engine Suite integrates seamlessly with my development process and has helped me build 
+                  apps that serve my users with excellence while honoring my faith."
+                </p>
+                <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span>3 months ago</span>
+                </div>
+              </div>
+              
+              <!-- TESTIMONIAL 3 -->
+              <div class="bg-gray-50 dark:bg-gray-900 p-6 rounded-xl">
+                <div class="flex items-center mb-4">
+                  <div class="w-10 h-10 rounded-full bg-growth-green flex items-center justify-center text-white mr-3">
+                    D
+                  </div>
+                  <div>
+                    <h4 class="font-bold text-gray-900 dark:text-white">David Williams</h4>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Church Leader</p>
+                  </div>
+                </div>
+                <div class="flex mb-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" stroke="currentColor">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" stroke="currentColor">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" stroke="currentColor">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" stroke="currentColor">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" stroke="currentColor">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                </div>
+                <p class="text-gray-700 dark:text-gray-300 italic mb-4">
+                  "The Faith Integration Framework has been transformative for our church's media ministry. 
+                  We're now creating content that not only reaches more people but also truly serves them with dignity 
+                  and honors God. The Creator Growth Engine Suite is worth every penny."
+                </p>
+                <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span>1 month ago</span>
+                </div>
+              </div>
+              
+              <!-- TESTIMONIAL 4 -->
+              <div class="bg-gray-50 dark:bg-gray-900 p-6 rounded-xl">
+                <div class="flex items-center mb-4">
+                  <div class="w-10 h-10 rounded-full bg-warning-yellow flex items-center justify-center text-white mr-3">
+                    R
+                  </div>
+                  <div>
+                    <h4 class="font-bold text-gray-900 dark:text-white">Rachel Martinez</h4>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Small Business Owner</p>
+                  </div>
+                </div>
+                <div class="flex mb-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" stroke="currentColor">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" stroke="currentColor">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" stroke="currentColor">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" stroke="currentColor">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" stroke="currentColor">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                </div>
+                <p class="text-gray-700 dark:text-gray-300 italic mb-4">
+                  "The Client Magnet System alone has paid for the entire Creator Growth Engine Suite. 
+                  I've doubled my client acquisition rate while spending less time on outreach. 
+                  The faith-based filtering ensures I'm working with clients who share my values."
+                </p>
+                <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span>2 weeks ago</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- FAQs TAB -->
+          <div id="faqs" class="tab-content pt-6 hidden">
+            <div class="space-y-4">
+              <!-- FAQ 1 -->
+              <div class="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+                <button class="w-full px-6 py-4 text-left font-medium text-gray-900 dark:text-white flex justify-between items-center">
+                  <span>What's included in the Creator Growth Engine Suite?</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </button>
+                <div class="px-6 pb-4">
+                  <p class="text-gray-600 dark:text-gray-400">
+                    The Creator Growth Engine Suite includes four comprehensive systems:
+                  </p>
+                  <ul class="list-disc pl-5 mt-2 space-y-1 text-gray-600 dark:text-gray-400">
+                    <li>YouTube Virality OS: Analyze, optimize, and predict YouTube content performance</li>
+                    <li>Client Magnet System: Automated outreach sequences to attract ideal clients</li>
+                    <li>Systems Launcher Toolkit: Proven workflow templates with implementation tracking</li>
+                    <li>Faith Integration Framework: Build systems that honor God while creating impactful content</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <!-- FAQ 2 -->
+              <div class="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+                <button class="w-full px-6 py-4 text-left font-medium text-gray-900 dark:text-white flex justify-between items-center">
+                  <span>How is this different from other creator tools?</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </button>
+                <div class="px-6 pb-4">
+                  <p class="text-gray-600 dark:text-gray-400">
+                    Unlike other creator tools that focus solely on metrics and growth, the Creator Growth Engine Suite 
+                    integrates spiritual principles with cutting-edge technology. We believe true creativity flows from a 
+                    place of spiritual alignment and technical excellence. Our tools are designed to help you create content 
+                    that honors God, serves your audience with dignity, and creates sustainable impact - not just chase views 
+                    and likes.
+                  </p>
+                </div>
+              </div>
+              
+              <!-- FAQ 3 -->
+              <div class="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+                <button class="w-full px-6 py-4 text-left font-medium text-gray-900 dark:text-white flex justify-between items-center">
+                  <span>Do I need to be a Christian to use these tools?</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </button>
+                <div class="px-6 pb-4">
+                  <p class="text-gray-600 dark:text-gray-400">
+                    While our tools are specifically designed for faith-driven creators, they can benefit any creator who 
+                    values integrity, service, and creating meaningful content. The faith-based elements are optional and 
+                    can be adapted to your personal values. Many non-Christian creators have found value in our focus on 
+                    serving audiences with dignity and creating sustainable impact rather than just chasing metrics.
+                  </p>
+                </div>
+              </div>
+              
+              <!-- FAQ 4 -->
+              <div class="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+                <button class="w-full px-6 py-4 text-left font-medium text-gray-900 dark:text-white flex justify-between items-center">
+                  <span>Can I try the Creator Growth Engine Suite before purchasing?</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </button>
+                <div class="px-6 pb-4">
+                  <p class="text-gray-600 dark:text-gray-400">
+                    Yes! We offer a 7-day free trial of the Creator Growth Engine Suite so you can experience the full 
+                    power of our tools. During your trial, you'll have access to all features and can implement one 
+                    complete system. If you're not completely satisfied, you can cancel anytime before your trial ends 
+                    with no charge.
+                  </p>
+                </div>
+              </div>
+              
+              <!-- FAQ 5 -->
+              <div class="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+                <button class="w-full px-6 py-4 text-left font-medium text-gray-900 dark:text-white flex justify-between items-center">
+                  <span>How does the faith integration work in practice?</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </button>
+                <div class="px-6 pb-4">
+                  <p class="text-gray-600 dark:text-gray-400 mb-3">
+                    Our faith integration works through three key components:
+                  </p>
+                  <ol class="list-decimal pl-5 space-y-2 text-gray-600 dark:text-gray-400">
+                    <li><strong>Faith-Based Frameworks:</strong> Content creation systems built around biblical principles</li>
+                    <li><strong>Prayer Integration:</strong> Tools to incorporate prayer into your creative workflow</li>
+                    <li><strong>Scripture Guidance:</strong> Relevant scripture references for each creative decision</li>
+                  </ol>
+                  <p class="text-gray-600 dark:text-gray-400 mt-3">
+                    For example, when creating a YouTube video, our system will prompt you with a relevant scripture, 
+                    suggest prayer points, and evaluate your content against biblical principles - all while providing 
+                    the technical optimization tools you need for maximum reach.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- UPGRADE MODAL -->
+      <div id="upgrade-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden transition-opacity duration-300 opacity-0">
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md">
+          <div class="flex justify-end">
+            <button onclick="closeUpgradeModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          
+          <div class="text-center mb-6">
+            <div class="w-16 h-16 rounded-full bg-jstar-blue/10 flex items-center justify-center mx-auto mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-jstar-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Upgrade Required</h3>
+            <p class="text-gray-600 dark:text-gray-400">The Creator Growth Engine Suite is only available to Tier 3 subscribers</p>
+          </div>
+          
+          <div class="space-y-4 mb-6">
+            <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+              <div>
+                <p class="font-medium text-gray-900 dark:text-white">Tier 1: JohnGPT Access</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">$49/mo</p>
+              </div>
+              <input type="radio" name="tier" class="h-5 w-5 text-jstar-blue focus:ring-jstar-blue border-gray-300 dark:border-gray-600">
+            </div>
+            
+            <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+              <div>
+                <p class="font-medium text-gray-900 dark:text-white">Tier 2: Creator Growth Engine</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">$99/mo</p>
+              </div>
+              <input type="radio" name="tier" class="h-5 w-5 text-jstar-blue focus:ring-jstar-blue border-gray-300 dark:border-gray-600">
+            </div>
+            
+            <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border-2 border-jstar-blue">
+              <div>
+                <p class="font-bold text-gray-900 dark:text-white">Tier 3: Full Access</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">$299/mo</p>
+              </div>
+              <input type="radio" name="tier" checked class="h-5 w-5 text-jstar-blue focus:ring-jstar-blue border-gray-300 dark:border-gray-600">
+            </div>
+          </div>
+          
+          <ul class="list-disc pl-5 space-y-2 text-gray-700 dark:text-gray-300 mb-6">
+            <li>All Creator Growth Engine tools</li>
+            <li>YouTube Virality OS with CTR prediction</li>
+            <li>Client Magnet System with automated sequences</li>
+            <li>Systems Launcher Toolkit with implementation tracker</li>
+            <li>Faith Integration Framework with prayer tools</li>
+          </ul>
+          
+          <button class="w-full px-4 py-2 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium">
+            Upgrade to Tier 3
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div>
+            <div class="flex items-center mb-4">
+              <div class="w-8 h-8 rounded-full bg-gradient-to-br from-jstar-blue to-faith-purple flex items-center justify-center mr-2">
+                <span class="text-white font-bold">J</span>
+              </div>
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white">J StaR Films</h3>
+            </div>
+            <p class="text-gray-600 dark:text-gray-400">
+              Tools and systems for filmmakers, developers, and faith-driven creators to multiply their impact.
+            </p>
+          </div>
+          
+          <div>
+            <h4 class="font-bold text-gray-900 dark:text-white mb-4">Products</h4>
+            <ul class="space-y-2">
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">Creator Growth Engine</a></li>
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">JohnGPT Access</a></li>
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">Systems Launcher Toolkit</a></li>
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">Faith Integration Framework</a></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h4 class="font-bold text-gray-900 dark:text-white mb-4">Resources</h4>
+            <ul class="space-y-2">
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">Blog</a></li>
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">YouTube Channel</a></li>
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">Community</a></li>
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">Free Resources</a></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h4 class="font-bold text-gray-900 dark:text-white mb-4">Connect</h4>
+            <ul class="space-y-2">
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">Twitter</a></li>
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">Instagram</a></li>
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">LinkedIn</a></li>
+              <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-jstar-blue">YouTube</a></li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="border-t border-gray-200 dark:border-gray-700 mt-8 pt-8 text-center text-gray-500 dark:text-gray-400">
+          <p>&copy; 2024 J StaR Films. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+    
+    <!-- SUCCESS MESSAGE -->
+    <div id="product-added" class="hidden fixed bottom-6 right-6 bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg z-50">
+      <div class="flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        <span>Product added to cart</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

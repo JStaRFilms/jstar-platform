@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About J StaR - Creative Visionary & Systems Builder</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+        
+        /* Navigation (simplified) */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+        
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient-brand);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+        
+        .nav-back {
+            color: var(--text-secondary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-back:hover { color: var(--brand-blue); }
+        
+        /* Hero Section */
+        .hero {
+            padding: 8rem 0 4rem;
+            background: var(--gradient-brand);
+            color: white;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="3" fill="rgba(255,255,255,0.05)"/></svg>');
+            animation: float 15s linear infinite;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-50px); }
+        }
+        
+        .hero-content { position: relative; z-index: 1; }
+        
+        .hero-title {
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 900;
+            margin-bottom: 1rem;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+        
+        .hero-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            margin: 0 auto 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+        }
+        
+        /* Story Section */
+        .story {
+            padding: 6rem 0;
+            background: var(--bg-primary);
+        }
+        
+        .story-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+        
+        .story-content h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+        
+        .story-text {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.7;
+        }
+        
+        .story-highlight {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-left: 4px solid var(--brand-blue);
+            border-radius: 0.5rem;
+            font-style: italic;
+            margin: 2rem 0;
+        }
+        
+        .story-visual {
+            background: var(--bg-secondary);
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+        
+        .timeline {
+            padding: 6rem 0;
+            background: var(--bg-secondary);
+        }
+        
+        .timeline-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+        
+        .timeline-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+        
+        .timeline-items {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .timeline-item {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 2rem;
+            top: 3rem;
+            bottom: -3rem;
+            width: 2px;
+            background: var(--border);
+        }
+        
+        .timeline-item:last-child::before {
+            display: none;
+        }
+        
+        .timeline-dot {
+            width: 4rem;
+            height: 4rem;
+            background: var(--brand-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+            z-index: 1;
+            position: relative;
+        }
+        
+        .timeline-content {
+            flex: 1;
+            background: var(--bg-primary);
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .timeline-year {
+            color: var(--brand-blue);
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .timeline-title-item {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        
+        .timeline-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        /* Skills Section */
+        .skills {
+            padding: 6rem 0;
+            background: var(--bg-primary);
+        }
+        
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .skill-category {
+            background: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .skill-category:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .skill-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-brand);
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            margin: 0 auto 1.5rem;
+        }
+        
+        .skill-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+        
+        .skill-items {
+            list-style: none;
+        }
+        
+        .skill-items li {
+            padding: 0.5rem 0;
+            color: var(--text-secondary);
+        }
+        
+        /* Faith Section */
+        .faith {
+            padding: 6rem 0;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            color: white;
+            text-align: center;
+        }
+        
+        .faith-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .faith-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+        }
+        
+        .faith-text {
+            font-size: 1.25rem;
+            opacity: 0.95;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+        }
+        
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .value-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        .value-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .value-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-cta {
+            background: var(--warm-orange);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 0.75rem;
+            font-weight: 700;
+        }
+        
+        .btn-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .story-grid { grid-template-columns: 1fr; gap: 2rem; }
+            .timeline-item { flex-direction: column; gap: 1rem; }
+            .timeline-item::before { display: none; }
+            .skills-grid { grid-template-columns: 1fr; }
+            .values-grid { grid-template-columns: repeat(2, 1fr); }
+            .container { padding: 0 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <a href="homepage-complete.html" class="nav-back">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Home
+                </a>
+                <a href="#" class="logo">J StaR Films</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-image">👨‍💻</div>
+                <h1 class="hero-title">Meet John Oluleke-Oke</h1>
+                <p class="hero-subtitle">
+                    Creative visionary, systems builder, and faith-driven entrepreneur helping creators transform their dreams into extraordinary realities.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Story Section -->
+    <section class="story">
+        <div class="container">
+            <div class="story-grid">
+                <div class="story-content">
+                    <h2>My Story</h2>
+                    <p class="story-text">
+                        Hey there! I'm John, but most people call me J StaR. I'm a creative soul with a passion for building systems that empower others to do extraordinary things.
+                    </p>
+                    <p class="story-text">
+                        My journey started in the world of filmmaking, where I learned that great stories require both creative vision and technical excellence. That philosophy has shaped everything I do - from producing cinematic videos to developing cutting-edge applications.
+                    </p>
+                    <div class="story-highlight">
+                        "I believe that when faith meets creativity, and dreams get the systems they deserve, magic happens."
+                    </div>
+                </div>
+                <div class="story-visual">
+                    <h3 style="margin-bottom: 1rem;">What Drives Me</h3>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; text-align: left;">
+                        <div style="background: var(--bg-primary); padding: 1rem; border-radius: 0.5rem;">
+                            <strong>🎬 Storytelling</strong><br>
+                            Crafting narratives that inspire and transform
+                        </div>
+                        <div style="background: var(--bg-primary); padding: 1rem; border-radius: 0.5rem;">
+                            <strong>⚙️ Systems</strong><br>
+                            Building frameworks that scale and succeed
+                        </div>
+                        <div style="background: var(--bg-primary); padding: 1rem; border-radius: 0.5rem;">
+                            <strong>🤖 Innovation</strong><br>
+                            Leveraging AI to unlock human potential
+                        </div>
+                        <div style="background: var(--bg-primary); padding: 1rem; border-radius: 0.5rem;">
+                            <strong>✝️ Purpose</strong><br>
+                            Integrating faith into every creative endeavor
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Timeline -->
+    <section class="timeline">
+        <div class="container">
+            <div class="timeline-header">
+                <h2 class="timeline-title">My Journey</h2>
+                <p style="color: var(--text-secondary); font-size: 1.125rem;">
+                    From creative dreamer to systems builder - here's how it all unfolded.
+                </p>
+            </div>
+            <div class="timeline-items">
+                <div class="timeline-item">
+                    <div class="timeline-dot">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-year">2018 - 2020</div>
+                        <h3 class="timeline-title-item">Filmmaking Foundation</h3>
+                        <p class="timeline-description">
+                            Started J StaR Films, focusing on corporate videos and event coverage. Learned the importance of technical excellence in creative work.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-dot">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-year">2020 - 2022</div>
+                        <h3 class="timeline-title-item">Tech Transition</h3>
+                        <p class="timeline-description">
+                            Discovered programming and fell in love with building systems. Developed first web applications while maintaining video production work.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-dot">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-year">2022 - 2023</div>
+                        <h3 class="timeline-title-item">AI Integration</h3>
+                        <p class="timeline-description">
+                            Embraced AI technology and began integrating it into creative workflows. Developed first AI-powered tools for content creation.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-dot">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-year">2024 - Present</div>
+                        <h3 class="timeline-title-item">Creative Operating System</h3>
+                        <p class="timeline-description">
+                            Launched comprehensive platform combining all expertise areas. Now helping creators build sustainable, scalable creative businesses.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills -->
+    <section class="skills">
+        <div class="container">
+            <div class="timeline-header">
+                <h2 class="timeline-title">What I Bring to the Table</h2>
+                <p style="color: var(--text-secondary); font-size: 1.125rem;">
+                    A unique blend of creative vision and technical expertise.
+                </p>
+            </div>
+            <div class="skills-grid">
+                <div class="skill-category">
+                    <div class="skill-icon">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <h3 class="skill-title">Video Production</h3>
+                    <ul class="skill-items">
+                        <li>Cinematography & Direction</li>
+                        <li>Multi-Camera Live Streaming</li>
+                        <li>Motion Graphics & Animation</li>
+                        <li>Color Grading & Post-Production</li>
+                        <li>Corporate & Event Coverage</li>
+                    </ul>
+                </div>
+                
+                <div class="skill-category">
+                    <div class="skill-icon">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <h3 class="skill-title">Development</h3>
+                    <ul class="skill-items">
+                        <li>React & Next.js</li>
+                        <li>Full-Stack Applications</li>
+                        <li>Database Design</li>
+                        <li>API Development</li>
+                        <li>Performance Optimization</li>
+                    </ul>
+                </div>
+                
+                <div class="skill-category">
+                    <div class="skill-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3 class="skill-title">AI Integration</h3>
+                    <ul class="skill-items">
+                        <li>Custom AI Solutions</li>
+                        <li>Prompt Engineering</li>
+                        <li>Workflow Automation</li>
+                        <li>Multi-Model Integration</li>
+                        <li>AI Strategy Consulting</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Faith & Philosophy -->
+    <section class="faith">
+        <div class="container">
+            <div class="faith-content">
+                <h2 class="faith-title">Faith Meets Creativity</h2>
+                <p class="faith-text">
+                    My faith isn't just a part of who I am - it's the foundation of everything I create. 
+                    I believe God has given each of us unique gifts to serve others and make a positive impact in the world.
+                </p>
+                <p class="faith-text">
+                    Every project I take on is an opportunity to honor that calling, whether it's helping a business tell their story or building tools that empower other creators.
+                </p>
+                
+                <div class="values-grid">
+                    <div class="value-item">
+                        <div class="value-icon">🎯</div>
+                        <div class="value-title">Purpose-Driven</div>
+                        <p>Every project serves a greater purpose</p>
+                    </div>
+                    <div class="value-item">
+                        <div class="value-icon">🤝</div>
+                        <div class="value-title">Servant Leadership</div>
+                        <p>Leading by serving others first</p>
+                    </div>
+                    <div class="value-item">
+                        <div class="value-icon">⭐</div>
+                        <div class="value-title">Excellence</div>
+                        <p>Delivering quality that honors God</p>
+                    </div>
+                    <div class="value-item">
+                        <div class="value-icon">🌱</div>
+                        <div class="value-title">Growth</div>
+                        <p>Continuously learning and improving</p>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 3rem;">
+                    <a href="#" class="btn btn-cta">
+                        <i class="fas fa-handshake"></i>
+                        Let's Work Together
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

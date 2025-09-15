@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Films - Creative Operating System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            --gradient-hero: linear-gradient(135deg, #1A202C 0%, #2D3748 50%, #4A5568 100%);
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+        
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        [data-theme="dark"] .navbar {
+            background: rgba(26, 32, 44, 0.95);
+        }
+        
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient-brand);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+        
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-link:hover { color: var(--brand-blue); }
+        
+        .nav-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #3A7BC8;
+            transform: translateY(-2px);
+        }
+        
+        .btn-cta {
+            background: var(--warm-orange);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+        }
+        
+        .btn-cta:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+        }
+        
+        .theme-toggle {
+            background: none;
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+        }
+        
+        .theme-toggle:hover {
+            border-color: var(--brand-blue);
+            color: var(--brand-blue);
+        }
+        
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            background: var(--gradient-hero);
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(74,144,226,0.1)"/><circle cx="80" cy="40" r="3" fill="rgba(78,205,196,0.1)"/><circle cx="40" cy="80" r="2" fill="rgba(255,107,107,0.1)"/></svg>');
+            animation: float 20s linear infinite;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            100% { transform: translateY(-100px) rotate(360deg); }
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            color: white;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .hero-title {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #ffffff, #cbd5e0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .hero-subtitle {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            line-height: 1.8;
+        }
+        
+        .hero-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+        }
+        
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--creative-teal);
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        /* Services Section */
+        .services {
+            padding: 6rem 0;
+            background: var(--bg-secondary);
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+        
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+        
+        .section-subtitle {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .service-card {
+            background: var(--bg-primary);
+            padding: 2rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+        
+        .service-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 0.75rem;
+            background: var(--gradient-brand);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 1.5rem;
+        }
+        
+        .service-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+        
+        .service-description {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.7;
+        }
+        
+        .service-features {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+        
+        .service-features li {
+            padding: 0.25rem 0;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .service-features li::before {
+            content: '✓';
+            color: var(--success-green);
+            font-weight: 600;
+        }
+        
+        /* Portfolio Preview */
+        .portfolio-preview {
+            padding: 6rem 0;
+            background: var(--bg-primary);
+        }
+        
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+        
+        .portfolio-item {
+            background: var(--bg-secondary);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+        
+        .portfolio-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+        
+        .portfolio-image {
+            width: 100%;
+            height: 200px;
+            background: var(--gradient-brand);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+        
+        .portfolio-content {
+            padding: 1.5rem;
+        }
+        
+        .portfolio-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        
+        .portfolio-description {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+        
+        .portfolio-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .tag {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        /* JohnGPT Chat Button */
+        .chat-button {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-brand);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .chat-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .hero-actions { flex-direction: column; align-items: center; }
+            .services-grid, .portfolio-grid { grid-template-columns: 1fr; }
+            .container { padding: 0 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="#" class="logo">J StaR Films</a>
+            <ul class="nav-links">
+                <li><a href="#" class="nav-link">Home</a></li>
+                <li><a href="#" class="nav-link">About</a></li>
+                <li><a href="#" class="nav-link">Portfolio</a></li>
+                <li><a href="#" class="nav-link">Services</a></li>
+                <li><a href="#" class="nav-link">Store</a></li>
+                <li><a href="#" class="nav-link">Blog</a></li>
+                <li><a href="#" class="nav-link">Contact</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <a href="#" class="btn btn-primary">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">Your Creative Operating System</h1>
+                <p class="hero-subtitle">
+                    Where faith meets creativity, and dreams get the systems they deserve. 
+                    I help creators build extraordinary things with purpose-driven excellence.
+                </p>
+                <div class="hero-actions">
+                    <a href="#" class="btn btn-cta">
+                        <i class="fas fa-rocket"></i>
+                        Start Your Journey
+                    </a>
+                    <a href="#" class="btn btn-primary">
+                        <i class="fas fa-play"></i>
+                        Watch Demo
+                    </a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <div class="stat-number">500+</div>
+                        <div class="stat-label">Projects Completed</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">50+</div>
+                        <div class="stat-label">Happy Clients</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">5+</div>
+                        <div class="stat-label">Years Experience</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">24/7</div>
+                        <div class="stat-label">AI Assistant</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">What I Do Best</h2>
+                <p class="section-subtitle">
+                    From cinematic storytelling to cutting-edge apps, I bring your vision to life with technical excellence and creative flair.
+                </p>
+            </div>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <h3 class="service-title">Video Production</h3>
+                    <p class="service-description">
+                        Cinematic storytelling that captivates audiences and drives results. From concept to final cut.
+                    </p>
+                    <ul class="service-features">
+                        <li>Corporate Videos</li>
+                        <li>Event Coverage</li>
+                        <li>Social Media Content</li>
+                        <li>Live Streaming</li>
+                    </ul>
+                    <a href="#" class="btn btn-primary">Learn More</a>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3 class="service-title">App Development</h3>
+                    <p class="service-description">
+                        Modern web applications built with cutting-edge technology and user-centered design.
+                    </p>
+                    <ul class="service-features">
+                        <li>Full-Stack Development</li>
+                        <li>AI Integration</li>
+                        <li>Mobile-Responsive Design</li>
+                        <li>Performance Optimization</li>
+                    </ul>
+                    <a href="#" class="btn btn-primary">Learn More</a>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3 class="service-title">AI Consulting</h3>
+                    <p class="service-description">
+                        Strategic AI implementation to transform your business processes and unlock new possibilities.
+                    </p>
+                    <ul class="service-features">
+                        <li>AI Strategy Development</li>
+                        <li>Custom AI Solutions</li>
+                        <li>Process Automation</li>
+                        <li>Training & Support</li>
+                    </ul>
+                    <a href="#" class="btn btn-primary">Learn More</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Portfolio Preview -->
+    <section class="portfolio-preview">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Recent Work</h2>
+                <p class="section-subtitle">
+                    A glimpse into the diverse projects that showcase the intersection of creativity and technology.
+                </p>
+            </div>
+            <div class="portfolio-grid">
+                <div class="portfolio-item">
+                    <div class="portfolio-image">
+                        🎬 Corporate Documentary
+                    </div>
+                    <div class="portfolio-content">
+                        <h3 class="portfolio-title">Tech Company Rebrand</h3>
+                        <p class="portfolio-description">
+                            A complete visual identity overhaul with cinematic storytelling.
+                        </p>
+                        <div class="portfolio-tags">
+                            <span class="tag">Video</span>
+                            <span class="tag">Branding</span>
+                            <span class="tag">Corporate</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="portfolio-item">
+                    <div class="portfolio-image">
+                        💻 AI-Powered Platform
+                    </div>
+                    <div class="portfolio-content">
+                        <h3 class="portfolio-title">Creator Management System</h3>
+                        <p class="portfolio-description">
+                            Full-stack application with AI integration for content creators.
+                        </p>
+                        <div class="portfolio-tags">
+                            <span class="tag">React</span>
+                            <span class="tag">AI</span>
+                            <span class="tag">Full-Stack</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="portfolio-item">
+                    <div class="portfolio-image">
+                        🎉 Live Event Coverage
+                    </div>
+                    <div class="portfolio-content">
+                        <h3 class="portfolio-title">Multi-Camera Live Stream</h3>
+                        <p class="portfolio-description">
+                            Professional event streaming with real-time audience engagement.
+                        </p>
+                        <div class="portfolio-tags">
+                            <span class="tag">Live Stream</span>
+                            <span class="tag">Events</span>
+                            <span class="tag">Multi-Cam</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Floating Chat Button -->
+    <button class="chat-button" onclick="openJohnGPT()">
+        <i class="fas fa-comments"></i>
+    </button>
+
+    <script>
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            const icon = document.querySelector('.theme-toggle i');
+            icon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        function openJohnGPT() {
+            alert('JohnGPT Assistant opening... This would launch the AI chat interface!');
+        }
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        const theme = savedTheme || systemTheme;
+        document.documentElement.setAttribute('data-theme', theme);
+        
+        const icon = document.querySelector('.theme-toggle i');
+        icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+
+        // Smooth scrolling for navbar
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 100) {
+                navbar.style.background = window.matchMedia('(prefers-color-scheme: dark)').matches 
+                    ? 'rgba(26, 32, 44, 0.98)' 
+                    : 'rgba(255, 255, 255, 0.98)';
+            } else {
+                navbar.style.background = window.matchMedia('(prefers-color-scheme: dark)').matches 
+                    ? 'rgba(26, 32, 44, 0.95)' 
+                    : 'rgba(255, 255, 255, 0.95)';
+            }
+        });
+    </script>
+</body>
+</html>

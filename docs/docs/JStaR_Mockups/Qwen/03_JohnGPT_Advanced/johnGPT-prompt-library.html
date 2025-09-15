@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prompt Library - JohnGPT</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'jstar-blue': '#2563EB',
+            'faith-purple': '#8B5CF6',
+            'growth-green': '#059669'
+          }
+        }
+      }
+    }
+    
+    // Add new prompt
+    function addPrompt() {
+      const name = prompt("Enter prompt name:");
+      if (!name) return;
+      
+      const promptsContainer = document.getElementById('prompts-container');
+      const newPrompt = document.createElement('div');
+      newPrompt.className = 'prompt-item bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700';
+      newPrompt.innerHTML = `
+        <div class="flex justify-between items-start">
+          <div>
+            <h3 class="text-lg font-bold mb-2 text-gray-900 dark:text-white">${name}</h3>
+            <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 mb-3">
+              <p class="text-gray-700 dark:text-gray-300">This is where your prompt template would appear. Example:</p>
+              <pre class="mt-2 p-3 bg-gray-800 rounded text-sm overflow-x-auto"><code class="text-green-400">// YouTube Title Generator
+Generate 5 YouTube title options for a video about [TOPIC] using these frameworks:
+1. Number Hook: [Number] + [Adjective] + [Noun] + [Benefit]
+2. Curiosity Gap: [Question]? Here's Why...
+
+Requirements:
+- CTR potential > 8%
+- Aligns with Christian values
+- Includes primary keyword "[KEYWORD]"</code></pre>
+            </div>
+            <div class="flex flex-wrap gap-1 mb-3">
+              <span class="px-2 py-0.5 bg-blue-100 text-blue-800 text-xs rounded">#YouTube</span>
+              <span class="px-2 py-0.5 bg-purple-100 text-purple-800 text-xs rounded">#Templates</span>
+            </div>
+          </div>
+          <div class="flex flex-col space-y-2">
+            <button onclick="event.stopPropagation(); this.closest('.prompt-item').remove()" 
+                    class="text-red-500 hover:text-red-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+            <button class="text-jstar-blue hover:text-faith-purple">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="flex justify-end">
+          <button class="bg-jstar-blue hover:bg-faith-purple text-white font-medium py-1 px-3 rounded">
+            Use Prompt
+          </button>
+        </div>
+      `;
+      promptsContainer.appendChild(newPrompt);
+    }
+  </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+  <div class="max-w-4xl mx-auto px-6 py-12">
+    <!-- PRD: FR019 (Manage Prompt Library) -->
+    <header class="text-center mb-8">
+      <div class="w-16 h-16 rounded-full bg-gradient-to-br from-jstar-blue to-faith-purple flex items-center justify-center mx-auto mb-4">
+        <span class="text-white text-2xl font-bold">JG</span>
+      </div>
+      <h1 class="text-3xl font-bold mb-2 text-gray-900 dark:text-white">Prompt Library</h1>
+      <p class="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+        <!-- PRD: Prompt Library Description -->Save, organize, and reuse your favorite prompts for consistent results with JohnGPT
+      </p>
+    </header>
+
+    <!-- THEME TOGGLE -->
+    <div class="fixed top-4 right-4 z-50">
+      <button onclick="document.documentElement.classList.toggle('dark')" 
+              class="p-2 rounded-full bg-jstar-blue text-white">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- CONTROLS -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+      <div class="relative flex-1 max-w-md">
+        <input type="text" placeholder="Search prompts..." 
+               class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+        <div class="absolute left-3 top-2.5 text-gray-400">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+      </div>
+      
+      <div class="flex space-x-2">
+        <button class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-lg font-medium">
+          Filter by Tag
+        </button>
+        <button onclick="addPrompt()" class="px-4 py-2 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </svg>
+          New Prompt
+        </button>
+      </div>
+    </div>
+
+    <!-- PROMPT CATEGORIES -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
+        <div class="w-10 h-10 rounded-lg bg-jstar-blue/10 flex items-center justify-center mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-jstar-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold mb-2 text-gray-900 dark:text-white">YouTube Strategy</h3>
+        <p class="text-gray-600 dark:text-gray-400 mb-4">Prompts for viral titles, thumbnails, and content strategy</p>
+        <div class="flex justify-between items-center">
+          <span class="text-sm text-gray-500 dark:text-gray-400">12 prompts</span>
+          <button class="text-jstar-blue hover:text-faith-purple font-medium">View →</button>
+        </div>
+      </div>
+      
+      <div class="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
+        <div class="w-10 h-10 rounded-lg bg-faith-purple/10 flex items-center justify-center mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-faith-purple" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold mb-2 text-gray-900 dark:text-white">Faith Integration</h3>
+        <p class="text-gray-600 dark:text-gray-400 mb-4">Prompts for ethical AI usage and faith-based content</p>
+        <div class="flex justify-between items-center">
+          <span class="text-sm text-gray-500 dark:text-gray-400">8 prompts</span>
+          <button class="text-jstar-blue hover:text-faith-purple font-medium">View →</button>
+        </div>
+      </div>
+      
+      <div class="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
+        <div class="w-10 h-10 rounded-lg bg-growth-green/10 flex items-center justify-center mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-growth-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold mb-2 text-gray-900 dark:text-white">Systems & Tools</h3>
+        <p class="text-gray-600 dark:text-gray-400 mb-4">Prompts for Notion templates and AI workflows</p>
+        <div class="flex justify-between items-center">
+          <span class="text-sm text-gray-500 dark:text-gray-400">15 prompts</span>
+          <button class="text-jstar-blue hover:text-faith-purple font-medium">View →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROMPT LIST -->
+    <div id="prompts-container" class="space-y-4">
+      <!-- PROMPT 1 -->
+      <div class="prompt-item bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-start">
+          <div>
+            <h3 class="text-lg font-bold mb-2 text-gray-900 dark:text-white">Viral Title Generator</h3>
+            <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 mb-3">
+              <p class="text-gray-700 dark:text-gray-300">Generate high-CTR YouTube titles with this template:</p>
+              <pre class="mt-2 p-3 bg-gray-800 rounded text-sm overflow-x-auto"><code class="text-green-400">// YouTube Title Generator
+Generate 5 YouTube title options for a video about [TOPIC] using these frameworks:
+1. Number Hook: [Number] + [Adjective] + [Noun] + [Benefit]
+2. Curiosity Gap: [Question]? Here's Why...
+
+Requirements:
+- CTR potential > 8%
+- Aligns with Christian values
+- Includes primary keyword "[KEYWORD]"</code></pre>
+            </div>
+            <div class="flex flex-wrap gap-1 mb-3">
+              <span class="px-2 py-0.5 bg-blue-100 text-blue-800 text-xs rounded">#YouTube</span>
+              <span class="px-2 py-0.5 bg-purple-100 text-purple-800 text-xs rounded">#Templates</span>
+            </div>
+          </div>
+          <div class="flex flex-col space-y-2">
+            <button class="text-red-500 hover:text-red-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+            <button class="text-jstar-blue hover:text-faith-purple">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="flex justify-end">
+          <button class="bg-jstar-blue hover:bg-faith-purple text-white font-medium py-1 px-3 rounded">
+            Use Prompt
+          </button>
+        </div>
+      </div>
+      
+      <!-- PROMPT 2 -->
+      <div class="prompt-item bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-start">
+          <div>
+            <h3 class="text-lg font-bold mb-2 text-gray-900 dark:text-white">Faith-Based Content Checklist</h3>
+            <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 mb-3">
+              <p class="text-gray-700 dark:text-gray-300">Ensure your content aligns with Christian values:</p>
+              <pre class="mt-2 p-3 bg-gray-800 rounded text-sm overflow-x-auto"><code class="text-green-400">// Faith Content Checklist
+Before publishing, verify:
+1. Does this content honor God?
+2. Does it respect audience dignity?
+3. Does it avoid exploitative tactics?
+4. Does it serve community needs?
+5. Have I sought prayerful discernment?</code></pre>
+            </div>
+            <div class="flex flex-wrap gap-1 mb-3">
+              <span class="px-2 py-0.5 bg-yellow-100 text-yellow-800 text-xs rounded">#Faith</span>
+              <span class="px-2 py-0.5 bg-green-100 text-green-800 text-xs rounded">#Ethics</span>
+            </div>
+          </div>
+          <div class="flex flex-col space-y-2">
+            <button class="text-red-500 hover:text-red-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+            <button class="text-jstar-blue hover:text-faith-purple">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="flex justify-end">
+          <button class="bg-jstar-blue hover:bg-faith-purple text-white font-medium py-1 px-3 rounded">
+            Use Prompt
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TIER 2+ CONTENT -->
+    <div class="mt-10 bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700">
+      <div class="flex flex-col md:flex-row md:items-start">
+        <div class="md:mr-4 mb-3 md:mb-0">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div>
+          <h3 class="font-bold text-gray-900 dark:text-white mb-1">Premium Prompt Templates</h3>
+          <p class="text-gray-700 dark:text-gray-300 mb-3">
+            <!-- PRD: Tier 2 Content -->These advanced prompt templates are available to Tier 2+ subscribers:
+          </p>
+          <ul class="list-disc pl-5 space-y-1 text-gray-700 dark:text-gray-300 mb-4">
+            <li>Client Magnet Outreach Generator (FR038)</li>
+            <li>Virality Score Calculator (FR035)</li>
+            <li>Script Hook Builder for Faith-Based Content</li>
+          </ul>
+          <button class="bg-gradient-to-r from-jstar-blue to-faith-purple text-white font-medium py-2 px-4 rounded-full">
+            Upgrade to Tier 2 for Full Access
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

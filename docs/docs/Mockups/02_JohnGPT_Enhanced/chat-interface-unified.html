@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JohnGPT Assistant | AI-Powered Creator Assistant</title>
+    <meta name="description" content="Interact with JohnGPT, your AI-powered creator assistant for content creation, strategy, and growth.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'obsidian-bg': '#202020',
+                        'obsidian-sidebar': '#161618',
+                        'obsidian-text': '#dcddde',
+                        'obsidian-text-muted': '#888888',
+                        'obsidian-accent': '#7c3aed',
+                        'obsidian-link': '#8b5cf6'
+                    },
+                    fontFamily: {
+                        'mono': ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --growth-green: #059669;
+            --obsidian-bg: #202020;
+            --obsidian-sidebar: #161618;
+            --obsidian-text: #dcddde;
+            --obsidian-text-muted: #888888;
+            --obsidian-accent: #7c3aed;
+            --obsidian-link: #8b5cf6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --transition-normal: 300ms;
+        }
+        
+        .chat-container {
+            display: flex;
+            height: calc(100vh - 4rem);
+            margin-top: 4rem;
+        }
+        
+        .sidebar {
+            width: 280px;
+            background: var(--obsidian-sidebar);
+            border-right: 1px solid #333;
+            overflow-y: auto;
+            transition: all var(--transition-normal) ease;
+        }
+        
+        .main-chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--obsidian-bg);
+            color: var(--obsidian-text);
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
+        
+        .chat-input-container {
+            padding: 1.5rem;
+            border-top: 1px solid #333;
+        }
+        
+        .message-bubble {
+            max-width: 85%;
+            padding: 1rem 1.5rem;
+            border-radius: 1rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+        
+        .user-message {
+            background: rgba(37, 99, 235, 0.2);
+            border: 1px solid rgba(37, 99, 235, 0.3);
+            margin-left: auto;
+            border-bottom-right-radius: 0.25rem;
+        }
+        
+        .ai-message {
+            background: rgba(124, 58, 237, 0.1);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            margin-right: auto;
+            border-bottom-left-radius: 0.25rem;
+        }
+        
+        .navbar-blur {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .dark .navbar-blur {
+            background: rgba(17, 24, 39, 0.9);
+        }
+        
+        .search-box {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            width: 100%;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: var(--obsidian-link);
+        }
+        
+        .conversation-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-radius: 0.5rem;
+            margin-bottom: 0.25rem;
+            transition: all 0.2s;
+        }
+        
+        .conversation-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .conversation-item.active {
+            background: rgba(124, 58, 237, 0.2);
+        }
+        
+        .persona-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .persona-button:hover {
+            background: rgba(124, 58, 235, 0.2);
+            border-color: var(--obsidian-link);
+        }
+        
+        .persona-button.active {
+            background: rgba(124, 58, 237, 0.3);
+            border-color: var(--obsidian-link);
+        }
+        
+        .chat-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.75rem;
+            padding: 1rem 1.5rem;
+            color: var(--obsidian-text);
+            resize: none;
+            min-height: 60px;
+            max-height: 200px;
+        }
+        
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--obsidian-link);
+        }
+        
+        .send-button {
+            background: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .send-button:hover {
+            transform: scale(1.05);
+        }
+        
+        .send-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Markdown styling */
+        .markdown-content h1 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: white;
+        }
+        
+        .markdown-content h2 {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+        
+        .markdown-content h3 {
+            font-size: 1.125rem;
+            font-weight: bold;
+            margin-top: 1.25rem;
+            margin-bottom: 0.75rem;
+            color: white;
+        }
+        
+        .markdown-content p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        
+        .markdown-content ul, .markdown-content ol {
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+        }
+        
+        .markdown-content li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .markdown-content code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+        }
+        
+        .markdown-content pre {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin-bottom: 1rem;
+        }
+        
+        .markdown-content pre code {
+            background: none;
+            padding: 0;
+        }
+        
+        .markdown-content blockquote {
+            border-left: 4px solid var(--obsidian-link);
+            padding-left: 1rem;
+            margin-left: 0;
+            margin-bottom: 1rem;
+            color: var(--obsidian-text-muted);
+        }
+        
+        .markdown-content a {
+            color: var(--obsidian-link);
+            text-decoration: none;
+        }
+        
+        .markdown-content a:hover {
+            text-decoration: underline;
+        }
+        
+        .action-button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+        
+        .action-button:hover {
+            background: rgba(124, 58, 235, 0.2);
+            border-color: var(--obsidian-link);
+        }
+        
+        .tier-indicator {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+        }
+        
+        .tier-1 { background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%); }
+        .tier-2 { background: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%); }
+        .tier-3 { background: linear-gradient(135deg, var(--faith-purple) 0%, var(--growth-green) 100%); }
+        .admin { background: linear-gradient(135deg, #EF4444 0%, #F87171 100%); }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 navbar-blur border-b border-gray-200 dark:border-gray-700 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/" class="text-2xl font-bold bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">
+                        J StaR Films
+                    </a>
+                    <span class="mx-4 text-gray-300 dark:text-gray-600">/</span>
+                    <span class="text-gray-900 dark:text-white font-medium">JohnGPT</span>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="/" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Home</a>
+                    <a href="/about" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">About</a>
+                    <a href="/portfolio" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Portfolio</a>
+                    <a href="/services" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Services</a>
+                    <a href="/blog" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Blog</a>
+                    <a href="/store" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Store</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button onclick="document.documentElement.classList.toggle('dark')" 
+                            class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
+                            aria-label="Toggle theme">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </button>
+                    <button class="px-4 py-2 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold text-sm">
+                        Sign In
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- JohnGPT Chat Interface -->
+    <div class="chat-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="p-4">
+                <button class="w-full py-3 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold mb-4 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    New Chat
+                </button>
+                
+                <div class="relative mb-4">
+                    <input type="text" placeholder="Search conversations..." class="search-box">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute right-3 top-2.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                
+                <div class="text-xs text-gray-500 uppercase tracking-wider mb-2">Today</div>
+                <div class="conversation-item active">
+                    <div class="flex justify-between">
+                        <span class="truncate">YouTube content strategy for faith-based creators</span>
+                        <span class="text-xs text-gray-500">10:24 AM</span>
+                    </div>
+                    <div class="text-xs text-gray-500 truncate mt-1">How can I create content that resonates with ...</div>
+                </div>
+                
+                <div class="conversation-item">
+                    <div class="flex justify-between">
+                        <span class="truncate">Wedding cinematography pricing guide</span>
+                        <span class="text-xs text-gray-500">Yesterday</span>
+                    </div>
+                    <div class="text-xs text-gray-500 truncate mt-1">What should I charge for different wedding ...</div>
+                </div>
+                
+                <div class="text-xs text-gray-500 uppercase tracking-wider mt-4 mb-2">Previous 7 Days</div>
+                <div class="conversation-item">
+                    <div class="flex justify-between">
+                        <span class="truncate">App development workflow</span>
+                        <span class="text-xs text-gray-500">Jun 12</span>
+                    </div>
+                    <div class="text-xs text-gray-500 truncate mt-1">What's the best approach for building a ...</div>
+                </div>
+                
+                <div class="conversation-item">
+                    <div class="flex justify-between">
+                        <span class="truncate">Scriptwriting for short films</span>
+                        <span class="text-xs text-gray-500">Jun 10</span>
+                    </div>
+                    <div class="text-xs text-gray-500 truncate mt-1">How do I structure a compelling short ...</div>
+                </div>
+                
+                <div class="text-xs text-gray-500 uppercase tracking-wider mt-4 mb-2">Older</div>
+                <div class="conversation-item">
+                    <div class="flex justify-between">
+                        <span class="truncate">Content calendar template</span>
+                        <span class="text-xs text-gray-500">May 28</span>
+                    </div>
+                    <div class="text-xs text-gray-500 truncate mt-1">Can you create a monthly content calendar ...</div>
+                </div>
+            </div>
+            
+            <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-800">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-r from-jstar-blue to-faith-purple flex items-center justify-center text-white text-xs font-bold">
+                            JO
+                        </div>
+                        <div class="ml-2">
+                            <div class="text-sm font-medium text-gray-200">John Oluleke-Oke</div>
+                            <div class="text-xs text-gray-500">Tier 3 Member</div>
+                        </div>
+                    </div>
+                    <div class="tier-indicator tier-3 text-white">TIER 3</div>
+                </div>
+                
+                <div class="flex space-x-2">
+                    <button class="flex-1 py-2 text-xs bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors">
+                        Settings
+                    </button>
+                    <button class="flex-1 py-2 text-xs bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors">
+                        Upgrade
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Chat Area -->
+        <div class="main-chat">
+            <!-- Chat Header -->
+            <div class="border-b border-gray-800 p-4 flex items-center justify-between">
+                <div class="flex items-center">
+                    <button class="persona-button active">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-faith-purple" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                        </svg>
+                        Creative Director
+                    </button>
+                    <div class="mx-2 text-gray-500">|</div>
+                    <button class="persona-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-growth-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        Systems Mentor
+                    </button>
+                    <div class="mx-2 text-gray-500">|</div>
+                    <button class="persona-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-jstar-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                        Faith Guide
+                    </button>
+                </div>
+                
+                <div class="flex space-x-2">
+                    <button class="p-2 rounded-lg hover:bg-gray-800 transition-colors" title="Save to Obsidian Vault">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                        </svg>
+                    </button>
+                    <button class="p-2 rounded-lg hover:bg-gray-800 transition-colors" title="Share Conversation">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Chat Messages -->
+            <div class="chat-messages">
+                <!-- AI Message -->
+                <div class="ai-message message-bubble">
+                    <div class="flex items-start">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-r from-jstar-blue to-faith-purple flex items-center justify-center text-white text-xs font-bold mr-3 flex-shrink-0">
+                            JG
+                        </div>
+                        <div class="markdown-content flex-1">
+                            <p>Hello! I'm JohnGPT, your AI-powered creator assistant. I'm here to help you with content creation, strategy, and growth. How can I assist you today?</p>
+                            
+                            <p>As your <strong>Creative Director</strong>, I can help with:</p>
+                            <ul>
+                                <li>Content strategy and ideation</li>
+                                <li>Scriptwriting and storytelling</li>
+                                <li>Video production techniques</li>
+                                <li>Brand voice development</li>
+                            </ul>
+                            
+                            <p>You can also switch to my other personas:</p>
+                            <ul>
+                                <li><strong>Systems Mentor</strong> for workflow optimization</li>
+                                <li><strong>Faith Guide</strong> for values-aligned content</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- User Message -->
+                <div class="user-message message-bubble">
+                    <div class="flex items-start">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-r from-gray-600 to-gray-800 flex items-center justify-center text-white text-xs font-bold mr-3 flex-shrink-0">
+                            JO
+                        </div>
+                        <div class="markdown-content flex-1">
+                            <p>Hi JohnGPT! I'm working on a YouTube series about faith-based content creation. I want to create videos that are both engaging and authentic to my values. Can you help me develop a content strategy?</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- AI Message -->
+                <div class="ai-message message-bubble">
+                    <div class="flex items-start">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-r from-jstar-blue to-faith-purple flex items-center justify-center text-white text-xs font-bold mr-3 flex-shrink-0">
+                            JG
+                        </div>
+                        <div class="markdown-content flex-1">
+                            <p>That's a fantastic topic! Faith-based content can be incredibly powerful when done authentically. Here's a strategic approach for your YouTube series:</p>
+                            
+                            <h3>Content Pillars</h3>
+                            <ol>
+                                <li><strong>Personal Stories</strong> - Share your journey and experiences</li>
+                                <li><strong>Practical Wisdom</strong> - Apply faith principles to everyday challenges</li>
+                                <li><strong>Community Spotlight</strong> - Feature other faith-driven creators</li>
+                                <li><strong>Behind-the-Scenes</strong> - Show your creative process</li>
+                            </ol>
+                            
+                            <h3>Video Series Ideas</h3>
+                            <ul>
+                                <li>"Faith & Creativity" - Exploring the intersection of spirituality and artistic expression</li>
+                                <li>"Creator Devotionals" - Short inspirational messages for fellow creators</li>
+                                <li>"Values in Action" - How faith principles guide business decisions</li>
+                            </ul>
+                            
+                            <h3>Content Calendar Sample</h3>
+                            <pre><code class="language-markdown">Week 1: Introduction - "Why Faith-Based Content Matters"
+Week 2: Personal Story - "My Journey as a Faith-Driven Creator"
+Week 3: Practical Wisdom - "Balancing Creativity with Spiritual Disciplines"
+Week 4: Community Spotlight - "Interview with [Guest Creator]"</code></pre>
+                            
+                            <p>Would you like me to elaborate on any of these ideas or help you develop a more detailed content plan?</p>
+                            
+                            <div class="flex flex-wrap gap-2 mt-4">
+                                <button class="action-button">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                    </svg>
+                                    Save to Vault
+                                </button>
+                                <button class="action-button">
+                                    Expand Ideas
+                                </button>
+                                <button class="action-button">
+                                    Create Script
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- User Message -->
+                <div class="user-message message-bubble">
+                    <div class="flex items-start">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-r from-gray-600 to-gray-800 flex items-center justify-center text-white text-xs font-bold mr-3 flex-shrink-0">
+                            JO
+                        </div>
+                        <div class="markdown-content flex-1">
+                            <p>This is great! I especially like the "Creator Devotionals" idea. Can you help me write a script for the first one?</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- AI Message -->
+                <div class="ai-message message-bubble">
+                    <div class="flex items-start">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-r from-jstar-blue to-faith-purple flex items-center justify-center text-white text-xs font-bold mr-3 flex-shrink-0">
+                            JG
+                        </div>
+                        <div class="markdown-content flex-1">
+                            <p>Absolutely! Here's a script outline for your first "Creator Devotional":</p>
+                            
+                            <h3>"Finding Purpose in Your Creative Work"</h3>
+                            
+                            <p><strong>Hook (0:00-0:15)</strong></p>
+                            <blockquote>
+                                "Have you ever wondered if your creative work has a deeper purpose beyond just entertainment or income? What if your art could be a form of worship and service?"
+                            </blockquote>
+                            
+                            <p><strong>Opening (0:15-0:45)</strong></p>
+                            <p>Share a brief personal story about a moment when you realized your creative work could serve a greater purpose. This creates an emotional connection with your audience.</p>
+                            
+                            <p><strong>Main Content (0:45-2:30)</strong></p>
+                            <ol>
+                                <li><strong>Biblical Foundation</strong> - Reference Colossians 3:23: "Whatever you do, work at it with all your heart, as working for the Lord, not for human masters."</li>
+                                <li><strong>Practical Application</strong> - How this verse applies to creative work:
+                                    <ul>
+                                        <li>Excellence in craft as worship</li>
+                                        <li>Using talents to serve others</li>
+                                        <li>Creating with integrity and authenticity</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Encouragement</strong> - Remind viewers that their creative work matters in God's kingdom plan.</li>
+                            </ol>
+                            
+                            <p><strong>Call to Action (2:30-3:00)</strong></p>
+                            <p>Challenge viewers to reflect on their own creative purpose and invite them to share their thoughts in the comments. Encourage them to subscribe for more devotionals.</p>
+                            
+                            <p>Would you like me to expand on any section or help you with the visual elements for this video?</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chat Input -->
+            <div class="chat-input-container">
+                <div class="flex">
+                    <textarea class="chat-input" placeholder="Message JohnGPT..."></textarea>
+                    <button class="send-button ml-3 self-end">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="flex justify-between mt-3 text-xs text-gray-500">
+                    <div>
+                        JohnGPT can make mistakes. Consider checking important information.
+                    </div>
+                    <div>
+                        Tier 3 Access • 
+                        <span class="text-jstar-blue">Creative Director</span> Persona
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme management
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Auto-resize textarea
+        const textarea = document.querySelector('.chat-input');
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+        
+        // Persona switching
+        document.querySelectorAll('.persona-button').forEach(button => {
+            button.addEventListener('click', function() {
+                document.querySelectorAll('.persona-button').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                // In a real implementation, this would change the AI's behavior
+                console.log('Switched to persona:', this.textContent.trim());
+            });
+        });
+        
+        // Conversation switching
+        document.querySelectorAll('.conversation-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.conversation-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                
+                // In a real implementation, this would load the selected conversation
+                console.log('Loading conversation:', this.textContent.trim());
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification System - J StaR Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .demo-section {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--brand-blue);
+        }
+        
+        .demo-controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-success { background: var(--success-green); color: white; }
+        .btn-info { background: var(--brand-blue); color: white; }
+        .btn-warning { background: var(--warm-orange); color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            max-width: 350px;
+        }
+        
+        .toast {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            margin-bottom: 1rem;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        .toast-header {
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .toast-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8rem;
+        }
+        
+        .toast-icon.success { background: var(--success-green); }
+        .toast-icon.info { background: var(--brand-blue); }
+        .toast-icon.warning { background: var(--warm-orange); }
+        .toast-icon.error { background: #dc3545; }
+        
+        .toast-title {
+            flex: 1;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .toast-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 0.25rem;
+        }
+        
+        .toast-close:hover {
+            background: var(--bg-secondary);
+        }
+        
+        .toast-body {
+            padding: 1rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .toast-progress {
+            height: 3px;
+            background: var(--bg-secondary);
+            overflow: hidden;
+        }
+        
+        .toast-progress-bar {
+            height: 100%;
+            background: var(--brand-blue);
+            width: 100%;
+            animation: progress 4s linear forwards;
+        }
+        
+        @keyframes progress {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+        
+        /* In-App Notifications */
+        .notification-center {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .notification-bell {
+            background: var(--brand-blue);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            font-size: 1.2rem;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--warm-orange);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        
+        .notification-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.5rem;
+            width: 350px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        
+        .notification-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .notification-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .notification-title {
+            font-weight: 600;
+        }
+        
+        .mark-all-read {
+            background: none;
+            border: none;
+            color: var(--brand-blue);
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .notification-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .notification-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .notification-item:hover {
+            background: var(--bg-secondary);
+        }
+        
+        .notification-item.unread {
+            background: rgba(74, 144, 226, 0.05);
+            border-left: 3px solid var(--brand-blue);
+        }
+        
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+        
+        .notification-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--brand-blue);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+        
+        .notification-content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .notification-text {
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .notification-time {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        .notification-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--brand-blue);
+            flex-shrink: 0;
+            margin-top: 0.5rem;
+        }
+        
+        /* Banner Notifications */
+        .banner-notification {
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            position: relative;
+            margin-bottom: 2rem;
+            border-radius: 0.5rem;
+        }
+        
+        .banner-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        
+        .banner-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .banner-text {
+            opacity: 0.9;
+        }
+        
+        /* System Alert */
+        .system-alert {
+            background: var(--warm-orange);
+            color: white;
+            padding: 0.75rem 1rem;
+            text-align: center;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+        
+        .alert-icon {
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- System Alert -->
+    <div class="system-alert">
+        <i class="fas fa-exclamation-triangle alert-icon"></i>
+        Scheduled maintenance on March 20th from 2:00 AM - 4:00 AM UTC
+    </div>
+    
+    <div class="container">
+        <h1 class="page-title">Notification System</h1>
+        
+        <!-- Banner Notification -->
+        <div class="banner-notification" id="banner">
+            <button class="banner-close" onclick="closeBanner()">&times;</button>
+            <div class="banner-title">🎉 New Feature Available!</div>
+            <div class="banner-text">Check out our new AI-powered content generator in the Creator Growth Engine</div>
+        </div>
+        
+        <!-- Toast Notifications Demo -->
+        <div class="demo-section">
+            <h2 class="section-title">Toast Notifications</h2>
+            <p style="margin-bottom: 1.5rem; color: var(--text-secondary);">
+                Non-intrusive notifications that appear temporarily and auto-dismiss
+            </p>
+            
+            <div class="demo-controls">
+                <button class="btn btn-success" onclick="showToast('success')">
+                    <i class="fas fa-check"></i>
+                    Success Toast
+                </button>
+                <button class="btn btn-info" onclick="showToast('info')">
+                    <i class="fas fa-info"></i>
+                    Info Toast
+                </button>
+                <button class="btn btn-warning" onclick="showToast('warning')">
+                    <i class="fas fa-exclamation"></i>
+                    Warning Toast
+                </button>
+                <button class="btn btn-danger" onclick="showToast('error')">
+                    <i class="fas fa-times"></i>
+                    Error Toast
+                </button>
+            </div>
+        </div>
+        
+        <!-- In-App Notifications Demo -->
+        <div class="demo-section">
+            <h2 class="section-title">In-App Notification Center</h2>
+            <p style="margin-bottom: 1.5rem; color: var(--text-secondary);">
+                Persistent notifications accessible from the notification bell
+            </p>
+            
+            <div class="notification-center">
+                <button class="notification-bell" onclick="toggleNotifications()">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">3</span>
+                </button>
+                
+                <div class="notification-dropdown" id="notificationDropdown">
+                    <div class="notification-header">
+                        <span class="notification-title">Notifications</span>
+                        <button class="mark-all-read">Mark all read</button>
+                    </div>
+                    
+                    <div class="notification-list">
+                        <div class="notification-item unread">
+                            <div class="notification-avatar">SM</div>
+                            <div class="notification-content">
+                                <div class="notification-text">Sarah Martinez commented on your post about AI trends</div>
+                                <div class="notification-time">2 minutes ago</div>
+                            </div>
+                            <div class="notification-dot"></div>
+                        </div>
+                        
+                        <div class="notification-item unread">
+                            <div class="notification-avatar" style="background: var(--success-green);">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="notification-content">
+                                <div class="notification-text">Your content reached 10,000 views this week</div>
+                                <div class="notification-time">1 hour ago</div>
+                            </div>
+                            <div class="notification-dot"></div>
+                        </div>
+                        
+                        <div class="notification-item unread">
+                            <div class="notification-avatar" style="background: var(--warm-orange);">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <div class="notification-content">
+                                <div class="notification-text">You have 5 new followers on LinkedIn</div>
+                                <div class="notification-time">3 hours ago</div>
+                            </div>
+                            <div class="notification-dot"></div>
+                        </div>
+                        
+                        <div class="notification-item">
+                            <div class="notification-avatar">MJ</div>
+                            <div class="notification-content">
+                                <div class="notification-text">Mike Johnson liked your post</div>
+                                <div class="notification-time">Yesterday</div>
+                            </div>
+                        </div>
+                        
+                        <div class="notification-item">
+                            <div class="notification-avatar" style="background: var(--creative-teal);">
+                                <i class="fas fa-calendar"></i>
+                            </div>
+                            <div class="notification-content">
+                                <div class="notification-text">Reminder: Team meeting at 3 PM today</div>
+                                <div class="notification-time">2 days ago</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+    
+    <script>
+        let toastCounter = 0;
+        
+        function showToast(type) {
+            const toastId = `toast-${++toastCounter}`;
+            const icons = {
+                success: 'fas fa-check',
+                info: 'fas fa-info',
+                warning: 'fas fa-exclamation',
+                error: 'fas fa-times'
+            };
+            
+            const titles = {
+                success: 'Success!',
+                info: 'Information',
+                warning: 'Warning',
+                error: 'Error'
+            };
+            
+            const messages = {
+                success: 'Your action was completed successfully.',
+                info: 'Here is some important information for you.',
+                warning: 'Please review this warning message.',
+                error: 'Something went wrong. Please try again.'
+            };
+            
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.id = toastId;
+            toast.innerHTML = `
+                <div class="toast-header">
+                    <div class="toast-icon ${type}">
+                        <i class="${icons[type]}"></i>
+                    </div>
+                    <div class="toast-title">${titles[type]}</div>
+                    <button class="toast-close" onclick="hideToast('${toastId}')">&times;</button>
+                </div>
+                <div class="toast-body">
+                    ${messages[type]}
+                </div>
+                <div class="toast-progress">
+                    <div class="toast-progress-bar"></div>
+                </div>
+            `;
+            
+            document.getElementById('toastContainer').appendChild(toast);
+            
+            // Show toast
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 100);
+            
+            // Auto hide after 4 seconds
+            setTimeout(() => {
+                hideToast(toastId);
+            }, 4000);
+        }
+        
+        function hideToast(toastId) {
+            const toast = document.getElementById(toastId);
+            if (toast) {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }
+        }
+        
+        function toggleNotifications() {
+            const dropdown = document.getElementById('notificationDropdown');
+            dropdown.classList.toggle('show');
+        }
+        
+        function closeBanner() {
+            document.getElementById('banner').style.display = 'none';
+        }
+        
+        // Close notification dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const notificationCenter = document.querySelector('.notification-center');
+            const dropdown = document.getElementById('notificationDropdown');
+            
+            if (!notificationCenter.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+        
+        // Mark notification as read when clicked
+        document.querySelectorAll('.notification-item').forEach(item => {
+            item.addEventListener('click', function() {
+                this.classList.remove('unread');
+                const dot = this.querySelector('.notification-dot');
+                if (dot) dot.remove();
+            });
+        });
+        
+        // Mark all as read
+        document.querySelector('.mark-all-read').addEventListener('click', function() {
+            document.querySelectorAll('.notification-item.unread').forEach(item => {
+                item.classList.remove('unread');
+                const dot = item.querySelector('.notification-dot');
+                if (dot) dot.remove();
+            });
+            document.querySelector('.notification-badge').textContent = '0';
+        });
+        
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

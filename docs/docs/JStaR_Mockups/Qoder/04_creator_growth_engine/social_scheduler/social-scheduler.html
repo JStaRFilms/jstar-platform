@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Scheduler - J StaR Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+        }
+        
+        .scheduler-content {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+        }
+        
+        .platform-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1rem;
+        }
+        
+        .platform-tab {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            background: var(--bg-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .platform-tab.active {
+            background: var(--brand-blue);
+            color: white;
+            border-color: var(--brand-blue);
+        }
+        
+        .scheduled-posts {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .post-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .post-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .platform-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .badge-twitter { background: #1DA1F2; color: white; }
+        .badge-linkedin { background: #0077B5; color: white; }
+        .badge-facebook { background: #1877F2; color: white; }
+        .badge-instagram { background: #E4405F; color: white; }
+        
+        .post-time {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .post-content {
+            margin-bottom: 1rem;
+        }
+        
+        .post-text {
+            margin-bottom: 0.5rem;
+        }
+        
+        .post-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .action-btn {
+            padding: 0.25rem 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        
+        .sidebar {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            height: fit-content;
+        }
+        
+        .quick-schedule {
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            color: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .compose-area {
+            margin-bottom: 1rem;
+        }
+        
+        .compose-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .compose-textarea::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .schedule-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .schedule-input {
+            padding: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 0.25rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 0.9rem;
+        }
+        
+        .analytics-preview {
+            margin-bottom: 1.5rem;
+        }
+        
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .metric-card {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--brand-blue);
+        }
+        
+        .metric-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="page-title">Social Scheduler</h1>
+            <button class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                New Post
+            </button>
+        </div>
+        
+        <div class="main-grid">
+            <div class="scheduler-content">
+                <div class="platform-tabs">
+                    <div class="platform-tab active">
+                        <i class="fab fa-twitter"></i>
+                        Twitter
+                    </div>
+                    <div class="platform-tab">
+                        <i class="fab fa-linkedin"></i>
+                        LinkedIn
+                    </div>
+                    <div class="platform-tab">
+                        <i class="fab fa-facebook"></i>
+                        Facebook
+                    </div>
+                    <div class="platform-tab">
+                        <i class="fab fa-instagram"></i>
+                        Instagram
+                    </div>
+                </div>
+                
+                <div class="scheduled-posts">
+                    <div class="post-card">
+                        <div class="post-header">
+                            <span class="platform-badge badge-twitter">Twitter</span>
+                            <span class="post-time">Today at 2:00 PM</span>
+                        </div>
+                        <div class="post-content">
+                            <div class="post-text">🚀 Just launched our new AI-powered content generator! 
+                            Ready to 10x your content creation? #AI #ContentCreation #Startup</div>
+                        </div>
+                        <div class="post-actions">
+                            <button class="action-btn">Edit</button>
+                            <button class="action-btn">Preview</button>
+                            <button class="action-btn">Delete</button>
+                        </div>
+                    </div>
+                    
+                    <div class="post-card">
+                        <div class="post-header">
+                            <span class="platform-badge badge-linkedin">LinkedIn</span>
+                            <span class="post-time">Tomorrow at 9:00 AM</span>
+                        </div>
+                        <div class="post-content">
+                            <div class="post-text">The future of business is AI-first. Here's why entrepreneurs who embrace AI now will dominate their markets...</div>
+                        </div>
+                        <div class="post-actions">
+                            <button class="action-btn">Edit</button>
+                            <button class="action-btn">Preview</button>
+                            <button class="action-btn">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar">
+                <div class="quick-schedule">
+                    <h3 style="margin-bottom: 1rem;">Quick Schedule</h3>
+                    <div class="compose-area">
+                        <textarea class="compose-textarea" placeholder="What's on your mind?"></textarea>
+                    </div>
+                    <div class="schedule-options">
+                        <input type="date" class="schedule-input">
+                        <input type="time" class="schedule-input">
+                    </div>
+                    <button class="btn" style="background: rgba(255,255,255,0.2); color: white; width: 100%;">
+                        Schedule Post
+                    </button>
+                </div>
+                
+                <div class="analytics-preview">
+                    <h3 style="margin-bottom: 1rem;">This Week</h3>
+                    <div class="metric-grid">
+                        <div class="metric-card">
+                            <div class="metric-value">24</div>
+                            <div class="metric-label">Posts Scheduled</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">156K</div>
+                            <div class="metric-label">Est. Reach</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Platform tab switching
+        document.querySelectorAll('.platform-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.platform-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

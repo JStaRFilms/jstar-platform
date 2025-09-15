@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virality OS | Creator Growth Engine</title>
+    <meta name="description" content="Analyze YouTube trends, calculate virality scores, and generate visual assets for content creators">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'obsidian-bg': '#202020',
+                        'obsidian-sidebar': '#161618',
+                        'obsidian-text': '#dcddde',
+                        'obsidian-text-muted': '#888888',
+                        'obsidian-accent': '#7c3aed',
+                        'obsidian-link': '#8b5cf6'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --growth-green: #059669;
+            --obsidian-bg: #202020;
+            --obsidian-sidebar: #161618;
+            --obsidian-text: #dcddde;
+            --obsidian-text-muted: #888888;
+            --obsidian-accent: #7c3aed;
+            --obsidian-link: #8b5cf6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --transition-normal: 300ms;
+        }
+        
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 260px;
+            background: var(--obsidian-sidebar);
+            border-right: 1px solid #333;
+            transition: all var(--transition-normal) ease;
+            flex-shrink: 0;
+        }
+        
+        .main-content {
+            flex: 1;
+            background: var(--obsidian-bg);
+            color: var(--obsidian-text);
+            overflow-y: auto;
+        }
+        
+        .navbar-blur {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .dark .navbar-blur {
+            background: rgba(17, 24, 39, 0.9);
+        }
+        
+        .sidebar-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-radius: 0.5rem;
+            margin-bottom: 0.25rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .sidebar-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .sidebar-item.active {
+            background: rgba(124, 58, 237, 0.2);
+        }
+        
+        .sidebar-item svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-right: 0.75rem;
+        }
+        
+        .tool-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: all 0.2s;
+        }
+        
+        .tool-card:hover {
+            border-color: var(--obsidian-link);
+        }
+        
+        .chart-container {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid #333;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+        }
+        
+        .action-button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+        
+        .action-button:hover {
+            background: rgba(124, 58, 235, 0.2);
+            border-color: var(--obsidian-link);
+        }
+        
+        .primary-button {
+            background: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .primary-button:hover {
+            transform: scale(1.05);
+        }
+        
+        .tier-indicator {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+        }
+        
+        .tier2 { background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%); }
+        
+        .form-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            color: var(--obsidian-text);
+            width: 100%;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--obsidian-link);
+        }
+        
+        .form-select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            color: var(--obsidian-text);
+            width: 100%;
+        }
+        
+        .form-select:focus {
+            outline: none;
+            border-color: var(--obsidian-link);
+        }
+        
+        .score-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .score-value {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .score-label {
+            font-size: 0.875rem;
+            color: var(--obsidian-text-muted);
+            margin-top: 0.25rem;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            color: var(--obsidian-text-muted);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            border-bottom: 1px solid #333;
+        }
+        
+        .data-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #333;
+        }
+        
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .data-table tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        
+        .thumbnail-preview {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px dashed #444;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .thumbnail-preview img {
+            max-width: 100%;
+            border-radius: 0.25rem;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .badge-high {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10B981;
+        }
+        
+        .badge-medium {
+            background: rgba(245, 158, 11, 0.2);
+            color: #F59E0B;
+        }
+        
+        .badge-low {
+            background: rgba(239, 68, 68, 0.2);
+            color: #EF4444;
+        }
+        
+        .search-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            width: 100%;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: var(--obsidian-link);
+        }
+        
+        .filter-button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .filter-button:hover {
+            background: rgba(124, 58, 235, 0.2);
+            border-color: var(--obsidian-link);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 navbar-blur border-b border-gray-200 dark:border-gray-700 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/" class="text-2xl font-bold bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">
+                        J StaR Films
+                    </a>
+                    <span class="mx-4 text-gray-300 dark:text-gray-600">/</span>
+                    <span class="text-gray-900 dark:text-white font-medium">Creator Growth Engine</span>
+                    <span class="mx-4 text-gray-300 dark:text-gray-600">/</span>
+                    <span class="text-gray-900 dark:text-white font-medium">Virality OS</span>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="/" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Home</a>
+                    <a href="/about" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">About</a>
+                    <a href="/portfolio" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Portfolio</a>
+                    <a href="/services" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Services</a>
+                    <a href="/blog" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Blog</a>
+                    <a href="/store" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Store</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button onclick="document.documentElement.classList.toggle('dark')" 
+                            class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
+                            aria-label="Toggle theme">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </button>
+                    <div class="relative">
+                        <button class="flex items-center space-x-2">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-r from-jstar-blue to-faith-purple flex items-center justify-center text-white text-sm font-bold">
+                                JO
+                            </div>
+                            <span class="text-gray-900 dark:text-white font-medium">Tier 2</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Container -->
+    <div class="dashboard-container pt-16">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="p-4">
+                <div class="mb-6">
+                    <h2 class="text-lg font-bold mb-4">Creator Growth Engine</h2>
+                    <div class="sidebar-item active">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        Virality OS
+                    </div>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        Client Magnet Pro
+                    </div>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                        </svg>
+                        Systems Launcher
+                    </div>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Scripting Studio
+                    </div>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                        Course Builder
+                    </div>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                        </svg>
+                        Automation Center
+                    </div>
+                </div>
+                
+                <div class="border-t border-gray-700 pt-4">
+                    <div class="text-xs text-gray-500 uppercase tracking-wider mb-2">Quick Actions</div>
+                    <button class="w-full py-2 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold mb-2 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        New Analysis
+                    </button>
+                    <button class="w-full py-2 bg-gray-700 text-white rounded-lg font-semibold flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Export Report
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h1 class="text-2xl font-bold mb-2">Virality OS</h1>
+                        <p class="text-gray-400">Analyze YouTube trends, calculate virality scores, and generate visual assets</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <div class="relative">
+                            <input type="text" placeholder="Search analyses..." class="search-box pl-10">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <button class="filter-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                            </svg>
+                            Filter
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Analysis Input -->
+                <div class="tool-card mb-6">
+                    <h2 class="text-lg font-bold mb-4">New Analysis</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">YouTube Channel or Video URL</label>
+                            <input type="text" class="form-input" placeholder="https://www.youtube.com/@channel or https://youtu.be/video" value="https://www.youtube.com/@JStaRFilms">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Analysis Type</label>
+                            <select class="form-select">
+                                <option>Channel Performance</option>
+                                <option selected>Video Virality</option>
+                                <option>Competitor Analysis</option>
+                                <option>Trend Research</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Niche/Topic</label>
+                            <input type="text" class="form-input" placeholder="e.g., Tech Reviews, Cooking, Gaming" value="Tech Reviews">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Time Range</label>
+                            <select class="form-select">
+                                <option>Last 7 days</option>
+                                <option selected>Last 30 days</option>
+                                <option>Last 90 days</option>
+                                <option>Last year</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 flex justify-end">
+                        <button class="primary-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                            Run Analysis
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Virality Score Overview -->
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+                    <div class="score-card">
+                        <div class="score-value">87</div>
+                        <div class="score-label">Overall Score</div>
+                    </div>
+                    
+                    <div class="score-card">
+                        <div class="score-value">92</div>
+                        <div class="score-label">Title</div>
+                    </div>
+                    
+                    <div class="score-card">
+                        <div class="score-value">85</div>
+                        <div class="score-label">Thumbnail</div>
+                    </div>
+                    
+                    <div class="score-card">
+                        <div class="score-value">78</div>
+                        <div class="score-label">Topic</div>
+                    </div>
+                    
+                    <div class="score-card">
+                        <div class="score-value">89</div>
+                        <div class="score-label">Strategy</div>
+                    </div>
+                </div>
+                
+                <!-- Analysis Results -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <!-- Trend Analysis -->
+                    <div class="chart-container">
+                        <h2 class="text-lg font-bold mb-4">Trend Analysis</h2>
+                        <div class="h-64 flex items-center justify-center">
+                            <div class="text-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <p class="text-gray-500">Trend analysis chart</p>
+                                <p class="text-sm text-gray-600 mt-1">Showing engagement trends over time</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Competitor Comparison -->
+                    <div class="chart-container">
+                        <h2 class="text-lg font-bold mb-4">Competitor Comparison</h2>
+                        <div class="overflow-x-auto">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Channel</th>
+                                        <th>Subscribers</th>
+                                        <th>Avg. Views</th>
+                                        <th>Engagement</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="font-medium">J StaR Films</div>
+                                        </td>
+                                        <td>12.4K</td>
+                                        <td>8.2K</td>
+                                        <td><span class="badge badge-high">High</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="font-medium">TechReviewPro</div>
+                                        </td>
+                                        <td>85.7K</td>
+                                        <td>42.1K</td>
+                                        <td><span class="badge badge-high">High</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="font-medium">GadgetGuru</div>
+                                        </td>
+                                        <td>32.1K</td>
+                                        <td>18.7K</td>
+                                        <td><span class="badge badge-medium">Medium</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="font-medium">InnovateDaily</div>
+                                        </td>
+                                        <td>5.8K</td>
+                                        <td>3.4K</td>
+                                        <td><span class="badge badge-low">Low</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Content Strategy Recommendations -->
+                <div class="chart-container mb-6">
+                    <h2 class="text-lg font-bold mb-4">Content Strategy Recommendations</h2>
+                    
+                    <div class="space-y-4">
+                        <div class="border border-gray-700 rounded-lg p-4">
+                            <div class="flex justify-between">
+                                <div class="font-medium">Title Optimization</div>
+                                <span class="badge badge-high">High Priority</span>
+                            </div>
+                            <div class="mt-2 text-gray-400">
+                                Your titles are performing well but could benefit from more specific numbers and emotional triggers. 
+                                Consider using formats like "X Best [Product] of 2025" or "I Tried [Product] for 30 Days - Here's What Happened".
+                            </div>
+                        </div>
+                        
+                        <div class="border border-gray-700 rounded-lg p-4">
+                            <div class="flex justify-between">
+                                <div class="font-medium">Thumbnail Design</div>
+                                <span class="badge badge-medium">Medium Priority</span>
+                            </div>
+                            <div class="mt-2 text-gray-400">
+                                Your thumbnails have good contrast but could use more text overlays for clarity. 
+                                Try adding short, bold text that summarizes the video's value proposition.
+                            </div>
+                        </div>
+                        
+                        <div class="border border-gray-700 rounded-lg p-4">
+                            <div class="flex justify-between">
+                                <div class="font-medium">Content Timing</div>
+                                <span class="badge badge-high">High Priority</span>
+                            </div>
+                            <div class="mt-2 text-gray-400">
+                                Your best performing videos are published between 2-4 PM EST on Wednesdays. 
+                                Schedule future uploads during this window for maximum visibility.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Thumbnail Generator -->
+                <div class="chart-container">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-bold">Thumbnail Generator</h2>
+                        <button class="action-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                            Generate More
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="thumbnail-preview">
+                            <div class="bg-gray-800 border border-gray-700 rounded-lg h-40 flex items-center justify-center mb-2">
+                                <span class="text-gray-500">Thumbnail Preview</span>
+                            </div>
+                            <div class="text-sm font-medium">Template 1: Bold Text Overlay</div>
+                            <div class="text-xs text-gray-500 mt-1">High contrast, clear value proposition</div>
+                        </div>
+                        
+                        <div class="thumbnail-preview">
+                            <div class="bg-gray-800 border border-gray-700 rounded-lg h-40 flex items-center justify-center mb-2">
+                                <span class="text-gray-500">Thumbnail Preview</span>
+                            </div>
+                            <div class="text-sm font-medium">Template 2: Split Screen</div>
+                            <div class="text-xs text-gray-500 mt-1">Before/after comparison</div>
+                        </div>
+                        
+                        <div class="thumbnail-preview">
+                            <div class="bg-gray-800 border border-gray-700 rounded-lg h-40 flex items-center justify-center mb-2">
+                                <span class="text-gray-500">Thumbnail Preview</span>
+                            </div>
+                            <div class="text-sm font-medium">Template 3: Reaction Focus</div>
+                            <div class="text-xs text-gray-500 mt-1">Emotional hook with reaction shot</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 flex justify-end">
+                        <button class="primary-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Export Templates
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme management
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Sidebar item selection
+        document.querySelectorAll('.sidebar-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                
+                // In a real implementation, this would navigate to the selected section
+                const section = this.textContent.trim();
+                console.log('Navigating to:', section);
+            });
+        });
+    </script>
+</body>
+</html>

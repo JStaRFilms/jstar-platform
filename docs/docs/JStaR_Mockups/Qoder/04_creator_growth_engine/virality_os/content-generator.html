@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viral Content Generator - Virality OS</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+            --viral-purple: #9F7AEA;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            background: linear-gradient(135deg, var(--viral-purple), var(--brand-blue));
+            padding: 3rem 2rem;
+            border-radius: 1rem;
+            color: white;
+        }
+        
+        .generator-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        .input-section {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+        
+        .form-textarea {
+            height: 120px;
+            resize: vertical;
+        }
+        
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+        
+        .template-btn {
+            padding: 0.75rem;
+            border: 2px solid var(--border);
+            background: var(--bg-secondary);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+        }
+        
+        .template-btn.active {
+            border-color: var(--viral-purple);
+            background: rgba(159, 122, 234, 0.1);
+            color: var(--viral-purple);
+        }
+        
+        .generate-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--viral-purple), var(--brand-blue));
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        
+        .output-section {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 2rem;
+        }
+        
+        .output-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            min-height: 200px;
+            margin-bottom: 1rem;
+        }
+        
+        .viral-score-display {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(159, 122, 234, 0.1);
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .score-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--viral-purple);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary { background: var(--brand-blue); color: white; border-color: var(--brand-blue); }
+        .btn-secondary { background: var(--bg-secondary); }
+        
+        .examples-section {
+            margin-top: 2rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 2rem;
+        }
+        
+        .examples-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .example-card {
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .example-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .generator-grid { grid-template-columns: 1fr; }
+            .container { padding: 1rem; }
+            .examples-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">🚀 Viral Content Generator</h1>
+            <p style="font-size: 1.2rem; opacity: 0.9;">Create content that spreads like wildfire with AI-powered virality optimization</p>
+        </div>
+
+        <div class="generator-grid">
+            <div class="input-section">
+                <h2 class="section-title">
+                    <i class="fas fa-edit"></i>
+                    Content Parameters
+                </h2>
+                
+                <form id="contentGenerator">
+                    <div class="form-group">
+                        <label class="form-label">Topic/Theme</label>
+                        <input type="text" class="form-input" placeholder="e.g., AI productivity hacks, side hustles, mindset shifts" id="topicInput">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Target Audience</label>
+                        <select class="form-select" id="audienceSelect">
+                            <option value="entrepreneurs">Entrepreneurs</option>
+                            <option value="creators">Content Creators</option>
+                            <option value="professionals">Young Professionals</option>
+                            <option value="students">Students</option>
+                            <option value="general">General Audience</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Platform</label>
+                        <div class="template-grid">
+                            <div class="template-btn active" data-platform="twitter">Twitter</div>
+                            <div class="template-btn" data-platform="linkedin">LinkedIn</div>
+                            <div class="template-btn" data-platform="instagram">Instagram</div>
+                            <div class="template-btn" data-platform="tiktok">TikTok</div>
+                            <div class="template-btn" data-platform="youtube">YouTube</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Content Type</label>
+                        <div class="template-grid">
+                            <div class="template-btn active" data-type="list">List Post</div>
+                            <div class="template-btn" data-type="story">Story</div>
+                            <div class="template-btn" data-type="tip">Quick Tip</div>
+                            <div class="template-btn" data-type="question">Question</div>
+                            <div class="template-btn" data-type="behind">Behind Scenes</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Tone & Style</label>
+                        <select class="form-select">
+                            <option value="casual">Casual & Friendly</option>
+                            <option value="professional">Professional</option>
+                            <option value="humorous">Humorous</option>
+                            <option value="inspirational">Inspirational</option>
+                            <option value="controversial">Thought-Provoking</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Key Message (Optional)</label>
+                        <textarea class="form-textarea" placeholder="What's the main point you want to convey?"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="generate-btn">
+                        <i class="fas fa-magic"></i> Generate Viral Content
+                    </button>
+                </form>
+            </div>
+
+            <div class="output-section">
+                <h2 class="section-title">
+                    <i class="fas fa-rocket"></i>
+                    Generated Content
+                </h2>
+                
+                <div class="output-content" id="generatedContent">
+                    <div style="text-align: center; color: var(--text-secondary); padding: 2rem;">
+                        <i class="fas fa-magic" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                        <p>Your viral content will appear here...</p>
+                        <p style="font-size: 0.9rem; margin-top: 0.5rem;">Fill out the form and hit generate!</p>
+                    </div>
+                </div>
+                
+                <div class="viral-score-display" id="viralScore" style="display: none;">
+                    <div class="score-circle">87</div>
+                    <div>
+                        <strong>Viral Potential Score</strong>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Based on engagement patterns and trending factors</p>
+                    </div>
+                </div>
+                
+                <div class="action-buttons" id="actionButtons" style="display: none;">
+                    <button class="btn btn-primary">
+                        <i class="fas fa-copy"></i> Copy Content
+                    </button>
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-share"></i> Schedule Post
+                    </button>
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-save"></i> Save to Library
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="examples-section">
+            <h2 class="section-title">
+                <i class="fas fa-lightbulb"></i>
+                Viral Content Examples
+            </h2>
+            
+            <div class="examples-grid">
+                <div class="example-card" onclick="loadExample('productivity')">
+                    <h4>5 AI Tools That Doubled My Productivity</h4>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;">
+                        List-style post • 847K views • 92% viral score
+                    </p>
+                </div>
+                
+                <div class="example-card" onclick="loadExample('mindset')">
+                    <h4>Why I Deleted Social Media (And You Should Too)</h4>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;">
+                        Controversial take • 432K views • 78% viral score
+                    </p>
+                </div>
+                
+                <div class="example-card" onclick="loadExample('story')">
+                    <h4>From Broke to $10K/Month in 6 Months</h4>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;">
+                        Success story • 289K views • 85% viral score
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Platform and type selection
+        document.querySelectorAll('.template-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const group = this.parentElement;
+                group.querySelectorAll('.template-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Content generation
+        document.getElementById('contentGenerator').addEventListener('submit', function(e) {
+            e.preventDefault();
+            generateContent();
+        });
+
+        function generateContent() {
+            const topic = document.getElementById('topicInput').value || 'productivity hacks';
+            const audience = document.getElementById('audienceSelect').value;
+            const platform = document.querySelector('[data-platform].active').dataset.platform;
+            const type = document.querySelector('[data-type].active').dataset.type;
+            
+            // Simulate AI generation with sample content
+            const sampleContent = generateSampleContent(topic, platform, type);
+            
+            document.getElementById('generatedContent').innerHTML = `
+                <div style="font-family: inherit; line-height: 1.6;">
+                    ${sampleContent}
+                </div>
+            `;
+            
+            // Show viral score and actions
+            document.getElementById('viralScore').style.display = 'flex';
+            document.getElementById('actionButtons').style.display = 'flex';
+            
+            // Animate score
+            animateScore(Math.floor(Math.random() * 20) + 75);
+        }
+
+        function generateSampleContent(topic, platform, type) {
+            const samples = {
+                twitter: {
+                    list: `🧵 5 ${topic} that changed my life:\n\n1/ Use AI to automate your inbox\n   → Save 2 hours daily\n   → Never miss important emails\n\n2/ Batch similar tasks together\n   → 40% productivity boost\n   → Reduce context switching\n\n3/ The 2-minute rule\n   → Do it now if < 2 mins\n   → Prevents task buildup\n\n4/ Time-block your calendar\n   → Focus on ONE thing\n   → Eliminate distractions\n\n5/ Weekly reviews\n   → Reflect and adjust\n   → Continuous improvement\n\nWhich one will you try first? 👇`,
+                    story: `I used to work 12-hour days and still felt behind.\n\nThen I discovered ${topic}.\n\nNow I work 6 hours and get twice as much done.\n\nHere's what changed everything:\n\n→ I stopped multitasking\n→ I automated repetitive work\n→ I batched similar tasks\n→ I said no to meetings\n→ I used AI as my assistant\n\nProductivity isn't about working more.\n\nIt's about working smarter.\n\nWhat's your biggest productivity challenge?`
+                }
+            };
+            
+            return samples[platform]?.[type] || samples.twitter.list;
+        }
+
+        function animateScore(targetScore) {
+            const scoreElement = document.querySelector('.score-circle');
+            let currentScore = 0;
+            const increment = targetScore / 30;
+            
+            const interval = setInterval(() => {
+                currentScore += increment;
+                if (currentScore >= targetScore) {
+                    currentScore = targetScore;
+                    clearInterval(interval);
+                }
+                scoreElement.textContent = Math.floor(currentScore);
+            }, 50);
+        }
+
+        function loadExample(type) {
+            const examples = {
+                productivity: {
+                    topic: '5 AI tools that doubled my productivity',
+                    content: `🤖 5 AI tools that DOUBLED my productivity:\n\n1/ Notion AI\n   → Writes meeting notes automatically\n   → Summarizes long documents\n   → Creates content outlines\n\n2/ Zapier\n   → Connects all my apps\n   → Automates repetitive tasks\n   → Saves 10+ hours/week\n\n3/ Grammarly\n   → Perfect writing, every time\n   → Checks tone and clarity\n   → Professional communication\n\n4/ Calendly\n   → No more email tennis\n   → Automatic scheduling\n   → Time zone handling\n\n5/ ChatGPT\n   → Brainstorming partner\n   → Code debugging helper\n   → Content creation assistant\n\nWhich tool are you most excited to try? 👇`
+                }
+            };
+            
+            if (examples[type]) {
+                document.getElementById('topicInput').value = examples[type].topic;
+                document.getElementById('generatedContent').innerHTML = `<div style="font-family: inherit; line-height: 1.6;">${examples[type].content}</div>`;
+                document.getElementById('viralScore').style.display = 'flex';
+                document.getElementById('actionButtons').style.display = 'flex';
+                animateScore(92);
+            }
+        }
+
+        // Action button functionality
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.btn')) {
+                const action = e.target.closest('.btn').textContent.trim();
+                alert(`${action} functionality would be implemented here!`);
+            }
+        });
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

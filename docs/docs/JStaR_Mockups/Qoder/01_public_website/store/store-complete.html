@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Store - J StaR Creative Resources</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+        
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+        
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+        
+        .cart-btn {
+            position: relative;
+            background: var(--brand-blue);
+            color: white;
+            border: none;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .cart-count {
+            background: var(--warm-orange);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+        }
+        
+        /* Header */
+        .header {
+            padding: 8rem 0 4rem;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            color: white;
+            text-align: center;
+        }
+        
+        .header-title {
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            font-weight: 900;
+            margin-bottom: 1rem;
+        }
+        
+        .header-subtitle {
+            font-size: 1.25rem;
+            opacity: 0.9;
+        }
+        
+        /* Categories */
+        .categories {
+            padding: 3rem 0;
+            background: var(--bg-secondary);
+        }
+        
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .category-card {
+            background: var(--bg-primary);
+            padding: 2rem 1.5rem;
+            border-radius: 1rem;
+            text-align: center;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .category-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .category-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+        
+        .category-title {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        /* Products */
+        .products {
+            padding: 4rem 0;
+        }
+        
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 3rem;
+            color: var(--text-primary);
+        }
+        
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .product-card {
+            background: var(--bg-secondary);
+            border-radius: 1rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+        
+        .product-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(45deg, var(--brand-blue), var(--creative-teal));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+        }
+        
+        .product-content {
+            padding: 1.5rem;
+        }
+        
+        .product-badge {
+            background: var(--warm-orange);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+        
+        .product-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+        
+        .product-description {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+        
+        .product-price {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .price-current {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--brand-blue);
+        }
+        
+        .price-original {
+            text-decoration: line-through;
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+        
+        .product-features {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+        
+        .product-features li {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .product-features li::before {
+            content: '✓';
+            color: var(--success-green);
+            font-weight: 600;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        .btn-cta {
+            background: var(--warm-orange);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        /* Cart Sidebar */
+        .cart-sidebar {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: var(--bg-primary);
+            border-left: 1px solid var(--border);
+            z-index: 2000;
+            transition: right 0.3s ease;
+            overflow-y: auto;
+        }
+        
+        .cart-sidebar.open {
+            right: 0;
+        }
+        
+        .cart-header {
+            padding: 2rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .cart-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .close-cart {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+        
+        .cart-items {
+            padding: 1rem;
+        }
+        
+        .cart-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .item-image {
+            width: 60px;
+            height: 60px;
+            background: var(--bg-secondary);
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .item-details {
+            flex: 1;
+        }
+        
+        .item-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .item-price {
+            color: var(--brand-blue);
+            font-weight: 600;
+        }
+        
+        .cart-total {
+            padding: 2rem;
+            border-top: 1px solid var(--border);
+            margin-top: auto;
+        }
+        
+        .total-line {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .total-amount {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--brand-blue);
+        }
+        
+        @media (max-width: 768px) {
+            .product-grid { grid-template-columns: 1fr; }
+            .category-grid { grid-template-columns: repeat(2, 1fr); }
+            .cart-sidebar { width: 100%; right: -100%; }
+            .container { padding: 0 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <a href="homepage-complete.html" class="logo">J StaR Store</a>
+                <button class="cart-btn" onclick="toggleCart()">
+                    <i class="fas fa-shopping-cart"></i>
+                    Cart
+                    <span class="cart-count">3</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <section class="header">
+        <div class="container">
+            <h1 class="header-title">Digital Creative Store</h1>
+            <p class="header-subtitle">
+                Premium templates, courses, and resources to accelerate your creative journey.
+            </p>
+        </div>
+    </section>
+
+    <!-- Categories -->
+    <section class="categories">
+        <div class="container">
+            <div class="category-grid">
+                <div class="category-card">
+                    <span class="category-icon">📚</span>
+                    <h3 class="category-title">Courses</h3>
+                </div>
+                <div class="category-card">
+                    <span class="category-icon">🎨</span>
+                    <h3 class="category-title">Templates</h3>
+                </div>
+                <div class="category-card">
+                    <span class="category-icon">🎵</span>
+                    <h3 class="category-title">Audio Packs</h3>
+                </div>
+                <div class="category-card">
+                    <span class="category-icon">🎬</span>
+                    <h3 class="category-title">Video Assets</h3>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products -->
+    <section class="products">
+        <div class="container">
+            <h2 class="section-title">Featured Products</h2>
+            <div class="product-grid">
+                <div class="product-card">
+                    <div class="product-image">📚</div>
+                    <div class="product-content">
+                        <span class="product-badge">BESTSELLER</span>
+                        <h3 class="product-title">Creator Growth Masterclass</h3>
+                        <p class="product-description">
+                            Complete course on building sustainable creative businesses with proven systems.
+                        </p>
+                        <div class="product-price">
+                            <span class="price-current">$197</span>
+                            <span class="price-original">$297</span>
+                        </div>
+                        <ul class="product-features">
+                            <li>12 hours of video content</li>
+                            <li>Notion templates included</li>
+                            <li>Private community access</li>
+                            <li>Lifetime updates</li>
+                        </ul>
+                        <button class="btn btn-cta" onclick="addToCart('masterclass')">
+                            <i class="fas fa-shopping-cart"></i>
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-image">🎨</div>
+                    <div class="product-content">
+                        <span class="product-badge">NEW</span>
+                        <h3 class="product-title">Notion Creator OS Template</h3>
+                        <p class="product-description">
+                            Complete Notion workspace for content creators with automated workflows.
+                        </p>
+                        <div class="product-price">
+                            <span class="price-current">$47</span>
+                        </div>
+                        <ul class="product-features">
+                            <li>Content planning system</li>
+                            <li>Client management CRM</li>
+                            <li>Revenue tracking</li>
+                            <li>Setup tutorial video</li>
+                        </ul>
+                        <button class="btn btn-primary" onclick="addToCart('notion-os')">
+                            <i class="fas fa-download"></i>
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-image">🎵</div>
+                    <div class="product-content">
+                        <span class="product-badge">POPULAR</span>
+                        <h3 class="product-title">Cinematic Audio Pack Vol.1</h3>
+                        <p class="product-description">
+                            50 royalty-free audio tracks for video production and content creation.
+                        </p>
+                        <div class="product-price">
+                            <span class="price-current">$29</span>
+                            <span class="price-original">$49</span>
+                        </div>
+                        <ul class="product-features">
+                            <li>50 high-quality tracks</li>
+                            <li>Multiple formats (WAV, MP3)</li>
+                            <li>Commercial license included</li>
+                            <li>Bonus sound effects</li>
+                        </ul>
+                        <button class="btn btn-primary" onclick="addToCart('audio-pack')">
+                            <i class="fas fa-music"></i>
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-image">🎬</div>
+                    <div class="product-content">
+                        <span class="product-badge">LIMITED</span>
+                        <h3 class="product-title">Color Grading LUTs Collection</h3>
+                        <p class="product-description">
+                            Professional color grading presets for that cinematic look.
+                        </p>
+                        <div class="product-price">
+                            <span class="price-current">$67</span>
+                        </div>
+                        <ul class="product-features">
+                            <li>25 professional LUTs</li>
+                            <li>Before/after examples</li>
+                            <li>Installation guide</li>
+                            <li>Works with major editors</li>
+                        </ul>
+                        <button class="btn btn-primary" onclick="addToCart('luts')">
+                            <i class="fas fa-palette"></i>
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3 class="cart-title">Shopping Cart</h3>
+            <button class="close-cart" onclick="toggleCart()">×</button>
+        </div>
+        
+        <div class="cart-items">
+            <div class="cart-item">
+                <div class="item-image">📚</div>
+                <div class="item-details">
+                    <div class="item-name">Creator Growth Masterclass</div>
+                    <div class="item-price">$197.00</div>
+                </div>
+            </div>
+            <div class="cart-item">
+                <div class="item-image">🎨</div>
+                <div class="item-details">
+                    <div class="item-name">Notion Creator OS</div>
+                    <div class="item-price">$47.00</div>
+                </div>
+            </div>
+            <div class="cart-item">
+                <div class="item-image">🎵</div>
+                <div class="item-details">
+                    <div class="item-name">Audio Pack Vol.1</div>
+                    <div class="item-price">$29.00</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="cart-total">
+            <div class="total-line">
+                <span>Subtotal:</span>
+                <span>$273.00</span>
+            </div>
+            <div class="total-line">
+                <span>Tax:</span>
+                <span>$27.30</span>
+            </div>
+            <div class="total-line" style="border-top: 1px solid var(--border); padding-top: 0.5rem; margin-top: 0.5rem;">
+                <span class="total-amount">Total:</span>
+                <span class="total-amount">$300.30</span>
+            </div>
+            <button class="btn btn-cta" style="margin-top: 1rem;" onclick="checkout()">
+                <i class="fas fa-credit-card"></i>
+                Proceed to Checkout
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function toggleCart() {
+            const sidebar = document.getElementById('cartSidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function addToCart(product) {
+            // Simulate adding to cart
+            alert(`Added ${product} to cart!`);
+            // Update cart count
+            const count = document.querySelector('.cart-count');
+            count.textContent = parseInt(count.textContent) + 1;
+        }
+
+        function checkout() {
+            alert('Redirecting to secure checkout with Stripe/PayPal integration...');
+        }
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+
+        // Close cart when clicking outside
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('cartSidebar');
+            const cartBtn = document.querySelector('.cart-btn');
+            
+            if (!sidebar.contains(e.target) && !cartBtn.contains(e.target)) {
+                sidebar.classList.remove('open');
+            }
+        });
+    </script>
+</body>
+</html>

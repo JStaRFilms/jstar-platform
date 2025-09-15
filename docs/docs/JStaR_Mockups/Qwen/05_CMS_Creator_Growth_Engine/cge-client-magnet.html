@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Client Magnet System - Creator Growth Engine</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'jstar-blue': '#2563EB',
+            'faith-purple': '#8B5CF6',
+            'growth-green': '#059669',
+            'warning-yellow': '#F59E0B'
+          }
+        }
+      }
+    }
+    
+    function addStep() {
+      const sequenceContainer = document.getElementById('sequence-container');
+      const stepNumber = sequenceContainer.children.length + 1;
+      
+      const newStep = document.createElement('div');
+      newStep.className = 'sequence-step bg-gray-50 dark:bg-gray-900 rounded-lg p-4 mb-4';
+      newStep.innerHTML = `
+        <div class="flex justify-between items-start mb-3">
+          <h4 class="font-medium text-gray-900 dark:text-white">Step ${stepNumber}</h4>
+          <button onclick="removeStep(this)" 
+                  class="text-red-500 hover:text-red-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+          <div>
+            <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Delay</label>
+            <div class="flex">
+              <input type="number" value="${stepNumber === 1 ? '0' : stepNumber * 2}" 
+                     class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-l-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+              <select class="bg-white dark:bg-gray-800 border border-l-0 border-gray-300 dark:border-gray-600 rounded-r-lg px-3 py-2">
+                <option>days</option>
+                <option>hours</option>
+              </select>
+            </div>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Email Type</label>
+            <select class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+              <option>Educational</option>
+              <option>Case Study</option>
+              <option>Testimonial</option>
+              <option>Offer</option>
+            </select>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Subject Line</label>
+            <input type="text" placeholder="Enter subject line..." 
+                   class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue"
+                   value="${stepNumber === 1 ? 'Welcome to the Creator Growth Engine' : 'Following up on your interest in ' + document.getElementById('client-type').value}">
+          </div>
+        </div>
+        
+        <div class="mb-3">
+          <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Email Content</label>
+          <textarea rows="4" 
+                    class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-jstar-blue"
+                    placeholder="Write your email content here...">${stepNumber === 1 ? `Hi there,
+
+Thanks for your interest in the Creator Growth Engine! I'm John Oluleke-Oke (J StaR), and I help filmmakers, developers, and faith-driven creators multiply their impact.
+
+I've created a special resource just for you: [Link to Free Resource]
+
+Let me know if you have any questions!
+
+Best regards,
+John` : `Hi there,
+
+Following up on our previous conversation about ${document.getElementById('client-type').value}.
+
+[Add personalized follow-up content here]
+
+Would you be open to a 15-minute call to discuss how I can help you specifically?
+
+Best regards,
+John`}</textarea>
+        </div>
+        
+        <div class="flex justify-end">
+          <button onclick="previewEmail(this)" 
+                  class="px-3 py-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded text-sm">
+            Preview
+          </button>
+        </div>
+      `;
+      
+      sequenceContainer.appendChild(newStep);
+    }
+    
+    function removeStep(button) {
+      const step = button.closest('.sequence-step');
+      step.remove();
+      
+      // Renumber remaining steps
+      document.querySelectorAll('.sequence-step').forEach((step, index) => {
+        const heading = step.querySelector('h4');
+        heading.textContent = `Step ${index + 1}`;
+        
+        const subjectInput = step.querySelector('input[placeholder="Enter subject line..."]');
+        if (index === 0) {
+          subjectInput.value = 'Welcome to the Creator Growth Engine';
+        } else {
+          subjectInput.value = `Following up on your interest in ${document.getElementById('client-type').value}`;
+        }
+      });
+    }
+    
+    function previewEmail(button) {
+      const step = button.closest('.sequence-step');
+      const content = step.querySelector('textarea').value;
+      
+      // In real implementation, this would render a proper email preview
+      alert('Email preview would show here in a modal window');
+    }
+    
+    function saveSequence() {
+      const saveBtn = document.getElementById('save-btn');
+      const originalText = saveBtn.innerHTML;
+      saveBtn.innerHTML = '<svg class="animate-spin h-5 w-5 mr-2 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Saving...';
+      
+      setTimeout(() => {
+        saveBtn.innerHTML = originalText;
+        const successMsg = document.getElementById('sequence-saved');
+        successMsg.classList.remove('hidden');
+        
+        setTimeout(() => {
+          successMsg.classList.add('hidden');
+        }, 3000);
+      }, 1500);
+    }
+    
+    function testSequence() {
+      const testBtn = document.getElementById('test-btn');
+      const originalText = testBtn.innerHTML;
+      testBtn.innerHTML = '<svg class="animate-spin h-5 w-5 mr-2 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Testing...';
+      
+      setTimeout(() => {
+        testBtn.innerHTML = originalText;
+        const successMsg = document.getElementById('sequence-tested');
+        successMsg.classList.remove('hidden');
+        
+        setTimeout(() => {
+          successMsg.classList.add('hidden');
+        }, 3000);
+      }, 2000);
+    }
+    
+    function generateSequence() {
+      const clientType = document.getElementById('client-type').value;
+      const sequenceContainer = document.getElementById('sequence-container');
+      
+      // Clear existing steps
+      sequenceContainer.innerHTML = '';
+      
+      // Add standard sequence based on client type
+      const steps = [
+        {
+          delay: '0',
+          type: 'Educational',
+          subject: `Welcome to the Creator Growth Engine`,
+          content: `Hi there,
+
+Thanks for your interest in the Creator Growth Engine! I'm John Oluleke-Oke (J StaR), and I help filmmakers, developers, and faith-driven creators multiply their impact.
+
+I've created a special resource just for you: [Link to Free Resource]
+
+Let me know if you have any questions!
+
+Best regards,
+John`
+        },
+        {
+          delay: '2',
+          type: 'Case Study',
+          subject: `How a ${clientType} grew from 0 to 50k subscribers in 6 months`,
+          content: `Hi there,
+
+I recently helped a ${clientType.toLowerCase()} grow from 0 to 50k subscribers in just 6 months using my YouTube Virality OS.
+
+[Add specific case study details]
+
+Would you like to learn how this could work for you?
+
+Best regards,
+John`
+        },
+        {
+          delay: '4',
+          type: 'Testimonial',
+          subject: `What other ${clientType.toLowerCase()}s are saying`,
+          content: `Hi there,
+
+Here's what some of my clients in your niche have to say:
+
+"${clientType} testimonial quote here..."
+
+[Add more details]
+
+Would you be open to a 15-minute call to discuss how I can help you specifically?
+
+Best regards,
+John`
+        },
+        {
+          delay: '7',
+          type: 'Offer',
+          subject: `Let's work together: ${clientType} Growth Package`,
+          content: `Hi there,
+
+After learning about your goals, I've put together a custom package to help you grow as a ${clientType}.
+
+[Add specific offer details]
+
+Would you like to schedule a call to discuss this further?
+
+Best regards,
+John`
+        }
+      ];
+      
+      steps.forEach((step, index) => {
+        const newStep = document.createElement('div');
+        newStep.className = 'sequence-step bg-gray-50 dark:bg-gray-900 rounded-lg p-4 mb-4';
+        newStep.innerHTML = `
+          <div class="flex justify-between items-start mb-3">
+            <h4 class="font-medium text-gray-900 dark:text-white">Step ${index + 1}</h4>
+            <button onclick="removeStep(this)" 
+                    class="text-red-500 hover:text-red-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+            <div>
+              <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Delay</label>
+              <div class="flex">
+                <input type="number" value="${step.delay}" 
+                       class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-l-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                <select class="bg-white dark:bg-gray-800 border border-l-0 border-gray-300 dark:border-gray-600 rounded-r-lg px-3 py-2">
+                  <option>days</option>
+                  <option>hours</option>
+                </select>
+              </div>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Email Type</label>
+              <select class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                <option ${step.type === 'Educational' ? 'selected' : ''}>Educational</option>
+                <option ${step.type === 'Case Study' ? 'selected' : ''}>Case Study</option>
+                <option ${step.type === 'Testimonial' ? 'selected' : ''}>Testimonial</option>
+                <option ${step.type === 'Offer' ? 'selected' : ''}>Offer</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Subject Line</label>
+              <input type="text" value="${step.subject}" 
+                     class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Email Content</label>
+            <textarea rows="4" 
+                      class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-jstar-blue">${step.content}</textarea>
+          </div>
+          
+          <div class="flex justify-end">
+            <button onclick="previewEmail(this)" 
+                    class="px-3 py-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded text-sm">
+              Preview
+            </button>
+          </div>
+        `;
+        
+        sequenceContainer.appendChild(newStep);
+      });
+    }
+  </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+  <!-- PRD: FR037 (Client Magnet System) + FR038 (Outreach Sequence Builder) -->
+  <div class="flex">
+    <!-- SIDEBAR -->
+    <div class="w-64 min-h-screen bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 hidden md:block">
+      <div class="p-5 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-jstar-blue to-faith-purple flex items-center justify-center mr-3">
+            <span class="text-white font-bold">J</span>
+          </div>
+          <div>
+            <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Admin • J StaR Films</p>
+          </div>
+        </div>
+      </div>
+      
+      <nav class="mt-5">
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
+          Dashboard
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          User Management
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          Content Management
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          </svg>
+          JohnGPT Settings
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 bg-jstar-blue/10 dark:bg-jstar-blue/20 border-l-4 border-jstar-blue text-jstar-blue dark:text-white font-medium">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v3m-6 5h6" />
+          </svg>
+          Analytics
+        </a>
+        <a href="#" class="flex items-center px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          Settings
+        </a>
+      </nav>
+      
+      <div class="absolute bottom-0 w-64 p-5 border-t border-gray-200 dark:border-gray-700">
+        <a href="#" class="flex items-center text-gray-700 dark:text-gray-300 hover:text-jstar-blue">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0 0l-3-3m3 3l3-3" />
+          </svg>
+          Sign Out
+        </a>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="flex-1">
+      <!-- TOP BAR -->
+      <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between px-6 py-4">
+          <div class="md:hidden">
+            <button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+          
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Client Magnet System</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Part of the Creator Growth Engine Suite (Tier 3)</p>
+          </div>
+          
+          <div class="flex items-center space-x-4">
+            <div class="relative">
+              <button class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-lg font-medium flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                </svg>
+                More Tools
+              </button>
+              <div class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-10">
+                <div class="py-1">
+                  <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">YouTube Virality OS</a>
+                  <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">Systems Launcher Toolkit</a>
+                  <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">Faith Integration Framework</a>
+                </div>
+              </div>
+            </div>
+            
+            <div class="relative">
+              <button class="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+              </button>
+              <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+            </div>
+            
+            <div class="hidden md:flex items-center">
+              <div class="w-8 h-8 rounded-full bg-jstar-blue flex items-center justify-center text-white mr-3">
+                J
+              </div>
+              <div>
+                <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Admin</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CLIENT MAGNET CONTENT -->
+      <div class="p-6">
+        <!-- THEME TOGGLE -->
+        <div class="fixed top-4 right-4 z-50">
+          <button onclick="document.documentElement.classList.toggle('dark')" 
+                  class="p-2 rounded-full bg-jstar-blue text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between">
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Client Magnet System</h2>
+            <p class="text-gray-600 dark:text-gray-400 mt-1">
+              <!-- PRD: Client Magnet Description -->Automated outreach sequences to attract ideal clients and grow your creative business
+            </p>
+          </div>
+          <div class="mt-3 sm:mt-0 flex space-x-2">
+            <button class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-lg font-medium">
+              View Documentation
+            </button>
+            <button class="px-4 py-2 bg-jstar-blue hover:bg-faith-purple text-white rounded-lg font-medium">
+              Connect Email
+            </button>
+          </div>
+        </div>
+        
+        <!-- NAVIGATION TABS -->
+        <div class="border-b border-gray-200 dark:border-gray-700 mb-6">
+          <nav class="-mb-px flex space-x-8">
+            <a href="#" class="border-jstar-blue text-jstar-blue whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm">
+              Outreach Sequences
+            </a>
+            <a href="#" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300 whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm">
+              Lead Capture
+            </a>
+            <a href="#" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300 whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm">
+              Analytics
+            </a>
+            <a href="#" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300 whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm">
+              Templates
+            </a>
+          </nav>
+        </div>
+        
+        <!-- SEQUENCE BUILDER -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 mb-8 border border-gray-200 dark:border-gray-700">
+          <div class="flex justify-between items-start mb-6">
+            <div>
+              <h3 class="text-xl font-bold text-gray-900 dark:text-white">Outreach Sequence Builder</h3>
+              <p class="text-gray-600 dark:text-gray-400">Create automated email sequences to convert leads into clients</p>
+            </div>
+            <div class="flex space-x-2">
+              <button id="test-btn" onclick="testSequence()"
+                      class="px-3 py-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded text-sm">
+                Test Sequence
+              </button>
+              <button id="save-btn" onclick="saveSequence()"
+                      class="px-3 py-1 bg-jstar-blue hover:bg-faith-purple text-white rounded text-sm">
+                Save Sequence
+              </button>
+            </div>
+          </div>
+          
+          <!-- SEQUENCE SETTINGS -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div>
+              <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Client Type</label>
+              <select id="client-type" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                <option>Content Creator</option>
+                <option>Video Editor</option>
+                <option>App Developer</option>
+                <option>Church Leader</option>
+                <option>Small Business Owner</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Sequence Name</label>
+              <input type="text" value="Content Creator Outreach" 
+                     class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Conversion Goal</label>
+              <select class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                <option>Schedule Consultation</option>
+                <option>Purchase Product</option>
+                <option>Join Community</option>
+                <option>Download Resource</option>
+              </select>
+            </div>
+          </div>
+          
+          <!-- SEQUENCE PREVIEW -->
+          <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 mb-6">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center">
+                <div class="w-10 h-10 rounded-full bg-jstar-blue flex items-center justify-center text-white mr-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <p class="font-medium text-gray-900 dark:text-white">Content Creator Outreach</p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">5 emails • 7 day sequence</p>
+                </div>
+              </div>
+              <div class="flex items-center text-green-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                <span class="font-medium">Active</span>
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-5 gap-2">
+              <div class="text-center">
+                <div class="w-8 h-8 rounded-full bg-jstar-blue text-white flex items-center justify-center mx-auto mb-1">1</div>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Day 0</p>
+              </div>
+              <div class="text-center">
+                <div class="w-8 h-8 rounded-full bg-jstar-blue text-white flex items-center justify-center mx-auto mb-1">2</div>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Day 2</p>
+              </div>
+              <div class="text-center">
+                <div class="w-8 h-8 rounded-full bg-jstar-blue text-white flex items-center justify-center mx-auto mb-1">3</div>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Day 4</p>
+              </div>
+              <div class="text-center">
+                <div class="w-8 h-8 rounded-full bg-jstar-blue text-white flex items-center justify-center mx-auto mb-1">4</div>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Day 6</p>
+              </div>
+              <div class="text-center">
+                <div class="w-8 h-8 rounded-full bg-gray-300 text-gray-700 flex items-center justify-center mx-auto mb-1">5</div>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Day 8</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- EMAIL SEQUENCE -->
+          <div id="sequence-container">
+            <!-- STEP 1 -->
+            <div class="sequence-step bg-gray-50 dark:bg-gray-900 rounded-lg p-4 mb-4">
+              <div class="flex justify-between items-start mb-3">
+                <h4 class="font-medium text-gray-900 dark:text-white">Step 1</h4>
+                <button onclick="removeStep(this)" 
+                        class="text-red-500 hover:text-red-600">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+                <div>
+                  <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Delay</label>
+                  <div class="flex">
+                    <input type="number" value="0" 
+                           class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-l-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                    <select class="bg-white dark:bg-gray-800 border border-l-0 border-gray-300 dark:border-gray-600 rounded-r-lg px-3 py-2">
+                      <option>days</option>
+                      <option>hours</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Email Type</label>
+                  <select class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                    <option selected>Educational</option>
+                    <option>Case Study</option>
+                    <option>Testimonial</option>
+                    <option>Offer</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Subject Line</label>
+                  <input type="text" value="Welcome to the Creator Growth Engine" 
+                         class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Email Content</label>
+                <textarea rows="4" 
+                          class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-jstar-blue">Hi there,
+
+Thanks for your interest in the Creator Growth Engine! I'm John Oluleke-Oke (J StaR), and I help filmmakers, developers, and faith-driven creators multiply their impact.
+
+I've created a special resource just for you: [Link to Free Resource]
+
+Let me know if you have any questions!
+
+Best regards,
+John</textarea>
+              </div>
+              
+              <div class="flex justify-end">
+                <button onclick="previewEmail(this)" 
+                        class="px-3 py-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded text-sm">
+                  Preview
+                </button>
+              </div>
+            </div>
+            
+            <!-- STEP 2 -->
+            <div class="sequence-step bg-gray-50 dark:bg-gray-900 rounded-lg p-4 mb-4">
+              <div class="flex justify-between items-start mb-3">
+                <h4 class="font-medium text-gray-900 dark:text-white">Step 2</h4>
+                <button onclick="removeStep(this)" 
+                        class="text-red-500 hover:text-red-600">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+                <div>
+                  <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Delay</label>
+                  <div class="flex">
+                    <input type="number" value="2" 
+                           class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-l-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                    <select class="bg-white dark:bg-gray-800 border border-l-0 border-gray-300 dark:border-gray-600 rounded-r-lg px-3 py-2">
+                      <option selected>days</option>
+                      <option>hours</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Email Type</label>
+                  <select class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                    <option>Educational</option>
+                    <option selected>Case Study</option>
+                    <option>Testimonial</option>
+                    <option>Offer</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Subject Line</label>
+                  <input type="text" value="How a Content Creator grew from 0 to 50k subscribers in 6 months" 
+                         class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Email Content</label>
+                <textarea rows="4" 
+                          class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-jstar-blue">Hi there,
+
+I recently helped a content creator grow from 0 to 50k subscribers in just 6 months using my YouTube Virality OS.
+
+[Add specific case study details]
+
+Would you like to learn how this could work for you?
+
+Best regards,
+John</textarea>
+              </div>
+              
+              <div class="flex justify-end">
+                <button onclick="previewEmail(this)" 
+                        class="px-3 py-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded text-sm">
+                  Preview
+                </button>
+              </div>
+            </div>
+            
+            <!-- STEP 3 -->
+            <div class="sequence-step bg-gray-50 dark:bg-gray-900 rounded-lg p-4 mb-4">
+              <div class="flex justify-between items-start mb-3">
+                <h4 class="font-medium text-gray-900 dark:text-white">Step 3</h4>
+                <button onclick="removeStep(this)" 
+                        class="text-red-500 hover:text-red-600">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+                <div>
+                  <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Delay</label>
+                  <div class="flex">
+                    <input type="number" value="4" 
+                           class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-l-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                    <select class="bg-white dark:bg-gray-800 border border-l-0 border-gray-300 dark:border-gray-600 rounded-r-lg px-3 py-2">
+                      <option selected>days</option>
+                      <option>hours</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Email Type</label>
+                  <select class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                    <option>Educational</option>
+                    <option>Case Study</option>
+                    <option selected>Testimonial</option>
+                    <option>Offer</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Subject Line</label>
+                  <input type="text" value="What other Content Creators are saying" 
+                         class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Email Content</label>
+                <textarea rows="4" 
+                          class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-jstar-blue">Hi there,
+
+Here's what some of my clients in your niche have to say:
+
+"John's approach to integrating faith and technology has transformed how I create content. His tools have helped me grow from 0 to 50k subscribers in just 6 months."
+
+[Add more details]
+
+Would you be open to a 15-minute call to discuss how I can help you specifically?
+
+Best regards,
+John</textarea>
+              </div>
+              
+              <div class="flex justify-end">
+                <button onclick="previewEmail(this)" 
+                        class="px-3 py-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded text-sm">
+                  Preview
+                </button>
+              </div>
+            </div>
+            
+            <!-- STEP 4 -->
+            <div class="sequence-step bg-gray-50 dark:bg-gray-900 rounded-lg p-4 mb-4">
+              <div class="flex justify-between items-start mb-3">
+                <h4 class="font-medium text-gray-900 dark:text-white">Step 4</h4>
+                <button onclick="removeStep(this)" 
+                        class="text-red-500 hover:text-red-600">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+                <div>
+                  <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Delay</label>
+                  <div class="flex">
+                    <input type="number" value="7" 
+                           class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-l-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                    <select class="bg-white dark:bg-gray-800 border border-l-0 border-gray-300 dark:border-gray-600 rounded-r-lg px-3 py-2">
+                      <option selected>days</option>
+                      <option>hours</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Email Type</label>
+                  <select class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                    <option>Educational</option>
+                    <option>Case Study</option>
+                    <option>Testimonial</option>
+                    <option selected>Offer</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Subject Line</label>
+                  <input type="text" value="Let's work together: Content Creator Growth Package" 
+                         class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jstar-blue">
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Email Content</label>
+                <textarea rows="4" 
+                          class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-jstar-blue">Hi there,
+
+After learning about your goals, I've put together a custom package to help you grow as a content creator.
+
+[Add specific offer details]
+
+Would you like to schedule a call to discuss this further?
+
+Best regards,
+John</textarea>
+              </div>
+              
+              <div class="flex justify-end">
+                <button onclick="previewEmail(this)" 
+                        class="px-3 py-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded text-sm">
+                  Preview
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- ADD STEP BUTTON -->
+          <div class="flex justify-center mt-4">
+            <button onclick="addStep()" 
+                    class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-lg font-medium flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              Add Step
+            </button>
+          </div>
+          
+          <!-- AI PROMPT BUTTON -->
+          <div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+            <div class="flex items-start">
+              <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3 flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+              </div>
+              <div>
+                <h4 class="font-medium text-gray-900 dark:text-white mb-1">Use JohnGPT to Generate Sequence</h4>
+                <p class="text-gray-600 dark:text-gray-400 mb-2">Let AI create a personalized outreach sequence for your ideal client type</p>
+                <button onclick="generateSequence()" 
+                        class="px-3 py-1 bg-jstar-blue hover:bg-faith-purple text-white rounded text-sm">
+                  Generate with JohnGPT
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- LEAD ANALYTICS -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 mb-8 border border-gray-200 dark:border-gray-700">
+          <div class="flex justify-between items-start mb-6">
+            <div>
+              <h3 class="text-xl font-bold text-gray-900 dark:text-white">Lead Analytics</h3>
+              <p class="text-gray-600 dark:text-gray-400">Track the performance of your outreach sequences</p>
+            </div>
+            <div class="flex space-x-2">
+              <button class="px-3 py-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded text-sm">This Week</button>
+              <button class="px-3 py-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded text-sm">This Month</button>
+              <button class="px-3 py-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded text-sm">This Year</button>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <!-- LEAD STATS -->
+            <div class="bg-gray-50 dark:bg-gray-900 rounded-xl p-6">
+              <div class="flex justify-between items-start mb-4">
+                <div>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">Total Leads</p>
+                  <p class="text-2xl font-bold text-gray-900 dark:text-white">147</p>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                </div>
+              </div>
+              
+              <div class="flex items-center">
+                <span class="text-green-500 mr-1">↑ 22.3%</span>
+                <span class="text-sm text-gray-500 dark:text-gray-400">from last period</span>
+              </div>
+            </div>
+            
+            <!-- CONVERSION RATE -->
+            <div class="bg-gray-50 dark:bg-gray-900 rounded-xl p-6">
+              <div class="flex justify-between items-start mb-4">
+                <div>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">Conversion Rate</p>
+                  <p class="text-2xl font-bold text-gray-900 dark:text-white">18.4%</p>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+              </div>
+              
+              <div class="flex items-center">
+                <span class="text-green-500 mr-1">↑ 5.2%</span>
+                <span class="text-sm text-gray-500 dark:text-gray-400">from last period</span>
+              </div>
+            </div>
+            
+            <!-- REVENUE GENERATED -->
+            <div class="bg-gray-50 dark:bg-gray-900 rounded-xl p-6">
+              <div class="flex justify-between items-start mb-4">
+                <div>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">Revenue Generated</p>
+                  <p class="text-2xl font-bold text-gray-900 dark:text-white">$8,427</p>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+              </div>
+              
+              <div class="flex items-center">
+                <span class="text-green-500 mr-1">↑ 27.8%</span>
+                <span class="text-sm text-gray-500 dark:text-gray-400">from last period</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- LEAD CONVERSION CHART -->
+          <div class="h-80 flex items-center justify-center bg-gray-50 dark:bg-gray-900 rounded-xl p-6">
+            <div class="text-center">
+              <div class="flex justify-center mb-6">
+                <!-- Simulated bar chart -->
+                <div class="flex-1 flex flex-col items-center">
+                  <div class="flex-1 bg-jstar-blue w-10 rounded-t" style="height: 70%"></div>
+                  <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Step 1</p>
+                </div>
+                <div class="flex-1 flex flex-col items-center">
+                  <div class="flex-1 bg-jstar-blue w-10 rounded-t" style="height: 55%"></div>
+                  <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Step 2</p>
+                </div>
+                <div class="flex-1 flex flex-col items-center">
+                  <div class="flex-1 bg-jstar-blue w-10 rounded-t" style="height: 40%"></div>
+                  <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Step 3</p>
+                </div>
+                <div class="flex-1 flex flex-col items-center">
+                  <div class="flex-1 bg-jstar-blue w-10 rounded-t" style="height: 25%"></div>
+                  <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Step 4</p>
+                </div>
+                <div class="flex-1 flex flex-col items-center">
+                  <div class="flex-1 bg-growth-green w-10 rounded-t" style="height: 18%"></div>
+                  <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Converted</p>
+                </div>
+              </div>
+              
+              <div class="mt-4">
+                <p class="text-gray-600 dark:text-gray-400">Lead progression through your outreach sequence</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- TIER 3 FEATURES -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+          <div class="flex flex-col md:flex-row md:items-start">
+            <div class="md:mr-4 mb-3 md:mb-0">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-bold text-gray-900 dark:text-white mb-1">Tier 3 Exclusive Features</h3>
+              <p class="text-gray-700 dark:text-gray-300 mb-3">
+                <!-- PRD: Tier 3 Features -->These advanced client acquisition tools are available to Tier 3 subscribers:
+              </p>
+              <ul class="list-disc pl-5 space-y-1 text-gray-700 dark:text-gray-300 mb-4">
+                <li>Automated outreach sequences with JohnGPT optimization (FR038)</li>
+                <li>Lead capture forms with faith-based filtering</li>
+                <li>Conversion analytics dashboard with performance metrics</li>
+                <li>Customizable email templates for different client types</li>
+                <li>Integration with email service providers</li>
+              </ul>
+              <button class="bg-gradient-to-r from-jstar-blue to-faith-purple text-white font-medium py-2 px-4 rounded-full">
+                Upgrade to Tier 3 for Full Access
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

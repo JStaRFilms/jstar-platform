@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Public Vault - J StaR Knowledge Base</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+            --link-color: #3182CE;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+            --link-color: #63B3ED;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 2rem; }
+        
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+        
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+        
+        .vault-layout {
+            display: grid;
+            grid-template-columns: 300px 1fr 250px;
+            gap: 2rem;
+            padding-top: 100px;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            padding: 2rem 1rem;
+            position: sticky;
+            top: 100px;
+            height: calc(100vh - 100px);
+            overflow-y: auto;
+        }
+        
+        .sidebar-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .search-box {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .folder-tree {
+            list-style: none;
+        }
+        
+        .folder-item {
+            margin-bottom: 0.5rem;
+        }
+        
+        .folder-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            cursor: pointer;
+            border-radius: 0.25rem;
+            transition: background 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .folder-toggle:hover {
+            background: var(--bg-primary);
+        }
+        
+        .folder-icon {
+            color: var(--warm-orange);
+            width: 16px;
+        }
+        
+        .file-list {
+            list-style: none;
+            margin-left: 1.5rem;
+            padding-left: 1rem;
+            border-left: 1px solid var(--border);
+        }
+        
+        .file-item {
+            margin: 0.25rem 0;
+        }
+        
+        .file-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+        
+        .file-link:hover,
+        .file-link.active {
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        .file-icon {
+            color: var(--brand-blue);
+            width: 14px;
+        }
+        
+        .main-content {
+            padding: 2rem;
+            background: var(--bg-primary);
+            border-radius: 0.5rem;
+            border: 1px solid var(--border);
+            max-width: none;
+        }
+        
+        .note-header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .note-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        
+        .note-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .note-content h1,
+        .note-content h2,
+        .note-content h3 {
+            margin: 2rem 0 1rem 0;
+            color: var(--text-primary);
+        }
+        
+        .note-content h1 { font-size: 1.75rem; }
+        .note-content h2 { font-size: 1.5rem; }
+        .note-content h3 { font-size: 1.25rem; }
+        
+        .note-content p {
+            margin-bottom: 1rem;
+            line-height: 1.7;
+        }
+        
+        .note-content ul,
+        .note-content ol {
+            margin: 1rem 0;
+            padding-left: 2rem;
+        }
+        
+        .note-content li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .internal-link {
+            color: var(--link-color);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.125rem 0.25rem;
+            border-radius: 0.25rem;
+            background: rgba(74, 144, 226, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .internal-link:hover {
+            background: rgba(74, 144, 226, 0.2);
+        }
+        
+        .tag {
+            display: inline-block;
+            background: var(--creative-teal);
+            color: white;
+            padding: 0.125rem 0.5rem;
+            border-radius: 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin: 0.125rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .tag:hover {
+            background: var(--brand-blue);
+        }
+        
+        .blockquote {
+            border-left: 4px solid var(--brand-blue);
+            margin: 1.5rem 0;
+            padding: 1rem 1.5rem;
+            background: var(--bg-secondary);
+            border-radius: 0.5rem;
+            font-style: italic;
+        }
+        
+        .code-block {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+        }
+        
+        .backlinks-panel {
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border);
+            padding: 2rem 1rem;
+            position: sticky;
+            top: 100px;
+            height: calc(100vh - 100px);
+            overflow-y: auto;
+        }
+        
+        .panel-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+        
+        .backlink-item {
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: var(--bg-primary);
+            border-radius: 0.5rem;
+            border: 1px solid var(--border);
+        }
+        
+        .backlink-title {
+            font-weight: 500;
+            color: var(--link-color);
+            margin-bottom: 0.25rem;
+            font-size: 0.875rem;
+        }
+        
+        .backlink-context {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .graph-view {
+            width: 200px;
+            height: 150px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        @media (max-width: 1024px) {
+            .vault-layout {
+                grid-template-columns: 250px 1fr;
+            }
+            .backlinks-panel {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .vault-layout {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                position: relative;
+                height: auto;
+                top: 0;
+            }
+            .container { padding: 0 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <a href="homepage-complete.html" class="logo">J StaR Vault</a>
+                <div style="color: var(--text-secondary); font-size: 0.875rem;">
+                    <i class="fas fa-book"></i> Public Knowledge Base
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="vault-layout">
+            <!-- Sidebar Navigation -->
+            <aside class="sidebar">
+                <h3 class="sidebar-title">
+                    <i class="fas fa-folder-open"></i>
+                    Knowledge Vault
+                </h3>
+                
+                <input type="text" class="search-box" placeholder="Search notes...">
+                
+                <ul class="folder-tree">
+                    <li class="folder-item">
+                        <div class="folder-toggle">
+                            <i class="fas fa-folder folder-icon"></i>
+                            <span>Creative Systems</span>
+                        </div>
+                        <ul class="file-list">
+                            <li class="file-item">
+                                <a href="#" class="file-link active">
+                                    <i class="fas fa-file-alt file-icon"></i>
+                                    The Creator's Operating System
+                                </a>
+                            </li>
+                            <li class="file-item">
+                                <a href="#" class="file-link">
+                                    <i class="fas fa-file-alt file-icon"></i>
+                                    Content Creation Framework
+                                </a>
+                            </li>
+                            <li class="file-item">
+                                <a href="#" class="file-link">
+                                    <i class="fas fa-file-alt file-icon"></i>
+                                    Systems Thinking Principles
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    
+                    <li class="folder-item">
+                        <div class="folder-toggle">
+                            <i class="fas fa-folder folder-icon"></i>
+                            <span>Technology & AI</span>
+                        </div>
+                        <ul class="file-list">
+                            <li class="file-item">
+                                <a href="#" class="file-link">
+                                    <i class="fas fa-file-alt file-icon"></i>
+                                    AI Integration Strategies
+                                </a>
+                            </li>
+                            <li class="file-item">
+                                <a href="#" class="file-link">
+                                    <i class="fas fa-file-alt file-icon"></i>
+                                    Local-First Development
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    
+                    <li class="folder-item">
+                        <div class="folder-toggle">
+                            <i class="fas fa-folder folder-icon"></i>
+                            <span>Faith & Purpose</span>
+                        </div>
+                        <ul class="file-list">
+                            <li class="file-item">
+                                <a href="#" class="file-link">
+                                    <i class="fas fa-file-alt file-icon"></i>
+                                    Purpose-Driven Business
+                                </a>
+                            </li>
+                            <li class="file-item">
+                                <a href="#" class="file-link">
+                                    <i class="fas fa-file-alt file-icon"></i>
+                                    Faith in Creative Work
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    
+                    <li class="folder-item">
+                        <div class="folder-toggle">
+                            <i class="fas fa-folder folder-icon"></i>
+                            <span>Business Strategy</span>
+                        </div>
+                        <ul class="file-list">
+                            <li class="file-item">
+                                <a href="#" class="file-link">
+                                    <i class="fas fa-file-alt file-icon"></i>
+                                    Revenue Diversification
+                                </a>
+                            </li>
+                            <li class="file-item">
+                                <a href="#" class="file-link">
+                                    <i class="fas fa-file-alt file-icon"></i>
+                                    Client Acquisition Systems
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <div class="note-header">
+                    <h1 class="note-title">The Creator's Operating System</h1>
+                    <div class="note-meta">
+                        <span><i class="fas fa-calendar"></i> Created: Dec 15, 2024</span>
+                        <span><i class="fas fa-edit"></i> Last modified: Dec 20, 2024</span>
+                        <span><i class="fas fa-eye"></i> 847 views</span>
+                    </div>
+                </div>
+
+                <div class="note-content">
+                    <p>Every successful creator needs more than just talent—they need <strong>systems</strong>. This note explores the fundamental framework I've developed for building a sustainable creative business.</p>
+
+                    <h2>Core Principles</h2>
+                    
+                    <p>The Creator's Operating System is built on three foundational pillars:</p>
+                    
+                    <ul>
+                        <li><strong>Create:</strong> Consistent content production with <a href="#" class="internal-link">Content Creation Framework</a></li>
+                        <li><strong>Connect:</strong> Authentic audience building and community engagement</li>
+                        <li><strong>Convert:</strong> Strategic monetization that serves your audience</li>
+                    </ul>
+
+                    <div class="blockquote">
+                        "A creator without systems is just a hobbyist with good intentions. Systems turn passion into sustainable impact."
+                    </div>
+
+                    <h2>The Four Quadrants</h2>
+
+                    <h3>1. Creative Production</h3>
+                    <p>Your content creation engine needs to be both consistent and scalable. This involves:</p>
+                    <ul>
+                        <li>Batch content creation sessions</li>
+                        <li>Repurposing strategies across platforms</li>
+                        <li>Quality control processes</li>
+                        <li>Archive and knowledge management</li>
+                    </ul>
+
+                    <h3>2. Audience Development</h3>
+                    <p>Building genuine relationships at scale requires systematic approaches to:</p>
+                    <ul>
+                        <li>Community engagement protocols</li>
+                        <li>Value-first content strategy</li>
+                        <li>Cross-platform audience migration</li>
+                        <li>Email list building and nurturing</li>
+                    </ul>
+
+                    <h3>3. Revenue Generation</h3>
+                    <p>Multiple income streams provide stability and growth. Key areas include:</p>
+                    <ul>
+                        <li>Service offerings (1-to-1)</li>
+                        <li>Digital products (1-to-many)</li>
+                        <li>Community/membership (ongoing)</li>
+                        <li>Strategic partnerships and affiliates</li>
+                    </ul>
+
+                    <h3>4. Business Operations</h3>
+                    <p>The backend systems that keep everything running smoothly:</p>
+                    <ul>
+                        <li>Client onboarding and project management</li>
+                        <li>Financial tracking and tax preparation</li>
+                        <li>Legal structures and intellectual property</li>
+                        <li>Team building and delegation</li>
+                    </ul>
+
+                    <div class="code-block">
+// Example: Content Creation Workflow
+1. Idea Generation (Weekly brainstorm)
+2. Content Calendar Planning (Monthly)
+3. Batch Creation (2-3 focused sessions)
+4. Quality Review & Editing
+5. Scheduling & Distribution
+6. Performance Analysis & Iteration
+                    </div>
+
+                    <h2>Implementation Strategy</h2>
+
+                    <p>Start with <strong>one quadrant</strong> and build systematically. Most creators should begin with Creative Production, as this provides the foundation for everything else.</p>
+
+                    <p>See also: <a href="#" class="internal-link">Systems Thinking Principles</a> and <a href="#" class="internal-link">Revenue Diversification</a> for deeper dives into specific areas.</p>
+
+                    <div style="margin: 2rem 0;">
+                        <strong>Tags:</strong> 
+                        <span class="tag">#systems</span>
+                        <span class="tag">#creators</span>
+                        <span class="tag">#business</span>
+                        <span class="tag">#framework</span>
+                        <span class="tag">#strategy</span>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Backlinks Panel -->
+            <aside class="backlinks-panel">
+                <h3 class="panel-title">Backlinks (4)</h3>
+                
+                <div class="backlink-item">
+                    <div class="backlink-title">Content Creation Framework</div>
+                    <div class="backlink-context">...builds on the Creative Production pillar of the Creator's Operating System...</div>
+                </div>
+                
+                <div class="backlink-item">
+                    <div class="backlink-title">Revenue Diversification</div>
+                    <div class="backlink-context">...as outlined in the Creator's Operating System, multiple income streams...</div>
+                </div>
+                
+                <div class="backlink-item">
+                    <div class="backlink-title">Systems Thinking Principles</div>
+                    <div class="backlink-context">...fundamental to building any Creator's Operating System...</div>
+                </div>
+                
+                <div class="backlink-item">
+                    <div class="backlink-title">Purpose-Driven Business</div>
+                    <div class="backlink-context">...integrates seamlessly with the Creator's Operating System approach...</div>
+                </div>
+
+                <h3 class="panel-title" style="margin-top: 2rem;">Local Graph</h3>
+                <div class="graph-view">
+                    📊 Interactive graph view<br>
+                    (Connected notes visualization)
+                </div>
+
+                <h3 class="panel-title" style="margin-top: 2rem;">Outline</h3>
+                <ul style="list-style: none; font-size: 0.875rem; color: var(--text-secondary);">
+                    <li style="margin: 0.25rem 0;"><a href="#" style="color: var(--link-color); text-decoration: none;">Core Principles</a></li>
+                    <li style="margin: 0.25rem 0;"><a href="#" style="color: var(--link-color); text-decoration: none;">The Four Quadrants</a></li>
+                    <li style="margin-left: 1rem; margin: 0.25rem 0;"><a href="#" style="color: var(--link-color); text-decoration: none;">Creative Production</a></li>
+                    <li style="margin-left: 1rem; margin: 0.25rem 0;"><a href="#" style="color: var(--link-color); text-decoration: none;">Audience Development</a></li>
+                    <li style="margin-left: 1rem; margin: 0.25rem 0;"><a href="#" style="color: var(--link-color); text-decoration: none;">Revenue Generation</a></li>
+                    <li style="margin-left: 1rem; margin: 0.25rem 0;"><a href="#" style="color: var(--link-color); text-decoration: none;">Business Operations</a></li>
+                    <li style="margin: 0.25rem 0;"><a href="#" style="color: var(--link-color); text-decoration: none;">Implementation Strategy</a></li>
+                </ul>
+            </aside>
+        </div>
+    </div>
+
+    <script>
+        // Folder toggle functionality
+        const folderToggles = document.querySelectorAll('.folder-toggle');
+        folderToggles.forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                const fileList = toggle.nextElementSibling;
+                const icon = toggle.querySelector('.folder-icon');
+                
+                if (fileList.style.display === 'none' || !fileList.style.display) {
+                    fileList.style.display = 'block';
+                    icon.className = 'fas fa-folder-open folder-icon';
+                } else {
+                    fileList.style.display = 'none';
+                    icon.className = 'fas fa-folder folder-icon';
+                }
+            });
+        });
+
+        // File link navigation
+        const fileLinks = document.querySelectorAll('.file-link');
+        fileLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                fileLinks.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                // Here you would normally load the corresponding note content
+            });
+        });
+
+        // Search functionality
+        const searchBox = document.querySelector('.search-box');
+        searchBox.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const fileLinks = document.querySelectorAll('.file-link');
+            
+            fileLinks.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('.file-item');
+                if (text.includes(query)) {
+                    listItem.style.display = 'block';
+                } else {
+                    listItem.style.display = query ? 'none' : 'block';
+                }
+            });
+        });
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

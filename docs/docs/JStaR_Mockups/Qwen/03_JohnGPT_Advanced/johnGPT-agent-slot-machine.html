@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent Slot Machine - JohnGPT</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'jstar-blue': '#2563EB',
+            'faith-purple': '#8B5CF6',
+            'gemini-yellow': '#FACC15',
+            'gpt-blue': '#1DA1F2',
+            'llama-orange': '#F97316'
+          }
+        }
+      }
+    }
+    
+    function runComparison() {
+      // Hide instructions
+      document.getElementById('instructions').classList.add('hidden');
+      
+      // Show loading
+      document.getElementById('loading').classList.remove('hidden');
+      
+      // Simulate results after delay
+      setTimeout(() => {
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('results').classList.remove('hidden');
+      }, 2000);
+    }
+    
+    function resetComparison() {
+      document.getElementById('results').classList.add('hidden');
+      document.getElementById('instructions').classList.remove('hidden');
+    }
+  </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+  <div class="max-w-6xl mx-auto px-6 py-12">
+    <!-- PRD: FR023 (Test Multiple AI Models) -->
+    <header class="text-center mb-8">
+      <div class="w-16 h-16 rounded-full bg-gradient-to-br from-jstar-blue to-faith-purple flex items-center justify-center mx-auto mb-4">
+        <span class="text-white text-2xl font-bold">JG</span>
+      </div>
+      <h1 class="text-3xl font-bold mb-2 text-gray-900 dark:text-white">Agent Slot Machine</h1>
+      <p class="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+        <!-- PRD: Slot Machine Description -->Run the same prompt through multiple AI models and compare outputs side-by-side
+      </p>
+    </header>
+
+    <!-- THEME TOGGLE -->
+    <div class="fixed top-4 right-4 z-50">
+      <button onclick="document.documentElement.classList.toggle('dark')" 
+              class="p-2 rounded-full bg-jstar-blue text-white">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- PROMPT INPUT -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 mb-8 border border-gray-200 dark:border-gray-700">
+      <div class="flex flex-col md:flex-row md:items-start gap-4">
+        <div class="md:w-1/3">
+          <h2 class="text-xl font-bold mb-3 text-gray-900 dark:text-white">Your Prompt</h2>
+          <p class="text-gray-600 dark:text-gray-400 mb-4">
+            Enter the prompt you want to test across different AI models
+          </p>
+          
+          <div class="space-y-3">
+            <div class="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+              <p class="text-gray-700 dark:text-gray-300 font-medium">YouTube Title Generator</p>
+              <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Generate 5 YouTube title options for a video about faith in tech</p>
+            </div>
+            
+            <div class="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+              <p class="text-gray-700 dark:text-gray-300 font-medium">Thumbnail Color Scheme</p>
+              <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Recommend a color palette for a YouTube video about AI ethics</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="md:w-2/3">
+          <textarea rows="5" 
+                    class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-jstar-blue mb-4"
+                    placeholder="Enter your prompt here...">Generate 5 YouTube title options for a video about integrating faith and technology in software development</textarea>
+          
+          <div class="flex flex-wrap gap-2 mb-4">
+            <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">#YouTube</span>
+            <span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded">#Faith</span>
+            <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded">#AI</span>
+          </div>
+          
+          <button onclick="runComparison()" 
+                  class="w-full bg-gradient-to-r from-jstar-blue to-faith-purple text-white font-bold py-3 px-4 rounded-lg transition">
+            Run Comparison
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- INSTRUCTIONS -->
+    <div id="instructions" class="text-center mb-12">
+      <div class="w-24 h-24 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center mx-auto mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+      </div>
+      <h2 class="text-2xl font-bold mb-3 text-gray-900 dark:text-white">How It Works</h2>
+      <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-6">
+        Enter a prompt and see how different AI models respond. Perfect for finding the best model for your specific creative needs.
+      </p>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+        <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700">
+          <div class="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900 flex items-center justify-center mb-3 mx-auto">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 8v12m0 0l-4-4m4 4l4-4m-4-8V6m0 0l-4 4m4-4l4 4" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold mb-2 text-gray-900 dark:text-white">Select Models</h3>
+          <p class="text-gray-600 dark:text-gray-400">Choose which AI models to compare (Gemini, GPT-4o, Llama3, etc.)</p>
+        </div>
+        
+        <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700">
+          <div class="w-10 h-10 rounded-lg bg-yellow-100 dark:bg-yellow-900 flex items-center justify-center mb-3 mx-auto">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold mb-2 text-gray-900 dark:text-white">Run Comparison</h3>
+          <p class="text-gray-600 dark:text-gray-400">Click "Run Comparison" to see side-by-side results</p>
+        </div>
+        
+        <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700">
+          <div class="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900 flex items-center justify-center mb-3 mx-auto">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold mb-2 text-gray-900 dark:text-white">Choose Best Output</h3>
+          <p class="text-gray-600 dark:text-gray-400">Save your preferred response or use it directly in your project</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOADING STATE -->
+    <div id="loading" class="hidden text-center mb-12">
+      <div class="flex justify-center mb-6">
+        <div class="w-16 h-16 rounded-full bg-jstar-blue flex items-center justify-center mr-4 animate-spin">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </div>
+        <div class="w-16 h-16 rounded-full bg-faith-purple flex items-center justify-center mr-4 animate-spin" style="animation-delay: -0.2s">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </div>
+        <div class="w-16 h-16 rounded-full bg-gemini-yellow flex items-center justify-center animate-spin" style="animation-delay: -0.4s">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </div>
+      </div>
+      <h2 class="text-2xl font-bold mb-3 text-gray-900 dark:text-white">Running Comparison...</h2>
+      <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+        Testing your prompt across 3 AI models. This usually takes 5-10 seconds.
+      </p>
+    </div>
+
+    <!-- RESULTS -->
+    <div id="results" class="hidden">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Comparison Results</h2>
+        <button onclick="resetComparison()" 
+                class="text-jstar-blue hover:text-faith-purple font-medium flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Run New Comparison
+        </button>
+      </div>
+      
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- GEMINI RESULTS -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl overflow-hidden border-2 border-yellow-400">
+          <div class="p-4 bg-yellow-400 text-white font-bold">
+            <div class="flex items-center">
+              <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center mr-3">
+                <span class="text-yellow-400 font-bold">G</span>
+              </div>
+              <span>Gemini Pro</span>
+            </div>
+          </div>
+          
+          <div class="p-5">
+            <h3 class="text-lg font-bold mb-3 text-gray-900 dark:text-white">Generated Titles</h3>
+            
+            <ol class="list-decimal pl-5 space-y-2 text-gray-700 dark:text-gray-300">
+              <li>"Faith in Code: How Christian Values Shape My Software Development"</li>
+              <li>"5 Ways Faith Makes You a Better Developer (Data-Backed)"</li>
+              <li>"The God-Driven Developer: Integrating Faith and Technology"</li>
+              <li>"Why Your Tech Career Needs Spiritual Foundation (Surprising Results)"</li>
+              <li>"From Prayer to Production: A Developer's Faith Journey"</li>
+            </ol>
+            
+            <div class="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+              <p class="text-sm text-yellow-800 dark:text-yellow-200">
+                <strong>Strengths:</strong> Strong curiosity gaps, good use of numbers, clear value proposition
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- GPT-4 RESULTS -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl overflow-hidden border-2 border-blue-500">
+          <div class="p-4 bg-blue-500 text-white font-bold">
+            <div class="flex items-center">
+              <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center mr-3">
+                <span class="text-blue-500 font-bold">G</span>
+              </div>
+              <span>GPT-4o</span>
+            </div>
+          </div>
+          
+          <div class="p-5">
+            <h3 class="text-lg font-bold mb-3 text-gray-900 dark:text-white">Generated Titles</h3>
+            
+            <ol class="list-decimal pl-5 space-y-2 text-gray-700 dark:text-gray-300">
+              <li>"Faith-Driven Coding: How My Christian Values Transform Software Development"</li>
+              <li>"The Developer's Prayer: 7 Ways Faith Improves Your Technical Work"</li>
+              <li>"Beyond Algorithms: Finding Spiritual Meaning in Code"</li>
+              <li>"Why Tech Needs More Faith-Based Developers (And How to Start)"</li>
+              <li>"From Church to Code: A Developer's Journey of Faith and Innovation"</li>
+            </ol>
+            
+            <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+              <p class="text-sm text-blue-800 dark:text-blue-200">
+                <strong>Strengths:</strong> Excellent emotional resonance, strong faith integration, compelling storytelling
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- LLAMA3 RESULTS -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl overflow-hidden border-2 border-orange-500">
+          <div class="p-4 bg-orange-500 text-white font-bold">
+            <div class="flex items-center">
+              <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center mr-3">
+                <span class="text-orange-500 font-bold">L</span>
+              </div>
+              <span>Llama3 70B</span>
+            </div>
+          </div>
+          
+          <div class="p-5">
+            <h3 class="text-lg font-bold mb-3 text-gray-900 dark:text-white">Generated Titles</h3>
+            
+            <ol class="list-decimal pl-5 space-y-2 text-gray-700 dark:text-gray-300">
+              <li>"Code and Conviction: How Faith Shapes My Development Process"</li>
+              <li>"5 Technical Practices Informed by Christian Principles"</li>
+              <li>"The Ethical Developer: Building Tech with Spiritual Integrity"</li>
+              <li>"When Algorithms Meet Altar: A Developer's Perspective"</li>
+              <li>"Faith-Based Optimization: How Spirituality Improves Your Code"</li>
+            </ol>
+            
+            <div class="mt-4 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-800">
+              <p class="text-sm text-orange-800 dark:text-orange-200">
+                <strong>Strengths:</strong> Strong ethical focus, good technical integration, unique angles
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- COMPARISON ANALYSIS -->
+      <div class="mt-8 bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+        <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Which Model Performed Best?</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h3 class="text-xl font-semibold mb-3 text-gray-900 dark:text-white">Performance Analysis</h3>
+            
+            <div class="space-y-4">
+              <div>
+                <div class="flex justify-between mb-1">
+                  <span>Gemini Pro</span>
+                  <span>8.2/10</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                  <div class="bg-yellow-400 h-2.5 rounded-full" style="width: 82%"></div>
+                </div>
+              </div>
+              
+              <div>
+                <div class="flex justify-between mb-1">
+                  <span>GPT-4o</span>
+                  <span>9.1/10</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                  <div class="bg-blue-500 h-2.5 rounded-full" style="width: 91%"></div>
+                </div>
+              </div>
+              
+              <div>
+                <div class="flex justify-between mb-1">
+                  <span>Llama3 70B</span>
+                  <span>7.8/10</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                  <div class="bg-orange-500 h-2.5 rounded-full" style="width: 78%"></div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+              <p class="text-blue-800 dark:text-blue-200">
+                <strong>Winner: GPT-4o</strong> - Best balance of faith integration, viral potential, 
+                and technical accuracy for this prompt.
+              </p>
+            </div>
+          </div>
+          
+          <div>
+            <h3 class="text-xl font-semibold mb-3 text-gray-900 dark:text-white">Recommendation</h3>
+            <p class="text-gray-700 dark:text-gray-300 mb-4">
+              For faith-based content creation, GPT-4o provides the best combination of:
+            </p>
+            
+            <ul class="space-y-2 text-gray-700 dark:text-gray-300">
+              <li class="flex items-start">
+                <svg class="h-5 w-5 text-green-500 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Strong emotional resonance with Christian audience</span>
+              </li>
+              <li class="flex items-start">
+                <svg class="h-5 w-5 text-green-500 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Clear value proposition in titles</span>
+              </li>
+              <li class="flex items-start">
+                <svg class="h-5 w-5 text-green-500 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Proper integration of technical and spiritual concepts</span>
+              </li>
+            </ul>
+            
+            <div class="mt-6">
+              <h4 class="font-medium text-gray-900 dark:text-white mb-2">Next Steps:</h4>
+              <button class="w-full bg-gradient-to-r from-jstar-blue to-faith-purple text-white font-medium py-2 px-4 rounded-lg">
+                Use GPT-4o Output for My Video
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

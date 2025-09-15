@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JOHNGPT | AI Creator Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #171717;
+            --bg-secondary: #000000;
+            --bg-tertiary: #262626;
+            --text-primary: #f5f5f5;
+            --text-secondary: #a3a3a3;
+            --accent-purple: #8B5CF6;
+            --accent-blue: #3B82F6;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+        }
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+        ::-webkit-scrollbar-thumb { background-color: var(--bg-tertiary); border-radius: 10px; border: 2px solid var(--bg-secondary); }
+        
+        .message-actions { opacity: 0; transition: opacity 0.2s ease-in-out; }
+        .ai-message-group:hover .message-actions { opacity: 1; }
+    </style>
+</head>
+<body>
+    <div class="flex h-screen bg-black">
+
+        <!-- Sidebar -->
+        <aside class="w-72 bg-black flex flex-col p-2">
+            <div class="flex items-center justify-between p-2 mb-4">
+                <div class="flex items-center gap-2">
+                    <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-accent-blue to-accent-purple"></div>
+                    <span class="font-semibold text-lg text-white">JOHNGPT</span>
+                </div>
+                <button class="p-2 rounded-lg text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors" title="New Chat">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto space-y-1 pr-1">
+                <div class="text-xs text-neutral-500 font-medium px-2 mb-2">Today</div>
+                <a href="#" class="block text-sm px-3 py-2 rounded-lg truncate bg-neutral-800 text-white">Brand Identity for New Project</a>
+                <a href="#" class="block text-sm px-3 py-2 rounded-lg truncate text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors">YouTube Content Strategy</a>
+                <div class="text-xs text-neutral-500 font-medium px-2 pt-4 mb-2">Previous 7 Days</div>
+                <a href="#" class="block text-sm px-3 py-2 rounded-lg truncate text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors">Wedding Cinematography Pricing</a>
+                <a href="#" class="block text-sm px-3 py-2 rounded-lg truncate text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors">Scriptwriting for Short Films</a>
+            </div>
+
+            <div class="p-2 space-y-1">
+                 <a href="/tools" class="flex items-center gap-3 p-2 rounded-lg text-neutral-300 hover:bg-neutral-800 hover:text-white transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
+                    <span class="font-medium text-sm">Creator Tools</span>
+                 </a>
+                 <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-neutral-800 cursor-pointer">
+                    <div class="w-8 h-8 rounded-full bg-neutral-700 flex items-center justify-center font-bold text-sm">JO</div>
+                    <div class="flex-1"><div class="font-medium text-sm text-white">John Oluleke-Oke</div></div>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-neutral-500"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col bg-neutral-900 rounded-tl-2xl">
+            <!-- Chat Header -->
+            <header class="flex-shrink-0 flex items-center justify-between p-4 border-b border-neutral-800">
+                <div class="flex items-center gap-2">
+                    <div class="relative">
+                        <button class="flex items-center gap-2 text-white bg-neutral-800/60 border border-neutral-700/80 px-3 py-1.5 rounded-lg hover:bg-neutral-700/80 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent-purple" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
+                            <span class="font-medium">Creative Director</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                     <button class="p-2 rounded-lg text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors" title="Share Chat">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
+                    </button>
+                </div>
+            </header>
+            
+            <!-- Messages Area -->
+            <div class="flex-1 overflow-y-auto p-6 space-y-8">
+                <!-- User Message -->
+                <div class="flex items-start gap-4 justify-end">
+                    <div class="bg-accent-blue/80 p-4 rounded-xl rounded-br-none max-w-2xl">
+                        <p>This is great! I especially like the "Creator Devotionals" idea. Can you help me write a script for the first one?</p>
+                    </div>
+                    <div class="w-9 h-9 flex-shrink-0 rounded-full bg-neutral-700 flex items-center justify-center font-bold text-sm">JO</div>
+                </div>
+
+                <!-- AI Message with Rich Content -->
+                <div class="ai-message-group flex items-start gap-4 group">
+                    <div class="w-9 h-9 flex-shrink-0 rounded-lg bg-gradient-to-br from-accent-blue to-accent-purple"></div>
+                    <div class="space-y-4 max-w-3xl flex-1">
+                        <div class="bg-neutral-800/60 p-4 rounded-xl rounded-tl-none">
+                           <p>Absolutely! Here's a script outline for your first "Creator Devotional," designed for a 3-minute vertical video format:</p>
+                           <h3 class="font-semibold text-white mt-4 mb-2">"Finding Purpose in Your Creative Work"</h3>
+                            <blockquote>
+                                "Have you ever felt like your creative work is just... work? What if every pixel, every edit, every word could be an act of worship?"
+                            </blockquote>
+                           <h4 class="font-semibold text-white mt-3">Main Content (Colossians 3:23)</h4>
+                            <p class="text-neutral-300">"Whatever you do, work at it with all your heart, as working for the Lord..." This verse isn't just for traditional jobs. For us creators, it means:</p>
+                           <ul class="list-disc list-inside text-neutral-300 space-y-1 text-sm mt-2">
+                               <li><strong class="text-white">Excellence as Worship:</strong> Your craft, honed to perfection, honors the Creator.</li>
+                               <li><strong class="text-white">Service through Art:</strong> Your talents aren't just for you; they're a gift to serve and uplift others.</li>
+                           </ul>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button class="text-sm bg-neutral-800/60 border border-neutral-700/80 px-3 py-1.5 rounded-lg hover:bg-neutral-700/80 transition-colors">Expand on "Excellence"</button>
+                            <button class="text-sm bg-neutral-800/60 border border-neutral-700/80 px-3 py-1.5 rounded-lg hover:bg-neutral-700/80 transition-colors">Suggest B-Roll shots</button>
+                        </div>
+                    </div>
+                    <!-- Hover Actions -->
+                    <div class="message-actions flex-shrink-0 flex items-center gap-1">
+                        <button class="p-1.5 text-neutral-500 hover:text-white hover:bg-neutral-700 rounded-md transition-colors" title="Copy"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
+                        <button class="p-1.5 text-neutral-500 hover:text-white hover:bg-neutral-700 rounded-md transition-colors" title="Regenerate"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><polyline points="23 20 23 14 17 14"></polyline><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path></svg></button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Chat Input -->
+            <footer class="flex-shrink-0 p-4">
+                <div class="w-full max-w-4xl mx-auto">
+                    <div class="relative">
+                        <textarea rows="1" class="w-full bg-neutral-800 border border-neutral-700 rounded-xl resize-none p-4 pr-20 text-white focus:ring-2 focus:ring-accent-purple focus:outline-none" placeholder="Message JOHNGPT..."></textarea>
+                        <div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                            <button class="p-2 rounded-lg text-neutral-400 hover:bg-neutral-700 hover:text-white transition-colors" title="Attach File">
+                               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                           </button>
+                           <button class="w-9 h-9 flex items-center justify-center bg-accent-purple text-white rounded-lg hover:bg-violet-500 transition-colors">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                           </button>
+                        </div>
+                    </div>
+                    <p class="text-xs text-center text-neutral-500 mt-2">JOHNGPT can make mistakes. Consider checking important information.</p>
+                </div>
+            </footer>
+        </main>
+    </div>
+    <script>
+        const textarea = document.querySelector('textarea');
+        textarea.addEventListener('input', () => {
+            textarea.style.height = 'auto';
+            textarea.style.height = `${textarea.scrollHeight}px`;
+        });
+    </script>
+</body>
+</html>

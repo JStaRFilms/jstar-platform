@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Magnet Pro | Creator Growth Engine</title>
+    <meta name="description" content="Generate targeted leads and create personalized outreach for content creators">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'obsidian-bg': '#202020',
+                        'obsidian-sidebar': '#161618',
+                        'obsidian-text': '#dcddde',
+                        'obsidian-text-muted': '#888888',
+                        'obsidian-accent': '#7c3aed',
+                        'obsidian-link': '#8b5cf6'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --growth-green: #059669;
+            --obsidian-bg: #202020;
+            --obsidian-sidebar: #161618;
+            --obsidian-text: #dcddde;
+            --obsidian-text-muted: #888888;
+            --obsidian-accent: #7c3aed;
+            --obsidian-link: #8b5cf6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --transition-normal: 300ms;
+        }
+        
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 260px;
+            background: var(--obsidian-sidebar);
+            border-right: 1px solid #333;
+            transition: all var(--transition-normal) ease;
+            flex-shrink: 0;
+        }
+        
+        .main-content {
+            flex: 1;
+            background: var(--obsidian-bg);
+            color: var(--obsidian-text);
+            overflow-y: auto;
+        }
+        
+        .navbar-blur {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .dark .navbar-blur {
+            background: rgba(17, 24, 39, 0.9);
+        }
+        
+        .sidebar-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-radius: 0.5rem;
+            margin-bottom: 0.25rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .sidebar-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .sidebar-item.active {
+            background: rgba(124, 58, 237, 0.2);
+        }
+        
+        .sidebar-item svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-right: 0.75rem;
+        }
+        
+        .tool-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: all 0.2s;
+        }
+        
+        .tool-card:hover {
+            border-color: var(--obsidian-link);
+        }
+        
+        .chart-container {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid #333;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+        }
+        
+        .action-button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+        
+        .action-button:hover {
+            background: rgba(124, 58, 235, 0.2);
+            border-color: var(--obsidian-link);
+        }
+        
+        .primary-button {
+            background: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .primary-button:hover {
+            transform: scale(1.05);
+        }
+        
+        .tier-indicator {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+        }
+        
+        .tier2 { background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%); }
+        
+        .form-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            color: var(--obsidian-text);
+            width: 100%;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--obsidian-link);
+        }
+        
+        .form-select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            color: var(--obsidian-text);
+            width: 100%;
+        }
+        
+        .form-select:focus {
+            outline: none;
+            border-color: var(--obsidian-link);
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            color: var(--obsidian-text-muted);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            border-bottom: 1px solid #333;
+        }
+        
+        .data-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #333;
+        }
+        
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .data-table tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        
+        .lead-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .lead-card:hover {
+            border-color: var(--obsidian-link);
+        }
+        
+        .lead-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .lead-company {
+            font-size: 0.875rem;
+            color: var(--obsidian-text-muted);
+            margin-bottom: 0.5rem;
+        }
+        
+        .lead-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .lead-detail {
+            background: rgba(124, 58, 237, 0.1);
+            color: var(--obsidian-link);
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+        }
+        
+        .lead-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .lead-action {
+            flex: 1;
+            text-align: center;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .lead-action.email {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3B82F6;
+        }
+        
+        .lead-action.email:hover {
+            background: rgba(59, 130, 246, 0.2);
+        }
+        
+        .lead-action.linkedin {
+            background: rgba(124, 58, 237, 0.1);
+            color: var(--obsidian-link);
+        }
+        
+        .lead-action.linkedin:hover {
+            background: rgba(124, 58, 237, 0.2);
+        }
+        
+        .email-template {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 1rem;
+        }
+        
+        .email-subject {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--obsidian-text);
+        }
+        
+        .email-body {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            min-height: 150px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+        
+        .search-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            width: 100%;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: var(--obsidian-link);
+        }
+        
+        .filter-button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .filter-button:hover {
+            background: rgba(124, 58, 235, 0.2);
+            border-color: var(--obsidian-link);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .badge-warm {
+            background: rgba(245, 158, 11, 0.2);
+            color: #F59E0B;
+        }
+        
+        .badge-hot {
+            background: rgba(239, 68, 68, 0.2);
+            color: #EF4444;
+        }
+        
+        .badge-cold {
+            background: rgba(156, 163, 175, 0.2);
+            color: #9CA3AF;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 navbar-blur border-b border-gray-200 dark:border-gray-700 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/" class="text-2xl font-bold bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">
+                        J StaR Films
+                    </a>
+                    <span class="mx-4 text-gray-300 dark:text-gray-600">/</span>
+                    <span class="text-gray-900 dark:text-white font-medium">Creator Growth Engine</span>
+                    <span class="mx-4 text-gray-300 dark:text-gray-600">/</span>
+                    <span class="text-gray-900 dark:text-white font-medium">Client Magnet Pro</span>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="/" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Home</a>
+                    <a href="/about" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">About</a>
+                    <a href="/portfolio" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Portfolio</a>
+                    <a href="/services" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Services</a>
+                    <a href="/blog" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Blog</a>
+                    <a href="/store" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Store</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button onclick="document.documentElement.classList.toggle('dark')" 
+                            class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
+                            aria-label="Toggle theme">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </button>
+                    <div class="relative">
+                        <button class="flex items-center space-x-2">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-r from-jstar-blue to-faith-purple flex items-center justify-center text-white text-sm font-bold">
+                                JO
+                            </div>
+                            <span class="text-gray-900 dark:text-white font-medium">Tier 2</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Container -->
+    <div class="dashboard-container pt-16">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="p-4">
+                <div class="mb-6">
+                    <h2 class="text-lg font-bold mb-4">Creator Growth Engine</h2>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        Virality OS
+                    </div>
+                    <div class="sidebar-item active">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        Client Magnet Pro
+                    </div>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                        </svg>
+                        Systems Launcher
+                    </div>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Scripting Studio
+                    </div>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                        Course Builder
+                    </div>
+                    <div class="sidebar-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                        </svg>
+                        Automation Center
+                    </div>
+                </div>
+                
+                <div class="border-t border-gray-700 pt-4">
+                    <div class="text-xs text-gray-500 uppercase tracking-wider mb-2">Quick Actions</div>
+                    <button class="w-full py-2 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold mb-2 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        Find New Leads
+                    </button>
+                    <button class="w-full py-2 bg-gray-700 text-white rounded-lg font-semibold flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Export Leads
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h1 class="text-2xl font-bold mb-2">Client Magnet Pro</h1>
+                        <p class="text-gray-400">Generate targeted leads and create personalized outreach</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <div class="relative">
+                            <input type="text" placeholder="Search leads..." class="search-box pl-10">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <button class="filter-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                            </svg>
+                            Filter
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Lead Generation -->
+                <div class="tool-card mb-6">
+                    <h2 class="text-lg font-bold mb-4">Find New Leads</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Industry/Niche</label>
+                            <input type="text" class="form-input" placeholder="e.g., Tech, Marketing, E-commerce" value="Tech">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Location</label>
+                            <select class="form-select">
+                                <option>Global</option>
+                                <option selected>United States</option>
+                                <option>United Kingdom</option>
+                                <option>Canada</option>
+                                <option>Remote</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Company Size</label>
+                            <select class="form-select">
+                                <option>Any</option>
+                                <option>Startup (1-50)</option>
+                                <option selected>Small Business (51-200)</option>
+                                <option>Medium Business (201-1000)</option>
+                                <option>Enterprise (1000+)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Keywords (comma separated)</label>
+                            <input type="text" class="form-input" placeholder="e.g., SaaS, video production, content marketing" value="SaaS, video production">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Exclude Keywords</label>
+                            <input type="text" class="form-input" placeholder="e.g., agency, consultant" value="agency">
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 flex justify-end">
+                        <button class="primary-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            Search Leads
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Lead Results -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    <!-- Lead List -->
+                    <div class="lg:col-span-2">
+                        <div class="chart-container">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-lg font-bold">Lead Results</h2>
+                                <div class="text-sm text-gray-400">42 leads found</div>
+                            </div>
+                            
+                            <div class="max-h-96 overflow-y-auto pr-2">
+                                <div class="lead-card">
+                                    <div class="flex justify-between">
+                                        <div class="lead-name">Sarah Johnson</div>
+                                        <span class="badge badge-hot">Hot</span>
+                                    </div>
+                                    <div class="lead-company">TechStart Inc.</div>
+                                    <div class="lead-details">
+                                        <span class="lead-detail">CEO</span>
+                                        <span class="lead-detail">San Francisco, CA</span>
+                                        <span class="lead-detail">SaaS</span>
+                                    </div>
+                                    <div class="text-sm text-gray-400">
+                                        Looking for a video production partner for product demos and marketing content.
+                                    </div>
+                                    <div class="lead-actions">
+                                        <div class="lead-action email">Email Draft</div>
+                                        <div class="lead-action linkedin">LinkedIn</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="lead-card">
+                                    <div class="flex justify-between">
+                                        <div class="lead-name">Michael Chen</div>
+                                        <span class="badge badge-warm">Warm</span>
+                                    </div>
+                                    <div class="lead-company">Innovate Solutions</div>
+                                    <div class="lead-details">
+                                        <span class="lead-detail">Marketing Director</span>
+                                        <span class="lead-detail">New York, NY</span>
+                                        <span class="lead-detail">E-commerce</span>
+                                    </div>
+                                    <div class="text-sm text-gray-400">
+                                        Recently increased marketing budget and looking for creative video content.
+                                    </div>
+                                    <div class="lead-actions">
+                                        <div class="lead-action email">Email Draft</div>
+                                        <div class="lead-action linkedin">LinkedIn</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="lead-card">
+                                    <div class="flex justify-between">
+                                        <div class="lead-name">Emma Rodriguez</div>
+                                        <span class="badge badge-cold">Cold</span>
+                                    </div>
+                                    <div class="lead-company">Digital Growth Co.</div>
+                                    <div class="lead-details">
+                                        <span class="lead-detail">Founder</span>
+                                        <span class="lead-detail">Austin, TX</span>
+                                        <span class="lead-detail">Marketing Agency</span>
+                                    </div>
+                                    <div class="text-sm text-gray-400">
+                                        Early-stage startup looking for affordable video production services.
+                                    </div>
+                                    <div class="lead-actions">
+                                        <div class="lead-action email">Email Draft</div>
+                                        <div class="lead-action linkedin">LinkedIn</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="lead-card">
+                                    <div class="flex justify-between">
+                                        <div class="lead-name">David Kim</div>
+                                        <span class="badge badge-warm">Warm</span>
+                                    </div>
+                                    <div class="lead-company">CloudTech Systems</div>
+                                    <div class="lead-details">
+                                        <span class="lead-detail">CTO</span>
+                                        <span class="lead-detail">Seattle, WA</span>
+                                        <span class="lead-detail">Enterprise Software</span>
+                                    </div>
+                                    <div class="text-sm text-gray-400">
+                                        Interested in technical explainer videos for complex software products.
+                                    </div>
+                                    <div class="lead-actions">
+                                        <div class="lead-action email">Email Draft</div>
+                                        <div class="lead-action linkedin">LinkedIn</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Email Template -->
+                    <div>
+                        <div class="chart-container">
+                            <h2 class="text-lg font-bold mb-4">Personalized Email Draft</h2>
+                            
+                            <div class="email-template">
+                                <div class="email-subject">Video Production Partnership for TechStart Inc.</div>
+                                <div class="email-body">
+Hi Sarah,
+
+I came across TechStart Inc. and was impressed by your innovative SaaS platform. I'm John Oluleke-Oke, a filmmaker and AI specialist who helps tech companies like yours create compelling video content that drives engagement and conversions.
+
+I noticed you're looking for a video production partner for product demos. I specialize in creating technical explainer videos and product showcases that clearly communicate complex features in an engaging way.
+
+Would you be interested in a brief call to discuss how we might collaborate to showcase TechStart's unique value proposition through video?
+
+Best regards,
+John Oluleke-Oke
+J StaR Films
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4 flex space-x-2">
+                                <button class="action-button flex-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                    </svg>
+                                    Customize
+                                </button>
+                                <button class="primary-button flex-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                    </svg>
+                                    Send
+                                </button>
+                            </div>
+                            
+                            <div class="mt-6">
+                                <h3 class="font-medium mb-2">Template Options</h3>
+                                <div class="space-y-2">
+                                    <button class="w-full text-left p-2 bg-gray-800 rounded-lg text-sm">
+                                        Tech Company Introduction
+                                    </button>
+                                    <button class="w-full text-left p-2 bg-gray-800 rounded-lg text-sm">
+                                        E-commerce Partnership
+                                    </button>
+                                    <button class="w-full text-left p-2 bg-gray-800 rounded-lg text-sm">
+                                        Startup Collaboration
+                                    </button>
+                                    <button class="w-full text-left p-2 bg-gray-800 rounded-lg text-sm">
+                                        Enterprise Solutions
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Lead Analytics -->
+                <div class="chart-container">
+                    <h2 class="text-lg font-bold mb-4">Lead Analytics</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="text-center p-4 bg-gray-800 rounded-lg">
+                            <div class="text-2xl font-bold text-jstar-blue">24</div>
+                            <div class="text-sm text-gray-400 mt-1">Total Leads</div>
+                        </div>
+                        
+                        <div class="text-center p-4 bg-gray-800 rounded-lg">
+                            <div class="text-2xl font-bold text-faith-purple">8</div>
+                            <div class="text-sm text-gray-400 mt-1">Contacted</div>
+                        </div>
+                        
+                        <div class="text-center p-4 bg-gray-800 rounded-lg">
+                            <div class="text-2xl font-bold text-growth-green">3</div>
+                            <div class="text-sm text-gray-400 mt-1">Responded</div>
+                        </div>
+                        
+                        <div class="text-center p-4 bg-gray-800 rounded-lg">
+                            <div class="text-2xl font-bold text-yellow-500">1</div>
+                            <div class="text-sm text-gray-400 mt-1">Meeting Scheduled</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <div class="flex justify-between text-sm mb-2">
+                            <span>Email Open Rate</span>
+                            <span>32%</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-jstar-blue h-2 rounded-full" style="width: 32%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <div class="flex justify-between text-sm mb-2">
+                            <span>Response Rate</span>
+                            <span>12%</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-faith-purple h-2 rounded-full" style="width: 12%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme management
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Sidebar item selection
+        document.querySelectorAll('.sidebar-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                
+                // In a real implementation, this would navigate to the selected section
+                const section = this.textContent.trim();
+                console.log('Navigating to:', section);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Services - J StaR Films Professional Services</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --border: #E2E8F0;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1A202C;
+            --bg-secondary: #2D3748;
+            --text-primary: #F7FAFC;
+            --text-secondary: #CBD5E0;
+            --border: #4A5568;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+        
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+        
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+        
+        .header {
+            padding: 8rem 0 4rem;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            color: white;
+            text-align: center;
+        }
+        
+        .header-title {
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            font-weight: 900;
+            margin-bottom: 1rem;
+        }
+        
+        .services {
+            padding: 6rem 0;
+        }
+        
+        .service-category {
+            margin-bottom: 6rem;
+        }
+        
+        .service-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .service-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--brand-blue);
+        }
+        
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+        
+        .service-card {
+            background: var(--bg-secondary);
+            padding: 2.5rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .service-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            margin-bottom: 2rem;
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+        
+        .card-description {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.7;
+        }
+        
+        .service-features {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+        
+        .service-features li {
+            padding: 0.5rem 0;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .service-features li::before {
+            content: '✓';
+            color: var(--success-green);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .pricing {
+            background: var(--bg-primary);
+            border: 2px solid var(--brand-blue);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .price-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .price-amount {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--brand-blue);
+        }
+        
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background: var(--brand-blue);
+            color: white;
+        }
+        
+        .btn-cta {
+            background: var(--warm-orange);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .process {
+            padding: 6rem 0;
+            background: var(--bg-secondary);
+        }
+        
+        .process-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        
+        .process-step {
+            text-align: center;
+            padding: 2rem;
+            background: var(--bg-primary);
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+        }
+        
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background: var(--brand-blue);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 auto 1rem;
+        }
+        
+        .cta-section {
+            padding: 6rem 0;
+            background: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            color: white;
+            text-align: center;
+        }
+        
+        .cta-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        @media (max-width: 768px) {
+            .service-grid { grid-template-columns: 1fr; }
+            .process-grid { grid-template-columns: 1fr; }
+            .cta-buttons { flex-direction: column; align-items: center; }
+            .container { padding: 0 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <a href="homepage-complete.html" class="logo">J StaR Films</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="header">
+        <div class="container">
+            <h1 class="header-title">Professional Services</h1>
+            <p style="font-size: 1.25rem; opacity: 0.9;">
+                From concept to completion, I deliver excellence in every project.
+            </p>
+        </div>
+    </section>
+
+    <section class="services">
+        <div class="container">
+            <!-- Video Production -->
+            <div class="service-category">
+                <div class="service-header">
+                    <h2 class="service-title">Video Production</h2>
+                </div>
+                <div class="service-grid">
+                    <div class="service-card">
+                        <div class="service-icon"><i class="fas fa-video"></i></div>
+                        <h3 class="card-title">Corporate Videos</h3>
+                        <p class="card-description">
+                            Professional corporate content that tells your story and engages your audience.
+                        </p>
+                        <ul class="service-features">
+                            <li>Brand storytelling</li>
+                            <li>Executive interviews</li>
+                            <li>Company culture videos</li>
+                            <li>Product demonstrations</li>
+                        </ul>
+                        <div class="pricing">
+                            <div class="price-label">Starting from</div>
+                            <div class="price-amount">$2,500</div>
+                        </div>
+                        <a href="#" class="btn btn-primary">Get Quote</a>
+                    </div>
+                    
+                    <div class="service-card">
+                        <div class="service-icon"><i class="fas fa-broadcast-tower"></i></div>
+                        <h3 class="card-title">Live Streaming</h3>
+                        <p class="card-description">
+                            Multi-camera live streaming for events, conferences, and virtual experiences.
+                        </p>
+                        <ul class="service-features">
+                            <li>Multi-camera setup</li>
+                            <li>Live graphics overlay</li>
+                            <li>Real-time interaction</li>
+                            <li>Recording for later use</li>
+                        </ul>
+                        <div class="pricing">
+                            <div class="price-label">Starting from</div>
+                            <div class="price-amount">$1,800</div>
+                        </div>
+                        <a href="#" class="btn btn-primary">Book Now</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- App Development -->
+            <div class="service-category">
+                <div class="service-header">
+                    <h2 class="service-title">App Development</h2>
+                </div>
+                <div class="service-grid">
+                    <div class="service-card">
+                        <div class="service-icon"><i class="fas fa-laptop-code"></i></div>
+                        <h3 class="card-title">Web Applications</h3>
+                        <p class="card-description">
+                            Custom web applications built with modern frameworks and best practices.
+                        </p>
+                        <ul class="service-features">
+                            <li>React & Next.js</li>
+                            <li>Responsive design</li>
+                            <li>Database integration</li>
+                            <li>Performance optimization</li>
+                        </ul>
+                        <div class="pricing">
+                            <div class="price-label">Starting from</div>
+                            <div class="price-amount">$5,000</div>
+                        </div>
+                        <a href="#" class="btn btn-cta">Start Project</a>
+                    </div>
+                    
+                    <div class="service-card">
+                        <div class="service-icon"><i class="fas fa-robot"></i></div>
+                        <h3 class="card-title">AI Integration</h3>
+                        <p class="card-description">
+                            Integrate AI capabilities into your existing systems or build new AI-powered solutions.
+                        </p>
+                        <ul class="service-features">
+                            <li>Custom AI models</li>
+                            <li>API integrations</li>
+                            <li>Workflow automation</li>
+                            <li>Performance monitoring</li>
+                        </ul>
+                        <div class="pricing">
+                            <div class="price-label">Starting from</div>
+                            <div class="price-amount">$3,500</div>
+                        </div>
+                        <a href="#" class="btn btn-cta">Learn More</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="process">
+        <div class="container">
+            <div class="service-header">
+                <h2 class="service-title">My Process</h2>
+                <p style="color: var(--text-secondary); font-size: 1.125rem;">
+                    How we work together to bring your vision to life
+                </p>
+            </div>
+            <div class="process-grid">
+                <div class="process-step">
+                    <div class="step-number">1</div>
+                    <h3 class="card-title">Discovery Call</h3>
+                    <p class="card-description">
+                        We discuss your goals, requirements, and vision for the project.
+                    </p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">2</div>
+                    <h3 class="card-title">Proposal & Planning</h3>
+                    <p class="card-description">
+                        Detailed project proposal with timeline, deliverables, and pricing.
+                    </p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">3</div>
+                    <h3 class="card-title">Production</h3>
+                    <p class="card-description">
+                        Regular updates and collaboration throughout the development process.
+                    </p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">4</div>
+                    <h3 class="card-title">Delivery & Support</h3>
+                    <p class="card-description">
+                        Final delivery with training and ongoing support as needed.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <div class="container">
+            <h2 class="cta-title">Ready to Start Your Project?</h2>
+            <p style="font-size: 1.25rem; opacity: 0.9;">
+                Let's discuss how we can bring your vision to life with excellence and creativity.
+            </p>
+            <div class="cta-buttons">
+                <a href="#" class="btn btn-cta">
+                    <i class="fas fa-calendar"></i>
+                    Schedule Consultation
+                </a>
+                <a href="#" class="btn" style="background: rgba(255,255,255,0.2); color: white;">
+                    <i class="fas fa-phone"></i>
+                    Call Now
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

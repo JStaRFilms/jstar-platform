@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - Color System & Design Tokens</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Brand Colors */
+            --brand-blue: #4A90E2;
+            --creative-teal: #4ECDC4;
+            --warm-orange: #FF6B6B;
+            --success-green: #45B7D1;
+            
+            /* Light Theme */
+            --bg-primary-light: #FFFFFF;
+            --bg-secondary-light: #F8F9FA;
+            --text-primary-light: #1A202C;
+            --text-secondary-light: #4A5568;
+            --border-light: #E2E8F0;
+            --shadow-light: rgba(0, 0, 0, 0.1);
+            
+            /* Dark Theme */
+            --bg-primary-dark: #1A202C;
+            --bg-secondary-dark: #2D3748;
+            --text-primary-dark: #F7FAFC;
+            --text-secondary-dark: #CBD5E0;
+            --border-dark: #4A5568;
+            --shadow-dark: rgba(0, 0, 0, 0.3);
+            
+            /* Semantic Colors */
+            --error: #E53E3E;
+            --warning: #DD6B20;
+            --info: #3182CE;
+            --success: #38A169;
+            
+            /* Gradients */
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue), var(--creative-teal));
+            --gradient-warm: linear-gradient(135deg, var(--warm-orange), #FF8E53);
+            --gradient-hero: linear-gradient(135deg, #1A202C 0%, #2D3748 50%, #4A5568 100%);
+            
+            /* Spacing Scale */
+            --space-xs: 0.25rem;    /* 4px */
+            --space-sm: 0.5rem;     /* 8px */
+            --space-md: 1rem;       /* 16px */
+            --space-lg: 1.5rem;     /* 24px */
+            --space-xl: 2rem;       /* 32px */
+            --space-2xl: 3rem;      /* 48px */
+            --space-3xl: 4rem;      /* 64px */
+            
+            /* Border Radius */
+            --radius-sm: 0.25rem;   /* 4px */
+            --radius-md: 0.5rem;    /* 8px */
+            --radius-lg: 0.75rem;   /* 12px */
+            --radius-xl: 1rem;      /* 16px */
+            --radius-full: 9999px;
+            
+            /* Typography Scale */
+            --text-xs: 0.75rem;     /* 12px */
+            --text-sm: 0.875rem;    /* 14px */
+            --text-base: 1rem;      /* 16px */
+            --text-lg: 1.125rem;    /* 18px */
+            --text-xl: 1.25rem;     /* 20px */
+            --text-2xl: 1.5rem;     /* 24px */
+            --text-3xl: 1.875rem;   /* 30px */
+            --text-4xl: 2.25rem;    /* 36px */
+            --text-5xl: 3rem;       /* 48px */
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            
+            /* Z-Index Scale */
+            --z-base: 0;
+            --z-dropdown: 10;
+            --z-sticky: 20;
+            --z-fixed: 30;
+            --z-modal: 40;
+            --z-popover: 50;
+            --z-tooltip: 60;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            line-height: 1.6;
+            background: var(--bg-primary-light);
+            color: var(--text-primary-light);
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: var(--brand-blue);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 600;
+            z-index: var(--z-fixed);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--space-xl);
+        }
+
+        h1, h2, h3 {
+            margin-bottom: var(--space-lg);
+            font-weight: 700;
+        }
+
+        h1 {
+            font-size: var(--text-5xl);
+            background: var(--gradient-brand);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            margin-bottom: var(--space-2xl);
+        }
+
+        h2 {
+            font-size: var(--text-3xl);
+            color: var(--brand-blue);
+            border-bottom: 2px solid var(--border-light);
+            padding-bottom: var(--space-sm);
+        }
+
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--space-xl);
+            margin-bottom: var(--space-3xl);
+        }
+
+        .color-section {
+            background: var(--bg-secondary-light);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            box-shadow: var(--shadow-md);
+        }
+
+        .color-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: var(--space-md);
+            padding: var(--space-sm);
+            border-radius: var(--radius-md);
+            background: var(--bg-primary-light);
+        }
+
+        .color-swatch {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius-md);
+            margin-right: var(--space-md);
+            border: 2px solid var(--border-light);
+            flex-shrink: 0;
+        }
+
+        .color-info {
+            flex: 1;
+        }
+
+        .color-name {
+            font-weight: 600;
+            font-size: var(--text-lg);
+            margin-bottom: var(--space-xs);
+        }
+
+        .color-value {
+            font-family: 'Courier New', monospace;
+            font-size: var(--text-sm);
+            color: var(--text-secondary-light);
+            background: var(--bg-secondary-light);
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: var(--radius-sm);
+            display: inline-block;
+        }
+
+        .gradient-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-md);
+            margin-bottom: var(--space-2xl);
+        }
+
+        .gradient-item {
+            height: 120px;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .spacing-demo {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-md);
+            margin-bottom: var(--space-2xl);
+        }
+
+        .spacing-item {
+            background: var(--creative-teal);
+            color: white;
+            padding: var(--space-sm);
+            border-radius: var(--radius-md);
+            font-size: var(--text-sm);
+            font-weight: 600;
+        }
+
+        /* Dark theme styles */
+        [data-theme="dark"] {
+            --bg-primary: var(--bg-primary-dark);
+            --bg-secondary: var(--bg-secondary-dark);
+            --text-primary: var(--text-primary-dark);
+            --text-secondary: var(--text-secondary-dark);
+            --border: var(--border-dark);
+        }
+
+        [data-theme="dark"] body {
+            background: var(--bg-primary-dark);
+            color: var(--text-primary-dark);
+        }
+
+        [data-theme="dark"] .color-section {
+            background: var(--bg-secondary-dark);
+            border-color: var(--border-dark);
+        }
+
+        [data-theme="dark"] .color-item {
+            background: var(--bg-primary-dark);
+        }
+
+        [data-theme="dark"] .color-value {
+            background: var(--bg-primary-dark);
+            color: var(--text-secondary-dark);
+        }
+
+        [data-theme="dark"] h2 {
+            border-color: var(--border-dark);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: var(--space-md);
+            }
+            
+            h1 {
+                font-size: var(--text-4xl);
+            }
+            
+            .color-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()">🌓 Toggle Theme</button>
+    
+    <div class="container">
+        <h1>J StaR Platform Design System</h1>
+        
+        <h2>🎨 Brand Colors</h2>
+        <div class="color-grid">
+            <div class="color-section">
+                <h3>Primary Brand Colors</h3>
+                <div class="color-item">
+                    <div class="color-swatch" style="background-color: #4A90E2;"></div>
+                    <div class="color-info">
+                        <div class="color-name">Brand Blue</div>
+                        <div class="color-value">#4A90E2</div>
+                    </div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background-color: #4ECDC4;"></div>
+                    <div class="color-info">
+                        <div class="color-name">Creative Teal</div>
+                        <div class="color-value">#4ECDC4</div>
+                    </div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background-color: #FF6B6B;"></div>
+                    <div class="color-info">
+                        <div class="color-name">Warm Orange</div>
+                        <div class="color-value">#FF6B6B</div>
+                    </div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background-color: #45B7D1;"></div>
+                    <div class="color-info">
+                        <div class="color-name">Success Green</div>
+                        <div class="color-value">#45B7D1</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="color-section">
+                <h3>Light Theme</h3>
+                <div class="color-item">
+                    <div class="color-swatch" style="background-color: #FFFFFF; border: 2px solid #E2E8F0;"></div>
+                    <div class="color-info">
+                        <div class="color-name">Background Primary</div>
+                        <div class="color-value">#FFFFFF</div>
+                    </div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background-color: #F8F9FA;"></div>
+                    <div class="color-info">
+                        <div class="color-name">Background Secondary</div>
+                        <div class="color-value">#F8F9FA</div>
+                    </div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background-color: #1A202C;"></div>
+                    <div class="color-info">
+                        <div class="color-name">Text Primary</div>
+                        <div class="color-value">#1A202C</div>
+                    </div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background-color: #4A5568;"></div>
+                    <div class="color-info">
+                        <div class="color-name">Text Secondary</div>
+                        <div class="color-value">#4A5568</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="color-section">
+                <h3>Dark Theme</h3>
+                <div class="color-item">
+                    <div class="color-swatch" style="background-color: #1A202C;"></div>
+                    <div class="color-info">
+                        <div class="color-name">Background Primary</div>
+                        <div class="color-value">#1A202C</div>
+                    </div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background-color: #2D3748;"></div>
+                    <div class="color-info">
+                        <div class="color-name">Background Secondary</div>
+                        <div class="color-value">#2D3748</div>
+                    </div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background-color: #F7FAFC;"></div>
+                    <div class="color-info">
+                        <div class="color-name">Text Primary</div>
+                        <div class="color-value">#F7FAFC</div>
+                    </div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background-color: #CBD5E0;"></div>
+                    <div class="color-info">
+                        <div class="color-name">Text Secondary</div>
+                        <div class="color-value">#CBD5E0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="color-section">
+                <h3>Semantic Colors</h3>
+                <div class="color-item">
+                    <div class="color-swatch" style="background-color: #E53E3E;"></div>
+                    <div class="color-info">
+                        <div class="color-name">Error</div>
+                        <div class="color-value">#E53E3E</div>
+                    </div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background-color: #DD6B20;"></div>
+                    <div class="color-info">
+                        <div class="color-name">Warning</div>
+                        <div class="color-value">#DD6B20</div>
+                    </div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background-color: #3182CE;"></div>
+                    <div class="color-info">
+                        <div class="color-name">Info</div>
+                        <div class="color-value">#3182CE</div>
+                    </div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background-color: #38A169;"></div>
+                    <div class="color-info">
+                        <div class="color-name">Success</div>
+                        <div class="color-value">#38A169</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2>🌈 Gradient Showcase</h2>
+        <div class="gradient-showcase">
+            <div class="gradient-item" style="background: linear-gradient(135deg, #4A90E2, #4ECDC4);">
+                Brand Gradient
+            </div>
+            <div class="gradient-item" style="background: linear-gradient(135deg, #FF6B6B, #FF8E53);">
+                Warm Gradient
+            </div>
+            <div class="gradient-item" style="background: linear-gradient(135deg, #1A202C 0%, #2D3748 50%, #4A5568 100%);">
+                Hero Gradient
+            </div>
+        </div>
+
+        <h2>📏 Spacing Scale</h2>
+        <div class="spacing-demo">
+            <div class="spacing-item" style="margin: var(--space-xs);">XS - 4px</div>
+            <div class="spacing-item" style="margin: var(--space-sm);">SM - 8px</div>
+            <div class="spacing-item" style="margin: var(--space-md);">MD - 16px</div>
+            <div class="spacing-item" style="margin: var(--space-lg);">LG - 24px</div>
+            <div class="spacing-item" style="margin: var(--space-xl);">XL - 32px</div>
+            <div class="spacing-item" style="margin: var(--space-2xl);">2XL - 48px</div>
+            <div class="spacing-item" style="margin: var(--space-3xl);">3XL - 64px</div>
+        </div>
+
+        <h2>📝 Typography Scale</h2>
+        <div style="background: var(--bg-secondary-light); padding: var(--space-lg); border-radius: var(--radius-lg); border: 1px solid var(--border-light);">
+            <div style="font-size: var(--text-5xl); font-weight: 700; margin-bottom: var(--space-md);">Heading XL - 48px</div>
+            <div style="font-size: var(--text-4xl); font-weight: 700; margin-bottom: var(--space-md);">Heading L - 36px</div>
+            <div style="font-size: var(--text-3xl); font-weight: 600; margin-bottom: var(--space-md);">Heading M - 30px</div>
+            <div style="font-size: var(--text-2xl); font-weight: 600; margin-bottom: var(--space-md);">Heading S - 24px</div>
+            <div style="font-size: var(--text-lg); margin-bottom: var(--space-sm);">Body L - 18px</div>
+            <div style="font-size: var(--text-base); margin-bottom: var(--space-sm);">Body M - 16px</div>
+            <div style="font-size: var(--text-sm); margin-bottom: var(--space-sm);">Body S - 14px</div>
+            <div style="font-size: var(--text-xs); color: var(--text-secondary-light);">Caption - 12px</div>
+        </div>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // Initialize theme from localStorage or system preference
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme || systemTheme);
+    </script>
+</body>
+</html>

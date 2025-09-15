@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Library | JohnGPT Creator Assistant</title>
+    <meta name="description" content="Manage your JohnGPT prompt library. Create, edit, and organize custom prompts for different creative tasks.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'obsidian-bg': '#202020',
+                        'obsidian-sidebar': '#161618',
+                        'obsidian-text': '#dcddde',
+                        'obsidian-text-muted': '#888888',
+                        'obsidian-accent': '#7c3aed',
+                        'obsidian-link': '#8b5cf6'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --growth-green: #059669;
+            --obsidian-bg: #202020;
+            --obsidian-sidebar: #161618;
+            --obsidian-text: #dcddde;
+            --obsidian-text-muted: #888888;
+            --obsidian-accent: #7c3aed;
+            --obsidian-link: #8b5cf6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --transition-normal: 300ms;
+        }
+        
+        .library-container {
+            display: flex;
+            height: calc(100vh - 4rem);
+            margin-top: 4rem;
+        }
+        
+        .sidebar {
+            width: 280px;
+            background: var(--obsidian-sidebar);
+            border-right: 1px solid #333;
+            overflow-y: auto;
+            transition: all var(--transition-normal) ease;
+        }
+        
+        .main-content {
+            flex: 1;
+            background: var(--obsidian-bg);
+            color: var(--obsidian-text);
+            overflow-y: auto;
+        }
+        
+        .navbar-blur {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .dark .navbar-blur {
+            background: rgba(17, 24, 39, 0.9);
+        }
+        
+        .search-box {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            color: var(--obsidian-text);
+            width: 100%;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: var(--obsidian-link);
+        }
+        
+        .category-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-radius: 0.5rem;
+            margin-bottom: 0.25rem;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .category-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .category-item.active {
+            background: rgba(124, 58, 237, 0.2);
+        }
+        
+        .prompt-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all var(--transition-normal) ease;
+        }
+        
+        .prompt-card:hover {
+            border-color: var(--obsidian-link);
+            transform: translateY(-2px);
+        }
+        
+        .action-button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+        
+        .action-button:hover {
+            background: rgba(124, 58, 235, 0.2);
+            border-color: var(--obsidian-link);
+        }
+        
+        .tag {
+            display: inline-block;
+            background: rgba(124, 58, 237, 0.2);
+            color: #c4b5fd;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            color: var(--obsidian-text);
+            width: 100%;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--obsidian-link);
+        }
+        
+        .form-textarea {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            color: var(--obsidian-text);
+            width: 100%;
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--obsidian-link);
+        }
+        
+        .tier-indicator {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+        }
+        
+        .tier-1 { background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%); }
+        .tier-2 { background: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%); }
+        .tier-3 { background: linear-gradient(135deg, var(--faith-purple) 0%, var(--growth-green) 100%); }
+        .admin { background: linear-gradient(135deg, #EF4444 0%, #F87171 100%); }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background: var(--obsidian-bg);
+            border: 1px solid #333;
+            border-radius: 1rem;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 navbar-blur border-b border-gray-200 dark:border-gray-700 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/" class="text-2xl font-bold bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">
+                        J StaR Films
+                    </a>
+                    <span class="mx-4 text-gray-300 dark:text-gray-600">/</span>
+                    <span class="text-gray-900 dark:text-white font-medium">JohnGPT</span>
+                    <span class="mx-4 text-gray-300 dark:text-gray-600">/</span>
+                    <span class="text-gray-900 dark:text-white font-medium">Prompt Library</span>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="/" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Home</a>
+                    <a href="/about" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">About</a>
+                    <a href="/portfolio" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Portfolio</a>
+                    <a href="/services" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Services</a>
+                    <a href="/blog" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Blog</a>
+                    <a href="/store" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Store</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button onclick="document.documentElement.classList.toggle('dark')" 
+                            class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
+                            aria-label="Toggle theme">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </button>
+                    <button class="px-4 py-2 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold text-sm">
+                        Sign In
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Prompt Library Interface -->
+    <div class="library-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="p-4">
+                <button class="w-full py-3 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold mb-4 flex items-center justify-center" id="new-prompt-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    New Prompt
+                </button>
+                
+                <div class="relative mb-4">
+                    <input type="text" placeholder="Search prompts..." class="search-box">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute right-3 top-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                
+                <div class="text-xs text-gray-500 uppercase tracking-wider mb-2">Categories</div>
+                <div class="category-item active">
+                    <span>All Prompts</span>
+                    <span class="text-xs text-gray-500">42</span>
+                </div>
+                <div class="category-item">
+                    <span>Content Creation</span>
+                    <span class="text-xs text-gray-500">18</span>
+                </div>
+                <div class="category-item">
+                    <span>Scriptwriting</span>
+                    <span class="text-xs text-gray-500">12</span>
+                </div>
+                <div class="category-item">
+                    <span>Business Strategy</span>
+                    <span class="text-xs text-gray-500">9</span>
+                </div>
+                <div class="category-item">
+                    <span>Technical</span>
+                    <span class="text-xs text-gray-500">7</span>
+                </div>
+                <div class="category-item">
+                    <span>Personal Development</span>
+                    <span class="text-xs text-gray-500">5</span>
+                </div>
+                
+                <div class="text-xs text-gray-500 uppercase tracking-wider mt-6 mb-2">My Collections</div>
+                <div class="category-item">
+                    <span>Wedding Cinematography</span>
+                    <span class="text-xs text-gray-500">8</span>
+                </div>
+                <div class="category-item">
+                    <span>YouTube Growth</span>
+                    <span class="text-xs text-gray-500">6</span>
+                </div>
+                <div class="category-item">
+                    <span>App Development</span>
+                    <span class="text-xs text-gray-500">4</span>
+                </div>
+                
+                <button class="w-full mt-4 py-2 text-sm bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    New Collection
+                </button>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h1 class="text-2xl font-bold mb-2">Prompt Library</h1>
+                        <p class="text-gray-400">42 saved prompts • Tier 3 Access</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="action-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                            </svg>
+                            Filter
+                        </button>
+                        <button class="action-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4" />
+                            </svg>
+                            Sort
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Prompt Cards -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Prompt Card 1 -->
+                    <div class="prompt-card relative">
+                        <div class="tier-indicator tier-1 text-white">TIER 1+</div>
+                        <h3 class="text-lg font-bold mb-2">YouTube Video Script Generator</h3>
+                        <p class="text-gray-400 text-sm mb-4">
+                            Create engaging YouTube video scripts with hook, main content, and call-to-action.
+                        </p>
+                        <div class="flex flex-wrap mb-4">
+                            <span class="tag">#youtube</span>
+                            <span class="tag">#scriptwriting</span>
+                            <span class="tag">#content-creation</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="text-xs text-gray-500">
+                                Used 24 times • Last used: Jun 15
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="p-2 rounded-lg hover:bg-gray-800 transition-colors" title="Edit">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </button>
+                                <button class="p-2 rounded-lg hover:bg-gray-800 transition-colors" title="Copy to Clipboard">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                </button>
+                                <button class="p-2 rounded-lg hover:bg-gray-800 transition-colors" title="Delete">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Prompt Card 2 -->
+                    <div class="prompt-card relative">
+                        <div class="tier-indicator tier-2 text-white">TIER 2+</div>
+                        <h3 class="text-lg font-bold mb-2">Wedding Storytelling Framework</h3>
+                        <p class="text-gray-400 text-sm mb-4">
+                            Develop compelling narratives for wedding films that capture the couple's unique love story.
+                        </p>
+                        <div class="flex flex-wrap mb-4">
+                            <span class="tag">#wedding-cinematography</span>
+                            <span class="tag">#storytelling</span>
+                            <span class="tag">#narrative</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="text-xs text-gray-500">
+                                Used 18 times • Last used: Jun 12
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="p-2 rounded-lg hover:bg-gray-800 transition-colors" title="Edit">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </button>
+                                <button class="p-2 rounded-lg hover:bg-gray-800 transition-colors" title="Copy to Clipboard">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                </button>
+                                <button class="p-2 rounded-lg hover:bg-gray-800 transition-colors" title="Delete">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Prompt Card 3 -->
+                    <div class="prompt-card relative">
+                        <div class="tier-indicator tier-3 text-white">TIER 3</div>
+                        <h3 class="text-lg font-bold mb-2">Faith-Based Content Strategy</h3>
+                        <p class="text-gray-400 text-sm mb-4">
+                            Create content strategies that authentically integrate faith principles with creative expression.
+                        </p>
+                        <div class="flex flex-wrap mb-4">
+                            <span class="tag">#faith-content</span>
+                            <span class="tag">#strategy</span>
+                            <span class="tag">#values</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="text-xs text-gray-500">
+                                Used 32 times • Last used: Jun 14
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="p-2 rounded-lg hover:bg-gray-800 transition-colors" title="Edit">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </button>
+                                <button class="p-2 rounded-lg hover:bg-gray-800 transition-colors" title="Copy to Clipboard">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                </button>
+                                <button class="p-2 rounded-lg hover:bg-gray-800 transition-colors" title="Delete">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Prompt Card 4 -->
+                    <div class="prompt-card relative">
+                        <div class="tier-indicator admin text-white">ADMIN</div>
+                        <h3 class="text-lg font-bold mb-2">Technical Architecture Review</h3>
+                        <p class="text-gray-400 text-sm mb-4">
+                            Analyze technical architectures and provide recommendations for optimization and scalability.
+                        </p>
+                        <div class="flex flex-wrap mb-4">
+                            <span class="tag">#technical</span>
+                            <span class="tag">#architecture</span>
+                            <span class="tag">#optimization</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="text-xs text-gray-500">
+                                Used 15 times • Last used: Jun 10
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="p-2 rounded-lg hover:bg-gray-800 transition-colors" title="Edit">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </button>
+                                <button class="p-2 rounded-lg hover:bg-gray-800 transition-colors" title="Copy to Clipboard">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                </button>
+                                <button class="p-2 rounded-lg hover:bg-gray-800 transition-colors" title="Delete">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="flex justify-between items-center mt-8">
+                    <div class="text-gray-400">
+                        Showing 1-4 of 42 prompts
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="p-2 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+                        <button class="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition-colors">1</button>
+                        <button class="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition-colors">2</button>
+                        <button class="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition-colors">3</button>
+                        <button class="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition-colors">...</button>
+                        <button class="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition-colors">11</button>
+                        <button class="p-2 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- New Prompt Modal -->
+    <div class="modal" id="new-prompt-modal">
+        <div class="modal-content">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold">Create New Prompt</h2>
+                    <button class="p-2 rounded-lg hover:bg-gray-800 transition-colors" id="close-modal">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <form class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Prompt Name</label>
+                        <input type="text" class="form-input" placeholder="e.g., YouTube Script Generator">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Description</label>
+                        <textarea class="form-textarea" placeholder="Briefly describe what this prompt does..."></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Prompt Content</label>
+                        <textarea class="form-textarea" placeholder="Enter your prompt here...">You are a creative content strategist specializing in [CONTENT_TYPE]. Your task is to help creators develop engaging content that resonates with their audience while staying true to their values.
+
+Please follow this framework:
+1. Hook: Grab attention in the first 10 seconds
+2. Value: Deliver tangible benefits to the viewer
+3. Story: Connect emotionally through narrative
+4. Call-to-Action: Guide the viewer to the next step
+
+Consider these audience insights:
+- Primary audience: [AUDIENCE_DEMOGRAPHICS]
+- Key interests: [INTERESTS]
+- Pain points: [PAIN_POINTS]
+
+Ensure all content aligns with these brand values:
+- [VALUE_1]
+- [VALUE_2]
+- [VALUE_3]</textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Tags</label>
+                        <input type="text" class="form-input" placeholder="e.g., youtube, scriptwriting, content-creation">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Access Level</label>
+                        <select class="form-input">
+                            <option>Tier 1+</option>
+                            <option>Tier 2+</option>
+                            <option>Tier 3</option>
+                            <option>Admin Only</option>
+                        </select>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-3 pt-4">
+                        <button type="button" class="px-6 py-2 border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-800 transition-colors" id="cancel-prompt">
+                            Cancel
+                        </button>
+                        <button type="submit" class="px-6 py-2 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold hover:opacity-90 transition-opacity">
+                            Save Prompt
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme management
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Category selection
+        document.querySelectorAll('.category-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.category-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                
+                // In a real implementation, this would filter prompts by category
+                console.log('Filtering by category:', this.textContent.trim());
+            });
+        });
+        
+        // Modal functionality
+        const modal = document.getElementById('new-prompt-modal');
+        const newPromptButton = document.getElementById('new-prompt-button');
+        const closeModalButton = document.getElementById('close-modal');
+        const cancelPromptButton = document.getElementById('cancel-prompt');
+        
+        newPromptButton.addEventListener('click', function() {
+            modal.classList.add('active');
+        });
+        
+        closeModalButton.addEventListener('click', function() {
+            modal.classList.remove('active');
+        });
+        
+        cancelPromptButton.addEventListener('click', function() {
+            modal.classList.remove('active');
+        });
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                modal.classList.remove('active');
+            }
+        });
+        
+        // Form submission
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // In a real implementation, this would save the new prompt
+            console.log('Saving new prompt');
+            modal.classList.remove('active');
+            alert('Prompt saved successfully!');
+            form.reset();
+        });
+    </script>
+</body>
+</html>

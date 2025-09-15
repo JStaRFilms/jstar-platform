@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversation History | JohnGPT Creator Assistant</title>
+    <meta name="description" content="Browse and manage your JohnGPT conversation history. Search, organize, and revisit past conversations.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'obsidian-bg': '#202020',
+                        'obsidian-sidebar': '#161618',
+                        'obsidian-text': '#dcddde',
+                        'obsidian-text-muted': '#888888',
+                        'obsidian-accent': '#7c3aed',
+                        'obsidian-link': '#8b5cf6'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --growth-green: #059669;
+            --obsidian-bg: #202020;
+            --obsidian-sidebar: #161618;
+            --obsidian-text: #dcddde;
+            --obsidian-text-muted: #888888;
+            --obsidian-accent: #7c3aed;
+            --obsidian-link: #8b5cf6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --transition-normal: 300ms;
+        }
+        
+        .history-container {
+            display: flex;
+            height: calc(100vh - 4rem);
+            margin-top: 4rem;
+        }
+        
+        .sidebar {
+            width: 280px;
+            background: var(--obsidian-sidebar);
+            border-right: 1px solid #333;
+            overflow-y: auto;
+            transition: all var(--transition-normal) ease;
+        }
+        
+        .main-content {
+            flex: 1;
+            background: var(--obsidian-bg);
+            color: var(--obsidian-text);
+            overflow-y: auto;
+        }
+        
+        .navbar-blur {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .dark .navbar-blur {
+            background: rgba(17, 24, 39, 0.9);
+        }
+        
+        .search-box {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            color: var(--obsidian-text);
+            width: 100%;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: var(--obsidian-link);
+        }
+        
+        .filter-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .filter-button:hover {
+            background: rgba(124, 58, 235, 0.2);
+            border-color: var(--obsidian-link);
+        }
+        
+        .conversation-item {
+            padding: 1rem;
+            cursor: pointer;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+        
+        .conversation-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .conversation-item.active {
+            background: rgba(124, 58, 237, 0.2);
+            border-left: 3px solid var(--obsidian-link);
+        }
+        
+        .project-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .project-header:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 0.5rem;
+        }
+        
+        .project-conversations {
+            padding-left: 1rem;
+        }
+        
+        .action-button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+        
+        .action-button:hover {
+            background: rgba(124, 58, 235, 0.2);
+            border-color: var(--obsidian-link);
+        }
+        
+        .conversation-preview {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .preview-message {
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .preview-user {
+            background: rgba(37, 99, 235, 0.2);
+            margin-left: 2rem;
+        }
+        
+        .preview-ai {
+            background: rgba(124, 58, 237, 0.1);
+            margin-right: 2rem;
+        }
+        
+        .tag {
+            display: inline-block;
+            background: rgba(124, 58, 237, 0.2);
+            color: #c4b5fd;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .pagination-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--obsidian-text);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .pagination-button:hover {
+            background: rgba(124, 58, 235, 0.2);
+            border-color: var(--obsidian-link);
+        }
+        
+        .pagination-button.active {
+            background: rgba(124, 58, 237, 0.3);
+            border-color: var(--obsidian-link);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 navbar-blur border-b border-gray-200 dark:border-gray-700 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/" class="text-2xl font-bold bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">
+                        J StaR Films
+                    </a>
+                    <span class="mx-4 text-gray-300 dark:text-gray-600">/</span>
+                    <span class="text-gray-900 dark:text-white font-medium">JohnGPT</span>
+                    <span class="mx-4 text-gray-300 dark:text-gray-600">/</span>
+                    <span class="text-gray-900 dark:text-white font-medium">History</span>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="/" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Home</a>
+                    <a href="/about" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">About</a>
+                    <a href="/portfolio" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Portfolio</a>
+                    <a href="/services" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Services</a>
+                    <a href="/blog" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Blog</a>
+                    <a href="/store" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Store</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button onclick="document.documentElement.classList.toggle('dark')" 
+                            class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
+                            aria-label="Toggle theme">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </button>
+                    <button class="px-4 py-2 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold text-sm">
+                        Sign In
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Conversation History Interface -->
+    <div class="history-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="p-4">
+                <div class="relative mb-4">
+                    <input type="text" placeholder="Search conversations..." class="search-box">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute right-3 top-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                
+                <div class="flex space-x-2 mb-6">
+                    <button class="filter-button flex-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                        </svg>
+                        Filters
+                    </button>
+                    <button class="filter-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="project-group">
+                    <div class="project-header">
+                        <h3 class="font-semibold">Wedding Cinematography Project</h3>
+                        <span class="text-xs text-gray-500">12 conversations</span>
+                    </div>
+                    <div class="project-conversations">
+                        <div class="conversation-item active">
+                            <div class="flex justify-between">
+                                <span class="truncate">Pricing strategy for premium packages</span>
+                                <span class="text-xs text-gray-500">Jun 15</span>
+                            </div>
+                            <div class="text-xs text-gray-500 truncate mt-1">How should I structure my premium wedding...</div>
+                        </div>
+                        <div class="conversation-item">
+                            <div class="flex justify-between">
+                                <span class="truncate">Equipment checklist for outdoor weddings</span>
+                                <span class="text-xs text-gray-500">Jun 12</span>
+                            </div>
+                            <div class="text-xs text-gray-500 truncate mt-1">What gear do I need for a beach wedding...</div>
+                        </div>
+                        <div class="conversation-item">
+                            <div class="flex justify-between">
+                                <span class="truncate">Storytelling techniques for couple interviews</span>
+                                <span class="text-xs text-gray-500">Jun 8</span>
+                            </div>
+                            <div class="text-xs text-gray-500 truncate mt-1">How to get authentic responses from couples...</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="project-group">
+                    <div class="project-header">
+                        <h3 class="font-semibold">YouTube Growth Strategy</h3>
+                        <span class="text-xs text-gray-500">8 conversations</span>
+                    </div>
+                    <div class="project-conversations">
+                        <div class="conversation-item">
+                            <div class="flex justify-between">
+                                <span class="truncate">Content calendar for faith-based creators</span>
+                                <span class="text-xs text-gray-500">Jun 10</span>
+                            </div>
+                            <div class="text-xs text-gray-500 truncate mt-1">Help me plan a monthly content schedule...</div>
+                        </div>
+                        <div class="conversation-item">
+                            <div class="flex justify-between">
+                                <span class="truncate">Thumbnail design principles</span>
+                                <span class="text-xs text-gray-500">Jun 5</span>
+                            </div>
+                            <div class="text-xs text-gray-500 truncate mt-1">What makes an effective YouTube thumbnail...</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="project-group">
+                    <div class="project-header">
+                        <h3 class="font-semibold">App Development</h3>
+                        <span class="text-xs text-gray-500">5 conversations</span>
+                    </div>
+                    <div class="project-conversations">
+                        <div class="conversation-item">
+                            <div class="flex justify-between">
+                                <span class="truncate">Tech stack for creator tools platform</span>
+                                <span class="text-xs text-gray-500">Jun 3</span>
+                            </div>
+                            <div class="text-xs text-gray-500 truncate mt-1">What technologies should I use for...</div>
+                        </div>
+                        <div class="conversation-item">
+                            <div class="flex justify-between">
+                                <span class="truncate">User authentication implementation</span>
+                                <span class="text-xs text-gray-500">May 28</span>
+                            </div>
+                            <div class="text-xs text-gray-500 truncate mt-1">How to implement secure user login...</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="project-group">
+                    <div class="project-header">
+                        <h3 class="font-semibold">General</h3>
+                        <span class="text-xs text-gray-500">18 conversations</span>
+                    </div>
+                    <div class="project-conversations">
+                        <div class="conversation-item">
+                            <div class="flex justify-between">
+                                <span class="truncate">Time management for creators</span>
+                                <span class="text-xs text-gray-500">Jun 14</span>
+                            </div>
+                            <div class="text-xs text-gray-500 truncate mt-1">How to balance multiple creative projects...</div>
+                        </div>
+                        <div class="conversation-item">
+                            <div class="flex justify-between">
+                                <span class="truncate">Brand voice development</span>
+                                <span class="text-xs text-gray-500">Jun 7</span>
+                            </div>
+                            <div class="text-xs text-gray-500 truncate mt-1">How to develop a consistent brand voice...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h1 class="text-2xl font-bold mb-2">Conversation History</h1>
+                        <p class="text-gray-400">33 conversations • Sorted by recent activity</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="action-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                            </svg>
+                            Filter
+                        </button>
+                        <button class="action-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4" />
+                            </svg>
+                            Sort
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="conversation-preview">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h2 class="text-xl font-bold mb-1">Pricing strategy for premium packages</h2>
+                            <div class="flex items-center text-sm text-gray-400">
+                                <span>Wedding Cinematography Project</span>
+                                <span class="mx-2">•</span>
+                                <span>Jun 15, 2024</span>
+                                <span class="mx-2">•</span>
+                                <span>12 messages</span>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="p-2 rounded-lg hover:bg-gray-800 transition-colors" title="Open in Chat">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                                </svg>
+                            </button>
+                            <button class="p-2 rounded-lg hover:bg-gray-800 transition-colors" title="Save to Obsidian Vault">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                            </button>
+                            <button class="p-2 rounded-lg hover:bg-gray-800 transition-colors" title="Delete">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-wrap gap-2 mb-6">
+                        <span class="tag">#wedding-cinematography</span>
+                        <span class="tag">#pricing-strategy</span>
+                        <span class="tag">#business</span>
+                    </div>
+                    
+                    <div class="preview-message preview-user">
+                        <div class="font-medium mb-1">John Oluleke-Oke</div>
+                        <div>How should I structure my premium wedding cinematography packages? I want to offer different tiers that provide clear value at each level.</div>
+                    </div>
+                    
+                    <div class="preview-message preview-ai">
+                        <div class="font-medium mb-1">JohnGPT (Creative Director)</div>
+                        <div>Great question! Here's a tiered approach for your wedding cinematography packages that provides clear value differentiation:</div>
+                    </div>
+                    
+                    <div class="preview-message preview-ai">
+                        <div class="font-medium mb-1">JohnGPT (Creative Director)</div>
+                        <div><strong>Essential Package ($1,500)</strong>
+<ul>
+<li>4-5 minute highlight film</li>
+<li>2 camera angles</li>
+<li>Basic color grading</li>
+<li>Online gallery delivery</li>
+</ul>
+
+<strong>Premium Package ($2,500)</strong>
+<ul>
+<li>8-10 minute cinematic film</li>
+<li>3-4 camera angles</li>
+<li>Advanced color grading & visual effects</li>
+<li>Raw footage included</li>
+<li>Online gallery + USB delivery</li>
+</ul>
+
+<strong>Luxury Package ($4,000)</strong>
+<ul>
+<li>12-15 minute cinematic film</li>
+<li>15-20 minute extended highlights</li>
+<li>4-5 camera angles + drone footage</li>
+<li>Premium color grading & visual effects</li>
+<li>Raw footage + behind-the-scenes content</li>
+<li>Online gallery + luxury wooden box delivery</li>
+<li>One location scout session</li>
+</ul></div>
+                    </div>
+                    
+                    <div class="flex justify-center mt-6">
+                        <button class="px-6 py-2 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold hover:opacity-90 transition-opacity">
+                            Load Full Conversation
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="conversation-preview">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h2 class="text-xl font-bold mb-1">Equipment checklist for outdoor weddings</h2>
+                            <div class="flex items-center text-sm text-gray-400">
+                                <span>Wedding Cinematography Project</span>
+                                <span class="mx-2">•</span>
+                                <span>Jun 12, 2024</span>
+                                <span class="mx-2">•</span>
+                                <span>8 messages</span>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="p-2 rounded-lg hover:bg-gray-800 transition-colors" title="Open in Chat">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                                </svg>
+                            </button>
+                            <button class="p-2 rounded-lg hover:bg-gray-800 transition-colors" title="Save to Obsidian Vault">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                            </button>
+                            <button class="p-2 rounded-lg hover:bg-gray-800 transition-colors" title="Delete">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-wrap gap-2 mb-6">
+                        <span class="tag">#wedding-cinematography</span>
+                        <span class="tag">#equipment</span>
+                        <span class="tag">#outdoor-shoots</span>
+                    </div>
+                    
+                    <div class="preview-message preview-user">
+                        <div class="font-medium mb-1">John Oluleke-Oke</div>
+                        <div>What equipment should I bring for a beach wedding shoot? I want to be prepared for the unique challenges of outdoor environments.</div>
+                    </div>
+                    
+                    <div class="preview-message preview-ai">
+                        <div class="font-medium mb-1">JohnGPT (Technical Specialist)</div>
+                        <div>Beach weddings present unique challenges that require specific equipment preparation. Here's a comprehensive checklist:</div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-between items-center mt-8">
+                    <div class="text-gray-400">
+                        Showing 1-2 of 33 conversations
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="pagination-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+                        <button class="pagination-button active">1</button>
+                        <button class="pagination-button">2</button>
+                        <button class="pagination-button">3</button>
+                        <button class="pagination-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme management
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Conversation item selection
+        document.querySelectorAll('.conversation-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.conversation-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                
+                // In a real implementation, this would load the selected conversation
+                const conversationTitle = this.querySelector('span').textContent;
+                console.log('Loading conversation:', conversationTitle);
+            });
+        });
+        
+        // Project group toggle
+        document.querySelectorAll('.project-header').forEach(header => {
+            header.addEventListener('click', function() {
+                const conversations = this.nextElementSibling;
+                conversations.classList.toggle('hidden');
+                
+                // Toggle arrow icon
+                const icon = this.querySelector('svg');
+                if (conversations.classList.contains('hidden')) {
+                    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />';
+                } else {
+                    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
