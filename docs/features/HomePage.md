@@ -1,191 +1,85 @@
-# Feature: HomePage
+# Feature: Homepage Redesign
 
 ## 1. Purpose
 
-The `HomePage` feature is the main landing page of the J StaR Films website. It provides a comprehensive introduction to the platform, showcases services and achievements, and guides visitors toward key actions like viewing work, exploring tools, or starting projects.
+The homepage has been redesigned to act as a scrollable overview of the site, providing snippets and previews of the main pages to encourage exploration and engagement.
 
-## 2. Technology Stack
+## 2. Main Component (`src/app/page.tsx`)
 
-- **Framework:** Next.js 15.5.3 with App Router
-- **Language:** TypeScript
-- **Styling:** Tailwind CSS v4
-- **Icons:** Lucide React
-- **Theme:** Next Themes for dark/light mode support
+This is the primary container for the redesigned homepage, importing and rendering various section components.
 
-## 3. Main Component (`src/app/page.tsx`)
+### Structure
 
-This is the primary container component that orchestrates all homepage sections.
+The `HomePage` component renders the following sections in order:
 
-### Props
-None (static homepage content)
+- `<HeroSection />`
+- `<AboutSection />`
+- `<PortfolioSection />`
+- `<ServicesSection />`
+- `<StoreSection />`
+- `<BlogSection />`
+- `<ContactSection />`
 
-### State
-None (presentational component)
+## 3. Component Details
 
-### Sections
+### `HeroSection.tsx`
+- **Purpose:** Displays the main hero banner with a cinematic background, headline, subtitle, and call-to-action buttons.
+- **Reference Mockup:** `docs/Mockups/01_Public_Website/homepage-unified.html`
 
--   **Header:** Navigation bar with logo, menu items, theme toggle, and JohnGPT access
--   **HeroSection:** Cinematic landing section with video background placeholder, main headline, CTAs, and lead magnet
--   **StatsSection:** Key statistics display (projects, apps, views, experience)
--   **ServicesSection:** Three main service offerings with descriptions and links
--   **CtaSection:** Final call-to-action section with project inquiry buttons
+### `AboutSection.tsx`
+- **Purpose:** Provides a concise overview of John Oluleke-Oke, highlighting his roles as a filmmaker, app developer, and AI creator.
+- **Reference Mockup:** `docs/Mockups/01_Public_Website/about-enhanced.html`
 
-## 4. Component Architecture
+### `PortfolioSection.tsx`
+- **Purpose:** Showcases a few example projects from the portfolio with a call-to-action to view the full portfolio.
+- **Reference Mockup:** `docs/Mockups/01_Public_Website/portfolio-advanced.html`
 
-### File Structure
-```
-src/
-├── app/
-│   └── page.tsx                    # Main homepage component
-└── features/
-    └── HomePage/
-        ├── components/
-        │   ├── Header.tsx          # Navigation component
-        │   ├── hero-section.tsx    # Hero landing section
-        │   ├── stats-section.tsx   # Statistics display
-        │   ├── services-section.tsx # Services overview
-        │   └── cta-section.tsx     # Call-to-action section
-        └── index.ts                # Barrel export file
-```
+### `ServicesSection.tsx`
+- **Purpose:** Highlights the main services offered (Video Production, App Development, AI Creator Tools) with brief descriptions and links to learn more.
+- **Reference Mockup:** `docs/Mockups/01_Public_Website/services-comprehensive.html`
 
-### Component Breakdown
+### `StoreSection.tsx`
+- **Purpose:** Features a few digital products from the store (courses, templates, AI tools) with a call-to-action to visit the full store.
+- **Reference Mockup:** `docs/Mockups/01_Public_Website/store-enhanced.html`
 
-#### Header.tsx
-- **Purpose:** Provides navigation and access to key sections
-- **Features:**
-  - Fixed navigation with scroll effects
-  - Mobile-responsive hamburger menu
-  - Theme toggle integration
-  - JohnGPT access button
-  - Smooth scroll navigation to sections
+### `BlogSection.tsx`
+- **Purpose:** Displays the latest blog posts, offering insights on creativity, technology, and faith, with a link to read more articles.
+- **Reference Mockup:** `docs/Mockups/01_Public_Website/blog-interface.html`
 
-#### hero-section.tsx
-- **Purpose:** Main landing section that captures attention and drives action
-- **Features:**
-  - Video background placeholder with cinematic styling
-  - Animated gradient text effects
-  - Multiple call-to-action buttons
-  - Lead magnet for resource download
-  - Scroll indicator for user guidance
+### `ContactSection.tsx`
+- **Purpose:** Presents a call-to-action to get in touch, encouraging users to start a project or view pricing.
+- **Reference Mockup:** `docs/Mockups/01_Public_Website/contact-leadgen.html`
 
-#### stats-section.tsx
-- **Purpose:** Showcases key achievements and credibility
-- **Features:**
-  - Four key statistics with custom styling
-  - Gradient text effects for emphasis
-  - Responsive grid layout
+## 4. Styling and Responsiveness
 
-#### services-section.tsx
-- **Purpose:** Presents the three main service offerings
-- **Features:**
-  - Three service cards with icons and descriptions
-  - Gradient icon backgrounds
-  - Hover effects and smooth transitions
-  - Links to relevant sections
+- **Tailwind CSS v4:** All styling is implemented using Tailwind CSS utility classes, following the guidelines in `docs/Styling-in-Next-and-Tailwind-v4.md`.
+- **Mobile-First:** The design adheres to a mobile-first approach, ensuring optimal viewing and interaction across all device sizes, as detailed in `docs/features/MobileFirstResponsiveDesign.md`.
 
-#### cta-section.tsx
-- **Purpose:** Final conversion section to drive project inquiries
-- **Features:
-  - Gradient background matching brand colors
-  - Dual call-to-action buttons
-  - Clear value proposition messaging
+## 5. Usage Example
 
-## 5. Implementation Status
-
-### ✅ Completed Components
-1. **(DONE)** Create Next.js homepage structure with App Router
-2. **(DONE)** Implement Header component with navigation and theme toggle
-3. **(DONE)** Implement HeroSection with cinematic design and CTAs
-4. **(DONE)** Implement StatsSection with key metrics display
-5. **(DONE)** Implement ServicesSection with service offerings
-6. **(DONE)** Implement CtaSection with final conversion elements
-7. **(DONE)** Integrate all components in main page.tsx
-8. **(DONE)** Apply Tailwind CSS v4 styling with custom theme colors
-9. **(DONE)** Add responsive design for mobile and desktop
-10. **(DONE)** Implement dark/light theme support
-
-### 🎨 Design Features Implemented
-- Custom color palette (jstar-blue, faith-purple, growth-green)
-- Gradient text effects and backgrounds
-- Smooth animations and transitions
-- Mobile-first responsive design
-- Accessibility considerations (semantic HTML, ARIA labels)
-- Performance optimized with Next.js features
-
-## 6. Usage Example
+The `HomePage` component is the default export for `src/app/page.tsx` and is automatically rendered as the application's root page.
 
 ```tsx
 // src/app/page.tsx
-import { CtaSection } from "@/features/HomePage/components/cta-section";
-import { HeroSection } from "@/features/HomePage/components/hero-section";
-import { ServicesSection } from "@/features/HomePage/components/services-section";
-import { StatsSection } from "@/features/HomePage/components/stats-section";
-import Header from "@/features/HomePage/components/Header";
+import HeroSection from "@/features/HomePage/components/HeroSection";
+import AboutSection from "@/features/HomePage/components/AboutSection";
+import PortfolioSection from "@/features/HomePage/components/PortfolioSection";
+import ServicesSection from "@/features/HomePage/components/ServicesSection";
+import StoreSection from "@/features/HomePage/components/StoreSection";
+import BlogSection from "@/features/HomePage/components/BlogSection";
+import ContactSection from "@/features/HomePage/components/ContactSection";
 
-export default function Home() {
+export default function HomePage() {
   return (
     <>
-      <Header />
-      <main>
-        <HeroSection />
-        <StatsSection />
-        <ServicesSection />
-        <CtaSection />
-      </main>
+      <HeroSection />
+      <AboutSection />
+      <PortfolioSection />
+      <ServicesSection />
+      <StoreSection />
+      <BlogSection />
+      <ContactSection />
     </>
   );
 }
 ```
-
-## Change Log
-
-### [Date: 2025-09-14] - Header Component Refactoring for Shared Navigation
-
-**Purpose:** Refactored header architecture to support unique headers for each main page while maintaining consistent global navigation, addressing the conflict of multiple header components and ensuring correct page-to-page navigation.
-
-**Changes:**
-- Removed the `Header` component from `src/app/layout.tsx`. Each page is now responsible for rendering its own header.
-- Renamed `src/components/layout/header.tsx` to `src/components/layout/SharedNavigation.tsx`. This component now exclusively contains the core navigation links to all main pages (Home, About, Portfolio, Services, Blog, Contact).
-- `src/features/HomePage/components/Header.tsx` will now compose `SharedNavigation` for its external links, while retaining its homepage-specific UI and internal anchor links.
-- New feature headers (e.g., for the About page) will also compose `SharedNavigation`.
-
-**Impact:**
-- Each main page can have a visually distinct header.
-- Consistent navigation to all main pages is ensured across the application.
-- Adherence to Component-Driven Development and Single Responsibility Principle is improved.
-
-
-## 7. Key Features & Functionality
-
-### Navigation & UX
-- **Smooth Scrolling:** Header navigation links use smooth scroll behavior
-- **Mobile Menu:** Responsive hamburger menu for mobile devices
-- **Theme Toggle:** Integrated dark/light mode switching
-- **JohnGPT Access:** Direct access to AI assistant functionality
-
-### Content & Conversion
-- **Lead Magnet:** Free resource download offer in hero section
-- **Multiple CTAs:** Strategic placement of call-to-action buttons
-- **Service Showcase:** Clear presentation of three main service areas
-- **Social Proof:** Statistics section builds credibility
-
-### Technical Implementation
-- **TypeScript:** Full type safety throughout components
-- **Performance:** Optimized with Next.js App Router and React 19
-- **Accessibility:** Semantic HTML and ARIA attributes
-- **Responsive:** Mobile-first design with breakpoint optimizations
-
-## 8. Future Enhancements
-
-### Potential Additions
-- **Portfolio Integration:** Link to actual portfolio showcase
-- **Blog Preview:** Recent blog posts section
-- **Testimonials:** Client testimonials and reviews
-- **Contact Form:** Integrated contact functionality
-- **Newsletter Signup:** Email capture for lead generation
-
-### Performance Optimizations
-- **Image Optimization:** Next.js Image component for hero visuals
-- **Lazy Loading:** Component lazy loading for better performance
-- **SEO Enhancement:** Meta tags and structured data
-- **Analytics Integration:** Track user interactions and conversions

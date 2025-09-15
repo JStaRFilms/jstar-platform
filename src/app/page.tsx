@@ -1,15 +1,22 @@
+
 import HeroSection from "@/features/HomePage/components/HeroSection";
-import StatsSection from "@/features/HomePage/components/StatsSection";
+import AboutSection from "@/features/HomePage/components/AboutSection";
+import PortfolioSection from "@/features/HomePage/components/PortfolioSection";
 import ServicesSection from "@/features/HomePage/components/ServicesSection";
-import CtaSection from "@/features/HomePage/components/CtaSection";
+import StoreSection from "@/features/HomePage/components/StoreSection";
+import BlogSection from "@/features/HomePage/components/BlogSection";
+import ContactSection from "@/features/HomePage/components/ContactSection";
 
 export default function HomePage() {
   return (
     <>
       <HeroSection />
-      <StatsSection />
+      <AboutSection />
+      <PortfolioSection />
       <ServicesSection />
-      <CtaSection />
+      <StoreSection />
+      <BlogSection />
+      <ContactSection />
     </>
   );
 }
