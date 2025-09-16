@@ -117,9 +117,43 @@ enum AdminRole {
   MODERATOR
 }
 
+/**
+ * Hero Slides - Dynamic content for homepage hero section
+ * Allows admin to manage carousel slides with custom content
+ */
+model HeroSlide {
+  id          String   @id @default(cuid())
+  titleLine1   String
+  titleLine2   String
+  tagline     String
+  description String
+  imageUrl    String   // URL to the slide image
+  gradient    String   // Tailwind gradient classes for title
+  buttonGradient String // Tailwind gradient classes for primary button
+  buttonBorder String  // Tailwind border classes for secondary button
+  buttonText  String   // Tailwind text color classes for secondary button
+  buttonHover String   // Tailwind hover classes for secondary button
+
+  // Admin management
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String?  // Future: link to admin user
+
+  // Metadata
+  altText     String?  // Alt text for accessibility
+  projectTitle String? // Title for the project overlay
+  projectDesc String?  // Description for the project overlay
+
+  @@map("hero_slides")
+}
+
 // Indexes for performance
 // Note: SQLite doesn't support all index types, but these are defined for future PostgreSQL migration
 // @@index([email])
 // @@index([submittedAt])
 // @@index([status])
 // @@index([service])
+// @@index([isActive])
+// @@index([sortOrder])

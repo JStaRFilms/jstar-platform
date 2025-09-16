@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - Feature Flags</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'admin-red': '#DC2626'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-tier1: linear-gradient(135deg, var(--brand-blue) 0%, #3B82F6 100%);
+            --gradient-tier2: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-admin: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        }
+        .btn-enhanced {
+            transition: all 300ms ease;
+        }
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+        }
+        .card-interactive {
+            transition: all 300ms ease;
+            cursor: pointer;
+        }
+        .card-interactive:hover {
+            transform: translateY(-4px);
+        }
+        .module-card {
+            transition: all 300ms ease;
+            border-left: 3px solid transparent;
+        }
+        .module-card:hover {
+            border-left-color: #DC2626;
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-active {
+            background-color: #10B981;
+        }
+        .status-warning {
+            background-color: #F59E0B;
+        }
+        .status-critical {
+            background-color: #EF4444;
+        }
+        .activity-item {
+            transition: all 200ms ease;
+        }
+        .activity-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .sidebar-item {
+            transition: all 200ms ease;
+        }
+        .sidebar-item:hover {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: #DC2626;
+        }
+        .sidebar-item.active {
+            background-color: rgba(220, 38, 38, 0.15);
+            color: #DC2626;
+            font-weight: 600;
+            border-left: 3px solid #DC2626;
+        }
+        .quick-action {
+            transition: all 300ms ease;
+        }
+        .quick-action:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.2);
+        }
+        .system-metric {
+            transition: all 200ms ease;
+        }
+        .system-metric:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-value {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        .feature-flag {
+            transition: all 200ms ease;
+        }
+        .feature-flag:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .tier-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .tier-admin {
+            background: var(--gradient-admin);
+            color: white;
+        }
+        .flag-status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-enabled {
+            background-color: #10B981;
+        }
+        .status-disabled {
+            background-color: #6B7280;
+        }
+        .status-partial {
+            background-color: #F59E0B;
+        }
+        .targeting-rule {
+            transition: all 200ms ease;
+        }
+        .targeting-rule:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .traffic-split {
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+        }
+        .traffic-split-enabled {
+            background: var(--gradient-admin);
+        }
+        .traffic-split-disabled {
+            background: #E5E7EB;
+            flex: 1;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <!-- Theme Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="document.documentElement.classList.toggle('dark')" 
+                class="p-2 rounded-full bg-jstar-blue text-white hover:bg-faith-purple transition-all duration-300"
+                aria-label="Toggle dark/light theme">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Admin Navigation -->
+    <div class="fixed top-0 left-0 h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <a href="/admin" class="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                J StaR Admin
+            </a>
+        </div>
+        
+        <div class="p-4">
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Platform Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="/admin/cms" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        CMS
+                    </a>
+                    <a href="/admin/johngpt" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                        JohnGPT
+                    </a>
+                    <a href="/admin/cge" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        CGE Tools
+                    </a>
+                    <a href="/admin/users" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        User Management
+                    </a>
+                    <a href="/admin/analytics" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Analytics
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    System Management
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin/system-diagnostic" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                        System Diagnostics
+                    </a>
+                    <a href="/admin/migration-center" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                        </svg>
+                        Migration Center
+                    </a>
+                    <a href="/admin/security" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                        Security
+                    </a>
+                    <a href="/admin/feature-flags" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v11m3 4l3-3m0 0l-3-3m3 3V7"></path>
+                        </svg>
+                        Feature Flags
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center">
+                        <span class="text-white font-bold">JO</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Admin Access</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 p-6">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
+                        Feature Flags
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">
+                        Dark launch features, target user groups, and run A/B tests
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced" id="create-feature-btn">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        Create Feature Flag
+                    </button>
+                    <div class="relative">
+                        <input type="text" placeholder="Search features..." 
+                               class="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                        <svg class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- System Status -->
+        <section class="mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Feature Management</h2>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">
+                            Control feature visibility across user tiers and traffic percentages
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">18 Active Flags</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-warning"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">3 In Testing</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">All Synced</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Stats -->
+        <section class="mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-admin-red mb-2">18</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Total Feature Flags</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-purple-500 mb-2">5</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">In Development</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-green-500 mb-2">12</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Fully Deployed</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-red-500 mb-2">1</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Rollback Needed</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Feature Flags Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - Feature Flags List -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Feature Flags List -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-center mb-5">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Feature Flags</h2>
+                        <div class="flex space-x-2">
+                            <select class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <option>All Statuses</option>
+                                <option>Enabled</option>
+                                <option>Disabled</option>
+                                <option>Partial Rollout</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <!-- Feature Flag 1 -->
+                        <div class="feature-flag p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">YouTube Virality OS</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Full YouTube analytics suite</p>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 px-2 py-1 rounded">Tier 2+</span>
+                                    <span class="flag-status status-enabled"></span>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">Rollout: 100% of Tier 2+ users</div>
+                                <div class="traffic-split">
+                                    <div class="traffic-split-enabled" style="width: 100%"></div>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex justify-between">
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Created: June 10, 2024</div>
+                                <div class="flex space-x-2">
+                                    <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                        Edit
+                                    </button>
+                                    <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                        Rollback
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Feature Flag 2 -->
+                        <div class="feature-flag p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Client Magnet Pro</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Advanced lead generation system</p>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 px-2 py-1 rounded">Tier 3</span>
+                                    <span class="flag-status status-partial"></span>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">Rollout: 30% of Tier 3 users</div>
+                                <div class="traffic-split">
+                                    <div class="traffic-split-enabled" style="width: 30%"></div>
+                                    <div class="traffic-split-disabled"></div>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex justify-between">
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Created: June 5, 2024</div>
+                                <div class="flex space-x-2">
+                                    <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                        Edit
+                                    </button>
+                                    <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                        Rollback
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Feature Flag 3 -->
+                        <div class="feature-flag p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Scripting Studio Canvas</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Visual workflow editor for scripts</p>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 px-2 py-1 rounded">All Users</span>
+                                    <span class="flag-status status-disabled"></span>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">Rollout: 0% (Disabled)</div>
+                                <div class="traffic-split">
+                                    <div class="traffic-split-enabled" style="width: 0%"></div>
+                                    <div class="traffic-split-disabled"></div>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex justify-between">
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Created: May 28, 2024</div>
+                                <div class="flex space-x-2">
+                                    <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                        Edit
+                                    </button>
+                                    <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                        Rollback
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Feature Flag 4 -->
+                        <div class="feature-flag p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">AI Voice Cloning</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Beta voice generation feature</p>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 px-2 py-1 rounded">Internal</span>
+                                    <span class="flag-status status-partial"></span>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">Rollout: 15% of Admin users</div>
+                                <div class="traffic-split">
+                                    <div class="traffic-split-enabled" style="width: 15%"></div>
+                                    <div class="traffic-split-disabled"></div>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex justify-between">
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Created: June 1, 2024</div>
+                                <div class="flex space-x-2">
+                                    <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                        Edit
+                                    </button>
+                                    <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                        Rollback
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- A/B Testing -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-center mb-5">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">A/B Testing</h2>
+                        <button class="text-sm bg-red-50 dark:bg-red-900/20 text-admin-red px-3 py-1 rounded-lg">
+                            Create Test
+                        </button>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">JohnGPT Persona Selector</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Testing two different UI layouts</p>
+                                </div>
+                                <span class="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 rounded text-xs font-medium">
+                                    Running
+                                </span>
+                            </div>
+                            <div class="mt-3 grid grid-cols-2 gap-4">
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Variant A</div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Card Layout</div>
+                                    <div class="mt-2 text-sm text-green-600">+12.4% engagement</div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Variant B</div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Dropdown Layout</div>
+                                    <div class="mt-2 text-sm text-gray-500 dark:text-gray-400">Baseline</div>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex justify-between">
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Started: June 8, 2024</div>
+                                <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                    View Results
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Scripting Studio UI</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Testing canvas vs split-view interface</p>
+                                </div>
+                                <span class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 rounded text-xs font-medium">
+                                    Draft
+                                </span>
+                            </div>
+                            <div class="mt-3 grid grid-cols-2 gap-4">
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Variant A</div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Canvas Mode</div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Variant B</div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Split View</div>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex justify-between">
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Scheduled: June 15, 2024</div>
+                                <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                    Edit Test
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Feature Flag History -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Change History</h2>
+                    <div class="space-y-4">
+                        <div class="feature-flag p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">YouTube Virality OS - Rollout increased</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">From 75% to 100% of Tier 2+ users</div>
+                                </div>
+                                <span class="text-sm text-gray-500 dark:text-gray-400">Today, 2:45 PM</span>
+                            </div>
+                            <div class="mt-2 flex justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-6 h-6 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center text-white text-xs mr-2">
+                                        JO
+                                    </div>
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">John Oluleke-Oke</span>
+                                </div>
+                                <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                    View Changes
+                                </button>
+                            </div>
+                        </div>
+                        <div class="feature-flag p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Scripting Studio Canvas - Disabled</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Rollout set to 0% for all users</div>
+                                </div>
+                                <span class="text-sm text-gray-500 dark:text-gray-400">June 14, 2024</span>
+                            </div>
+                            <div class="mt-2 flex justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-6 h-6 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center text-white text-xs mr-2">
+                                        JO
+                                    </div>
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">John Oluleke-Oke</span>
+                                </div>
+                                <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                    View Changes
+                                </button>
+                            </div>
+                        </div>
+                        <div class="feature-flag p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Client Magnet Pro - Rollout increased</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">From 15% to 30% of Tier 3 users</div>
+                                </div>
+                                <span class="text-sm text-gray-500 dark:text-gray-400">June 12, 2024</span>
+                            </div>
+                            <div class="mt-2 flex justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-6 h-6 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center text-white text-xs mr-2">
+                                        JO
+                                    </div>
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">John Oluleke-Oke</span>
+                                </div>
+                                <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                    View Changes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Feature Configuration -->
+            <div class="space-y-6">
+                <!-- Create New Feature Panel -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 hidden" id="create-feature-panel">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Create New Feature Flag</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Feature Name</label>
+                            <input type="text" placeholder="e.g., YouTube Virality OS" 
+                                   class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+                            <textarea rows="3" placeholder="Brief description of the feature" 
+                                      class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Feature ID</label>
+                            <div class="relative">
+                                <input type="text" value="youtube-virality-os" 
+                                       class="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <svg class="h-5 w-5 absolute left-3 top-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Default State</label>
+                            <select class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <option>Enabled</option>
+                                <option>Disabled</option>
+                            </select>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-3">Targeting Rules</h3>
+                            <div class="space-y-3">
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="font-medium text-gray-900 dark:text-white">User Tier</span>
+                                        <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                            Remove
+                                        </button>
+                                    </div>
+                                    <select class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                        <option>Any Tier</option>
+                                        <option>Guest</option>
+                                        <option>Tier 1</option>
+                                        <option>Tier 2</option>
+                                        <option>Tier 3</option>
+                                        <option>Admin</option>
+                                    </select>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="font-medium text-gray-900 dark:text-white">Rollout Percentage</span>
+                                        <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                            Remove
+                                        </button>
+                                    </div>
+                                    <div class="mt-2">
+                                        <div class="flex justify-between text-sm text-gray-500 dark:text-gray-400 mb-1">
+                                            <span>0%</span>
+                                            <span>100%</span>
+                                        </div>
+                                        <input type="range" min="0" max="100" value="100" 
+                                               class="w-full accent-red-500">
+                                        <div class="text-center mt-1 font-medium">100%</div>
+                                    </div>
+                                </div>
+                                <button class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 font-medium">
+                                    + Add Targeting Rule
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex space-x-3">
+                            <button class="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 font-medium" id="cancel-create">
+                                Cancel
+                            </button>
+                            <button class="flex-1 px-4 py-3 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium">
+                                Create Feature
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Feature Configuration -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700" id="feature-config-panel">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Feature Configuration</h2>
+                    <div class="space-y-5">
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="text-sm text-gray-500 dark:text-gray-400">Feature ID</div>
+                            <div class="font-mono font-medium text-gray-900 dark:text-white">youtube-virality-os</div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+                            <select class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <option>Enabled</option>
+                                <option>Disabled</option>
+                                <option>Partial Rollout</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-3">Targeting Rules</h3>
+                            <div class="space-y-3">
+                                <div class="targeting-rule p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="font-medium text-gray-900 dark:text-white">User Tier</span>
+                                        <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                            Edit
+                                        </button>
+                                    </div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400">Available to: Tier 2, Tier 3</div>
+                                </div>
+                                <div class="targeting-rule p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="font-medium text-gray-900 dark:text-white">Rollout Percentage</span>
+                                        <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                            Edit
+                                        </button>
+                                    </div>
+                                    <div class="mt-2">
+                                        <div class="flex justify-between text-sm text-gray-500 dark:text-gray-400 mb-1">
+                                            <span>0%</span>
+                                            <span>100%</span>
+                                        </div>
+                                        <input type="range" min="0" max="100" value="100" 
+                                               class="w-full accent-red-500">
+                                        <div class="text-center mt-1 font-medium">100%</div>
+                                    </div>
+                                </div>
+                                <button class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 font-medium">
+                                    + Add Targeting Rule
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-3">Feature Analytics</h3>
+                            <div class="space-y-3">
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-500 dark:text-gray-400">Enabled Users</span>
+                                        <span class="text-sm font-medium text-gray-900 dark:text-white">1,247</span>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-500 dark:text-gray-400">Usage Rate</span>
+                                        <span class="text-sm font-medium text-gray-900 dark:text-white">78.4%</span>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-500 dark:text-gray-400">Engagement Score</span>
+                                        <span class="text-sm font-medium text-green-600">+12.4%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button class="w-full px-4 py-3 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium">
+                            Save Changes
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Targeting Rules Reference -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Targeting Rules Reference</h2>
+                    <div class="space-y-3">
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Rule Priority:</strong> Rules are evaluated in order. First matching rule determines access.
+                            </p>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">User Tier Rules</div>
+                            <ul class="list-disc list-inside text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                                <li>Guest: Website visitors without account</li>
+                                <li>Tier 1: JohnGPT subscribers</li>
+                                <li>Tier 2: Creator Growth Engine subscribers</li>
+                                <li>Tier 3: Full Platform subscribers</li>
+                                <li>Admin: Platform owner</li>
+                            </ul>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">Rollout Rules</div>
+                            <ul class="list-disc list-inside text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                                <li>Percentage-based rollout for A/B testing</li>
+                                <li>Random assignment based on user ID</li>
+                                <li>0% = Disabled, 100% = Fully enabled</li>
+                            </ul>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">Custom Rules</div>
+                            <ul class="list-disc list-inside text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                                <li>User location (country/region)</li>
+                                <li>Device type (mobile/desktop)</li>
+                                <li>Referral source</li>
+                                <li>Custom user properties</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Emergency Panel -->
+                <div class="bg-red-50 dark:bg-red-900/20 rounded-2xl p-6 shadow-lg border border-red-200 dark:border-red-800">
+                    <h2 class="text-xl font-bold text-red-900 dark:text-red-100 mb-4">Emergency Tools</h2>
+                    <div class="space-y-3">
+                        <p class="text-sm text-red-800 dark:text-red-200">
+                            Critical functions for immediate feature management and recovery.
+                        </p>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                            ONE BUTTON: Disable All New Features
+                        </button>
+                        <div class="flex space-x-2">
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Rollback to Last Stable
+                            </button>
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Enable Safe Mode
+                            </button>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                            Send SOS Email to Dev Friend
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-apply theme
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Initialize sidebar active state
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set Feature Flags as active in sidebar
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.href.includes('feature-flags')) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Toggle create feature panel
+            document.getElementById('create-feature-btn').addEventListener('click', function() {
+                document.getElementById('create-feature-panel').classList.remove('hidden');
+                document.getElementById('feature-config-panel').classList.add('hidden');
+            });
+            
+            document.getElementById('cancel-create').addEventListener('click', function() {
+                document.getElementById('create-feature-panel').classList.add('hidden');
+                document.getElementById('feature-config-panel').classList.remove('hidden');
+            });
+        });
+    </script>
+</body>
+</html>

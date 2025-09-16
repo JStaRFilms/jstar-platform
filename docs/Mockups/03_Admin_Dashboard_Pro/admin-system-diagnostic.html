@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - System Diagnostic</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'admin-red': '#DC2626'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-tier1: linear-gradient(135deg, var(--brand-blue) 0%, #3B82F6 100%);
+            --gradient-tier2: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-admin: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        }
+        .btn-enhanced {
+            transition: all 300ms ease;
+        }
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+        }
+        .card-interactive {
+            transition: all 300ms ease;
+            cursor: pointer;
+        }
+        .card-interactive:hover {
+            transform: translateY(-4px);
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-active {
+            background-color: #10B981;
+        }
+        .status-warning {
+            background-color: #F59E0B;
+        }
+        .status-critical {
+            background-color: #EF4444;
+        }
+        .metric-card {
+            transition: all 200ms ease;
+        }
+        .metric-card:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .sidebar-item {
+            transition: all 200ms ease;
+        }
+        .sidebar-item:hover {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: #DC2626;
+        }
+        .sidebar-item.active {
+            background-color: rgba(220, 38, 38, 0.15);
+            color: #DC2626;
+            font-weight: 600;
+            border-left: 3px solid #DC2626;
+        }
+        .system-metric {
+            transition: all 200ms ease;
+        }
+        .system-metric:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-value {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        .gauge-container {
+            position: relative;
+            width: 100%;
+            height: 100px;
+        }
+        .gauge-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .recommendation-card {
+            border-left: 3px solid transparent;
+        }
+        .recommendation-card:hover {
+            border-left-color: #DC2626;
+        }
+        .recommendation-high {
+            border-left-color: #EF4444;
+        }
+        .recommendation-medium {
+            border-left-color: #F59E0B;
+        }
+        .recommendation-low {
+            border-left-color: #10B981;
+        }
+        .benchmark-item {
+            transition: all 200ms ease;
+        }
+        .benchmark-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <!-- Theme Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="document.documentElement.classList.toggle('dark')" 
+                class="p-2 rounded-full bg-jstar-blue text-white hover:bg-faith-purple transition-all duration-300"
+                aria-label="Toggle dark/light theme">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Admin Navigation -->
+    <div class="fixed top-0 left-0 h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <a href="/admin" class="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                J StaR Admin
+            </a>
+        </div>
+        
+        <div class="p-4">
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Platform Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="/admin/cms" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        CMS
+                    </a>
+                    <a href="/admin/johngpt" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                        JohnGPT
+                    </a>
+                    <a href="/admin/cge" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        CGE Tools
+                    </a>
+                    <a href="/admin/users" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        User Management
+                    </a>
+                    <a href="/admin/analytics" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Analytics
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    System Management
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin/system-diagnostic" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                        System Diagnostics
+                    </a>
+                    <a href="/admin/migration-center" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                        </svg>
+                        Migration Center
+                    </a>
+                    <a href="/admin/security" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                        Security
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center">
+                        <span class="text-white font-bold">JO</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Admin Access</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 p-6">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
+                        System Diagnostics
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">
+                        Hardware profiling, AI model health, and performance diagnostics
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        Run Full Diagnostic
+                    </button>
+                    <button class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 font-medium">
+                        Export Report
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- System Status -->
+        <section class="mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">System Status</h2>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">
+                            Current hardware utilization and AI model health
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Local Mode</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">AI Models Running</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-warning"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Cloud Sync Pending</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Stats -->
+        <section class="mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-admin-red mb-2">85%</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">VRAM Usage</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-purple-500 mb-2">1.2s</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">AI Response Time</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-green-500 mb-2">45.2 GB</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Storage Used</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-red-500 mb-2">4.8/10</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Performance Score</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Diagnostic Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - Primary Diagnostics -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Hardware Profiler -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-center mb-5">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Hardware Profiler</h2>
+                        <button class="text-sm bg-red-50 dark:bg-red-900/20 text-admin-red px-3 py-1 rounded-lg">
+                            Run Benchmark
+                        </button>
+                    </div>
+                    <div class="space-y-6">
+                        <!-- CPU Section -->
+                        <div>
+                            <div class="flex justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">CPU: Intel Core i7-11800H</span>
+                                <span class="text-sm font-medium text-yellow-600">68°C</span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                                <div class="bg-gradient-to-r from-admin-red to-red-500 h-2.5 rounded-full" style="width: 72%"></div>
+                            </div>
+                            <div class="mt-2 flex justify-between text-sm text-gray-500 dark:text-gray-400">
+                                <span>8 cores / 16 threads</span>
+                                <span>72% utilization</span>
+                            </div>
+                        </div>
+                        
+                        <!-- GPU Section -->
+                        <div>
+                            <div class="flex justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">GPU: NVIDIA RTX 3070</span>
+                                <span class="text-sm font-medium text-yellow-600">78°C</span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                                <div class="bg-gradient-to-r from-admin-red to-red-500 h-2.5 rounded-full" style="width: 85%"></div>
+                            </div>
+                            <div class="mt-2 flex justify-between text-sm text-gray-500 dark:text-gray-400">
+                                <span>8GB VRAM / 16GB system RAM</span>
+                                <span>85% utilization</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Storage Section -->
+                        <div>
+                            <div class="flex justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Storage: Samsung 980 Pro 1TB</span>
+                                <span class="text-sm font-medium text-yellow-600">45.2 GB used</span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                                <div class="bg-gradient-to-r from-admin-red to-red-500 h-2.5 rounded-full" style="width: 78%"></div>
+                            </div>
+                            <div class="mt-2 flex justify-between text-sm text-gray-500 dark:text-gray-400">
+                                <span>78% capacity</span>
+                                <span>45.2 GB / 60 GB (Vault)</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Network Section -->
+                        <div>
+                            <div class="flex justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Network: Wi-Fi 6 (AX201)</span>
+                                <span class="text-sm font-medium text-green-600">58 Mbps</span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                                <div class="bg-gradient-to-r from-admin-red to-red-500 h-2.5 rounded-full" style="width: 42%"></div>
+                            </div>
+                            <div class="mt-2 flex justify-between text-sm text-gray-500 dark:text-gray-400">
+                                <span>Latency: 24 ms</span>
+                                <span>58 Mbps download speed</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- AI Model Health -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-center mb-5">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">AI Model Health</h2>
+                        <div class="flex space-x-2">
+                            <button class="text-sm border border-gray-300 dark:border-gray-600 px-3 py-1 rounded-lg">
+                                Refresh
+                            </button>
+                            <button class="text-sm bg-red-50 dark:bg-red-900/20 text-admin-red px-3 py-1 rounded-lg">
+                                Optimize
+                            </button>
+                        </div>
+                    </div>
+                    <div class="space-y-5">
+                        <!-- Ollama Status -->
+                        <div>
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Ollama (Llama3-70B)</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Local LLM Server</p>
+                                </div>
+                                <span class="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 rounded text-xs font-medium">
+                                    Running
+                                </span>
+                            </div>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3">
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">VRAM</div>
+                                    <div class="font-medium text-gray-900 dark:text-white">7.8/8 GB</div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Response Time</div>
+                                    <div class="font-medium text-gray-900 dark:text-white">1.2s</div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Tokens/sec</div>
+                                    <div class="font-medium text-gray-900 dark:text-white">28</div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Status</div>
+                                    <div class="font-medium text-green-600">Healthy</div>
+                                </div>
+                            </div>
+                            <div class="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                    <strong>Recommendation:</strong> Model is running near VRAM capacity. Consider switching to Llama3-8B for better performance during client calls.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- LM Studio Status -->
+                        <div>
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">LM Studio (Mistral)</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Local LLM Client</p>
+                                </div>
+                                <span class="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 rounded text-xs font-medium">
+                                    Running
+                                </span>
+                            </div>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3">
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">VRAM</div>
+                                    <div class="font-medium text-gray-900 dark:text-white">3.2/8 GB</div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Response Time</div>
+                                    <div class="font-medium text-gray-900 dark:text-white">0.8s</div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Tokens/sec</div>
+                                    <div class="font-medium text-gray-900 dark:text-white">42</div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Status</div>
+                                    <div class="font-medium text-green-600">Optimal</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Cloud API Status -->
+                        <div>
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Cloud APIs (Fallback)</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">OpenAI, Gemini, Groq</p>
+                                </div>
+                                <span class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 rounded text-xs font-medium">
+                                    Idle
+                                </span>
+                            </div>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3">
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">OpenAI Status</div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Connected</div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Gemini Status</div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Connected</div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Groq Status</div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Connected</div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Fallback</div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Enabled</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Diagnostic History -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Diagnostic History</h2>
+                    <div class="space-y-4">
+                        <div class="benchmark-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Full System Diagnostic</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Today, 2:45 PM</div>
+                                </div>
+                                <span class="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 rounded text-xs font-medium">
+                                    Passed
+                                </span>
+                            </div>
+                            <div class="mt-2 flex justify-between">
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Performance Score: 4.8/10</div>
+                                <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                        <div class="benchmark-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">AI Model Benchmark</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Yesterday, 11:20 AM</div>
+                                </div>
+                                <span class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 rounded text-xs font-medium">
+                                    Warnings
+                                </span>
+                            </div>
+                            <div class="mt-2 flex justify-between">
+                                <div class="text-sm text-gray-500 dark:text-gray-400">VRAM usage at 92%</div>
+                                <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                        <div class="benchmark-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Storage Scan</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">June 10, 2024</div>
+                                </div>
+                                <span class="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 rounded text-xs font-medium">
+                                    Passed
+                                </span>
+                            </div>
+                            <div class="mt-2 flex justify-between">
+                                <div class="text-sm text-gray-500 dark:text-gray-400">45.2 GB used</div>
+                                <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Secondary Diagnostics -->
+            <div class="space-y-6">
+                <!-- System Metrics -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">System Metrics</h2>
+                    <div class="space-y-4">
+                        <div class="system-metric p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between">
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Local AI Speed</span>
+                                <span class="text-sm font-bold text-gray-900 dark:text-white">1.2s</span>
+                            </div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">Response time (avg)</div>
+                        </div>
+                        <div class="system-metric p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between">
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Uptime Today</span>
+                                <span class="text-sm font-bold text-gray-900 dark:text-white">99.8%</span>
+                            </div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">Local execution</div>
+                        </div>
+                        <div class="system-metric p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between">
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Security Score</span>
+                                <span class="text-sm font-bold text-gray-900 dark:text-white">98/100</span>
+                            </div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">Based on 12 checks</div>
+                        </div>
+                        <div class="system-metric p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between">
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Local Storage</span>
+                                <span class="text-sm font-bold text-gray-900 dark:text-white">78%</span>
+                            </div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">45.2 GB / 60 GB</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Performance Benchmarks -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Performance Benchmarks</h2>
+                    <div class="space-y-5">
+                        <!-- CPU Benchmark -->
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">CPU Benchmark</span>
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">12,450</span>
+                            </div>
+                            <div class="progress-bar bg-gray-200 dark:bg-gray-700">
+                                <div class="progress-value bg-gradient-to-r from-admin-red to-red-500" style="width: 72%"></div>
+                            </div>
+                            <div class="mt-1 flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                                <span>Current</span>
+                                <span>Target: 17,200</span>
+                            </div>
+                        </div>
+                        
+                        <!-- AI Processing -->
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">AI Processing</span>
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">8,740</span>
+                            </div>
+                            <div class="progress-bar bg-gray-200 dark:bg-gray-700">
+                                <div class="progress-value bg-gradient-to-r from-admin-red to-red-500" style="width: 68%"></div>
+                            </div>
+                            <div class="mt-1 flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                                <span>Current</span>
+                                <span>Target: 12,100</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Storage Speed -->
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Storage Speed</span>
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">3,450 MB/s</span>
+                            </div>
+                            <div class="progress-bar bg-gray-200 dark:bg-gray-700">
+                                <div class="progress-value bg-gradient-to-r from-admin-red to-red-500" style="width: 92%"></div>
+                            </div>
+                            <div class="mt-1 flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                                <span>Current</span>
+                                <span>Target: 3,750 MB/s</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Network Speed -->
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Network Speed</span>
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">58 Mbps</span>
+                            </div>
+                            <div class="progress-bar bg-gray-200 dark:bg-gray-700">
+                                <div class="progress-value bg-gradient-to-r from-admin-red to-red-500" style="width: 42%"></div>
+                            </div>
+                            <div class="mt-1 flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                                <span>Current</span>
+                                <span>Target: 135 Mbps</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- System Recommendations -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">System Recommendations</h2>
+                    <div class="space-y-4">
+                        <div class="recommendation-card recommendation-high p-4 border-l-4 border-red-500 rounded-r-lg bg-red-50 dark:bg-red-900/20">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Upgrade VRAM Usage</h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">VRAM at 85% capacity during Llama3-70B operation</p>
+                                </div>
+                                <span class="px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 rounded text-xs font-medium">
+                                    High
+                                </span>
+                            </div>
+                            <div class="mt-2">
+                                <button class="text-sm text-admin-red hover:text-red-700 dark:hover:text-red-400 font-medium">
+                                    Switch to Llama3-8B
+                                </button>
+                            </div>
+                        </div>
+                        <div class="recommendation-card recommendation-medium p-4 border-l-4 border-yellow-500 rounded-r-lg bg-yellow-50 dark:bg-yellow-900/20">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Optimize Storage</h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Vault storage at 78% capacity</p>
+                                </div>
+                                <span class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 rounded text-xs font-medium">
+                                    Medium
+                                </span>
+                            </div>
+                            <div class="mt-2">
+                                <button class="text-sm text-yellow-700 hover:text-yellow-800 dark:hover:text-yellow-300 font-medium">
+                                    Run Storage Scan
+                                </button>
+                            </div>
+                        </div>
+                        <div class="recommendation-card recommendation-low p-4 border-l-4 border-green-500 rounded-r-lg bg-green-50 dark:bg-green-900/20">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Network Optimization</h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Network speed below optimal threshold</p>
+                                </div>
+                                <span class="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 rounded text-xs font-medium">
+                                    Low
+                                </span>
+                            </div>
+                            <div class="mt-2">
+                                <button class="text-sm text-green-700 hover:text-green-800 dark:hover:text-green-300 font-medium">
+                                    Test Connection
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Emergency Panel -->
+                <div class="bg-red-50 dark:bg-red-900/20 rounded-2xl p-6 shadow-lg border border-red-200 dark:border-red-800">
+                    <h2 class="text-xl font-bold text-red-900 dark:text-red-100 mb-4">Emergency Tools</h2>
+                    <div class="space-y-3">
+                        <p class="text-sm text-red-800 dark:text-red-200">
+                            Critical functions for immediate system recovery and maintenance.
+                        </p>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                            ONE BUTTON: Optimize for Low Resources
+                        </button>
+                        <div class="flex space-x-2">
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Force Restart AI
+                            </button>
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Switch to Lite Mode
+                            </button>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                            Send System Report to Dev Friend
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-apply theme
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Initialize sidebar active state
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set System Diagnostics as active in sidebar
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.href.includes('system-diagnostic')) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Simulate progress bars for demo
+            setTimeout(() => {
+                document.querySelectorAll('.progress-value').forEach(bar => {
+                    const width = bar.style.width;
+                    bar.style.width = '0%';
+                    setTimeout(() => {
+                        bar.style.width = width;
+                    }, 200);
+                });
+            }, 300);
+        });
+    </script>
+</body>
+</html>

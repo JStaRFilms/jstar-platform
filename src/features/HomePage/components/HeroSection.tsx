@@ -5,7 +5,56 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSlideshow } from '../hooks/useSlideshow';
+import { useHeroSlides } from '../hooks/useHeroSlides';
 import { PlayCircleIcon } from './IconComponents';
+
+/**
+ * Interface defining the structure of a hero slide
+ */
+interface HeroSlide {
+  /** Unique identifier for the slide */
+  id: number | string;
+  /** Tagline text displayed above the main title */
+  tagline: string;
+  /** First line of the main title */
+  titleLine1: string;
+  /** Second line of the main title */
+  titleLine2: string;
+  /** Description text for the slide */
+  description: string;
+  /** Image URL for the slide background */
+  image?: string;
+  /** Image URL for the slide background (database format) */
+  imageUrl?: string;
+  /** Tailwind gradient classes for the title text */
+  gradient: string;
+  /** Tailwind gradient classes for the primary button */
+  buttonGradient: string;
+  /** Tailwind border classes for the secondary button */
+  buttonBorder: string;
+  /** Tailwind text color classes for the secondary button */
+  buttonText: string;
+  /** Tailwind hover classes for the secondary button */
+  buttonHover: string;
+  /** Alt text for accessibility */
+  altText?: string;
+  /** Project title for overlay */
+  projectTitle?: string;
+  /** Project description for overlay */
+  projectDesc?: string;
+}
+
+/**
+ * Props interface for the HeroSection component
+ */
+interface HeroSectionProps {
+  /** Optional custom slides to override defaults */
+  customSlides?: HeroSlide[];
+  /** Whether to show the statistics section (only on first slide) */
+  showStats?: boolean;
+  /** Custom interval for slide transitions in milliseconds */
+  slideInterval?: number;
+}
 
 const slides = [
   {
@@ -36,8 +85,59 @@ const slides = [
   },
 ];
 
-const HeroSection = () => {
-  const { currentSlide, setCurrentSlide } = useSlideshow(slides.length);
+/**
+ * HeroSection - Main hero component for the homepage
+ *
+ * A dynamic, animated hero section featuring:
+ * - Auto-advancing slideshow with manual controls
+ * - Responsive design with mobile-first approach
+ * - Animated background elements
+ * - Gradient text effects and glassmorphism
+ * - Statistics display for credibility
+ * - Call-to-action buttons with hover effects
+ *
+ * @param props - Component props
+ * @param props.customSlides - Optional custom slides to override defaults
+ * @param props.showStats - Whether to show statistics section (default: true)
+ * @param props.slideInterval - Custom slide transition interval in ms (default: 7000)
+ * @returns JSX.Element - The rendered hero section
+ *
+ * @example
+ * ```tsx
+ * <HeroSection showStats={true} slideInterval={5000} />
+ * ```
+ */
+const HeroSection: React.FC<HeroSectionProps> = ({
+  customSlides,
+  showStats = true,
+  slideInterval = 7000
+}) => {
+  // ALL HOOKS MUST BE CALLED AT THE TOP LEVEL - Rules of Hooks
+  // Fetch dynamic slides from API with fallback to defaults
+  const { slides: dynamicSlides, loading, error } = useHeroSlides();
+
+  // Use custom slides if provided, otherwise use dynamic slides
+  const activeSlides = customSlides || dynamicSlides;
+
+  // Initialize slideshow hook with current slide count
+  const { currentSlide, setCurrentSlide } = useSlideshow(activeSlides.length, slideInterval);
+
+  // Show loading state (AFTER all hooks are called)
+  if (loading && !customSlides) {
+    return (
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-gray-900">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Loading hero content...</p>
+        </div>
+      </section>
+    );
+  }
+
+  // Show error state with fallback
+  if (error && !customSlides && dynamicSlides.length === 0) {
+    console.warn('Hero slides error, using fallback:', error);
+  }
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -50,10 +150,13 @@ const HeroSection = () => {
 
       <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative">
-          {slides.map((slide, index) => (
+          {activeSlides.map((slide, index) => (
             <div
               key={slide.id}
-              className={`transition-opacity duration-700 ease-in-out ${currentSlide === index ? 'opacity-100' : 'opacity-0 absolute inset-0'}`}>
+              className={`transition-opacity duration-700 ease-in-out ${currentSlide === index ? 'opacity-100' : 'opacity-0 absolute inset-0'}`}
+              role="tabpanel"
+              aria-labelledby={`slide-tab-${index}`}
+              aria-hidden={currentSlide !== index}>
               {currentSlide === index && (
                  <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
                    {/* Text Content */}
@@ -112,11 +215,11 @@ const HeroSection = () => {
                      <div className="relative w-full max-w-lg">
                        <div className="absolute -top-6 -left-6 w-full h-full bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl -z-10"></div>
                        <div className="relative bg-white dark:bg-gray-800 rounded-3xl overflow-hidden shadow-2xl border border-gray-100 dark:border-gray-700">
-                         <Image src={slide.image} alt="Video Production" width={1074} height={716} className="w-full h-auto" />
+                         <Image src={slide.image || slide.imageUrl || ''} alt={slide.altText || "Video Production"} width={1074} height={716} className="w-full h-auto" />
                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
                            <div className="text-white">
-                             <h3 className="text-xl font-bold mb-1">Latest Project</h3>
-                             <p className="text-gray-200">Brand Storytelling for Tech Startup</p>
+                             <h3 className="text-xl font-bold mb-1">{slide.projectTitle || 'Latest Project'}</h3>
+                             <p className="text-gray-200">{slide.projectDesc || 'Brand Storytelling for Tech Startup'}</p>
                            </div>
                          </div>
                          <div className="absolute -bottom-5 -right-5 w-16 h-16 bg-gradient-to-r from-primary to-accent rounded-2xl flex items-center justify-center text-white shadow-lg">
@@ -133,13 +236,23 @@ const HeroSection = () => {
       </div>
 
       {/* Slideshow Controls */}
-      <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
-        {slides.map((_, index) => (
+      <div
+        className="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10"
+        role="tablist"
+        aria-label="Hero slideshow navigation">
+        {activeSlides.map((_, index) => (
           <button
             key={index}
+            id={`slide-tab-${index}`}
             onClick={() => setCurrentSlide(index)}
-            className={`w-3 h-3 rounded-full transition-all duration-300 ${currentSlide === index ? 'bg-primary dark:bg-accent opacity-100' : 'bg-gray-300 dark:bg-gray-600 opacity-50'}`}
-            aria-label={`Go to slide ${index + 1}`}
+            className={`w-3 h-3 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-black ${
+              currentSlide === index
+                ? 'bg-primary dark:bg-accent opacity-100'
+                : 'bg-gray-300 dark:bg-gray-600 opacity-50 hover:opacity-75'
+            }`}
+            aria-label={`Go to slide ${index + 1} of ${activeSlides.length}`}
+            aria-selected={currentSlide === index}
+            role="tab"
           />
         ))}
       </div>
