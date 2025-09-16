@@ -62,7 +62,7 @@ const AboutSection = () => {
             <div className="absolute -top-6 -right-6 w-32 h-32 bg-accent/10 rounded-full -z-10 hidden lg:block"></div>
             <div className="absolute -bottom-6 -left-6 w-40 h-40 bg-primary/10 rounded-full -z-10 hidden lg:block"></div>
             {/* Stats Card */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg absolute -bottom-8 right-0 max-w-xs transform translate-x-1/4">
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg absolute -bottom-8 right-0 max-w-xs transform translate-x-1/4 hidden md:block">
               <div className="flex items-center space-x-4">
                 <div className="w-12 h-12 bg-primary/10 dark:bg-accent/20 rounded-lg flex items-center justify-center text-primary dark:text-accent">
                   <ShieldCheckIcon className="w-6 h-6" />

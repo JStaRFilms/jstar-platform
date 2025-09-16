@@ -1,0 +1,125 @@
+// Prisma schema for J StaR Personal Platform
+// This schema defines the database structure for contact forms, admin dashboard, and other features
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// Contact form submissions
+model ContactSubmission {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  subject     String
+  service     String   // Service type: wedding, corporate, app, ai, consulting, other
+  message     String
+  newsletter  Boolean  @default(false)
+
+  // Metadata
+  submittedAt DateTime @default(now())
+  ipAddress   String?
+  userAgent   String?
+  status      ContactStatus @default(PENDING)
+
+  // Admin tracking
+  adminNotes  String?
+  respondedAt DateTime?
+  respondedBy String?
+
+  // Relations
+  responses ContactResponse[]
+
+  @@map("contact_submissions")
+}
+
+// Contact response tracking
+model ContactResponse {
+  id           String   @id @default(cuid())
+  submissionId String
+  adminId      String?  // Future: link to admin user
+  response     String   // Email content or notes
+  responseType ResponseType // EMAIL, CALL, MEETING, NOTE
+  sentAt       DateTime @default(now())
+
+  // Relations
+  submission ContactSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@map("contact_responses")
+}
+
+// Newsletter subscribers
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  subscribedAt DateTime @default(now())
+  unsubscribedAt DateTime?
+  isActive  Boolean  @default(true)
+
+  // Source tracking
+  source    String?  // contact_form, landing_page, etc.
+  tags      String?  // JSON string of interests, segments
+
+  @@map("newsletter_subscribers")
+}
+
+// Admin users (for future admin dashboard)
+model AdminUser {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  role      AdminRole @default(ADMIN)
+  createdAt DateTime @default(now())
+  lastLogin DateTime?
+
+  // Security
+  passwordHash String
+  isActive   Boolean  @default(true)
+
+  @@map("admin_users")
+}
+
+// Analytics and tracking
+model ContactAnalytics {
+  id          String   @id @default(cuid())
+  date        DateTime @default(now())
+  submissions Int      @default(0)
+  newsletterSignups Int @default(0)
+  serviceBreakdown Json? // JSON object with service counts
+
+  @@unique([date])
+  @@map("contact_analytics")
+}
+
+// Enums
+enum ContactStatus {
+  PENDING
+  PROCESSED
+  RESPONDED
+  ARCHIVED
+}
+
+enum ResponseType {
+  EMAIL
+  CALL
+  MEETING
+  NOTE
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  MODERATOR
+}
+
+// Indexes for performance
+// Note: SQLite doesn't support all index types, but these are defined for future PostgreSQL migration
+// @@index([email])
+// @@index([submittedAt])
+// @@index([status])
+// @@index([service])
