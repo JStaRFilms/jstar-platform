@@ -44,10 +44,10 @@ const Header = () => {
 
           <div className="hidden md:flex items-center space-x-8">
             <Link href="/about" className="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">About</Link>
-            <Link href="/portfolio" className="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Portfolio</Link>
             <Link href="/services" className="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Services</Link>
-            <Link href="/store" className="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Store</Link>
+            <Link href="/portfolio" className="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Portfolio</Link>
             <Link href="/blog" className="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Blog</Link>
+            <Link href="/store" className="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Store</Link>
             <Link href="/contact" className="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Contact</Link>
           </div>
 
