@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Films - Faith-Driven Creative Solutions | John Oluleke-Oke</title>
+    <meta name="description" content="Professional video production, app development, and AI-powered creator tools with purpose. Faith-inspired content creation for meaningful impact.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'sacred-gold': '#D97706'
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'spin-slow': 'spin 4s linear infinite'
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0) rotate(0deg)' },
+                            '50%': { transform: 'translateY(-15px) rotate(5deg)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --growth-green: #059669;
+            --sacred-gold: #D97706;
+            --gradient-hero: linear-gradient(135deg, #f0f9ff 0%, #ede9fe 100%);
+            --gradient-hero-dark: linear-gradient(135deg, #1e3a8a 0%, #4c1d95 100%);
+            --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --card-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .dark {
+            --gradient-hero: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+        }
+        
+        .navbar-blur {
+            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.85);
+            transition: all 0.3s ease;
+        }
+        
+        .dark .navbar-blur {
+            background: rgba(15, 23, 42, 0.85);
+        }
+        
+        .hero-section {
+            background: var(--gradient-hero);
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(37, 99, 235, 0.05) 0%, transparent 20%);
+        }
+        
+        .floating-element {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .service-card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: translateY(0);
+            box-shadow: var(--card-shadow);
+        }
+        
+        .service-card:hover {
+            transform: translateY(-12px);
+            box-shadow: var(--card-hover);
+        }
+        
+        .portfolio-item {
+            transition: all 0.3s ease;
+            transform: scale(1);
+        }
+        
+        .portfolio-item:hover {
+            transform: scale(1.03);
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--brand-blue), var(--faith-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .feature-icon i {
+            font-size: 24px;
+            color: white;
+        }
+        
+        .process-step {
+            position: relative;
+            padding-top: 60px;
+        }
+        
+        .process-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            height: 2px;
+            width: 100%;
+            max-width: 200px;
+            background: linear-gradient(to right, var(--brand-blue), var(--faith-purple));
+        }
+        
+        .step-number {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--brand-blue), var(--faith-purple));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            z-index: 10;
+        }
+        
+        .testimonials-container {
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .testimonial-slide {
+            transition: transform 0.5s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--brand-blue), var(--faith-purple));
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
+        }
+        
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.7s ease;
+            z-index: -1;
+        }
+        
+        .btn-primary:hover::after {
+            left: 100%;
+        }
+        
+        .category-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            transition: all 0.2s ease;
+        }
+        
+        .category-badge:hover {
+            transform: translateY(-2px);
+        }
+        
+        .category-badge.video {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .dark .category-badge.video {
+            background-color: #1e40af;
+            color: #dbeafe;
+        }
+        
+        .category-badge.apps {
+            background-color: #ede9fe;
+            color: #5b21b6;
+        }
+        
+        .dark .category-badge.apps {
+            background-color: #5b21b6;
+            color: #ede9fe;
+        }
+        
+        .category-badge.ai {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        
+        .dark .category-badge.ai {
+            background-color: #166534;
+            color: #dcfce7;
+        }
+        
+        .category-badge.faith {
+            background-color: #fef3c7;
+            color: #a16207;
+        }
+        
+        .dark .category-badge.faith {
+            background-color: #a16207;
+            color: #fef3c7;
+        }
+        
+        .stats-number {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--brand-blue), var(--faith-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1;
+        }
+        
+        .dark .stats-number {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            -webkit-background-clip: text;
+            background-clip: text;
+        }
+        
+        .blog-card:hover {
+            transform: translateY(-8px);
+        }
+        
+        .floating-icon {
+            animation: float 8s ease-in-out infinite;
+        }
+        
+        .floating-icon:nth-child(2) {
+            animation-delay: 2s;
+        }
+        
+        .floating-icon:nth-child(3) {
+            animation-delay: 4s;
+        }
+        
+        .floating-icon:nth-child(4) {
+            animation-delay: 6s;
+        }
+        
+        .floating-icon i {
+            font-size: 2rem;
+            opacity: 0.15;
+        }
+        
+        .floating-icon.video i {
+            color: var(--brand-blue);
+        }
+        
+        .floating-icon.apps i {
+            color: var(--faith-purple);
+        }
+        
+        .floating-icon.ai i {
+            color: var(--growth-green);
+        }
+        
+        .floating-icon.faith i {
+            color: var(--sacred-gold);
+        }
+        
+        @media (max-width: 1024px) {
+            .hero-title {
+                font-size: 2.5rem !important;
+            }
+            
+            .process-step:not(:last-child)::after {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 navbar-blur border-b border-gray-200/50 dark:border-gray-700/50">
+        <div class="max-w-7xl mx-auto px-6 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <a href="/" class="text-2xl font-bold flex items-center">
+                        <span class="bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">J StaR</span>
+                        <span class="ml-1 text-gray-700 dark:text-gray-300">Films</span>
+                    </a>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#services" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue font-medium transition-colors relative group">
+                        Services
+                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-jstar-blue transition-all group-hover:w-full"></span>
+                    </a>
+                    <a href="#portfolio" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue font-medium transition-colors relative group">
+                        Portfolio
+                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-jstar-blue transition-all group-hover:w-full"></span>
+                    </a>
+                    <a href="#store" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue font-medium transition-colors relative group">
+                        Store
+                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-jstar-blue transition-all group-hover:w-full"></span>
+                    </a>
+                    <a href="/blog" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue font-medium transition-colors relative group">
+                        Blog
+                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-jstar-blue transition-all group-hover:w-full"></span>
+                    </a>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <button onclick="document.documentElement.classList.toggle('dark')" 
+                            class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:block"></i>
+                    </button>
+                    <a href="#contact" class="btn-primary hidden md:inline-flex">Get Started</a>
+                    <button class="md:hidden text-gray-700 dark:text-gray-300">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section pt-24">
+        <div class="floating-icon video absolute top-1/4 left-10 animate-float">
+            <i class="fas fa-film"></i>
+        </div>
+        <div class="floating-icon apps absolute top-1/3 right-16 animate-float">
+            <i class="fas fa-code"></i>
+        </div>
+        <div class="floating-icon ai absolute bottom-1/4 left-1/4 animate-float">
+            <i class="fas fa-robot"></i>
+        </div>
+        <div class="floating-icon faith absolute bottom-1/3 right-1/4 animate-float">
+            <i class="fas fa-heart"></i>
+        </div>
+        
+        <div class="max-w-7xl mx-auto px-6 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center pt-16">
+                <div class="order-2 lg:order-1">
+                    <span class="inline-block px-4 py-1.5 bg-jstar-blue/10 text-jstar-blue rounded-full text-sm font-medium mb-4">
+                        Faith-Driven Creative Solutions
+                    </span>
+                    <h1 class="hero-title text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 dark:text-white mb-6">
+                        Where <span class="text-jstar-blue">Technology</span>, <span class="text-faith-purple">Faith</span>, and <span class="text-growth-green">Creativity</span> Converge
+                    </h1>
+                    <p class="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl">
+                        I help creators and businesses tell their stories with purpose through cinematic video production, custom app development, and AI-powered tools designed for meaningful impact.
+                    </p>
+                    
+                    <div class="flex flex-wrap gap-4 mb-10">
+                        <a href="#services" class="btn-primary text-lg px-6 py-3">
+                            Explore My Services
+                        </a>
+                        <a href="#contact" class="px-6 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-xl font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-all">
+                            Schedule Consultation
+                        </a>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        <div>
+                            <div class="stats-number">50+</div>
+                            <p class="text-gray-600 dark:text-gray-400 font-medium">Projects Completed</p>
+                        </div>
+                        <div>
+                            <div class="stats-number">1M+</div>
+                            <p class="text-gray-600 dark:text-gray-400 font-medium">Views Generated</p>
+                        </div>
+                        <div>
+                            <div class="stats-number">98%</div>
+                            <p class="text-gray-600 dark:text-gray-400 font-medium">Client Satisfaction</p>
+                        </div>
+                        <div>
+                            <div class="stats-number">5+</div>
+                            <p class="text-gray-600 dark:text-gray-400 font-medium">Years Experience</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="order-1 lg:order-2 relative">
+                    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-700 relative">
+                        <div class="h-96 bg-gradient-to-br from-jstar-blue/20 to-faith-purple/20 flex items-center justify-center">
+                            <div class="text-center px-6">
+                                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-r from-jstar-blue to-faith-purple mb-6">
+                                    <i class="fas fa-robot text-white text-2xl"></i>
+                                </div>
+                                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Meet JohnGPT</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-6">
+                                    Your AI assistant for content creation, strategy, and faith-based storytelling guidance
+                                </p>
+                                <button class="px-5 py-2.5 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-medium hover:opacity-90 transition-opacity">
+                                    Try JohnGPT Now
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-6 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-200 dark:border-gray-700">
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="category-badge video">Video Production</span>
+                                <span class="category-badge apps">App Development</span>
+                                <span class="category-badge ai">AI Tools</span>
+                                <span class="category-badge faith">Faith-Based</span>
+                            </div>
+                            <p class="text-gray-700 dark:text-gray-300 mb-4">
+                                "JohnGPT helped me craft a video strategy that increased my engagement by 150% while staying true to my values."
+                            </p>
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-r from-jstar-blue to-faith-purple flex items-center justify-center text-white font-bold mr-3">JO</div>
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Founder, J StaR Films</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Preview -->
+    <section id="services" class="py-20 bg-gray-50 dark:bg-gray-800/50">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-4">
+                    Creative Solutions Tailored to Your Vision
+                </h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400">
+                    I provide end-to-end services that blend technical excellence with purpose-driven storytelling to help you achieve your creative and business goals.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Video Production -->
+                <div class="service-card bg-white dark:bg-gray-800 rounded-2xl overflow-hidden">
+                    <div class="p-8">
+                        <div class="feature-icon">
+                            <i class="fas fa-film"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Video Production</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-6">
+                            Cinematic storytelling that captures emotion, conveys your message, and engages your audience with professional quality.
+                        </p>
+                        
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-jstar-blue mt-1 mr-3"></i>
+                                <span class="text-gray-700 dark:text-gray-300">Wedding & Event Cinematography</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-jstar-blue mt-1 mr-3"></i>
+                                <span class="text-gray-700 dark:text-gray-300">Brand Storytelling & Marketing</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-jstar-blue mt-1 mr-3"></i>
+                                <span class="text-gray-700 dark:text-gray-300">Documentary Production</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-jstar-blue mt-1 mr-3"></i>
+                                <span class="text-gray-700 dark:text-gray-300">Content Strategy & Consulting</span>
+                            </li>
+                        </ul>
+                        
+                        <a href="#contact" class="text-jstar-blue font-medium hover:text-faith-purple transition-colors inline-flex items-center">
+                            Learn More <i class="fas fa-arrow-right ml-2 text-xs"></i>
+                        </a>
+                    </div>
+                    <div class="bg-gradient-to-r from-jstar-blue/5 to-faith-purple/5 p-6 border-t border-gray-100 dark:border-gray-700">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Starting at</div>
+                                <div class="text-xl font-bold text-jstar-blue">$1,500</div>
+                            </div>
+                            <a href="#contact" class="px-4 py-2 bg-jstar-blue/10 text-jstar-blue rounded-lg hover:bg-jstar-blue/20 transition-colors">
+                                Get Quote
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- App Development -->
+                <div class="service-card bg-white dark:bg-gray-800 rounded-2xl overflow-hidden">
+                    <div class="p-8">
+                        <div class="feature-icon">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">App Development</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-6">
+                            Custom web and mobile applications built with modern technologies to solve real business problems and enhance user experience.
+                        </p>
+                        
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-faith-purple mt-1 mr-3"></i>
+                                <span class="text-gray-700 dark:text-gray-300">Web Application Development</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-faith-purple mt-1 mr-3"></i>
+                                <span class="text-gray-700 dark:text-gray-300">UI/UX Design & Prototyping</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-faith-purple mt-1 mr-3"></i>
+                                <span class="text-gray-700 dark:text-gray-300">API Development & Integration</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-faith-purple mt-1 mr-3"></i>
+                                <span class="text-gray-700 dark:text-gray-300">Mobile App Development</span>
+                            </li>
+                        </ul>
+                        
+                        <a href="#contact" class="text-faith-purple font-medium hover:text-jstar-blue transition-colors inline-flex items-center">
+                            Learn More <i class="fas fa-arrow-right ml-2 text-xs"></i>
+                        </a>
+                    </div>
+                    <div class="bg-gradient-to-r from-faith-purple/5 to-growth-green/5 p-6 border-t border-gray-100 dark:border-gray-700">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Starting at</div>
+                                <div class="text-xl font-bold text-faith-purple">$3,500</div>
+                            </div>
+                            <a href="#contact" class="px-4 py-2 bg-faith-purple/10 text-faith-purple rounded-lg hover:bg-faith-purple/20 transition-colors">
+                                Get Quote
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- AI Tools -->
+                <div class="service-card bg-white dark:bg-gray-800 rounded-2xl overflow-hidden">
+                    <div class="p-8">
+                        <div class="feature-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">AI Creator Tools</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-6">
+                            AI-powered tools designed specifically for content creators to enhance workflow, boost creativity, and optimize results.
+                        </p>
+                        
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-growth-green mt-1 mr-3"></i>
+                                <span class="text-gray-700 dark:text-gray-300">YouTube Virality OS</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-growth-green mt-1 mr-3"></i>
+                                <span class="text-gray-700 dark:text-gray-300">Content Generator Suite</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-growth-green mt-1 mr-3"></i>
+                                <span class="text-gray-700 dark:text-gray-300">Thumbnail Creator Pro</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-growth-green mt-1 mr-3"></i>
+                                <span class="text-gray-700 dark:text-gray-300">JohnGPT Assistant</span>
+                            </li>
+                        </ul>
+                        
+                        <a href="#store" class="text-growth-green font-medium hover:text-jstar-blue transition-colors inline-flex items-center">
+                            Explore Tools <i class="fas fa-arrow-right ml-2 text-xs"></i>
+                        </a>
+                    </div>
+                    <div class="bg-gradient-to-r from-growth-green/5 to-jstar-blue/5 p-6 border-t border-gray-100 dark:border-gray-700">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Starting at</div>
+                                <div class="text-xl font-bold text-growth-green">$49</div>
+                            </div>
+                            <a href="#store" class="px-4 py-2 bg-growth-green/10 text-growth-green rounded-lg hover:bg-growth-green/20 transition-colors">
+                                View Store
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-12">
+                <a href="#contact" class="inline-flex items-center px-8 py-3 btn-primary text-lg rounded-xl">
+                    Discuss Your Project <i class="fas fa-arrow-right ml-3"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Products -->
+    <section id="store" class="py-20">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-4">
+                    Digital Products for <span class="text-jstar-blue">Creators</span> with <span class="text-faith-purple">Purpose</span>
+                </h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400">
+                    Handcrafted resources designed to help you create meaningful content that resonates with your audience and aligns with your values.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Product 1 -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                    <div class="h-48 bg-gradient-to-br from-jstar-blue/20 to-faith-purple/20 flex items-center justify-center">
+                        <i class="fas fa-book text-jstar-blue text-5xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <span class="inline-block px-3 py-1 bg-jstar-blue/10 text-jstar-blue rounded-full text-sm mb-3">Course</span>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">YouTube Mastery Academy</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4">
+                            Comprehensive course on building and growing a meaningful YouTube channel with technical excellence.
+                        </p>
+                        <div class="flex justify-between items-center">
+                            <div class="font-bold text-jstar-blue text-lg">$197</div>
+                            <button class="px-4 py-2 bg-jstar-blue/10 text-jstar-blue rounded-lg hover:bg-jstar-blue/20 transition-colors">
+                                <i class="fas fa-shopping-cart mr-2"></i>Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Product 2 -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                    <div class="h-48 bg-gradient-to-br from-faith-purple/20 to-growth-green/20 flex items-center justify-center">
+                        <i class="fas fa-palette text-faith-purple text-5xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <span class="inline-block px-3 py-1 bg-faith-purple/10 text-faith-purple rounded-full text-sm mb-3">Template</span>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Cinematic Editing Suite</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4">
+                            Premiere Pro templates for creating cinematic videos with professional color grading and transitions.
+                        </p>
+                        <div class="flex justify-between items-center">
+                            <div class="font-bold text-faith-purple text-lg">$89</div>
+                            <button class="px-4 py-2 bg-faith-purple/10 text-faith-purple rounded-lg hover:bg-faith-purple/20 transition-colors">
+                                <i class="fas fa-shopping-cart mr-2"></i>Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Product 3 -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                    <div class="h-48 bg-gradient-to-br from-growth-green/20 to-jstar-blue/20 flex items-center justify-center">
+                        <i class="fas fa-robot text-growth-green text-5xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <span class="inline-block px-3 py-1 bg-growth-green/10 text-growth-green rounded-full text-sm mb-3">AI Tool</span>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">JohnGPT Pro</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4">
+                            AI assistant for content creators with faith-based storytelling guidance and optimization.
+                        </p>
+                        <div class="flex justify-between items-center">
+                            <div class="font-bold text-growth-green text-lg">$49/mo</div>
+                            <button class="px-4 py-2 bg-growth-green/10 text-growth-green rounded-lg hover:bg-growth-green/20 transition-colors">
+                                <i class="fas fa-shopping-cart mr-2"></i>Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Product 4 -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                    <div class="h-48 bg-gradient-to-br from-jstar-blue/20 to-growth-green/20 flex items-center justify-center">
+                        <i class="fas fa-box text-jstar-blue text-5xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <span class="inline-block px-3 py-1 bg-jstar-blue/10 text-jstar-blue rounded-full text-sm mb-3">Bundle</span>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Creator Starter Pack</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4">
+                            Essential tools, templates, and guides for new content creators starting their journey.
+                        </p>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <div class="text-gray-500 line-through text-sm">$345</div>
+                                <div class="font-bold text-jstar-blue text-lg">$197</div>
+                            </div>
+                            <button class="px-4 py-2 bg-jstar-blue/10 text-jstar-blue rounded-lg hover:bg-jstar-blue/20 transition-colors">
+                                <i class="fas fa-shopping-cart mr-2"></i>Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-12">
+                <a href="#store" class="inline-flex items-center px-8 py-3 border-2 border-jstar-blue text-jstar-blue hover:bg-jstar-blue hover:text-white font-semibold rounded-xl transition-all">
+                    View Full Store <i class="fas fa-arrow-right ml-3"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Portfolio Section -->
+    <section id="portfolio" class="py-20 bg-gray-50 dark:bg-gray-800/50">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-4">
+                    <span class="bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">Portfolio</span> Highlights
+                </h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400">
+                    A selection of recent projects showcasing cinematic storytelling, technical excellence, and purpose-driven creativity.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Project 1 -->
+                <div class="portfolio-item bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg">
+                    <div class="md:flex">
+                        <div class="md:w-2/3">
+                            <div class="h-64 md:h-full bg-gradient-to-br from-jstar-blue/30 to-faith-purple/30 flex items-center justify-center p-6">
+                                <div class="text-center max-w-md">
+                                    <span class="inline-block px-3 py-1 bg-jstar-blue/20 text-jstar-blue rounded-full text-sm mb-3">Wedding Film</span>
+                                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">The Timeless Wedding</h3>
+                                    <p class="text-gray-600 dark:text-gray-400 mb-4">
+                                        A cinematic portrayal of love, culture, and family for a Nigerian couple's special day.
+                                    </p>
+                                    <div class="flex flex-wrap gap-2">
+                                        <span class="category-badge video">Cinematic</span>
+                                        <span class="category-badge video">4K</span>
+                                        <span class="category-badge faith">Faith-Based</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="md:w-1/3 p-6 flex flex-col justify-center">
+                            <a href="#" class="text-jstar-blue hover:text-faith-purple font-medium inline-flex items-center">
+                                View Project <i class="fas fa-arrow-right ml-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Project 2 -->
+                <div class="portfolio-item bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg">
+                    <div class="md:flex">
+                        <div class="md:w-2/3">
+                            <div class="h-64 md:h-full bg-gradient-to-br from-faith-purple/30 to-growth-green/30 flex items-center justify-center p-6">
+                                <div class="text-center max-w-md">
+                                    <span class="inline-block px-3 py-1 bg-faith-purple/20 text-faith-purple rounded-full text-sm mb-3">Documentary</span>
+                                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Faith in Action</h3>
+                                    <p class="text-gray-600 dark:text-gray-400 mb-4">
+                                        A powerful documentary showcasing the impact of faith-based community initiatives.
+                                    </p>
+                                    <div class="flex flex-wrap gap-2">
+                                        <span class="category-badge apps">Documentary</span>
+                                        <span class="category-badge faith">Faith-Based</span>
+                                        <span class="category-badge video">Cinematic</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="md:w-1/3 p-6 flex flex-col justify-center">
+                            <a href="#" class="text-jstar-blue hover:text-faith-purple font-medium inline-flex items-center">
+                                View Project <i class="fas fa-arrow-right ml-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Project 3 -->
+                <div class="portfolio-item bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg">
+                    <div class="md:flex">
+                        <div class="md:w-2/3">
+                            <div class="h-64 md:h-full bg-gradient-to-br from-growth-green/30 to-jstar-blue/30 flex items-center justify-center p-6">
+                                <div class="text-center max-w-md">
+                                    <span class="inline-block px-3 py-1 bg-growth-green/20 text-growth-green rounded-full text-sm mb-3">Web App</span>
+                                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">CreatorOS</h3>
+                                    <p class="text-gray-600 dark:text-gray-400 mb-4">
+                                        An AI-powered platform that helps creators plan, produce, and optimize content.
+                                    </p>
+                                    <div class="flex flex-wrap gap-2">
+                                        <span class="category-badge apps">Web App</span>
+                                        <span class="category-badge ai">AI-Powered</span>
+                                        <span class="category-badge apps">SaaS</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="md:w-1/3 p-6 flex flex-col justify-center">
+                            <a href="#" class="text-jstar-blue hover:text-faith-purple font-medium inline-flex items-center">
+                                View Project <i class="fas fa-arrow-right ml-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Project 4 -->
+                <div class="portfolio-item bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg">
+                    <div class="md:flex">
+                        <div class="md:w-2/3">
+                            <div class="h-64 md:h-full bg-gradient-to-br from-jstar-blue/30 to-faith-purple/30 flex items-center justify-center p-6">
+                                <div class="text-center max-w-md">
+                                    <span class="inline-block px-3 py-1 bg-white/10 text-white rounded-full text-sm mb-3">Course Platform</span>
+                                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">YouTube Mastery</h3>
+                                    <p class="text-gray-600 dark:text-gray-400 mb-4">
+                                        A comprehensive course platform teaching creators how to grow on YouTube.
+                                    </p>
+                                    <div class="flex flex-wrap gap-2">
+                                        <span class="category-badge video">Education</span>
+                                        <span class="category-badge ai">AI Integration</span>
+                                        <span class="category-badge apps">Web Platform</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="md:w-1/3 p-6 flex flex-col justify-center">
+                            <a href="#" class="text-jstar-blue hover:text-faith-purple font-medium inline-flex items-center">
+                                View Project <i class="fas fa-arrow-right ml-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-16">
+                <a href="#portfolio" class="inline-flex items-center px-8 py-3 btn-primary text-lg rounded-xl">
+                    View Full Portfolio <i class="fas fa-arrow-right ml-3"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Process Section -->
+    <section class="py-20">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-4">
+                    My <span class="text-jstar-blue">Creative Process</span>
+                </h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400">
+                    A proven approach to delivering exceptional results, from initial concept to final delivery, with faith and excellence at every step.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-8">
+                <!-- Step 1 -->
+                <div class="process-step">
+                    <div class="step-number">1</div>
+                    <div class="text-center">
+                        <div class="feature-icon mx-auto">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Discovery</h3>
+                        <p class="text-gray-600 dark:text-gray-400">
+                            We discuss your vision, goals, and values to understand what matters most.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Step 2 -->
+                <div class="process-step">
+                    <div class="step-number">2</div>
+                    <div class="text-center">
+                        <div class="feature-icon mx-auto">
+                            <i class="fas fa-pen-fancy"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Strategy</h3>
+                        <p class="text-gray-600 dark:text-gray-400">
+                            I develop a tailored plan that aligns with your purpose and technical requirements.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Step 3 -->
+                <div class="process-step">
+                    <div class="step-number">3</div>
+                    <div class="text-center">
+                        <div class="feature-icon mx-auto">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Creation</h3>
+                        <p class="text-gray-600 dark:text-gray-400">
+                            I bring your vision to life with technical excellence and creative passion.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Step 4 -->
+                <div class="process-step">
+                    <div class="step-number">4</div>
+                    <div class="text-center">
+                        <div class="feature-icon mx-auto">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Refinement</h3>
+                        <p class="text-gray-600 dark:text-gray-400">
+                            You review the work and provide feedback for any necessary revisions.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Step 5 -->
+                <div class="process-step">
+                    <div class="step-number">5</div>
+                    <div class="text-center">
+                        <div class="feature-icon mx-auto">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Delivery</h3>
+                        <p class="text-gray-600 dark:text-gray-400">
+                            Final files are delivered in your preferred format with all necessary assets.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="py-20 bg-gray-50 dark:bg-gray-800/50">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-4">
+                    What <span class="text-jstar-blue">Clients Say</span>
+                </h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400">
+                    Real feedback from creators and businesses I've helped bring their vision to life.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                <!-- Testimonial 1 -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-r from-jstar-blue to-faith-purple flex items-center justify-center text-white font-bold mr-4">DS</div>
+                        <div>
+                            <div class="font-bold text-gray-900 dark:text-white">David Smith</div>
+                            <div class="text-gray-500 dark:text-gray-400">Faith-Based Organization</div>
+                        </div>
+                    </div>
+                    <div class="text-yellow-400 mb-4">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <blockquote class="text-gray-600 dark:text-gray-400 italic">
+                        "John captured the heart of our mission in a way that resonated deeply with our audience. His ability to blend technical excellence with spiritual sensitivity was exactly what we needed."
+                    </blockquote>
+                </div>
+                
+                <!-- Testimonial 2 -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-r from-faith-purple to-growth-green flex items-center justify-center text-white font-bold mr-4">MJ</div>
+                        <div>
+                            <div class="font-bold text-gray-900 dark:text-white">Michelle Johnson</div>
+                            <div class="text-gray-500 dark:text-gray-400">Wedding Client</div>
+                        </div>
+                    </div>
+                    <div class="text-yellow-400 mb-4">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <blockquote class="text-gray-600 dark:text-gray-400 italic">
+                        "Our wedding film is more than just footage—it's a story that captures our love, faith, and cultural heritage. John's attention to detail and artistic vision exceeded all our expectations."
+                    </blockquote>
+                </div>
+                
+                <!-- Testimonial 3 -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-r from-growth-green to-jstar-blue flex items-center justify-center text-white font-bold mr-4">TK</div>
+                        <div>
+                            <div class="font-bold text-gray-900 dark:text-white">Thomas Kim</div>
+                            <div class="text-gray-500 dark:text-gray-400">Tech Startup</div>
+                        </div>
+                    </div>
+                    <div class="text-yellow-400 mb-4">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <blockquote class="text-gray-600 dark:text-gray-400 italic">
+                        "John built our app with both technical precision and a deep understanding of our mission. He's not just a developer—he's a creative partner who cares about our success."
+                    </blockquote>
+                </div>
+                
+                <!-- Testimonial 4 -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-r from-jstar-blue to-growth-green flex items-center justify-center text-white font-bold mr-4">SR</div>
+                        <div>
+                            <div class="font-bold text-gray-900 dark:text-white">Sarah Reynolds</div>
+                            <div class="text-gray-500 dark:text-gray-400">Content Creator</div>
+                        </div>
+                    </div>
+                    <div class="text-yellow-400 mb-4">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                    </div>
+                    <blockquote class="text-gray-600 dark:text-gray-400 italic">
+                        "JohnGPT has transformed my content creation process. The AI tools are specifically designed for creators who want to make an impact, not just get views. Highly recommend!"
+                    </blockquote>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 bg-gradient-to-br from-jstar-blue to-faith-purple">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-8 md:p-12 border border-white/20">
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">
+                    Ready to Create Something <span class="text-sacred-gold">Meaningful</span>?
+                </h2>
+                <p class="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+                    Whether you need cinematic video production, custom app development, or AI-powered creator tools, let's bring your vision to life with purpose and excellence.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+                    <a href="mailto:contact@jstarfilms.com" class="px-8 py-4 bg-white text-jstar-blue font-bold rounded-xl text-lg hover:bg-gray-100 transition-colors">
+                        Start Your Project
+                    </a>
+                    <a href="https://wa.me/1234567890" target="_blank" class="px-8 py-4 bg-white/10 backdrop-blur-sm text-white border border-white/20 font-bold rounded-xl text-lg hover:bg-white/20 transition-colors">
+                        WhatsApp Consultation
+                    </a>
+                </div>
+                
+                <div class="max-w-2xl mx-auto">
+                    <div class="flex items-start bg-black/20 backdrop-blur-sm rounded-xl p-5">
+                        <i class="fas fa-gift text-2xl text-sacred-gold mt-1 mr-4"></i>
+                        <div>
+                            <h3 class="text-lg font-bold text-white mb-1">Free Creator Resource Bundle</h3>
+                            <p class="text-white/80">Download our exclusive bundle of templates, guides, and resources used by professional creators.</p>
+                        </div>
+                        <button class="ml-auto px-4 py-2 bg-white text-jstar-blue rounded-lg font-medium hover:bg-gray-100 transition-colors">
+                            Download
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white pt-16 pb-8">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+                <div>
+                    <h3 class="text-xl font-bold flex items-center mb-4">
+                        <span class="bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">J StaR</span>
+                        <span class="ml-1">Films</span>
+                    </h3>
+                    <p class="text-gray-400 mb-4">
+                        Where faith meets film and future. Professional video production, app development, and AI-powered creator tools designed for meaningful impact.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-linkedin text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-youtube text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-bold text-white mb-4">Services</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#services" class="text-gray-400 hover:text-white transition-colors flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-jstar-blue"></i> Video Production</a></li>
+                        <li><a href="#services" class="text-gray-400 hover:text-white transition-colors flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-jstar-blue"></i> App Development</a></li>
+                        <li><a href="#services" class="text-gray-400 hover:text-white transition-colors flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-jstar-blue"></i> AI Creator Tools</a></li>
+                        <li><a href="#contact" class="text-gray-400 hover:text-white transition-colors flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-jstar-blue"></i> Custom Solutions</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-bold text-white mb-4">Store</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#store" class="text-gray-400 hover:text-white transition-colors flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-faith-purple"></i> Courses</a></li>
+                        <li><a href="#store" class="text-gray-400 hover:text-white transition-colors flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-faith-purple"></i> Templates</a></li>
+                        <li><a href="#store" class="text-gray-400 hover:text-white transition-colors flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-faith-purple"></i> AI Tools</a></li>
+                        <li><a href="#store" class="text-gray-400 hover:text-white transition-colors flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-faith-purple"></i> Bundles</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-bold text-white mb-4">Company</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-growth-green"></i> About John</a></li>
+                        <li><a href="/blog" class="text-gray-400 hover:text-white transition-colors flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-growth-green"></i> Blog</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-growth-green"></i> Testimonials</a></li>
+                        <li><a href="#contact" class="text-gray-400 hover:text-white transition-colors flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-growth-green"></i> Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 mb-4 md:mb-0">© 2023 J StaR Films. All rights reserved.</p>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">Privacy Policy</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Theme management
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'start' 
+                    });
+                }
+            });
+        });
+        
+        // Store theme preference
+        const themeButton = document.querySelector('[onclick="document.documentElement.classList.toggle(\'dark\')"]');
+        themeButton.addEventListener('click', () => {
+            if (document.documentElement.classList.contains('dark')) {
+                localStorage.theme = 'dark'
+            } else {
+                localStorage.theme = 'light'
+            }
+        });
+        
+        // Floating elements animation
+        document.addEventListener('DOMContentLoaded', () => {
+            const floatingElements = document.querySelectorAll('.floating-element');
+            floatingElements.forEach((el, index) => {
+                el.style.animationDelay = `${index * 1.5}s`;
+            });
+        });
+    </script>
+</body>
+</html>

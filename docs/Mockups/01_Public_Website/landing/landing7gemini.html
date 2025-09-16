@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Films - Ultimate Landing Page | Creative & Technical Excellence</title>
+    <meta name="description" content="The ultimate landing page for J StaR Films, combining professional video production, custom app development, and AI-powered creator tools. Faith-inspired content with purpose.">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Clash+Display:wght@600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#1e40af',    // qwen4
+                        'secondary': '#4f46e5',   // qwen4
+                        'accent': '#8b5cf6',      // qwen4 / faith-purple
+                        'highlight': '#ec4899',    // qwen4
+                        'growth-green': '#059669', // qwen3
+                        'sacred-gold': '#D97706',   // qwen3
+                        'jstar-blue': '#2563EB',   // qwen3 (similar to primary)
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                        'display': ['Clash Display', 'sans-serif']
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'card-stack-in': 'cardStackIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+                        'card-stack-out': 'cardStackOut 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-15px)' }
+                        },
+                        cardStackIn: {
+                            '0%': { transform: 'translateY(100%) scale(0.8)', opacity: '0' },
+                            '100%': { transform: 'translateY(0) scale(1)', opacity: '1' }
+                        },
+                        cardStackOut: {
+                            '0%': { transform: 'translateY(0) scale(1)', opacity: '1' },
+                            '100%': { transform: 'translateY(-100%) scale(0.8)', opacity: '0' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* --- Base & Variables --- */
+        :root {
+            --primary: #1e40af;
+            --secondary: #4f46e5;
+            --accent: #8b5cf6;
+            --highlight: #ec4899;
+        }
+
+        /* --- Global Styles --- */
+        .btn-primary {
+            @apply px-7 py-3.5 bg-gradient-to-r from-primary to-accent text-white rounded-full font-medium hover:shadow-xl transition-all transform hover:-translate-y-0.5;
+        }
+        .btn-secondary {
+            @apply px-7 py-3.5 glass text-gray-800 dark:text-white border border-white/10 rounded-full font-medium hover:bg-white/10 transition-all;
+        }
+        .section-badge {
+            @apply inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-sm font-medium mb-4;
+        }
+        .gradient-text {
+            @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent;
+        }
+        /* --- Glass Effect for Navbar & Cards --- */
+        .glass {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        .dark .glass {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* --- Hero Slideshow --- */
+        .hero-slide {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity 1.2s ease-in-out, transform 1.2s ease-in-out;
+            transform: scale(1.05);
+        }
+        .hero-slide.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .floating-icon {
+            animation: float 8s ease-in-out infinite;
+        }
+        .floating-icon i { font-size: 2rem; opacity: 0.1; }
+        .floating-icon.video i { color: var(--primary); }
+        .floating-icon.apps i { color: var(--accent); }
+        .floating-icon.ai i { color: var(--highlight); }
+        .floating-icon.faith i { color: #D97706; }
+
+        /* --- Portfolio --- */
+        .portfolio-category {
+            transition: all 150ms ease;
+        }
+        .portfolio-category.active {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+        }
+        .portfolio-item {
+            transition: all 300ms ease;
+        }
+        .portfolio-item:hover {
+            transform: scale(1.03);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        .category-badge {
+            @apply inline-block px-3 py-1 rounded-full text-xs font-medium mr-2 mb-2 transition-transform duration-200 hover:-translate-y-0.5;
+        }
+        .category-badge.video { @apply bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300; }
+        .category-badge.apps { @apply bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-300; }
+        .category-badge.ai { @apply bg-pink-100 text-pink-800 dark:bg-pink-900/50 dark:text-pink-300; }
+        .category-badge.faith { @apply bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300; }
+
+        /* --- Creative Process --- */
+        .process-step {
+            position: relative;
+            padding-top: 60px;
+        }
+        .process-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            height: 2px;
+            width: 100%;
+            max-width: 200px;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+        }
+        .step-number {
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            @apply w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center text-white font-bold text-lg z-10;
+        }
+        .feature-icon {
+            @apply w-16 h-16 bg-gradient-to-br from-primary to-accent text-white flex items-center justify-center rounded-2xl mx-auto mb-6;
+        }
+        .feature-icon i { font-size: 24px; }
+        @media (max-width: 1024px) {
+            .process-step:not(:last-child)::after { display: none; }
+        }
+
+        /* --- Testimonials --- */
+        .testimonial-track {
+            transition: transform 0.5s ease-in-out;
+        }
+        .testimonial-card-stack {
+            display: grid;
+        }
+        .testimonial-card-stack > * {
+            grid-area: 1 / 1;
+            transition: transform 0.5s ease, opacity 0.5s ease;
+        }
+        
+        /* --- Blog --- */
+        .blog-card {
+            transition: all 300ms ease;
+        }
+        .blog-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .fade-in-up {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .fade-in-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="font-sans bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+
+    <!-- Navbar -->
+    <nav id="navbar" class="fixed w-full z-50 py-4 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center">
+                <a href="/" class="text-2xl font-bold font-display gradient-text">J StaR Films</a>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#services" class="text-gray-700 dark:text-gray-300 hover:text-primary transition-colors font-medium">Services</a>
+                    <a href="#portfolio" class="text-gray-700 dark:text-gray-300 hover:text-primary transition-colors font-medium">Portfolio</a>
+                    <a href="#about" class="text-gray-700 dark:text-gray-300 hover:text-primary transition-colors font-medium">About</a>
+                    <a href="#store" class="text-gray-700 dark:text-gray-300 hover:text-primary transition-colors font-medium">Store</a>
+                    <a href="#blog" class="text-gray-700 dark:text-gray-300 hover:text-primary transition-colors font-medium">Blog</a>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <button id="theme-toggle" class="p-2 rounded-full text-gray-700 dark:text-gray-200 glass hover:opacity-90 transition-all" aria-label="Toggle dark mode">
+                        <i class="fas fa-sun hidden dark:block"></i>
+                        <i class="fas fa-moon dark:hidden"></i>
+                    </button>
+                    <a href="#contact" class="hidden md:block btn-primary text-sm px-5 py-2.5">Get Started</a>
+                    <button id="mobile-menu-button" class="md:hidden p-2 text-gray-700 dark:text-gray-300 rounded-lg">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="mobile-menu" class="md:hidden hidden mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col space-y-3">
+                    <a href="#services" class="py-2 text-gray-700 dark:text-gray-300 hover:text-primary transition-colors">Services</a>
+                    <a href="#portfolio" class="py-2 text-gray-700 dark:text-gray-300 hover:text-primary transition-colors">Portfolio</a>
+                    <a href="#about" class="py-2 text-gray-700 dark:text-gray-300 hover:text-primary transition-colors">About</a>
+                    <a href="#store" class="py-2 text-gray-700 dark:text-gray-300 hover:text-primary transition-colors">Store</a>
+                    <a href="#blog" class="py-2 text-gray-700 dark:text-gray-300 hover:text-primary transition-colors">Blog</a>
+                    <a href="#contact" class="mt-2 py-2.5 px-5 btn-primary text-center font-medium">Get Started</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="min-h-screen flex items-center pt-24 pb-16 relative overflow-hidden">
+        <!-- Background Gradients -->
+        <div class="absolute inset-0 z-0">
+            <div class="absolute top-1/4 left-1/4 w-72 h-72 bg-primary/10 rounded-full filter blur-3xl animate-pulse-slow"></div>
+            <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/10 rounded-full filter blur-3xl animate-pulse-slow animation-delay-2000"></div>
+        </div>
+
+        <div id="hero-slider" class="absolute inset-0">
+            <!-- Slide 1: Based on qwen3 -->
+            <div id="hero-slide-1" class="hero-slide active">
+                <div class="floating-icon video absolute top-1/4 left-10"><i class="fas fa-film"></i></div>
+                <div class="floating-icon apps absolute top-1/3 right-16"><i class="fas fa-code"></i></div>
+                <div class="floating-icon ai absolute bottom-1/4 left-1/4"><i class="fas fa-robot"></i></div>
+                <div class="floating-icon faith absolute bottom-1/3 right-1/4"><i class="fas fa-heart"></i></div>
+                
+                <div class="min-h-screen w-full flex items-center">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                            <div>
+                                <h1 class="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 dark:text-white mb-6">
+                                    Where <span class="text-primary">Technology</span>, <span class="text-accent">Faith</span>, and <span class="text-growth-green">Creativity</span> Converge
+                                </h1>
+                                <p class="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl">
+                                    I help creators and businesses tell their stories with purpose through cinematic video, custom apps, and AI-powered tools.
+                                </p>
+                                <div class="flex flex-wrap gap-4">
+                                    <a href="#services" class="btn-primary">Explore My Services</a>
+                                    <a href="#contact" class="btn-secondary">Schedule Consultation</a>
+                                </div>
+                            </div>
+                            <div class="relative animate-float">
+                                <div class="bg-white dark:bg-gray-800/50 glass rounded-3xl shadow-2xl overflow-hidden">
+                                    <div class="h-96 bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center p-6">
+                                        <div class="text-center">
+                                            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-r from-primary to-accent mb-6">
+                                                <i class="fas fa-robot text-white text-2xl"></i>
+                                            </div>
+                                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Meet JohnGPT</h3>
+                                            <p class="text-gray-600 dark:text-gray-400">Your AI assistant for content creation, strategy, and faith-based storytelling.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2: Based on qwen4 -->
+            <div id="hero-slide-2" class="hero-slide">
+                <div class="min-h-screen w-full flex items-center">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                            <div>
+                                <h1 class="font-display text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
+                                    <span class="text-gray-900 dark:text-white">Elevate Your Story</span>
+                                    <br>
+                                    <span class="gradient-text">With Purpose & Excellence</span>
+                                </h1>
+                                <p class="text-xl text-gray-600 dark:text-gray-400 mb-10 max-w-2xl">
+                                    Professional video production, custom app development, and AI-powered tools designed to help creators and businesses tell their stories with impact.
+                                </p>
+                                <div class="flex flex-wrap gap-4">
+                                    <a href="#portfolio" class="btn-primary">View Portfolio</a>
+                                    <a href="#contact" class="btn-secondary">Get In Touch</a>
+                                </div>
+                            </div>
+                            <div class="relative">
+                                <div class="relative animate-float">
+                                    <div class="aspect-w-16 aspect-h-9 rounded-3xl overflow-hidden shadow-2xl border border-gray-200/30">
+                                        <div class="bg-gradient-to-br from-primary to-accent w-full h-full"></div>
+                                    </div>
+                                    <div class="absolute -bottom-6 -right-6 bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-xl glass">
+                                        <div class="bg-gradient-to-r from-highlight to-accent w-12 h-12 rounded-xl flex items-center justify-center">
+                                            <i class="fas fa-film text-white text-2xl"></i>
+                                        </div>
+                                        <p class="mt-2 font-semibold text-gray-900 dark:text-white">50+ Projects Delivered</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold font-display text-gray-900 dark:text-white mb-6">About <span class="gradient-text">Me</span></h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">I'm John Oluleke-Oke, founder of J StaR Films, dedicated to creating cinematic experiences and digital solutions that inspire and transform.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div class="relative">
+                     <div class="w-full h-96 bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl"></div>
+                     <div class="absolute inset-0 p-8">
+                        <div class="w-full h-full bg-gray-300 dark:bg-gray-700 rounded-2xl shadow-2xl animate-float">
+                           <!-- Placeholder for an actual image -->
+                           <div class="w-full h-full bg-cover bg-center rounded-2xl" style="background-image: url('https://via.placeholder.com/600x400?text=John+Oluleke-Oke');"></div>
+                        </div>
+                     </div>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold font-display text-gray-900 dark:text-white mb-6">Faith-Inspired Creativity & Excellence</h3>
+                    <p class="text-gray-700 dark:text-gray-300 mb-6">With over 7 years of experience, I blend technical expertise with a creative vision guided by excellence, integrity, and purpose. I'm committed to understanding your story and translating it into compelling visual and digital experiences that resonate with your audience.</p>
+                    
+                    <div class="grid grid-cols-2 gap-4 mt-8 mb-8">
+                        <div class="bg-gray-100 dark:bg-gray-800/50 p-4 rounded-xl text-center">
+                            <div class="text-3xl font-bold gradient-text">7+</div>
+                            <div class="text-gray-600 dark:text-gray-400 text-sm">Years Experience</div>
+                        </div>
+                        <div class="bg-gray-100 dark:bg-gray-800/50 p-4 rounded-xl text-center">
+                            <div class="text-3xl font-bold gradient-text">50+</div>
+                            <div class="text-gray-600 dark:text-gray-400 text-sm">Projects Completed</div>
+                        </div>
+                        <div class="bg-gray-100 dark:bg-gray-800/50 p-4 rounded-xl text-center">
+                            <div class="text-3xl font-bold gradient-text">25+</div>
+                            <div class="text-gray-600 dark:text-gray-400 text-sm">Satisfied Clients</div>
+                        </div>
+                        <div class="bg-gray-100 dark:bg-gray-800/50 p-4 rounded-xl text-center">
+                            <div class="text-3xl font-bold gradient-text">100%</div>
+                            <div class="text-gray-600 dark:text-gray-400 text-sm">Client Satisfaction</div>
+                        </div>
+                    </div>
+                     <a href="/about" class="btn-primary inline-flex items-center">Learn More <i class="fas fa-arrow-right ml-2"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="py-20 bg-gray-100 dark:bg-gray-800/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-3xl md:text-4xl font-extrabold font-display text-gray-900 dark:text-white mb-4">
+                    Comprehensive Creative Services
+                </h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400">
+                    I provide end-to-end services that blend technical excellence with purpose-driven storytelling to help you achieve your creative and business goals.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Video Production -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg transition-transform duration-300 hover:-translate-y-2">
+                    <div class="p-8">
+                        <div class="feature-icon"><i class="fas fa-film"></i></div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Video Production</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-6">Cinematic storytelling that captures emotion, conveys your message, and engages your audience.</p>
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-start"><i class="fas fa-check-circle text-primary mt-1 mr-3"></i><span class="text-gray-700 dark:text-gray-300">Wedding & Event Films</span></li>
+                            <li class="flex items-start"><i class="fas fa-check-circle text-primary mt-1 mr-3"></i><span class="text-gray-700 dark:text-gray-300">Brand Storytelling</span></li>
+                            <li class="flex items-start"><i class="fas fa-check-circle text-primary mt-1 mr-3"></i><span class="text-gray-700 dark:text-gray-300">Documentary Production</span></li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-50 dark:bg-gray-700/50 p-6 border-t border-gray-200 dark:border-gray-700">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Starting at</div>
+                                <div class="text-xl font-bold text-primary dark:text-blue-400">₦250,000</div>
+                            </div>
+                            <a href="#contact" class="px-4 py-2 bg-primary/10 text-primary rounded-full hover:bg-primary/20 transition-colors text-sm font-medium">Get Quote</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- App Development -->
+                 <div class="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg transition-transform duration-300 hover:-translate-y-2">
+                    <div class="p-8">
+                        <div class="feature-icon"><i class="fas fa-code"></i></div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">App Development</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-6">Custom web and mobile apps built with modern tech to solve real problems and enhance user experience.</p>
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-start"><i class="fas fa-check-circle text-secondary mt-1 mr-3"></i><span class="text-gray-700 dark:text-gray-300">Web Applications</span></li>
+                            <li class="flex items-start"><i class="fas fa-check-circle text-secondary mt-1 mr-3"></i><span class="text-gray-700 dark:text-gray-300">UI/UX Design & Prototyping</span></li>
+                            <li class="flex items-start"><i class="fas fa-check-circle text-secondary mt-1 mr-3"></i><span class="text-gray-700 dark:text-gray-300">Mobile App Development</span></li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-50 dark:bg-gray-700/50 p-6 border-t border-gray-200 dark:border-gray-700">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Starting at</div>
+                                <div class="text-xl font-bold text-secondary dark:text-indigo-400">₦500,000</div>
+                            </div>
+                            <a href="#contact" class="px-4 py-2 bg-secondary/10 text-secondary rounded-full hover:bg-secondary/20 transition-colors text-sm font-medium">Get Quote</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- AI Tools -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg transition-transform duration-300 hover:-translate-y-2">
+                    <div class="p-8">
+                        <div class="feature-icon"><i class="fas fa-robot"></i></div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">AI Creator Tools</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-6">AI-powered tools for content creators to enhance workflow, boost creativity, and optimize results.</p>
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-start"><i class="fas fa-check-circle text-accent mt-1 mr-3"></i><span class="text-gray-700 dark:text-gray-300">YouTube Virality OS</span></li>
+                            <li class="flex items-start"><i class="fas fa-check-circle text-accent mt-1 mr-3"></i><span class="text-gray-700 dark:text-gray-300">Content Generator Suite</span></li>
+                            <li class="flex items-start"><i class="fas fa-check-circle text-accent mt-1 mr-3"></i><span class="text-gray-700 dark:text-gray-300">JohnGPT Assistant</span></li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-50 dark:bg-gray-700/50 p-6 border-t border-gray-200 dark:border-gray-700">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Starting at</div>
+                                <div class="text-xl font-bold text-accent dark:text-purple-400">₦49,000</div>
+                            </div>
+                            <a href="#store" class="px-4 py-2 bg-accent/10 text-accent rounded-full hover:bg-accent/20 transition-colors text-sm font-medium">View Store</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-12">
+                <a href="/services" class="btn-primary">View Full Services <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Portfolio Section -->
+    <section id="portfolio" class="py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold font-display text-gray-900 dark:text-white mb-6">Showcase of <span class="gradient-text">Excellence</span></h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400">A curated collection of cinematic storytelling, innovative app development, and memorable event coverage.</p>
+            </div>
+            
+            <div class="flex justify-center mb-10">
+                <div class="inline-flex rounded-full p-1 bg-gray-100 dark:bg-gray-800 shadow-inner">
+                    <button class="portfolio-category active px-5 py-2.5 rounded-full font-medium">All</button>
+                    <button class="portfolio-category px-5 py-2.5 rounded-full font-medium text-gray-600 dark:text-gray-300">Video</button>
+                    <button class="portfolio-category px-5 py-2.5 rounded-full font-medium text-gray-600 dark:text-gray-300">Apps</button>
+                    <button class="portfolio-category px-5 py-2.5 rounded-full font-medium text-gray-600 dark:text-gray-300">Events</button>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">
+                <!-- Row 1 -->
+                <div class="lg:col-span-3 portfolio-item bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg" data-category="video">
+                    <div class="relative group">
+                        <div class="aspect-w-16 aspect-h-9 bg-cover" style="background-image: url('https://via.placeholder.com/600x400/1e40af/ffffff?text=Project+1');"></div>
+                        <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                             <a href="#" class="btn-primary text-sm">View Project</a>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">The Timeless Wedding</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4 text-sm">A cinematic portrayal of love, culture, and family for a Nigerian couple.</p>
+                        <div>
+                            <span class="category-badge video">Cinematic</span>
+                            <span class="category-badge faith">Faith-Based</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-3 portfolio-item bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg" data-category="events">
+                    <div class="relative group">
+                        <div class="aspect-w-16 aspect-h-9 bg-cover" style="background-image: url('https://via.placeholder.com/600x400/4f46e5/ffffff?text=Project+2');"></div>
+                        <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                             <a href="#" class="btn-primary text-sm">View Project</a>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">Faith in Action Documentary</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4 text-sm">Powerful doc showcasing the impact of faith-based community initiatives.</p>
+                        <div>
+                           <span class="category-badge video">Documentary</span>
+                           <span class="category-badge faith">Community</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Row 2 -->
+                <div class="lg:col-span-3 portfolio-item bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg" data-category="apps">
+                    <div class="relative group">
+                        <div class="aspect-w-16 aspect-h-9 bg-cover" style="background-image: url('https://via.placeholder.com/600x400/8b5cf6/ffffff?text=Project+3');"></div>
+                        <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                             <a href="#" class="btn-primary text-sm">View Project</a>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">CreatorOS Web App</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4 text-sm">AI-powered platform that helps creators plan, produce, and optimize content.</p>
+                        <div>
+                            <span class="category-badge apps">Web App</span>
+                            <span class="category-badge ai">AI-Powered</span>
+                            <span class="category-badge apps">SaaS</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-3 portfolio-item bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg" data-category="video">
+                    <div class="relative group">
+                        <div class="aspect-w-16 aspect-h-9 bg-cover" style="background-image: url('https://via.placeholder.com/600x400/ec4899/ffffff?text=Project+4');"></div>
+                        <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                             <a href="#" class="btn-primary text-sm">View Project</a>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">Corporate Gala Event</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4 text-sm">Full event coverage, including multi-camera setup and highlight reels.</p>
+                        <div>
+                            <span class="category-badge video">Multi-Cam</span>
+                            <span class="category-badge video">Highlight Reel</span>
+                        </div>
+                    </div>
+                </div>
+                 <!-- Row 3 -->
+                <div class="lg:col-span-2 portfolio-item bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg" data-category="apps">
+                    <div class="relative group">
+                        <div class="aspect-w-16 aspect-h-9 bg-cover" style="background-image: url('https://via.placeholder.com/600x400/059669/ffffff?text=Project+5');"></div>
+                        <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                             <a href="#" class="btn-primary text-sm">View Project</a>
+                        </div>
+                    </div>
+                     <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">Health & Wellness App</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4 text-sm">Health tracking app with personalized recommendations.</p>
+                        <div>
+                            <span class="category-badge apps">React Native</span>
+                            <span class="category-badge apps">Health API</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-2 portfolio-item bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg" data-category="video">
+                     <div class="relative group">
+                        <div class="aspect-w-16 aspect-h-9 bg-cover" style="background-image: url('https://via.placeholder.com/600x400/D97706/ffffff?text=Project+6');"></div>
+                        <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                             <a href="#" class="btn-primary text-sm">View Project</a>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">Italian Destination Wedding</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4 text-sm">Breathtaking film shot across Tuscany, Italy.</p>
+                        <div>
+                            <span class="category-badge video">Destination</span>
+                            <span class="category-badge video">Drone</span>
+                        </div>
+                    </div>
+                </div>
+                 <div class="lg:col-span-2 portfolio-item bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg" data-category="apps">
+                     <div class="relative group">
+                        <div class="aspect-w-16 aspect-h-9 bg-cover" style="background-image: url('https://via.placeholder.com/600x400/2563EB/ffffff?text=Project+7');"></div>
+                        <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                             <a href="#" class="btn-primary text-sm">View Project</a>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">YouTube Mastery Platform</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4 text-sm">A course platform for aspiring content creators.</p>
+                        <div>
+                            <span class="category-badge apps">Education</span>
+                            <span class="category-badge ai">AI Integration</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-12">
+                 <a href="/portfolio" class="btn-primary">View Full Portfolio <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Creative Process Section -->
+    <section class="py-20 bg-gray-100 dark:bg-gray-800/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-3xl md:text-4xl font-extrabold font-display text-gray-900 dark:text-white mb-4">My <span class="gradient-text">Creative Process</span></h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400">A proven approach to delivering exceptional results, with faith and excellence at every step.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-8">
+                <div class="process-step text-center"><div class="step-number">1</div><div class="feature-icon"><i class="fas fa-lightbulb"></i></div><h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Discovery</h3><p class="text-gray-600 dark:text-gray-400">We discuss your vision, goals, and values to understand what matters most.</p></div>
+                <div class="process-step text-center"><div class="step-number">2</div><div class="feature-icon"><i class="fas fa-pen-fancy"></i></div><h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Strategy</h3><p class="text-gray-600 dark:text-gray-400">I develop a tailored plan that aligns with your purpose and technical needs.</p></div>
+                <div class="process-step text-center"><div class="step-number">3</div><div class="feature-icon"><i class="fas fa-camera"></i></div><h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Creation</h3><p class="text-gray-600 dark:text-gray-400">I bring your vision to life with technical excellence and creative passion.</p></div>
+                <div class="process-step text-center"><div class="step-number">4</div><div class="feature-icon"><i class="fas fa-comments"></i></div><h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Refinement</h3><p class="text-gray-600 dark:text-gray-400">You review the work and provide feedback for any necessary revisions.</p></div>
+                <div class="process-step text-center"><div class="step-number">5</div><div class="feature-icon"><i class="fas fa-rocket"></i></div><h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Delivery</h3><p class="text-gray-600 dark:text-gray-400">Final files are delivered in your preferred format with all necessary assets.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold font-display text-gray-900 dark:text-white mb-6">Transparent <span class="gradient-text">Pricing</span></h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">Flexible options to suit projects of all sizes. Let's find the perfect fit for your vision and budget.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Starter -->
+                <div class="glass rounded-2xl p-8 border border-gray-200/10 transition-all duration-300 hover:shadow-2xl hover:border-primary/30">
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Starter</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6">Ideal for smaller projects & individuals.</p>
+                    <div class="text-4xl font-bold font-display text-gray-900 dark:text-white mb-6">₦150,000</div>
+                    <ul class="space-y-4 mb-8 text-gray-600 dark:text-gray-300">
+                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-3"></i> Basic Video Production</li>
+                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-3"></i> 1 Revision Round</li>
+                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-3"></i> Standard Delivery</li>
+                    </ul>
+                    <a href="#contact" class="w-full text-center block py-3 px-6 rounded-full font-semibold border border-primary text-primary hover:bg-primary hover:text-white transition-colors">Get Started</a>
+                </div>
+                
+                <!-- Professional -->
+                <div class="glass rounded-2xl p-8 border-2 border-primary shadow-2xl relative transform lg:scale-105">
+                     <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                        <span class="bg-primary text-white px-4 py-1 rounded-full text-sm font-medium">Most Popular</span>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2 mt-4">Professional</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6">For businesses needing premium quality.</p>
+                    <div class="text-4xl font-bold font-display text-gray-900 dark:text-white mb-6">₦350,000</div>
+                    <ul class="space-y-4 mb-8 text-gray-600 dark:text-gray-300">
+                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-3"></i> Premium Video Production</li>
+                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-3"></i> 3 Revision Rounds</li>
+                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-3"></i> Priority Delivery</li>
+                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-3"></i> Custom Graphics</li>
+                    </ul>
+                    <a href="#contact" class="w-full text-center block py-3 px-6 rounded-full font-semibold bg-gradient-to-r from-primary to-accent text-white hover:shadow-xl transition-shadow">Get Started</a>
+                </div>
+                
+                <!-- Enterprise -->
+                <div class="glass rounded-2xl p-8 border border-gray-200/10 transition-all duration-300 hover:shadow-2xl hover:border-primary/30">
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Enterprise</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6">Comprehensive, tailored solutions.</p>
+                    <div class="text-4xl font-bold font-display text-gray-900 dark:text-white mb-6">Custom</div>
+                    <ul class="space-y-4 mb-8 text-gray-600 dark:text-gray-300">
+                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-3"></i> Full-Scale Production / App</li>
+                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-3"></i> Unlimited Revisions</li>
+                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-3"></i> Dedicated Support</li>
+                    </ul>
+                    <a href="#contact" class="w-full text-center block py-3 px-6 rounded-full font-semibold border border-primary text-primary hover:bg-primary hover:text-white transition-colors">Contact Sales</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="py-20 bg-gray-100 dark:bg-gray-800/50 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold font-display text-gray-900 dark:text-white mb-6">Trusted by Creators & Brands</h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">Real feedback from clients I've helped bring their vision to life.</p>
+            </div>
+
+            <div id="testimonial-container" class="relative h-80">
+                <!-- Testimonial Cards will be dynamically inserted here by JS -->
+            </div>
+
+            <div class="flex justify-center items-center mt-8 space-x-4">
+                <button id="prev-testimonial" class="w-12 h-12 rounded-full glass border border-gray-200/10 flex items-center justify-center text-primary dark:text-white"><i class="fas fa-arrow-left"></i></button>
+                <div id="testimonial-dots" class="flex space-x-2"></div>
+                <button id="next-testimonial" class="w-12 h-12 rounded-full glass border border-gray-200/10 flex items-center justify-center text-primary dark:text-white"><i class="fas fa-arrow-right"></i></button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Blog Section -->
+    <section id="blog" class="py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12 max-w-3xl mx-auto">
+                <h2 class="text-3xl md:text-4xl font-bold font-display text-gray-900 dark:text-white mb-4">
+                    Insights on <span class="gradient-text">Creativity, Tech & Faith</span>
+                </h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400">
+                    Articles and resources to help you grow as a creator and align your work with your purpose.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Featured Blog -->
+                <div class="lg:col-span-2 blog-card fade-in-up bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg flex flex-col md:flex-row">
+                    <div class="md:w-1/2 h-64 md:h-auto bg-cover bg-center" style="background-image: url('https://via.placeholder.com/800x600/1e40af/ffffff?text=Featured')"></div>
+                    <div class="md:w-1/2 p-8 flex flex-col justify-center">
+                        <span class="inline-block px-3 py-1 bg-primary/10 text-primary rounded-full text-sm mb-3 self-start">Faith & Creativity</span>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">Integrating Your Faith into Creative Work Authentically</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4 flex-grow">
+                            Discover practical ways to express your faith through your projects without compromising artistic integrity or alienating your audience. It's about purpose, not preaching.
+                        </p>
+                        <a href="#" class="font-semibold text-primary hover:text-secondary transition-colors">Read Article <i class="fas fa-arrow-right ml-1"></i></a>
+                    </div>
+                </div>
+                
+                <!-- Smaller Blogs -->
+                <div class="blog-card fade-in-up bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg">
+                    <div class="h-48 bg-cover bg-center" style="background-image: url('https://via.placeholder.com/600x400/8b5cf6/ffffff?text=AI+Tools')"></div>
+                    <div class="p-6">
+                        <span class="inline-block px-3 py-1 bg-accent/10 text-accent rounded-full text-sm mb-3">AI Tools</span>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">How AI is Transforming Content Creation</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4 text-sm">
+                           The latest AI tools revolutionizing how creators produce content.
+                        </p>
+                        <a href="#" class="font-semibold text-primary hover:text-secondary transition-colors text-sm">Read Article <i class="fas fa-arrow-right ml-1"></i></a>
+                    </div>
+                </div>
+                
+                <div class="blog-card fade-in-up bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg lg:col-start-1">
+                    <div class="h-48 bg-cover bg-center" style="background-image: url('https://via.placeholder.com/600x400/ec4899/ffffff?text=YouTube')"></div>
+                    <div class="p-6">
+                        <span class="inline-block px-3 py-1 bg-highlight/10 text-highlight rounded-full text-sm mb-3">Video Production</span>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">5 Secrets to Viral YouTube Thumbnails</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4 text-sm">
+                           The psychological principles behind high-performing thumbnails.
+                        </p>
+                        <a href="#" class="font-semibold text-primary hover:text-secondary transition-colors text-sm">Read Article <i class="fas fa-arrow-right ml-1"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Store Section -->
+    <section id="store" class="py-20 bg-gray-100 dark:bg-gray-800/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold font-display text-gray-900 dark:text-white mb-6">Digital <span class="gradient-text">Products</span></h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">Tools and resources to enhance your creative workflow and grow your audience.</p>
+            </div>
+            
+             <!-- Best Seller Carousel -->
+            <div class="relative h-64 mb-16 overflow-hidden">
+                <div id="bestseller-carousel" class="absolute inset-0 flex transition-transform duration-500 ease-in-out">
+                    <!-- Cards will be injected by JS -->
+                </div>
+                <button id="prev-bestseller" class="absolute top-1/2 left-4 -translate-y-1/2 z-10 w-10 h-10 rounded-full glass text-primary dark:text-white flex items-center justify-center"><i class="fas fa-chevron-left"></i></button>
+                <button id="next-bestseller" class="absolute top-1/2 right-4 -translate-y-1/2 z-10 w-10 h-10 rounded-full glass text-primary dark:text-white flex items-center justify-center"><i class="fas fa-chevron-right"></i></button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+                 <a href="#courses" class="block glass rounded-2xl p-6 border border-gray-200/10 hover:border-primary/30 transition-all text-center"><div class="w-12 h-12 mx-auto rounded-xl bg-gradient-to-r from-primary to-secondary flex items-center justify-center mb-4"><i class="fas fa-book text-white text-xl"></i></div><h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Courses</h3><p class="text-gray-600 dark:text-gray-400 text-sm">In-depth video training.</p></a>
+                 <a href="#templates" class="block glass rounded-2xl p-6 border border-gray-200/10 hover:border-secondary/30 transition-all text-center"><div class="w-12 h-12 mx-auto rounded-xl bg-gradient-to-r from-secondary to-accent flex items-center justify-center mb-4"><i class="fas fa-palette text-white text-xl"></i></div><h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Templates</h3><p class="text-gray-600 dark:text-gray-400 text-sm">Accelerate your workflow.</p></a>
+                 <a href="#tools" class="block glass rounded-2xl p-6 border border-gray-200/10 hover:border-accent/30 transition-all text-center"><div class="w-12 h-12 mx-auto rounded-xl bg-gradient-to-r from-accent to-highlight flex items-center justify-center mb-4"><i class="fas fa-cogs text-white text-xl"></i></div><h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">AI Tools</h3><p class="text-gray-600 dark:text-gray-400 text-sm">Boost your creativity.</p></a>
+                 <a href="#bundles" class="block glass rounded-2xl p-6 border border-gray-200/10 hover:border-primary/30 transition-all text-center"><div class="w-12 h-12 mx-auto rounded-xl bg-gradient-to-r from-primary to-highlight flex items-center justify-center mb-4"><i class="fas fa-box-open text-white text-xl"></i></div><h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Bundles</h3><p class="text-gray-600 dark:text-gray-400 text-sm">Get the best value.</p></a>
+            </div>
+
+            <div class="bg-gradient-to-r from-primary to-accent rounded-2xl p-8 md:p-12 text-white">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <h2 class="text-3xl font-bold mb-4">Get Your Free Creator Bundle</h2>
+                        <p class="text-lg mb-6 opacity-90">Download our exclusive bundle of templates, guides, and resources used by professional creators to enhance their workflow.</p>
+                        <a href="#" class="px-8 py-3 bg-white text-primary font-bold rounded-full text-lg hover:bg-gray-100 transition-colors">Download Now</a>
+                    </div>
+                    <div class="bg-white/10 rounded-xl p-6 backdrop-blur-sm">
+                        <h3 class="text-xl font-bold mb-4">What's Included:</h3>
+                        <ul class="space-y-2">
+                            <li class="flex items-center"><i class="fas fa-check-circle text-green-300 mr-3"></i><span>5 Wedding Editing Templates</span></li>
+                            <li class="flex items-center"><i class="fas fa-check-circle text-green-300 mr-3"></i><span>YouTube Thumbnail Guide</span></li>
+                            <li class="flex items-center"><i class="fas fa-check-circle text-green-300 mr-3"></i><span>Content Calendar Template</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+             <div class="text-center mt-12">
+                 <a href="/store" class="btn-primary">Visit Full Store <i class="fas fa-arrow-right ml-2"></i></a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA Section -->
+    <section class="py-20 bg-gradient-to-br from-primary to-accent">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-8 md:p-12 border border-white/20">
+                <h2 class="text-3xl md:text-4xl font-bold font-display text-white mb-6">Ready to Create Something <span class="text-sacred-gold">Meaningful</span>?</h2>
+                <p class="text-xl text-white/90 mb-8 max-w-2xl mx-auto">Whether you need cinematic video production, custom app development, or AI-powered creator tools, let's bring your vision to life with purpose and excellence.</p>
+                
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="#contact" class="px-8 py-4 bg-white text-primary font-bold rounded-full text-lg hover:bg-gray-100 transition-colors">Start Your Project</a>
+                    <a href="https://wa.me/1234567890" target="_blank" class="px-8 py-4 bg-white/10 text-white border border-white/20 font-bold rounded-full text-lg hover:bg-white/20 transition-colors">WhatsApp Consultation</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+                 <div class="mb-12">
+                    <span class="section-badge">Get In Touch</span>
+                    <h2 class="text-3xl md:text-4xl font-bold font-display text-gray-900 dark:text-white mb-4">Let's Bring Your Vision to Life</h2>
+                    <p class="text-xl text-gray-600 dark:text-gray-400 max-w-2xl">Have a project in mind? Fill out the form and I'll get back to you within 24 hours.</p>
+                </div>
+                <div class="glass rounded-2xl p-8 border border-gray-200/10">
+                    <blockquote class="text-gray-700 dark:text-gray-300 italic mb-4">"John isn't just a developer or videographer; he's a creative partner who genuinely cares about your success and vision. The results speak for themselves."</blockquote>
+                    <p class="font-semibold text-gray-900 dark:text-white">- Michelle Johnson, Wedding Client</p>
+                </div>
+            </div>
+            
+            <div class="glass rounded-2xl p-8 border border-gray-200/10">
+                <form class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Full Name</label>
+                            <input type="text" id="name" class="w-full px-4 py-3 rounded-xl glass border border-gray-200/10 bg-transparent text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50" placeholder="Your name">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email Address</label>
+                            <input type="email" id="email" class="w-full px-4 py-3 rounded-xl glass border border-gray-200/10 bg-transparent text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50" placeholder="you@example.com">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="service-interest" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Service Interested In</label>
+                        <select id="service-interest" class="w-full px-4 py-3 rounded-xl glass border border-gray-200/10 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50">
+                            <option>Video Production</option>
+                            <option>App Development</option>
+                            <option>AI Tools</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="message" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Project Details</label>
+                        <textarea id="message" rows="4" class="w-full px-4 py-3 rounded-xl glass border border-gray-200/10 bg-transparent text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50" placeholder="Tell me about your project..."></textarea>
+                    </div>
+                    <button type="submit" class="w-full btn-primary">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white pt-16 pb-8">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+                <div>
+                    <h3 class="text-xl font-bold flex items-center mb-4">
+                        <span class="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-display">J StaR Films</span>
+                    </h3>
+                    <p class="text-gray-400 mb-4 text-sm">Where faith meets film and future. Professional video, app development, and AI tools for meaningful impact.</p>
+                    <div class="flex space-x-4"><a href="#" class="text-gray-400 hover:text-white transition-colors"><i class="fab fa-twitter text-xl"></i></a><a href="#" class="text-gray-400 hover:text-white transition-colors"><i class="fab fa-linkedin text-xl"></i></a><a href="#" class="text-gray-400 hover:text-white transition-colors"><i class="fab fa-instagram text-xl"></i></a><a href="#" class="text-gray-400 hover:text-white transition-colors"><i class="fab fa-youtube text-xl"></i></a></div>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold text-white mb-4">Services</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#services" class="text-gray-400 hover:text-white transition-colors flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-primary"></i> Video Production</a></li>
+                        <li><a href="#services" class="text-gray-400 hover:text-white transition-colors flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-primary"></i> App Development</a></li>
+                        <li><a href="#services" class="text-gray-400 hover:text-white transition-colors flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-primary"></i> AI Creator Tools</a></li>
+                        <li><a href="#contact" class="text-gray-400 hover:text-white transition-colors flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-primary"></i> Custom Solutions</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold text-white mb-4">Store</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#store" class="text-gray-400 hover:text-white transition-colors flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-accent"></i> Courses</a></li>
+                        <li><a href="#store" class="text-gray-400 hover:text-white transition-colors flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-accent"></i> Templates</a></li>
+                        <li><a href="#store" class="text-gray-400 hover:text-white transition-colors flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-accent"></i> AI Tools</a></li>
+                        <li><a href="#store" class="text-gray-400 hover:text-white transition-colors flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-accent"></i> Bundles</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold text-white mb-4">Company</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="/about" class="text-gray-400 hover:text-white transition-colors flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-growth-green"></i> About John</a></li>
+                        <li><a href="#blog" class="text-gray-400 hover:text-white transition-colors flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-growth-green"></i> Blog</a></li>
+                        <li><a href="#testimonials" class="text-gray-400 hover:text-white transition-colors flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-growth-green"></i> Testimonials</a></li>
+                        <li><a href="#contact" class="text-gray-400 hover:text-white transition-colors flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-growth-green"></i> Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center text-sm">
+                <p class="text-gray-400 mb-4 md:mb-0">© 2023 J StaR Films. All rights reserved.</p>
+                <div class="flex space-x-6"><a href="#" class="text-gray-400 hover:text-white transition-colors">Privacy Policy</a><a href="#" class="text-gray-400 hover:text-white transition-colors">Terms of Service</a></div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- Theme Toggle ---
+        const themeToggle = document.getElementById('theme-toggle');
+        const sunIcon = themeToggle.querySelector('.fa-sun');
+        const moonIcon = themeToggle.querySelector('.fa-moon');
+
+        const applyTheme = (theme) => {
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            } else {
+                document.documentElement.classList.remove('dark');
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            }
+        };
+
+        const currentTheme = localStorage.theme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        applyTheme(currentTheme);
+
+        themeToggle.addEventListener('click', () => {
+            const newTheme = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+            localStorage.theme = newTheme;
+            applyTheme(newTheme);
+        });
+
+        // --- Navbar Scroll Effect ---
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('glass', 'shadow-lg', 'py-3');
+                navbar.classList.remove('py-4');
+            } else {
+                navbar.classList.remove('glass', 'shadow-lg', 'py-3');
+                navbar.classList.add('py-4');
+            }
+        });
+
+        // --- Mobile Menu ---
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuButton.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+        document.querySelectorAll('#mobile-menu a').forEach(link => {
+            link.addEventListener('click', () => mobileMenu.classList.add('hidden'));
+        });
+
+        // --- Hero Slideshow ---
+        const heroSlides = document.querySelectorAll('.hero-slide');
+        let currentHeroSlide = 0;
+        setInterval(() => {
+            heroSlides[currentHeroSlide].classList.remove('active');
+            currentHeroSlide = (currentHeroSlide + 1) % heroSlides.length;
+            heroSlides[currentHeroSlide].classList.add('active');
+        }, 7000);
+
+        // --- Portfolio Filtering ---
+        const filterButtons = document.querySelectorAll('.portfolio-category');
+        const portfolioItems = document.querySelectorAll('.portfolio-item');
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                const filter = button.textContent.toLowerCase();
+                portfolioItems.forEach(item => {
+                    item.style.display = (filter === 'all' || item.dataset.category === filter) ? 'block' : 'none';
+                });
+            });
+        });
+
+        // --- Testimonial Carousel / Stack ---
+        const testimonials = [
+            { name: "Sarah Johnson", role: "Wedding Client", text: "John captured our wedding day with such artistry. The film he created brought us to tears—it's more than a video, it's a work of art we'll cherish forever.", color: "from-primary to-accent" },
+            { name: "Michael Chen", role: "Tech Startup CEO", text: "The app John developed exceeded our expectations. His technical expertise combined with his understanding of our needs resulted in a seamless experience for our users.", color: "from-secondary to-accent" },
+            { name: "Emily Rodriguez", role: "Content Creator", text: "I've used several of John's AI tools, and they've transformed my workflow. The quality and attention to detail make professional results accessible even for beginners.", color: "from-accent to-highlight" },
+            { name: "David Smith", role: "Faith-Based Organization", text: "John's ability to blend technical excellence with spiritual sensitivity was exactly what our mission needed. He captured the heart of our message perfectly.", color: "from-highlight to-primary" }
+        ];
+        
+        const testimonialContainer = document.getElementById('testimonial-container');
+        const dotsContainer = document.getElementById('testimonial-dots');
+        let currentTestimonial = 0;
+        
+        function renderTestimonials() {
+            testimonialContainer.innerHTML = '';
+            dotsContainer.innerHTML = '';
+            testimonials.forEach((t, i) => {
+                const card = document.createElement('div');
+                card.className = 'testimonial-card absolute w-full max-w-2xl mx-auto left-0 right-0 p-8 glass rounded-2xl border border-gray-200/10';
+                card.style.transformOrigin = 'bottom center';
+                card.innerHTML = `
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-r ${t.color} mr-4"></div>
+                        <div>
+                            <h4 class="font-bold text-gray-900 dark:text-white">${t.name}</h4>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">${t.role}</div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-400 italic">"${t.text}"</p>`;
+                testimonialContainer.appendChild(card);
+                
+                const dot = document.createElement('button');
+                dot.className = 'w-2.5 h-2.5 rounded-full bg-gray-300 dark:bg-gray-600 transition-colors';
+                dot.addEventListener('click', () => showTestimonial(i));
+                dotsContainer.appendChild(dot);
+            });
+            showTestimonial(0);
+        }
+
+        function showTestimonial(index) {
+            const cards = testimonialContainer.querySelectorAll('.testimonial-card');
+            const dots = dotsContainer.querySelectorAll('button');
+            
+            cards.forEach((card, i) => {
+                const offset = i - index;
+                const scale = 1 - Math.abs(offset) * 0.1;
+                const zIndex = 10 - Math.abs(offset);
+                const opacity = i === index ? 1 : 0.6;
+                const translateX = offset * 20; // 20% for side cards, 0 for center
+                
+                card.style.transform = `translateX(${translateX}%) scale(${scale})`;
+                card.style.zIndex = zIndex;
+                card.style.opacity = opacity;
+            });
+            
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('bg-primary', i === index);
+                dot.classList.toggle('dark:bg-accent', i === index);
+            });
+            currentTestimonial = index;
+        }
+
+        document.getElementById('prev-testimonial').addEventListener('click', () => {
+            const newIndex = (currentTestimonial - 1 + testimonials.length) % testimonials.length;
+            showTestimonial(newIndex);
+        });
+
+        document.getElementById('next-testimonial').addEventListener('click', () => {
+            const newIndex = (currentTestimonial + 1) % testimonials.length;
+            showTestimonial(newIndex);
+        });
+
+        renderTestimonials();
+
+        // --- Blog Fade-In on Scroll ---
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.fade-in-up').forEach(el => observer.observe(el));
+        
+        // --- Store Bestseller Carousel ---
+        const bestsellers = [
+            { title: "YouTube Mastery Academy", price: "₦197,000", bg: "from-primary to-secondary" },
+            { title: "Cinematic Editing Suite", price: "₦89,000", bg: "from-secondary to-accent" },
+            { title: "JohnGPT Pro (AI Assistant)", price: "₦49,000/mo", bg: "from-accent to-highlight" }
+        ];
+        const bestsellerContainer = document.getElementById('bestseller-carousel');
+        let currentBestseller = 0;
+        
+        bestsellers.forEach(item => {
+            const card = document.createElement('div');
+            card.className = `w-full h-full flex-shrink-0 flex items-center justify-center p-8 bg-gradient-to-br ${item.bg} rounded-2xl`;
+            card.innerHTML = `
+                <div class="text-center text-white">
+                    <span class="text-sm uppercase tracking-widest">Best Seller</span>
+                    <h3 class="text-3xl font-bold font-display my-4">${item.title}</h3>
+                    <p class="text-xl font-semibold">${item.price}</p>
+                </div>`;
+            bestsellerContainer.appendChild(card);
+        });
+
+        function updateBestsellerCarousel() {
+            bestsellerContainer.style.transform = `translateX(-${currentBestseller * 100}%)`;
+        }
+
+        document.getElementById('next-bestseller').addEventListener('click', () => {
+            currentBestseller = (currentBestseller + 1) % bestsellers.length;
+            updateBestsellerCarousel();
+        });
+        document.getElementById('prev-bestseller').addEventListener('click', () => {
+            currentBestseller = (currentBestseller - 1 + bestsellers.length) % bestsellers.length;
+            updateBestsellerCarousel();
+        });
+
+    });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Films | Creative Vision, Technical Excellence</title>
+    <meta name="description" content="Professional video production, custom app development, and AI-powered creator tools by John Oluleke-Oke.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'primary': '#1e40af',
+                        'secondary': '#4f46e5',
+                        'accent': '#8b5cf6',
+                        'highlight': '#ec4899',
+                        'neutral': '#f3f4f6',
+                        'dark-neutral': '#1f2937',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --transition-normal: 0.3s;
+            --transition-fast: 0.15s;
+        }
+
+        /* Navbar Glass Effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        .dark .glass {
+            background: rgba(30, 41, 59, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Hero Slideshow */
+        .slide {
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .slide.active {
+            opacity: 1;
+        }
+
+        /* Hover Animations */
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        .portfolio-item {
+            transition: all var(--transition-normal) ease;
+        }
+        .portfolio-item:hover {
+            transform: translateY(-5px);
+        }
+        .portfolio-category.active {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            transform: scale(1.05);
+        }
+        .btn-enhanced {
+            transition: all var(--transition-normal) ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
+        }
+        .btn-enhanced::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        .btn-enhanced:hover::before {
+            left: 100%;
+        }
+
+        /* Floating Animation */
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        /* Scroll Indicator */
+        .scroll-indicator {
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-20px); }
+            60% { transform: translateY(-10px); }
+        }
+
+        /* Testimonial Carousel */
+        .testimonial-track {
+            display: flex;
+            animation: scroll-left 30s linear infinite;
+        }
+        @keyframes scroll-left {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .testimonial-track:hover {
+            animation-play-state: paused;
+        }
+
+        /* Pricing Card Hover */
+        .pricing-card {
+            transition: all var(--transition-normal) ease;
+        }
+        .pricing-card:hover {
+            transform: scale(1.03);
+        }
+
+        /* Tag Styles */
+        .tag-item {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Blog Animation */
+        .blog-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .blog-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+
+    <!-- Navbar -->
+    <nav id="navbar" class="fixed w-full z-50 glass py-4 px-6 flex justify-between items-center">
+        <a href="#" class="text-2xl font-bold bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">J StaR Films</a>
+        <div class="hidden md:flex space-x-8">
+            <a href="#about" class="hover:text-jstar-blue transition-colors">About</a>
+            <a href="#services" class="hover:text-jstar-blue transition-colors">Services</a>
+            <a href="#portfolio" class="hover:text-jstar-blue transition-colors">Portfolio</a>
+            <a href="#pricing" class="hover:text-jstar-blue transition-colors">Pricing</a>
+            <a href="#blog" class="hover:text-jstar-blue transition-colors">Blog</a>
+            <a href="#store" class="hover:text-jstar-blue transition-colors">Store</a>
+            <a href="#contact" class="hover:text-jstar-blue transition-colors">Contact</a>
+        </div>
+        <div class="flex items-center space-x-4">
+            <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                <svg id="theme-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path id="sun-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    <path id="moon-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                </svg>
+            </button>
+            <a href="#contact" class="hidden md:inline-block px-6 py-2 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-full font-medium hover:opacity-90 transition-opacity">Get in Touch</a>
+            <button class="md:hidden text-gray-700 dark:text-gray-300">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="hero" class="relative h-screen flex items-center justify-center overflow-hidden pt-16">
+        <div class="absolute inset-0 z-0">
+            <div class="slide active">
+                <div class="bg-gradient-to-br from-jstar-blue to-faith-purple w-full h-full flex items-center justify-center">
+                    <div class="text-center text-white px-4 max-w-4xl">
+                        <h1 class="text-4xl md:text-6xl font-bold mb-6">Where Faith Meets Film and Future</h1>
+                        <p class="text-xl md:text-2xl mb-8">Cinematic storytelling and digital solutions that inspire and transform.</p>
+                        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                            <a href="#services" class="btn-enhanced px-8 py-4 bg-white text-jstar-blue font-bold rounded-xl text-lg">Explore Services</a>
+                            <a href="#store" class="btn-enhanced px-8 py-4 bg-white/10 backdrop-blur-sm text-white border border-white/20 hover:bg-white/20 font-bold rounded-xl text-lg">View Creator Tools</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="slide">
+                <div class="bg-gradient-to-br from-primary to-accent w-full h-full flex items-center justify-center">
+                    <div class="text-center text-white px-4 max-w-4xl">
+                        <h1 class="text-4xl md:text-6xl font-bold mb-6">Creative Vision, Technical Excellence</h1>
+                        <p class="text-xl md:text-2xl mb-8">Professional video production, custom app development, and AI-powered tools.</p>
+                        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                            <a href="#portfolio" class="px-8 py-4 bg-white text-primary rounded-full font-bold text-lg hover:shadow-lg transition-all">View Portfolio</a>
+                            <a href="#contact" class="px-8 py-4 bg-white/10 backdrop-blur-sm text-white border border-white/20 rounded-full font-bold text-lg hover:bg-white/20 transition-colors">Get in Touch</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="absolute bottom-8 scroll-indicator">
+            <a href="#about" class="text-white animate-bounce">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+            </a>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-20 bg-gray-50 dark:bg-gray-800/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-sm font-medium mb-4">About</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6">Crafting Stories That Matter</h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                    I help creators and businesses tell their stories through cinematic video production, custom app development, and AI-powered tools designed to elevate your creative workflow.
+                </p>
+            </div>
+            <div class="flex flex-col md:flex-row items-center gap-12">
+                <div class="md:w-1/2">
+                    <div class="relative">
+                        <div class="bg-gradient-to-r from-jstar-blue to-faith-purple rounded-2xl w-full h-80"></div>
+                        <div class="absolute -bottom-6 -right-6 bg-white dark:bg-gray-800 rounded-2xl w-3/4 h-3/4 shadow-xl"></div>
+                    </div>
+                </div>
+                <div class="md:w-1/2">
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">John Oluleke-Oke</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6">
+                        A passionate creator and technologist, I blend cinematic storytelling with cutting-edge digital solutions. My mission is to empower individuals and organizations to bring their visions to life with excellence and purpose.
+                    </p>
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-gray-700 dark:text-gray-300">Award-winning cinematographer</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-gray-700 dark:text-gray-300">Full-stack app developer</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-gray-700 dark:text-gray-300">AI & Creator Tools Specialist</span>
+                        </li>
+                    </ul>
+                    <a href="/about" class="px-6 py-3 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold hover:opacity-90 transition-opacity">Learn More About Me</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-sm font-medium mb-4">Services</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6">Comprehensive Creative Services</h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                    From concept to completion, I offer a full suite of services to bring your vision to life.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Service 1 -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg feature-card">
+                    <div class="w-16 h-16 bg-gradient-to-r from-jstar-blue to-faith-purple rounded-xl flex items-center justify-center mb-6">
+                        <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Video Production</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6">
+                        Cinematic storytelling for weddings, events, and brand narratives. From concept development to final delivery, I create videos that inspire and engage.
+                    </p>
+                    <ul class="space-y-3 mb-6">
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-gray-700 dark:text-gray-300">Cinematic wedding films</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-gray-700 dark:text-gray-300">Corporate event coverage</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-gray-700 dark:text-gray-300">Brand commercial production</span>
+                        </li>
+                    </ul>
+                    <a href="/services/video" class="text-jstar-blue font-semibold hover:text-faith-purple transition-colors">Learn More →</a>
+                </div>
+
+                <!-- Service 2 -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg feature-card">
+                    <div class="w-16 h-16 bg-gradient-to-r from-faith-purple to-growth-green rounded-xl flex items-center justify-center mb-6">
+                        <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">App Development</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6">
+                        Custom mobile and web applications designed to solve your specific business challenges and enhance user engagement.
+                    </p>
+                    <ul class="space-y-3 mb-6">
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-gray-700 dark:text-gray-300">Mobile Applications</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-gray-700 dark:text-gray-300">Web Platforms</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-gray-700 dark:text-gray-300">UI/UX Design</span>
+                        </li>
+                    </ul>
+                    <a href="/services/apps" class="text-faith-purple font-semibold hover:text-jstar-blue transition-colors">Learn More →</a>
+                </div>
+
+                <!-- Service 3 -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg feature-card">
+                    <div class="w-16 h-16 bg-gradient-to-r from-growth-green to-jstar-blue rounded-xl flex items-center justify-center mb-6">
+                        <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">AI Tools</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6">
+                        Cutting-edge AI-powered tools designed to enhance your creative workflow and help you produce exceptional content efficiently.
+                    </p>
+                    <ul class="space-y-3 mb-6">
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-gray-700 dark:text-gray-300">YouTube Virality OS</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-gray-700 dark:text-gray-300">Content Creation Assistant</span>
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-gray-700 dark:text-gray-300">Workflow Automation Suite</span>
+                        </li>
+                    </ul>
+                    <a href="/services/ai" class="text-growth-green font-semibold hover:text-jstar-blue transition-colors">Learn More →</a>
+                </div>
+            </div>
+            <div class="text-center mt-12">
+                <a href="/services" class="px-6 py-3 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold hover:opacity-90 transition-opacity">View All Services</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Portfolio Section -->
+    <section id="portfolio" class="py-20 bg-gray-50 dark:bg-gray-800/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <span class="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-sm font-medium mb-4">Portfolio</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Showcase of Excellence</h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400">
+                    Explore a curated selection of my latest work across video, apps, and digital experiences.
+                </p>
+            </div>
+
+            <!-- Portfolio Filters -->
+            <div class="flex flex-wrap justify-center gap-3 mb-12">
+                <button class="portfolio-category px-4 py-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 font-medium hover:bg-primary hover:text-white transition-all active">All</button>
+                <button class="portfolio-category px-4 py-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 font-medium hover:bg-primary hover:text-white transition-all">Video</button>
+                <button class="portfolio-category px-4 py-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 font-medium hover:bg-primary hover:text-white transition-all">Apps</button>
+                <button class="portfolio-category px-4 py-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 font-medium hover:bg-primary hover:text-white transition-all">Events</button>
+            </div>
+
+            <!-- Portfolio Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Portfolio Item 1 -->
+                <div class="portfolio-item glass rounded-2xl overflow-hidden border border-gray-200/10" data-category="video">
+                    <div class="relative group">
+                        <div class="bg-gradient-to-r from-jstar-blue to-faith-purple w-full h-56"></div>
+                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300"></div>
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                            <button onclick="openLightbox('project1', 'Luxury Wedding Film - The Johnsons')" class="px-6 py-2.5 bg-white text-primary rounded-full font-medium flex items-center">
+                                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                View Project
+                            </button>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="font-bold text-lg text-gray-900 dark:text-white mb-2">Luxury Wedding Film - The Johnsons</h3>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">A cinematic celebration of love in Tuscany.</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="tag-item px-2 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 rounded text-xs">Wedding</span>
+                                <span class="tag-item px-2 py-1 bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-300 rounded text-xs">Cinematic</span>
+                                <span class="tag-item px-2 py-1 bg-pink-100 dark:bg-pink-900/50 text-pink-800 dark:text-pink-300 rounded text-xs">Drone</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Portfolio Item 2 -->
+                <div class="portfolio-item glass rounded-2xl overflow-hidden border border-gray-200/10" data-category="apps">
+                    <div class="relative group">
+                        <div class="bg-gradient-to-r from-faith-purple to-growth-green w-full h-56"></div>
+                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300"></div>
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                            <button onclick="openLightbox('project2', 'TechSummit Conference App')" class="px-6 py-2.5 bg-white text-secondary rounded-full font-medium flex items-center">
+                                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                View Project
+                            </button>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="font-bold text-lg text-gray-900 dark:text-white mb-2">TechSummit Conference App</h3>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">A custom mobile application for the annual TechSummit conference.</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="tag-item px-2 py-1 bg-gray-100/50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-300 rounded text-xs">React Native</span>
+                                <span class="tag-item px-2 py-1 bg-gray-100/50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-300 rounded text-xs">Firebase</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Portfolio Item 3 -->
+                <div class="portfolio-item glass rounded-2xl overflow-hidden border border-gray-200/10" data-category="events">
+                    <div class="relative group">
+                        <div class="bg-gradient-to-r from-growth-green to-jstar-blue w-full h-56"></div>
+                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300"></div>
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                            <button onclick="openLightbox('project3', 'Destination Wedding in Italy')" class="px-6 py-2.5 bg-white text-accent rounded-full font-medium flex items-center">
+                                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                View Project
+                            </button>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="font-bold text-lg text-gray-900 dark:text-white mb-2">Destination Wedding in Italy</h3>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">Capturing the essence of a love story in the heart of Tuscany.</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="tag-item px-2 py-1 bg-gray-100/50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-300 rounded text-xs">Destination Wedding</span>
+                                <span class="tag-item px-2 py-1 bg-gray-100/50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-300 rounded text-xs">Drone Footage</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Portfolio Item 4 -->
+                <div class="portfolio-item glass rounded-2xl overflow-hidden border border-gray-200/10" data-category="video">
+                    <div class="relative group">
+                        <div class="bg-gradient-to-r from-primary to-accent w-full h-56"></div>
+                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300"></div>
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                            <button onclick="openLightbox('project4', 'Corporate Brand Film')" class="px-6 py-2.5 bg-white text-accent rounded-full font-medium flex items-center">
+                                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                View Project
+                            </button>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="font-bold text-lg text-gray-900 dark:text-white mb-2">Corporate Brand Film</h3>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">A powerful narrative showcasing innovation and company culture.</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="tag-item px-2 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 rounded text-xs">Corporate</span>
+                                <span class="tag-item px-2 py-1 bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-300 rounded text-xs">Narrative</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Portfolio Item 5 -->
+                <div class="portfolio-item glass rounded-2xl overflow-hidden border border-gray-200/10" data-category="apps">
+                    <div class="relative group">
+                        <div class="bg-gradient-to-r from-faith-purple to-jstar-blue w-full h-56"></div>
+                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300"></div>
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                            <button onclick="openLightbox('project5', 'Health & Wellness Mobile App')" class="px-6 py-2.5 bg-white text-secondary rounded-full font-medium flex items-center">
+                                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                View Project
+                            </button>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="font-bold text-lg text-gray-900 dark:text-white mb-2">Health & Wellness Mobile App</h3>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">A user-centric app for tracking fitness and mental well-being.</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="tag-item px-2 py-1 bg-gray-100/50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-300 rounded text-xs">Flutter</span>
+                                <span class="tag-item px-2 py-1 bg-gray-100/50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-300 rounded text-xs">API Integration</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Portfolio Item 6 -->
+                <div class="portfolio-item glass rounded-2xl overflow-hidden border border-gray-200/10" data-category="events">
+                    <div class="relative group">
+                        <div class="bg-gradient-to-r from-growth-green to-primary w-full h-56"></div>
+                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300"></div>
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                            <button onclick="openLightbox('project6', 'Product Launch Event')" class="px-6 py-2.5 bg-white text-accent rounded-full font-medium flex items-center">
+                                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                View Project
+                            </button>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="font-bold text-lg text-gray-900 dark:text-white mb-2">Product Launch Event</h3>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">Dynamic coverage of a high-profile tech product unveiling.</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="tag-item px-2 py-1 bg-gray-100/50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-300 rounded text-xs">Event Coverage</span>
+                                <span class="tag-item px-2 py-1 bg-gray-100/50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-300 rounded text-xs">Live Streaming</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-12">
+                <a href="/portfolio" class="inline-flex items-center px-8 py-3 bg-gradient-to-r from-primary to-accent text-white rounded-lg font-semibold hover:opacity-90 transition-opacity">
+                    View Full Portfolio
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Creative Process Section -->
+    <section id="process" class="py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">My <span class="bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">Process</span></h2>
+                <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                    A structured approach to ensure every project delivers exceptional results.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Step 1 -->
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-gradient-to-r from-jstar-blue to-faith-purple rounded-xl flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                    </div>
+                    <h4 class="font-bold text-lg text-gray-900 dark:text-white mb-2">Discovery</h4>
+                    <p class="text-gray-600 dark:text-gray-400">Understanding your vision, goals, and audience to lay a solid foundation.</p>
+                </div>
+                <!-- Step 2 -->
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-gradient-to-r from-faith-purple to-growth-green rounded-xl flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm7-7h-2a2 2 0 01-2-2V8a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2zm2 9h-2a2 2 0 00-2 2v.01a2 2 0 002 2h2a2 2 0 002-2v-.01a2 2 0 00-2-2z"></path></svg>
+                    </div>
+                    <h4 class="font-bold text-lg text-gray-900 dark:text-white mb-2">Planning</h4>
+                    <p class="text-gray-600 dark:text-gray-400">Developing a detailed roadmap with timelines, milestones, and creative direction.</p>
+                </div>
+                <!-- Step 3 -->
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-gradient-to-r from-growth-green to-jstar-blue rounded-xl flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                    </div>
+                    <h4 class="font-bold text-lg text-gray-900 dark:text-white mb-2">Creation</h4>
+                    <p class="text-gray-600 dark:text-gray-400">Bringing the vision to life through expert execution and cutting-edge tools.</p>
+                </div>
+                <!-- Step 4 -->
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-gradient-to-r from-jstar-blue to-faith-purple rounded-xl flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    </div>
+                    <h4 class="font-bold text-lg text-gray-900 dark:text-white mb-2">Delivery</h4>
+                    <p class="text-gray-600 dark:text-gray-400">Final delivery with comprehensive support and resources for success.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="py-20 bg-gray-50 dark:bg-gray-800/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-sm font-medium mb-4">Pricing</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6">Transparent & Value-Driven</h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                    Clear, upfront pricing designed to fit your project scope and budget.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Pricing Card 1 -->
+                <div class="pricing-card bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-200 dark:border-gray-700 text-center">
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Starter</h3>
+                    <div class="mb-6">
+                        <span class="text-5xl font-bold text-gray-900 dark:text-white">₦150,000</span>
+                        <span class="text-gray-600 dark:text-gray-400">/project</span>
+                    </div>
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-center justify-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-gray-700 dark:text-gray-300">Basic Video Production</span>
+                        </li>
+                        <li class="flex items-center justify-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-gray-700 dark:text-gray-300">1 Revision</span>
+                        </li>
+                        <li class="flex items-center justify-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-gray-700 dark:text-gray-300">Standard Delivery</span>
+                        </li>
+                    </ul>
+                    <a href="#contact" class="w-full py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">Get Started</a>
+                </div>
+
+                <!-- Pricing Card 2 -->
+                <div class="pricing-card relative bg-gradient-to-br from-jstar-blue to-faith-purple rounded-2xl p-8 shadow-xl text-center text-white transform scale-105">
+                    <div class="absolute top-0 right-0 bg-accent text-white text-xs font-bold px-4 py-1 rounded-bl-lg rounded-tr-2xl">POPULAR</div>
+                    <h3 class="text-2xl font-bold mb-4">Professional</h3>
+                    <div class="mb-6">
+                        <span class="text-5xl font-bold">₦350,000</span>
+                        <span class="text-white/80">/project</span>
+                    </div>
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-center justify-center">
+                            <svg class="h-5 w-5 text-white mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>Premium Video Production</span>
+                        </li>
+                        <li class="flex items-center justify-center">
+                            <svg class="h-5 w-5 text-white mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>Up to 3 Revisions</span>
+                        </li>
+                        <li class="flex items-center justify-center">
+                            <svg class="h-5 w-5 text-white mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>Priority Delivery</span>
+                        </li>
+                        <li class="flex items-center justify-center">
+                            <svg class="h-5 w-5 text-white mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>Basic App Feature</span>
+                        </li>
+                    </ul>
+                    <a href="#contact" class="w-full py-3 bg-white text-jstar-blue rounded-lg font-semibold hover:bg-gray-100 transition-colors">Get Started</a>
+                </div>
+
+                <!-- Pricing Card 3 -->
+                <div class="pricing-card bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-200 dark:border-gray-700 text-center">
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Enterprise</h3>
+                    <div class="mb-6">
+                        <span class="text-5xl font-bold text-gray-900 dark:text-white">Custom</span>
+                    </div>
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-center justify-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-gray-700 dark:text-gray-300">Fully Custom Solutions</span>
+                        </li>
+                        <li class="flex items-center justify-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-gray-700 dark:text-gray-300">Unlimited Revisions</span>
+                        </li>
+                        <li class="flex items-center justify-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-gray-700 dark:text-gray-300">Dedicated Support</span>
+                        </li>
+                        <li class="flex items-center justify-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-gray-700 dark:text-gray-300">AI Tool Integration</span>
+                        </li>
+                    </ul>
+                    <a href="#contact" class="w-full py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">Contact for Quote</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-sm font-medium mb-4">Testimonials</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6">Trusted by Creators & Brands</h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                    Hear from those who have experienced the J StaR Films difference.
+                </p>
+            </div>
+
+            <!-- Testimonial Carousel -->
+            <div class="relative overflow-hidden py-8">
+                <div class="testimonial-track whitespace-nowrap">
+                    <!-- Testimonial 1 -->
+                    <div class="inline-block w-80 md:w-96 mx-4 bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg align-top">
+                        <div class="flex items-center mb-4">
+                            <img src="https://placehold.co/50x50" alt="Sarah Johnson" class="w-12 h-12 rounded-full mr-4">
+                            <div>
+                                <h4 class="font-bold text-gray-900 dark:text-white">Sarah Johnson</h4>
+                                <div class="text-yellow-400">★★★★★</div>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400 italic">"John's cinematic eye transformed our wedding day into a timeless masterpiece. Every frame was pure magic."</p>
+                    </div>
+                    <!-- Testimonial 2 -->
+                    <div class="inline-block w-80 md:w-96 mx-4 bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg align-top">
+                        <div class="flex items-center mb-4">
+                            <img src="https://placehold.co/50x50" alt="Michael Chen" class="w-12 h-12 rounded-full mr-4">
+                            <div>
+                                <h4 class="font-bold text-gray-900 dark:text-white">Michael Chen</h4>
+                                <div class="text-yellow-400">★★★★★</div>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400 italic">"The app John built for our startup was exactly what we needed. It's intuitive, fast, and has driven incredible user engagement."</p>
+                    </div>
+                    <!-- Testimonial 3 -->
+                    <div class="inline-block w-80 md:w-96 mx-4 bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg align-top">
+                        <div class="flex items-center mb-4">
+                            <img src="https://placehold.co/50x50" alt="Emily Rodriguez" class="w-12 h-12 rounded-full mr-4">
+                            <div>
+                                <h4 class="font-bold text-gray-900 dark:text-white">Emily Rodriguez</h4>
+                                <div class="text-yellow-400">★★★★★</div>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400 italic">"I've used several of John's templates and tools, and they've transformed my workflow. The quality and attention to detail make professional results accessible even for beginners."</p>
+                    </div>
+                     <!-- Testimonial 4 -->
+                     <div class="inline-block w-80 md:w-96 mx-4 bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg align-top">
+                        <div class="flex items-center mb-4">
+                            <img src="https://placehold.co/50x50" alt="David Okafor" class="w-12 h-12 rounded-full mr-4">
+                            <div>
+                                <h4 class="font-bold text-gray-900 dark:text-white">David Okafor</h4>
+                                <div class="text-yellow-400">★★★★★</div>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400 italic">"Working with John on our corporate brand film was a game-changer. He captured our company's essence perfectly and delivered beyond our expectations."</p>
+                    </div>
+                    <!-- Duplicate for seamless loop -->
+                    <div class="inline-block w-80 md:w-96 mx-4 bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg align-top">
+                        <div class="flex items-center mb-4">
+                            <img src="https://placehold.co/50x50" alt="Sarah Johnson" class="w-12 h-12 rounded-full mr-4">
+                            <div>
+                                <h4 class="font-bold text-gray-900 dark:text-white">Sarah Johnson</h4>
+                                <div class="text-yellow-400">★★★★★</div>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400 italic">"John's cinematic eye transformed our wedding day into a timeless masterpiece. Every frame was pure magic."</p>
+                    </div>
+                    <div class="inline-block w-80 md:w-96 mx-4 bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg align-top">
+                        <div class="flex items-center mb-4">
+                            <img src="https://placehold.co/50x50" alt="Michael Chen" class="w-12 h-12 rounded-full mr-4">
+                            <div>
+                                <h4 class="font-bold text-gray-900 dark:text-white">Michael Chen</h4>
+                                <div class="text-yellow-400">★★★★★</div>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400 italic">"The app John built for our startup was exactly what we needed. It's intuitive, fast, and has driven incredible user engagement."</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Blog Section -->
+    <section id="blog" class="py-20 bg-gray-50 dark:bg-gray-800/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-sm font-medium mb-4">Blog</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6">Latest Insights & Inspiration</h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                    Explore articles on storytelling, technology, and the creative process.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Featured Blog Post -->
+                <div class="lg:col-span-3 blog-card bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg">
+                    <div class="md:flex">
+                        <div class="md:w-1/2">
+                            <div class="h-64 md:h-full bg-gradient-to-br from-jstar-blue/50 to-faith-purple/50 flex items-center justify-center">
+                                <div class="text-center text-white">
+                                    <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                    </div>
+                                    <h3 class="text-xl font-bold">The Future of AI in Creative Industries</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="md:w-1/2 p-8">
+                            <span class="inline-block px-3 py-1 bg-primary/10 text-primary rounded-full text-sm mb-3">AI & Creativity</span>
+                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">The Future of AI in Creative Industries</h3>
+                            <p class="text-gray-600 dark:text-gray-400 mb-6">
+                                Exploring how artificial intelligence is reshaping the landscape for creators, from automated editing to personalized content generation.
+                            </p>
+                            <a href="/blog/ai-future" class="text-jstar-blue font-semibold hover:text-faith-purple transition-colors">Read More →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Smaller Blog Posts -->
+                <div class="blog-card bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg">
+                    <div class="h-48 bg-gradient-to-br from-faith-purple to-growth-green"></div>
+                    <div class="p-6">
+                        <span class="inline-block px-3 py-1 bg-faith-purple/10 text-faith-purple rounded-full text-sm mb-3">Video Production</span>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">5 Tips for Cinematic Wedding Films</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4">Master the art of storytelling on one of life's most important days.</p>
+                        <a href="/blog/wedding-tips" class="text-faith-purple font-semibold hover:text-jstar-blue transition-colors">Read More →</a>
+                    </div>
+                </div>
+
+                <div class="blog-card bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg">
+                    <div class="h-48 bg-gradient-to-br from-growth-green to-jstar-blue"></div>
+                    <div class="p-6">
+                        <span class="inline-block px-3 py-1 bg-growth-green/10 text-growth-green rounded-full text-sm mb-3">App Development</span>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Building Scalable Mobile Apps</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4">Key considerations for architecture and performance from day one.</p>
+                        <a href="/blog/scalable-apps" class="text-growth-green font-semibold hover:text-jstar-blue transition-colors">Read More →</a>
+                    </div>
+                </div>
+
+                <div class="blog-card bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg">
+                    <div class="h-48 bg-gradient-to-br from-jstar-blue to-faith-purple"></div>
+                    <div class="p-6">
+                        <span class="inline-block px-3 py-1 bg-jstar-blue/10 text-jstar-blue rounded-full text-sm mb-3">Creator Tools</span>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Maximizing Your Workflow with AI</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4">How to integrate AI tools seamlessly into your creative process.</p>
+                        <a href="/blog/ai-workflow" class="text-jstar-blue font-semibold hover:text-faith-purple transition-colors">Read More →</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-12">
+                <a href="/blog" class="px-6 py-3 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold hover:opacity-90 transition-opacity">View All Articles</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Store Section -->
+    <section id="store" class="py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-sm font-medium mb-4">Store</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6">Empower Your Creativity</h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                    Hand-picked digital products that will accelerate your creative journey and help you achieve your goals faster.
+                </p>
+            </div>
+
+            <!-- Store Carousel/Featured Product -->
+            <div class="relative h-64 md:h-80 rounded-2xl overflow-hidden mb-12 bg-gradient-to-r from-jstar-blue to-faith-purple flex items-center justify-center text-white">
+                <div class="absolute inset-0 bg-black/20"></div>
+                <div class="relative z-10 text-center px-4">
+                    <h3 class="text-2xl md:text-3xl font-bold mb-4">Free Creator Bundle Pack</h3>
+                    <p class="text-lg mb-6 max-w-2xl mx-auto">Get started with essential templates, presets, and guides to boost your productivity.</p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <button class="px-6 py-3 bg-white text-jstar-blue rounded-lg font-semibold hover:bg-gray-100 transition-colors">Download Bundle</button>
+                        <button class="px-6 py-3 bg-white/10 backdrop-blur-sm border border-white/20 text-white rounded-lg font-semibold hover:bg-white/20 transition-colors">View Contents</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Category 1 -->
+                <a href="#courses" class="block bg-white dark:bg-gray-700 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                    <div class="w-12 h-12 bg-gradient-to-r from-jstar-blue to-faith-purple rounded-xl flex items-center justify-center mb-4">
+                        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Courses</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">In-depth learning experiences to master specific skills and crafts.</p>
+                    <span class="text-jstar-blue font-semibold">12 Products</span>
+                </a>
+                <!-- Category 2 -->
+                <a href="#templates" class="block bg-white dark:bg-gray-700 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                    <div class="w-12 h-12 bg-gradient-to-r from-faith-purple to-growth-green rounded-xl flex items-center justify-center mb-4">
+                        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Templates</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">Professional templates for weddings, events, and commercial projects to accelerate your workflow.</p>
+                    <span class="text-faith-purple font-semibold">24 Products</span>
+                </a>
+                <!-- Category 3 -->
+                <a href="#tools" class="block bg-white dark:bg-gray-700 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                    <div class="w-12 h-12 bg-gradient-to-r from-growth-green to-jstar-blue rounded-xl flex items-center justify-center mb-4">
+                        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Tools</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">Cutting-edge AI-powered tools designed to enhance your creative workflow and help you produce exceptional content efficiently.</p>
+                    <span class="text-growth-green font-semibold">8 Products</span>
+                </a>
+                <!-- Category 4 -->
+                <a href="#bundles" class="block bg-white dark:bg-gray-700 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                    <div class="w-12 h-12 bg-gradient-to-r from-jstar-blue to-growth-green rounded-xl flex items-center justify-center mb-4">
+                        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Bundles</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">Curated collections of products that work together to solve specific creative challenges.</p>
+                    <span class="text-jstar-blue font-semibold">5 Products</span>
+                </a>
+            </div>
+
+            <div class="text-center mt-12">
+                <a href="/store" class="px-6 py-3 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold hover:opacity-90 transition-opacity">Explore the Full Store</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 bg-gradient-to-r from-jstar-blue to-faith-purple text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="text-3xl md:text-4xl font-bold mb-6">Let's Create Something Meaningful Together</h2>
+                    <p class="text-xl mb-8 text-white/90">
+                        Have a project in mind? Get in touch and let's discuss how we can bring your vision to life.
+                    </p>
+                    <div class="bg-white/10 backdrop-blur-sm p-6 rounded-2xl border border-white/20">
+                        <p class="italic text-white/90">"John's ability to understand our brand and translate it into a compelling visual story was incredible. The final product exceeded all our expectations."</p>
+                        <p class="font-bold mt-4">- Amina & Tunde, Founders of TechVibe Africa</p>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-xl">
+                    <form>
+                        <div class="mb-4">
+                            <label for="name" class="block text-gray-700 dark:text-gray-300 mb-2">Name</label>
+                            <input type="text" id="name" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-jstar-blue dark:bg-gray-700 dark:text-white">
+                        </div>
+                        <div class="mb-4">
+                            <label for="email" class="block text-gray-700 dark:text-gray-300 mb-2">Email</label>
+                            <input type="email" id="email" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-jstar-blue dark:bg-gray-700 dark:text-white">
+                        </div>
+                        <div class="mb-4">
+                            <label for="message" class="block text-gray-700 dark:text-gray-300 mb-2">Message</label>
+                            <textarea id="message" rows="4" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-jstar-blue dark:bg-gray-700 dark:text-white"></textarea>
+                        </div>
+                        <button type="submit" class="w-full py-3 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold hover:opacity-90 transition-opacity">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA Section -->
+    <section class="py-20 bg-gray-900 text-white">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold mb-6">Ready to Create Something Meaningful?</h2>
+            <p class="text-xl text-gray-300 mb-8">
+                From cinematic storytelling to cutting-edge digital solutions, I help individuals and organizations bring their visions to life with excellence and purpose.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="#services" class="px-6 py-3 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold hover:opacity-90 transition-opacity">Explore Services</a>
+                <a href="#contact" class="px-6 py-3 bg-white/10 backdrop-blur-sm text-white border border-white/20 font-semibold rounded-lg hover:bg-white/20 transition-opacity">Get in Touch</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white pt-16 pb-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+                <div>
+                    <a href="#" class="text-2xl font-bold bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent mb-4 block">J StaR Films</a>
+                    <p class="text-gray-400 mb-4">
+                        Creating cinematic experiences and digital solutions that inspire and transform.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/></svg>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z"/></svg>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"/></svg>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-white mb-4">Services</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#video" class="text-gray-400 hover:text-white transition-colors">Video Production</a></li>
+                        <li><a href="#apps" class="text-gray-400 hover:text-white transition-colors">App Development</a></li>
+                        <li><a href="#ai" class="text-gray-400 hover:text-white transition-colors">AI Tools</a></li>
+                        <li><a href="#store" class="text-gray-400 hover:text-white transition-colors">Digital Products</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-white mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#about" class="text-gray-400 hover:text-white transition-colors">About Me</a></li>
+                        <li><a href="#portfolio" class="text-gray-400 hover:text-white transition-colors">Portfolio</a></li>
+                        <li><a href="#blog" class="text-gray-400 hover:text-white transition-colors">Blog</a></li>
+                        <li><a href="#pricing" class="text-gray-400 hover:text-white transition-colors">Pricing</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-white mb-4">Contact</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li class="flex items-start">
+                            <svg class="h-5 w-5 mr-2 mt-0.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                            <span>+234 801 234 5678</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg class="h-5 w-5 mr-2 mt-0.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                            <span>hello@jstarfilms.com</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg class="h-5 w-5 mr-2 mt-0.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            <span>Lagos, Nigeria</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="text-center mt-12 pt-8 border-t border-gray-800">
+                <p class="text-gray-400">&copy; 2023 J StaR Films. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Lightbox Modal (Placeholder) -->
+    <div id="lightbox-modal" class="fixed inset-0 bg-black bg-opacity-90 z-50 hidden items-center justify-center p-4">
+        <div class="relative max-w-4xl w-full">
+            <button id="close-lightbox" class="absolute top-4 right-4 text-white text-3xl z-10">&times;</button>
+            <img id="lightbox-image" src="" alt="Project Image" class="w-full h-auto rounded-lg">
+            <h3 id="lightbox-title" class="text-white text-2xl mt-4 text-center"></h3>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const sunIcon = document.getElementById('sun-icon');
+        const moonIcon = document.getElementById('moon-icon');
+
+        // Check for saved theme preference or respect OS setting
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            sunIcon.style.display = 'none';
+            moonIcon.style.display = 'block';
+        } else {
+            document.documentElement.classList.remove('dark');
+            sunIcon.style.display = 'block';
+            moonIcon.style.display = 'none';
+        }
+
+        themeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            
+            if (document.documentElement.classList.contains('dark')) {
+                localStorage.setItem('theme', 'dark');
+                sunIcon.style.display = 'none';
+                moonIcon.style.display = 'block';
+            } else {
+                localStorage.setItem('theme', 'light');
+                sunIcon.style.display = 'block';
+                moonIcon.style.display = 'none';
+            }
+        });
+
+        // Hero Slideshow
+        let slideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        function showSlides() {
+            for (let i = 0; i < slides.length; i++) {
+                slides[i].classList.remove('active');
+            }
+            slideIndex++;
+            if (slideIndex > slides.length) {slideIndex = 1}
+            slides[slideIndex-1].classList.add('active');
+            setTimeout(showSlides, 7000); // Change image every 7 seconds
+        }
+        showSlides();
+
+        // Portfolio Filtering
+        const filterButtons = document.querySelectorAll('.portfolio-category');
+        const portfolioItems = document.querySelectorAll('.portfolio-item');
+
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                // Add active class to clicked button
+                button.classList.add('active');
+
+                const filter = button.textContent;
+
+                portfolioItems.forEach(item => {
+                    if (filter === 'All' || item.getAttribute('data-category') === filter.toLowerCase()) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // Lightbox Functionality (Placeholder)
+        function openLightbox(imageSrc, title) {
+            // In a real implementation, you would set the image source and title
+            // document.getElementById('lightbox-image').src = imageSrc;
+            // document.getElementById('lightbox-title').textContent = title;
+            document.getElementById('lightbox-modal').classList.remove('hidden');
+            document.getElementById('lightbox-modal').classList.add('flex');
+        }
+
+        document.getElementById('close-lightbox').addEventListener('click', () => {
+            document.getElementById('lightbox-modal').classList.add('hidden');
+            document.getElementById('lightbox-modal').classList.remove('flex');
+        });
+
+        // Close lightbox if clicked outside the image
+        document.getElementById('lightbox-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'lightbox-modal') {
+                document.getElementById('lightbox-modal').classList.add('hidden');
+                document.getElementById('lightbox-modal').classList.remove('flex');
+            }
+        });
+
+    </script>
+
+</body>
+</html>
