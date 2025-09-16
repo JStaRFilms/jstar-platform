@@ -1,67 +1,221 @@
-import React from 'react';
 
-const ServicesSection: React.FC = () => {
+import React from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { VideoCameraIcon, CodeIcon, ShieldCheckIcon, CameraIcon, FilmIcon, MegaphoneIcon, DeviceMobileIcon, CheckIcon } from './IconComponents';
+
+const ServicesSection = () => {
   return (
-    <section id="services" className="py-16 bg-gray-50 dark:bg-gray-900">
+    <section id="services" className="py-20 bg-gray-50 dark:bg-gray-900/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            What I Do
+        {/* Section Header */}
+        <div className="text-center mb-16">
+          <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary dark:text-accent rounded-full text-sm font-medium mb-4">
+            Our Services
+          </span>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
+            <span className="text-gray-900 dark:text-white">Comprehensive </span>
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">Creative Solutions</span>
           </h2>
-          <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-            From cinematic storytelling to cutting-edge AI tools, I help creators and businesses 
-            amplify their message.
+          <div className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto mb-6"></div>
+          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+            We offer a full range of professional services to bring your creative vision to life with exceptional quality and attention to detail.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Video Production */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-            <div className="w-16 h-16 bg-gradient-to-r from-jstar-blue to-faith-purple rounded-2xl flex items-center justify-center mb-6">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-              </svg>
+        {/* Services Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {/* Service 1: Video Production */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+            <div className="relative h-48 overflow-hidden">
+              <Image src="https://images.unsplash.com/photo-1551818255-e6e10975bc17?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1473&q=80" alt="Video Production" fill className="object-cover transition-transform duration-500 hover:scale-110"/>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+              <div className="absolute top-4 right-4">
+                <span className="px-3 py-1 bg-primary/90 text-white text-xs font-semibold rounded-full">Popular</span>
+              </div>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Video Production</h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Cinematic wedding films, event coverage, and brand storytelling.
-            </p>
-            <a href="#services" className="text-jstar-blue font-semibold hover:text-faith-purple transition-colors">
-              Learn More →
-            </a>
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Video Production</h3>
+                <div className="w-10 h-10 rounded-full bg-primary/10 dark:bg-accent/20 flex items-center justify-center text-primary dark:text-accent">
+                  <VideoCameraIcon className="w-5 h-5" />
+                </div>
+              </div>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
+                Professional video production services including concept development, filming, and post-production to create compelling visual stories.
+              </p>
+              <div className="space-y-4 mb-6">
+                <div className="flex items-start">
+                  <CheckIcon className="w-5 h-5 text-primary dark:text-accent mt-0.5 flex-shrink-0" />
+                  <span className="ml-3 text-gray-700 dark:text-gray-300">Pre-production planning</span>
+                </div>
+                <div className="flex items-start">
+                  <CheckIcon className="w-5 h-5 text-primary dark:text-accent mt-0.5 flex-shrink-0" />
+                  <span className="ml-3 text-gray-700 dark:text-gray-300">4K cinematic filming</span>
+                </div>
+                <div className="flex items-start">
+                  <CheckIcon className="w-5 h-5 text-primary dark:text-accent mt-0.5 flex-shrink-0" />
+                  <span className="ml-3 text-gray-700 dark:text-gray-300">Professional editing & color grading</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between mt-6">
+                <div>
+                  <span className="text-2xl font-bold text-gray-900 dark:text-white">₦350,000</span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">/project</span>
+                </div>
+                <Link href="#contact" className="px-6 py-2.5 bg-gradient-to-r from-primary to-accent text-white rounded-full font-medium hover:shadow-lg transition-all duration-300">
+                  Get Started
+                </Link>
+              </div>
+            </div>
           </div>
 
-          {/* App Development */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-            <div className="w-16 h-16 bg-gradient-to-r from-faith-purple to-growth-green rounded-2xl flex items-center justify-center mb-6">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-              </svg>
+          {/* Service 2: Web Development */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+            <div className="relative h-48 overflow-hidden">
+              <Image src="https://images.unsplash.com/photo-1467232004584-b8d87734a5a2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1469&q=80" alt="Web Development" fill className="object-cover transition-transform duration-500 hover:scale-110"/>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">App Development</h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Custom web and mobile applications with modern frameworks.
-            </p>
-            <a href="#services" className="text-faith-purple font-semibold hover:text-growth-green transition-colors">
-              Learn More →
-            </a>
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Web Development</h3>
+                <div className="w-10 h-10 rounded-full bg-primary/10 dark:bg-accent/20 flex items-center justify-center text-primary dark:text-accent">
+                  <CodeIcon className="w-5 h-5" />
+                </div>
+              </div>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
+                Custom website development with modern technologies, responsive design, and seamless user experiences.
+              </p>
+              <div className="space-y-4 mb-6">
+                <div className="flex items-start">
+                  <CheckIcon className="w-5 h-5 text-primary dark:text-accent mt-0.5 flex-shrink-0" />
+                  <span className="ml-3 text-gray-700 dark:text-gray-300">Responsive web design</span>
+                </div>
+                <div className="flex items-start">
+                  <CheckIcon className="w-5 h-5 text-primary dark:text-accent mt-0.5 flex-shrink-0" />
+                  <span className="ml-3 text-gray-700 dark:text-gray-300">Custom CMS development</span>
+                </div>
+                <div className="flex items-start">
+                  <CheckIcon className="w-5 h-5 text-primary dark:text-accent mt-0.5 flex-shrink-0" />
+                  <span className="ml-3 text-gray-700 dark:text-gray-300">E-commerce solutions</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between mt-6">
+                <div>
+                  <span className="text-2xl font-bold text-gray-900 dark:text-white">₦500,000</span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">/project</span>
+                </div>
+                <Link href="#contact" className="px-6 py-2.5 bg-gradient-to-r from-primary to-accent text-white rounded-full font-medium hover:shadow-lg transition-all duration-300">
+                  Get Started
+                </Link>
+              </div>
+            </div>
           </div>
 
-          {/* AI Tools */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-            <div className="w-16 h-16 bg-gradient-to-r from-growth-green to-jstar-blue rounded-2xl flex items-center justify-center mb-6">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364-.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-              </svg>
+          {/* Service 3: Branding */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+            <div className="relative h-48 overflow-hidden">
+              <Image src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80" alt="Branding" fill className="object-cover transition-transform duration-500 hover:scale-110"/>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Creator Tools</h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              AI-powered tools for content creation and audience growth.
-            </p>
-            <a href="#store" className="text-growth-green font-semibold hover:text-jstar-blue transition-colors">
-              Learn More →
-            </a>
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Branding</h3>
+                <div className="w-10 h-10 rounded-full bg-primary/10 dark:bg-accent/20 flex items-center justify-center text-primary dark:text-accent">
+                  <ShieldCheckIcon className="w-5 h-5" />
+                </div>
+              </div>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
+                Comprehensive branding solutions including logo design, brand identity, and visual language development.
+              </p>
+              <div className="space-y-4 mb-6">
+                <div className="flex items-start">
+                  <CheckIcon className="w-5 h-5 text-primary dark:text-accent mt-0.5 flex-shrink-0" />
+                  <span className="ml-3 text-gray-700 dark:text-gray-300">Logo & identity design</span>
+                </div>
+                <div className="flex items-start">
+                  <CheckIcon className="w-5 h-5 text-primary dark:text-accent mt-0.5 flex-shrink-0" />
+                  <span className="ml-3 text-gray-700 dark:text-gray-300">Brand guidelines</span>
+                </div>
+                <div className="flex items-start">
+                  <CheckIcon className="w-5 h-5 text-primary dark:text-accent mt-0.5 flex-shrink-0" />
+                  <span className="ml-3 text-gray-700 dark:text-gray-300">Marketing collateral</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between mt-6">
+                <div>
+                  <span className="text-2xl font-bold text-gray-900 dark:text-white">₦250,000</span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">/package</span>
+                </div>
+                <Link href="#contact" className="px-6 py-2.5 bg-gradient-to-r from-primary to-accent text-white rounded-full font-medium hover:shadow-lg transition-all duration-300">
+                  Get Started
+                </Link>
+              </div>
+            </div>
           </div>
+        </div>
+
+        {/* Additional Services */}
+        <div className="mt-16">
+          <div className="text-center mb-12">
+            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-4">Additional Services</h3>
+            <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+              We offer a range of specialized services to meet all your creative needs
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow duration-300">
+              <div className="w-12 h-12 bg-primary/10 dark:bg-accent/20 rounded-lg flex items-center justify-center text-primary dark:text-accent mb-4">
+                <CameraIcon className="w-6 h-6" />
+              </div>
+              <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Photography</h4>
+              <p className="text-gray-600 dark:text-gray-400 text-sm">Professional photography services for products, events, and portraits.</p>
+              <div className="mt-4">
+                <span className="text-primary dark:text-accent font-medium">From ₦150,000</span>
+              </div>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow duration-300">
+              <div className="w-12 h-12 bg-primary/10 dark:bg-accent/20 rounded-lg flex items-center justify-center text-primary dark:text-accent mb-4">
+                <FilmIcon className="w-6 h-6" />
+              </div>
+              <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Motion Graphics</h4>
+              <p className="text-gray-600 dark:text-gray-400 text-sm">Engaging motion graphics and animations for your brand.</p>
+              <div className="mt-4">
+                <span className="text-primary dark:text-accent font-medium">From ₦200,000</span>
+              </div>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow duration-300">
+              <div className="w-12 h-12 bg-primary/10 dark:bg-accent/20 rounded-lg flex items-center justify-center text-primary dark:text-accent mb-4">
+                <MegaphoneIcon className="w-6 h-6" />
+              </div>
+              <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Audio Production</h4>
+              <p className="text-gray-600 dark:text-gray-400 text-sm">Professional audio recording, editing, and sound design services.</p>
+              <div className="mt-4">
+                <span className="text-primary dark:text-accent font-medium">From ₦120,000</span>
+              </div>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow duration-300">
+              <div className="w-12 h-12 bg-primary/10 dark:bg-accent/20 rounded-lg flex items-center justify-center text-primary dark:text-accent mb-4">
+                <DeviceMobileIcon className="w-6 h-6" />
+              </div>
+              <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">App Development</h4>
+              <p className="text-gray-600 dark:text-gray-400 text-sm">Custom mobile application development for iOS and Android.</p>
+              <div className="mt-4">
+                <span className="text-primary dark:text-accent font-medium">From ₦800,000</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* CTA */}
+        <div className="mt-20 bg-gradient-to-r from-primary to-accent rounded-2xl p-8 md:p-12 text-center text-white">
+          <h3 className="text-2xl md:text-3xl font-bold mb-4">Have a project in mind?</h3>
+          <p className="text-white/90 mb-8 max-w-2xl mx-auto">
+            Let's discuss how we can bring your ideas to life with our professional services.
+          </p>
+          <Link href="#contact" className="inline-block px-8 py-3 bg-white text-primary rounded-full font-semibold hover:bg-opacity-90 transition-opacity">
+            Get a Free Quote
+          </Link>
         </div>
       </div>
     </section>

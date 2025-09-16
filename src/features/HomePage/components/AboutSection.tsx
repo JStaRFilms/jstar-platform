@@ -1,31 +1,174 @@
 import React from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { ShieldCheckIcon, CheckIcon } from './IconComponents';
 
-const AboutSection: React.FC = () => {
+const teamMembers = [
+  { name: 'John Doe', role: 'Founder & Creative Director', image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80' },
+  { name: 'Jane Smith', role: 'Lead Video Editor', image: 'https://images.unsplash.com/photo-1573496359142-e6e10975bc17?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=688&q=80' },
+  { name: 'Michael Johnson', role: 'Cinematographer', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80' },
+  { name: 'Sarah Williams', role: 'Motion Designer', image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80' },
+];
+
+// Placeholder for client logos
+const ClientLogoPlaceholder = ({ className }: { className?: string }) => (
+    <svg className={`h-12 text-gray-700 dark:text-gray-300 ${className}`} viewBox="0 0 120 40" fill="currentColor">
+        <rect width="120" height="40" rx="8" ry="8" fill="#4B5563" />
+        <text x="60" y="25" fontFamily="sans-serif" fontSize="12" fill="white" textAnchor="middle">Client Logo</text>
+    </svg>
+);
+
+const AboutSection = () => {
   return (
-    <section id="about" className="py-16 bg-gray-50 dark:bg-gray-900">
+    <section id="about" className="py-20 bg-gray-50 dark:bg-gray-900/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            About Me
+        {/* Section Header */}
+        <div className="text-center mb-16">
+          <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary dark:text-accent rounded-full text-sm font-medium mb-4">
+            About J StaR Films
+          </span>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
+            <span className="text-gray-900 dark:text-white">Crafting Exceptional </span>
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">Visual Experiences</span>
           </h2>
-          <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-            Filmmaker, app developer, and AI creator building faith-inspired content and tools.
+          <div className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto mb-6"></div>
+          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+            We blend creativity, technology, and strategy to bring your vision to life with stunning visuals that captivate and inspire.
           </p>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
-          <div className="lg:col-span-2">
-            <div className="prose prose-lg dark:prose-invert max-w-none">
-              <p className="text-gray-700 dark:text-gray-300">
-                I'm John Oluleke-Oke, a creative technologist passionate about merging faith, technology, and storytelling. My journey began with wedding videography and has since expanded into app development and AI, all with the goal of empowering creators to share their message with the world.
-              </p>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          {/* Left Column - Image */}
+          <div className="relative">
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-gray-100 dark:border-gray-800">
+              <Image 
+                src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80" 
+                alt="Our Team" 
+                width={1470} 
+                height={980} 
+                className="w-full h-auto"/>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+              <div className="absolute bottom-0 left-0 p-6 text-white">
+                <h3 className="text-2xl font-bold">Our Creative Team</h3>
+                <p className="text-gray-200">Passionate professionals dedicated to excellence</p>
+              </div>
+            </div>
+            <div className="absolute -top-6 -right-6 w-32 h-32 bg-accent/10 rounded-full -z-10 hidden lg:block"></div>
+            <div className="absolute -bottom-6 -left-6 w-40 h-40 bg-primary/10 rounded-full -z-10 hidden lg:block"></div>
+            {/* Stats Card */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg absolute -bottom-8 right-0 max-w-xs transform translate-x-1/4">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-primary/10 dark:bg-accent/20 rounded-lg flex items-center justify-center text-primary dark:text-accent">
+                  <ShieldCheckIcon className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-gray-900 dark:text-white">10+</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Years Experience</div>
+                </div>
+              </div>
             </div>
           </div>
-          <div className="text-center">
-            <div className="w-48 h-48 bg-gradient-to-r from-jstar-blue to-faith-purple rounded-full mx-auto mb-4 flex items-center justify-center">
-              <span className="text-5xl font-bold text-white">JO</span>
+          
+          {/* Right Column - Content */}
+          <div className="lg:pl-12">
+            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-6">
+              We're a creative studio passionate about storytelling through video and digital experiences
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              At J StaR Films, we believe in the power of visual storytelling to connect, engage, and inspire. Our team of experienced filmmakers, designers, and developers work together to create compelling content that resonates with your audience and achieves your business goals.
+            </p>
+            <div className="space-y-4 mb-8">
+              <div className="flex items-start">
+                <div className="flex-shrink-0 mt-1">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 dark:bg-accent/20 flex items-center justify-center text-primary dark:text-accent">
+                    <CheckIcon className="w-3 h-3" />
+                  </div>
+                </div>
+                <div className="ml-3">
+                  <h4 className="text-lg font-medium text-gray-900 dark:text-white">Creative Excellence</h4>
+                  <p className="text-gray-600 dark:text-gray-400">We push creative boundaries to deliver unique and impactful visual content.</p>
+                </div>
+              </div>
+              <div className="flex items-start">
+                <div className="flex-shrink-0 mt-1">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 dark:bg-accent/20 flex items-center justify-center text-primary dark:text-accent">
+                    <CheckIcon className="w-3 h-3" />
+                  </div>
+                </div>
+                <div className="ml-3">
+                  <h4 className="text-lg font-medium text-gray-900 dark:text-white">Technical Expertise</h4>
+                  <p className="text-gray-600 dark:text-gray-400">State-of-the-art equipment and cutting-edge techniques for superior quality.</p>
+                </div>
+              </div>
+              <div className="flex items-start">
+                <div className="flex-shrink-0 mt-1">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 dark:bg-accent/20 flex items-center justify-center text-primary dark:text-accent">
+                    <CheckIcon className="w-3 h-3" />
+                  </div>
+                </div>
+                <div className="ml-3">
+                  <h4 className="text-lg font-medium text-gray-900 dark:text-white">Client-Focused Approach</h4>
+                  <p className="text-gray-600 dark:text-gray-400">Your vision is our priority, and we're committed to bringing it to life.</p>
+                </div>
+              </div>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white">John Oluleke-Oke</h3>
-            <p className="text-gray-600 dark:text-gray-400">Filmmaker & Developer</p>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link href="#contact" className="btn-enhanced px-8 py-4 bg-gradient-to-r from-primary to-accent text-white rounded-full font-semibold text-center">
+                Get in Touch
+              </Link>
+              <Link href="#portfolio" className="btn-enhanced px-8 py-4 bg-transparent border-2 border-primary dark:border-accent text-primary dark:text-accent rounded-full font-semibold hover:bg-primary/10 dark:hover:bg-accent/10 transition-all duration-300 text-center">
+                View Our Work
+              </Link>
+            </div>
+          </div>
+        </div>
+        
+        {/* Team Section */}
+        <div className="mt-24">
+          <div className="text-center mb-12">
+            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-4">Meet Our Creative Team</h3>
+            <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+              A talented group of professionals passionate about creating exceptional visual experiences
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {teamMembers.map((member, index) => (
+              <div key={index} className="group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <div className="relative overflow-hidden h-64">
+                  <Image src={member.image} alt={member.name} fill className="object-cover transition-transform duration-500 group-hover:scale-105"/>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                      <div className="text-white">
+                          <h4 className="text-lg font-semibold">{member.name}</h4>
+                          <p className="text-gray-200 text-sm">{member.role}</p>
+                      </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        {/* Clients Section */}
+        <div className="mt-24">
+          <div className="text-center mb-12">
+            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-4">Trusted By Industry Leaders</h3>
+            <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+              We've had the privilege of working with amazing companies across various industries
+            </p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center">
+            <div className="flex justify-center opacity-70 hover:opacity-100 transition-opacity duration-300">
+                <ClientLogoPlaceholder />
+            </div>
+            <div className="flex justify-center opacity-70 hover:opacity-100 transition-opacity duration-300">
+                <ClientLogoPlaceholder />
+            </div>
+            <div className="flex justify-center opacity-70 hover:opacity-100 transition-opacity duration-300">
+                <ClientLogoPlaceholder />
+            </div>
+            <div className="flex justify-center opacity-70 hover:opacity-100 transition-opacity duration-300">
+                <ClientLogoPlaceholder />
+            </div>
           </div>
         </div>
       </div>

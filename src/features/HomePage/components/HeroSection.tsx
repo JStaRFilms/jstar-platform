@@ -1,83 +1,156 @@
-import React from 'react';
 
-const HeroSection: React.FC = () => {
+'use client';
+
+import React from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { useSlideshow } from '../hooks/useSlideshow';
+import { PlayCircleIcon } from './IconComponents';
+
+const slides = [
+  {
+    id: 0,
+    tagline: 'Creative Vision, Technical Excellence',
+    titleLine1: 'Elevate Your Story',
+    titleLine2: 'With Purpose & Excellence',
+    description: 'Transform your ideas into stunning visual experiences with professional video production, custom app development, and AI-powered creator tools.',
+    image: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80',
+    gradient: 'from-primary to-accent',
+    buttonGradient: 'from-primary to-accent',
+    buttonBorder: 'border-primary dark:border-accent',
+    buttonText: 'text-primary dark:text-accent',
+    buttonHover: 'hover:bg-primary/10 dark:hover:bg-accent/10',
+  },
+  {
+    id: 1,
+    tagline: 'Faith-Driven Creative Solutions',
+    titleLine1: 'Where Faith Meets',
+    titleLine2: 'Innovation & Creativity',
+    description: 'Empowering creators and businesses with purpose-driven content and technology solutions that make a lasting impact.',
+    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80',
+    gradient: 'from-jstar-blue to-faith-purple',
+    buttonGradient: 'from-jstar-blue to-faith-purple',
+    buttonBorder: 'border-jstar-blue dark:border-faith-purple',
+    buttonText: 'text-jstar-blue dark:text-faith-purple',
+    buttonHover: 'hover:bg-jstar-blue/10 dark:hover:bg-faith-purple/10',
+  },
+];
+
+const HeroSection = () => {
+  const { currentSlide, setCurrentSlide } = useSlideshow(slides.length);
+
   return (
-    <section className="hero-bg min-h-screen flex items-center relative">
-      {/* Video Background Placeholder */}
-      <div className="absolute inset-0 z-0">
-        <div className="w-full h-full bg-gradient-to-r from-black/50 to-transparent flex items-center justify-center">
-          <div className="text-center text-white opacity-20">
-            <div className="w-24 h-24 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-              </svg>
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 -z-10">
+        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-primary/10 rounded-full filter blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/10 rounded-full filter blur-3xl animate-pulse animation-delay-2000"></div>
+        <div className="absolute top-1/3 right-1/3 w-64 h-64 bg-secondary/10 rounded-full filter blur-3xl animate-pulse animation-delay-1000"></div>
+      </div>
+
+      <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative">
+          {slides.map((slide, index) => (
+            <div
+              key={slide.id}
+              className={`transition-opacity duration-700 ease-in-out ${currentSlide === index ? 'opacity-100' : 'opacity-0 absolute inset-0'}`}>
+              {currentSlide === index && (
+                 <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
+                   {/* Text Content */}
+                   <div className={`lg:w-1/2 text-center lg:text-left animate-fade-in-up ${slide.id === 1 ? 'lg:order-1' : ''}`}>
+                     <span className={`inline-block px-4 py-1.5 rounded-full text-sm font-medium mb-4 ${
+                       slide.id === 0
+                         ? 'bg-primary/10 text-primary dark:text-accent'
+                         : 'bg-jstar-blue/10 text-jstar-blue dark:text-faith-purple'
+                     }`}>
+                       {slide.tagline}
+                     </span>
+                     <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
+                       <span className="text-gray-900 dark:text-white">{slide.titleLine1}</span>
+                       <br />
+                       <span className={`bg-clip-text text-transparent bg-gradient-to-r ${
+                         slide.id === 0
+                           ? 'from-primary to-accent'
+                           : 'from-jstar-blue to-faith-purple'
+                       }`}>
+                         {slide.titleLine2}
+                       </span>
+                     </h1>
+                     <p className="text-xl text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto lg:mx-0">
+                       {slide.description}
+                     </p>
+                     <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                       <Link href="#contact" className={`btn-enhanced px-8 py-4 bg-gradient-to-r ${slide.buttonGradient} text-white rounded-full font-semibold hover:shadow-lg transition-all duration-300`}>
+                         Start Your Project
+                       </Link>
+                       <Link href="#portfolio" className={`btn-enhanced px-8 py-4 bg-transparent border-2 ${slide.buttonBorder} ${slide.buttonText} rounded-full font-semibold ${slide.buttonHover} transition-all duration-300`}>
+                         View Our Work
+                       </Link>
+                     </div>
+                     {slide.id === 0 && (
+                        <div className="mt-10 flex items-center justify-center lg:justify-start space-x-8">
+                            <div className="text-center">
+                                <div className="text-3xl font-bold text-primary dark:text-accent">10+</div>
+                                <div className="text-gray-600 dark:text-gray-400">Years Experience</div>
+                            </div>
+                            <div className="h-12 w-px bg-gray-300 dark:bg-gray-700"></div>
+                            <div className="text-center">
+                                <div className="text-3xl font-bold text-primary dark:text-accent">200+</div>
+                                <div className="text-gray-600 dark:text-gray-400">Projects Completed</div>
+                            </div>
+                            <div className="h-12 w-px bg-gray-300 dark:bg-gray-700"></div>
+                            <div className="text-center">
+                                <div className="text-3xl font-bold text-primary dark:text-accent">98%</div>
+                                <div className="text-gray-600 dark:text-gray-400">Client Satisfaction</div>
+                            </div>
+                        </div>
+                     )}
+                   </div>
+
+                   {/* Image Content */}
+                   <div className={`lg:w-1/2 flex justify-center relative ${slide.id === 1 ? 'lg:order-2' : ''}`}>
+                     <div className="relative w-full max-w-lg">
+                       <div className="absolute -top-6 -left-6 w-full h-full bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl -z-10"></div>
+                       <div className="relative bg-white dark:bg-gray-800 rounded-3xl overflow-hidden shadow-2xl border border-gray-100 dark:border-gray-700">
+                         <Image src={slide.image} alt="Video Production" width={1074} height={716} className="w-full h-auto" />
+                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
+                           <div className="text-white">
+                             <h3 className="text-xl font-bold mb-1">Latest Project</h3>
+                             <p className="text-gray-200">Brand Storytelling for Tech Startup</p>
+                           </div>
+                         </div>
+                         <div className="absolute -bottom-5 -right-5 w-16 h-16 bg-gradient-to-r from-primary to-accent rounded-2xl flex items-center justify-center text-white shadow-lg">
+                           <PlayCircleIcon className="w-8 h-8" />
+                         </div>
+                       </div>
+                     </div>
+                   </div>
+                 </div>
+              )}
             </div>
-            <p className="text-lg">Cinematic Background Video</p>
-            <p className="text-sm opacity-75">60fps drone footage placeholder</p>
-          </div>
+          ))}
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="text-center">
-          {/* Brand Badge */}
-          <div className="animate-fade-in-up mb-6">
-            <span className="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white text-sm font-medium">
-              <span className="w-2 h-2 bg-growth-green rounded-full mr-2 animate-pulse"></span>
-              J StaR Films • Creative Operating System
-            </span>
-          </div>
-
-          {/* Main Headline */}
-          <h1 className="hero-title text-5xl md:text-7xl font-bold text-white mb-6 leading-tight animate-fade-in-up animate-delay-1">
-            Where Faith Meets <br />
-            <span className="bg-gradient-to-r from-faith-purple to-growth-green bg-clip-text text-transparent">Film</span> and{' '}
-            <span className="bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">Future</span>
-          </h1>
-
-          {/* Subtitle (PRD Mission Statement) */}
-          <p className="text-xl md:text-2xl text-gray-300 mb-10 max-w-4xl mx-auto leading-relaxed animate-fade-in-up animate-delay-2">
-            I build cinematic experiences that blend technical excellence with faith-inspired storytelling, 
-            while creating AI-powered tools that help creators grow their impact and reach.
-          </p>
-
-          {/* CTA Buttons (Tier-aware - FR001) */}
-          <div className="flex flex-col sm:flex-row justify-center gap-4 mb-12 animate-fade-in-up animate-delay-3">
-            <button className="btn-enhanced px-8 py-4 bg-gradient-to-r from-jstar-blue to-faith-purple text-white font-bold rounded-xl text-lg">
-              View My Work
-            </button>
-            <button className="btn-enhanced px-8 py-4 bg-white/10 backdrop-blur-sm text-white border border-white/20 hover:bg-white/20 font-bold rounded-xl text-lg">
-              Explore Creator Tools
-            </button>
-          </div>
-
-          {/* Lead Magnet (FR012) */}
-          <div className="animate-fade-in-up animate-delay-3">
-            <div className="inline-flex items-center bg-black/30 backdrop-blur-sm rounded-2xl px-6 py-4 text-white cursor-pointer hover:bg-black/40 transition-all">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-3 text-growth-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <div className="text-left">
-                <div className="font-semibold">Free Resource: 10 Viral YouTube Title Formulas</div>
-                <div className="text-sm text-gray-300">Download the exact templates I use to craft compelling titles</div>
-              </div>
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-          </div>
-        </div>
+      {/* Slideshow Controls */}
+      <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
+        {slides.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentSlide(index)}
+            className={`w-3 h-3 rounded-full transition-all duration-300 ${currentSlide === index ? 'bg-primary dark:bg-accent opacity-100' : 'bg-gray-300 dark:bg-gray-600 opacity-50'}`}
+            aria-label={`Go to slide ${index + 1}`}
+          />
+        ))}
       </div>
 
       {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
-        <div className="flex flex-col items-center text-white/60">
-          <span className="text-sm mb-2">Scroll to explore</span>
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-          </svg>
-        </div>
-      </div>
+      <a href="#about" className="absolute bottom-10 left-1/2 transform -translate-x-1/2 text-center scroll-indicator hidden lg:block">
+          <div className="w-8 h-12 border-2 border-gray-400 dark:border-gray-500 rounded-full flex justify-center p-1">
+              <div className="w-1 h-3 bg-gray-500 dark:bg-gray-400 rounded-full animate-bounce"></div>
+          </div>
+          <span className="text-sm text-gray-600 dark:text-gray-400 mt-2 block">Scroll Down</span>
+      </a>
     </section>
   );
 };
