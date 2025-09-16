@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - Prompt Library</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'admin-red': '#DC2626'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-tier1: linear-gradient(135deg, var(--brand-blue) 0%, #3B82F6 100%);
+            --gradient-tier2: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-admin: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        }
+        .btn-enhanced {
+            transition: all 300ms ease;
+        }
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+        }
+        .card-interactive {
+            transition: all 300ms ease;
+            cursor: pointer;
+        }
+        .card-interactive:hover {
+            transform: translateY(-4px);
+        }
+        .module-card {
+            transition: all 300ms ease;
+            border-left: 3px solid transparent;
+        }
+        .module-card:hover {
+            border-left-color: #DC2626;
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-active {
+            background-color: #10B981;
+        }
+        .status-warning {
+            background-color: #F59E0B;
+        }
+        .status-critical {
+            background-color: #EF4444;
+        }
+        .activity-item {
+            transition: all 200ms ease;
+        }
+        .activity-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .sidebar-item {
+            transition: all 200ms ease;
+        }
+        .sidebar-item:hover {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: #DC2626;
+        }
+        .sidebar-item.active {
+            background-color: rgba(220, 38, 38, 0.15);
+            color: #DC2626;
+            font-weight: 600;
+            border-left: 3px solid #DC2626;
+        }
+        .quick-action {
+            transition: all 300ms ease;
+        }
+        .quick-action:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.2);
+        }
+        .system-metric {
+            transition: all 200ms ease;
+        }
+        .system-metric:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .prompt-card {
+            transition: all 200ms ease;
+        }
+        .prompt-card:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .variable-tag {
+            background-color: #F0F9FF;
+            border: 1px solid #BFDBFE;
+            color: #1D4ED8;
+            padding: 0.125rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-family: monospace;
+        }
+        .category-tag {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .category-youtube {
+            background: linear-gradient(135deg, #FF0000 0%, #CC0000 100%);
+            color: white;
+        }
+        .category-scripting {
+            background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
+            color: white;
+        }
+        .category-faith {
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+            color: white;
+        }
+        .category-marketing {
+            background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+            color: white;
+        }
+        .prompt-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .prompt-enabled {
+            background: var(--gradient-admin);
+            color: white;
+        }
+        .prompt-disabled {
+            background: #E5E7EB;
+            color: #6B7280;
+        }
+        .code-block {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #1E293B;
+            color: #E2E8F0;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            overflow-x: auto;
+        }
+        .token-count {
+            position: absolute;
+            bottom: 8px;
+            right: 12px;
+            font-size: 0.75rem;
+            color: #94A3B8;
+        }
+        .variable-highlight {
+            background-color: rgba(37, 99, 235, 0.1);
+            border-radius: 4px;
+            padding: 0.125rem 0.25rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <!-- Theme Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="document.documentElement.classList.toggle('dark')" 
+                class="p-2 rounded-full bg-jstar-blue text-white hover:bg-faith-purple transition-all duration-300"
+                aria-label="Toggle dark/light theme">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Admin Navigation -->
+    <div class="fixed top-0 left-0 h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <a href="/admin" class="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                J StaR Admin
+            </a>
+        </div>
+        
+        <div class="p-4">
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Platform Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="/admin/cms" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        CMS
+                    </a>
+                    <a href="/admin/johngpt" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                        JohnGPT
+                    </a>
+                    <a href="/admin/cge" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        CGE Tools
+                    </a>
+                    <a href="/admin/users" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        User Management
+                    </a>
+                    <a href="/admin/analytics" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Analytics
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    System Management
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin/system-diagnostic" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                        System Diagnostics
+                    </a>
+                    <a href="/admin/migration-center" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                        </svg>
+                        Migration Center
+                    </a>
+                    <a href="/admin/security" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                        Security
+                    </a>
+                    <a href="/admin/feature-flags" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v11m3 4l3-3m0 0l-3-3m3 3V7"></path>
+                        </svg>
+                        Feature Flags
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center">
+                        <span class="text-white font-bold">JO</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Admin Access</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 p-6">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center mb-2">
+                        <a href="/admin/johngpt" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">JohnGPT</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <span class="text-gray-900 dark:text-white">Prompt Library</span>
+                    </div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
+                        Prompt Library
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">
+                        Manage reusable prompts for JohnGPT to maintain consistent responses
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced" id="create-prompt-btn">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        Create New Prompt
+                    </button>
+                    <div class="relative">
+                        <input type="text" placeholder="Search prompts..." 
+                               class="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                        <svg class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- System Status -->
+        <section class="mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Prompt Library Status</h2>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">
+                            Current library configuration and usage metrics
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">42 Total Prompts</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">All Synced</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">API Connected</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Stats -->
+        <section class="mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-admin-red mb-2">42</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Total Prompts</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-purple-500 mb-2">35</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Active Prompts</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-green-500 mb-2">7</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Inactive Prompts</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-red-500 mb-2">84%</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Usage Rate</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Prompt Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - Prompt Library -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Prompt Library -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-center mb-5">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Prompt Library</h2>
+                        <div class="flex space-x-2">
+                            <select class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <option>All Categories</option>
+                                <option>YouTube</option>
+                                <option>Scripting</option>
+                                <option>Faith Integration</option>
+                                <option>Marketing</option>
+                            </select>
+                            <select class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <option>All Statuses</option>
+                                <option>Active</option>
+                                <option>Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <!-- Prompt 1 -->
+                        <div class="prompt-card p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">YouTube Title Generator</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Create viral YouTube titles</p>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="category-tag category-youtube">YouTube</span>
+                                    <span class="prompt-badge prompt-enabled">Enabled</span>
+                                </div>
+                            </div>
+                            <div class="mt-2 grid grid-cols-2 gap-2">
+                                <div class="text-xs text-gray-500 dark:text-gray-400">Tier Access:</div>
+                                <div class="font-medium text-gray-900 dark:text-white">Tier 2+</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">Usage:</div>
+                                <div class="font-medium text-gray-900 dark:text-white">247 times</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">Variables:</div>
+                                <div class="font-medium text-gray-900 dark:text-white">
+                                    <span class="variable-tag">{topic}</span>
+                                    <span class="variable-tag">{audience}</span>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex justify-between">
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Last updated: June 15, 2024</div>
+                                <div class="flex space-x-2">
+                                    <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                        Edit
+                                    </button>
+                                    <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                        Test
+                                    </button>
+                                    <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                        Disable
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Prompt 2 -->
+                        <div class="prompt-card p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Script Hook Builder</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Create compelling video hooks</p>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="category-tag category-scripting">Scripting</span>
+                                    <span class="prompt-badge prompt-enabled">Enabled</span>
+                                </div>
+                            </div>
+                            <div class="mt-2 grid grid-cols-2 gap-2">
+                                <div class="text-xs text-gray-500 dark:text-gray-400">Tier Access:</div>
+                                <div class="font-medium text-gray-900 dark:text-white">Tier 2+</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">Usage:</div>
+                                <div class="font-medium text-gray-900 dark:text-white">189 times</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">Variables:</div>
+                                <div class="font-medium text-gray-900 dark:text-white">
+                                    <span class="variable-tag">{genre}</span>
+                                    <span class="variable-tag">{duration}</span>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex justify-between">
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Last updated: June 12, 2024</div>
+                                <div class="flex space-x-2">
+                                    <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                        Edit
+                                    </button>
+                                    <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                        Test
+                                    </button>
+                                    <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                        Disable
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Prompt 3 -->
+                        <div class="prompt-card p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Faith Integration Guide</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Integrate faith into content</p>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="category-tag category-faith">Faith</span>
+                                    <span class="prompt-badge prompt-enabled">Enabled</span>
+                                </div>
+                            </div>
+                            <div class="mt-2 grid grid-cols-2 gap-2">
+                                <div class="text-xs text-gray-500 dark:text-gray-400">Tier Access:</div>
+                                <div class="font-medium text-gray-900 dark:text-white">Tier 2+</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">Usage:</div>
+                                <div class="font-medium text-gray-900 dark:text-white">142 times</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">Variables:</div>
+                                <div class="font-medium text-gray-900 dark:text-white">
+                                    <span class="variable-tag">{content_type}</span>
+                                    <span class="variable-tag">{values}</span>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex justify-between">
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Last updated: June 10, 2024</div>
+                                <div class="flex space-x-2">
+                                    <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                        Edit
+                                    </button>
+                                    <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                        Test
+                                    </button>
+                                    <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                        Disable
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Prompt 4 -->
+                        <div class="prompt-card p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Client Magnet Pro</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Lead generation strategies</p>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="category-tag category-marketing">Marketing</span>
+                                    <span class="prompt-badge prompt-enabled">Enabled</span>
+                                </div>
+                            </div>
+                            <div class="mt-2 grid grid-cols-2 gap-2">
+                                <div class="text-xs text-gray-500 dark:text-gray-400">Tier Access:</div>
+                                <div class="font-medium text-gray-900 dark:text-white">Tier 3</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">Usage:</div>
+                                <div class="font-medium text-gray-900 dark:text-white">98 times</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">Variables:</div>
+                                <div class="font-medium text-gray-900 dark:text-white">
+                                    <span class="variable-tag">{industry}</span>
+                                    <span class="variable-tag">{budget}</span>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex justify-between">
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Last updated: June 8, 2024</div>
+                                <div class="flex space-x-2">
+                                    <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                        Edit
+                                    </button>
+                                    <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                        Test
+                                    </button>
+                                    <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                        Disable
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Prompt Variables -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Prompt Variables</h2>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-medium text-gray-900 dark:text-white">{topic}</span>
+                                <span class="text-xs bg-gray-200 dark:bg-gray-600 px-2 py-1 rounded">YouTube</span>
+                            </div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">
+                                The main topic or subject of the content
+                            </div>
+                            <div class="mt-3 p-3 bg-gray-100 dark:bg-gray-700/50 rounded-lg">
+                                <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">Example Usage:</div>
+                                <div class="font-mono text-sm text-gray-800 dark:text-gray-200">
+                                    "Generate YouTube title ideas for {topic} content"
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-medium text-gray-900 dark:text-white">{audience}</span>
+                                <span class="text-xs bg-gray-200 dark:bg-gray-600 px-2 py-1 rounded">YouTube</span>
+                            </div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">
+                                Target audience demographic or interest group
+                            </div>
+                            <div class="mt-3 p-3 bg-gray-100 dark:bg-gray-700/50 rounded-lg">
+                                <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">Example Usage:</div>
+                                <div class="font-mono text-sm text-gray-800 dark:text-gray-200">
+                                    "Create titles that resonate with {audience} viewers"
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-medium text-gray-900 dark:text-white">{genre}</span>
+                                <span class="text-xs bg-gray-200 dark:bg-gray-600 px-2 py-1 rounded">Scripting</span>
+                            </div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">
+                                Video or content genre (e.g., tutorial, vlog, documentary)
+                            </div>
+                            <div class="mt-3 p-3 bg-gray-100 dark:bg-gray-700/50 rounded-lg">
+                                <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">Example Usage:</div>
+                                <div class="font-mono text-sm text-gray-800 dark:text-gray-200">
+                                    "Create a {genre} hook that grabs attention in 3 seconds"
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Prompt History -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Prompt History</h2>
+                    <div class="space-y-4">
+                        <div class="prompt-card p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">YouTube Title Generator - Updated Variables</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Added {audience} variable</div>
+                                </div>
+                                <span class="text-sm text-gray-500 dark:text-gray-400">June 15, 2024</span>
+                            </div>
+                            <div class="mt-2 flex justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-6 h-6 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center text-white text-xs mr-2">
+                                        JO
+                                    </div>
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">John Oluleke-Oke</span>
+                                </div>
+                                <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                    View Changes
+                                </button>
+                            </div>
+                        </div>
+                        <div class="prompt-card p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Script Hook Builder - Improved Response Format</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Added more examples for clarity</div>
+                                </div>
+                                <span class="text-sm text-gray-500 dark:text-gray-400">June 12, 2024</span>
+                            </div>
+                            <div class="mt-2 flex justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-6 h-6 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center text-white text-xs mr-2">
+                                        JO
+                                    </div>
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">John Oluleke-Oke</span>
+                                </div>
+                                <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                    View Changes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Prompt Configuration -->
+            <div class="space-y-6">
+                <!-- Create New Prompt Panel -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 hidden" id="create-prompt-panel">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Create New Prompt</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Prompt Name</label>
+                            <input type="text" placeholder="e.g., YouTube Title Generator" 
+                                   class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+                            <textarea rows="3" placeholder="Brief description of what this prompt does" 
+                                      class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Prompt Category</label>
+                            <select class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <option>YouTube</option>
+                                <option selected>Scripting</option>
+                                <option>Faith Integration</option>
+                                <option>Marketing</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Minimum User Tier</label>
+                            <select class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <option>Guest</option>
+                                <option>Tier 1</option>
+                                <option selected>Tier 2</option>
+                                <option>Tier 3</option>
+                                <option>Admin</option>
+                            </select>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-3">Prompt Template</h3>
+                            <div class="relative">
+                                <textarea rows="8" class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white font-mono text-sm"
+                                          placeholder="Create a compelling YouTube title for {topic} targeting {audience} viewers...">Create a compelling YouTube title for {topic} targeting {audience} viewers. The title should:
+- Be under 60 characters
+- Include a power word
+- Create curiosity
+- Promise value
+- Include a number if relevant
+- Avoid clickbait
+
+Provide 5 options with explanations of why each would work well.</textarea>
+                                <div class="token-count">218 tokens</div>
+                            </div>
+                            <div class="mt-3 flex justify-end">
+                                <button class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500">
+                                    Add Variable
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-3">Variables</h3>
+                            <div class="space-y-3">
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="font-medium text-gray-900 dark:text-white">topic</span>
+                                        <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                            Remove
+                                        </button>
+                                    </div>
+                                    <input type="text" placeholder="Description of the variable" value="Main content topic or subject"
+                                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="font-medium text-gray-900 dark:text-white">audience</span>
+                                        <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                            Remove
+                                        </button>
+                                    </div>
+                                    <input type="text" placeholder="Description of the variable" value="Target audience demographic"
+                                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                </div>
+                                <button class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 font-medium">
+                                    + Add Variable
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex space-x-3">
+                            <button class="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 font-medium" id="cancel-create">
+                                Cancel
+                            </button>
+                            <button class="flex-1 px-4 py-3 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium">
+                                Create Prompt
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Prompt Configuration -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700" id="prompt-config-panel">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">YouTube Title Generator</h2>
+                    <div class="space-y-5">
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="text-sm text-gray-500 dark:text-gray-400">Prompt ID</div>
+                            <div class="font-mono font-medium text-gray-900 dark:text-white">youtube-title-generator</div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+                            <select class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <option selected>Enabled</option>
+                                <option>Disabled</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
+                            <select class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <option selected>YouTube</option>
+                                <option>Scripting</option>
+                                <option>Faith Integration</option>
+                                <option>Marketing</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Minimum Tier</label>
+                            <select class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <option>Guest</option>
+                                <option>Tier 1</option>
+                                <option selected>Tier 2</option>
+                                <option>Tier 3</option>
+                                <option>Admin</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-3">Prompt Template</h3>
+                            <div class="relative">
+                                <textarea rows="8" class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white font-mono text-sm"
+                                          placeholder="Create a compelling YouTube title for {topic} targeting {audience} viewers...">Create a compelling YouTube title for {topic} targeting {audience} viewers. The title should:
+- Be under 60 characters
+- Include a power word
+- Create curiosity
+- Promise value
+- Include a number if relevant
+- Avoid clickbait
+
+Provide 5 options with explanations of why each would work well.</textarea>
+                                <div class="token-count">218 tokens</div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-3">Analytics</h3>
+                            <div class="space-y-3">
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-500 dark:text-gray-400">Total Usage</span>
+                                        <span class="text-sm font-medium text-gray-900 dark:text-white">247 times</span>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-500 dark:text-gray-400">Avg. Satisfaction</span>
+                                        <span class="text-sm font-medium text-green-600">94%</span>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-500 dark:text-gray-400">Avg. Response Time</span>
+                                        <span class="text-sm font-medium text-gray-900 dark:text-white">1.8s</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button class="w-full px-4 py-3 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium">
+                            Save Changes
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Prompt Testing -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Prompt Testing</h2>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Test Variables</label>
+                            <div class="space-y-3">
+                                <div class="flex items-center">
+                                    <span class="w-24 text-sm text-gray-700 dark:text-gray-300">topic:</span>
+                                    <input type="text" value="cooking" 
+                                           class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                </div>
+                                <div class="flex items-center">
+                                    <span class="w-24 text-sm text-gray-700 dark:text-gray-300">audience:</span>
+                                    <input type="text" value="home cooks" 
+                                           class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                </div>
+                            </div>
+                            <div class="mt-3 flex space-x-2">
+                                <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium">
+                                    Test Prompt
+                                </button>
+                                <button class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 font-medium">
+                                    Load Example Variables
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                            <div class="bg-gray-50 dark:bg-gray-700/50 p-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-jstar-blue to-faith-purple flex items-center justify-center mr-3">
+                                        <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                        </svg>
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Prompt Response</span>
+                                </div>
+                                <span class="text-xs bg-gray-200 dark:bg-gray-600 px-2 py-1 rounded">1.8s</span>
+                            </div>
+                            <div class="p-4 space-y-4">
+                                <div class="chat-message bg-gray-100 dark:bg-gray-700 rounded-lg p-3">
+                                    <p class="text-gray-800 dark:text-gray-200 text-sm">Here are 5 compelling YouTube title options for cooking content targeting home cooks:</p>
+                                    <p class="text-gray-800 dark:text-gray-200 text-sm mt-2"><span class="font-medium">1. "5 Pantry Staples That Make Home Cooking 10x Easier (No Chef Skills Needed)"</span><br>
+                                    Why: Uses a specific number, addresses a pain point (complexity), and promises accessibility for beginners</p>
+                                    <p class="text-gray-800 dark:text-gray-200 text-sm"><span class="font-medium">2. "The 15-Minute Dinner Hack That Will Change How You Cook Forever"</span><br>
+                                    Why: Creates curiosity with "hack," promises time savings, and uses strong language ("change forever")</p>
+                                    <p class="text-gray-800 dark:text-gray-200 text-sm"><span class="font-medium">3. "Why Your Pasta Sauce Always Falls Flat (And How to Fix It)"</span><br>
+                                    Why: Identifies a common problem, creates curiosity, and promises a solution</p>
+                                    <p class="text-gray-800 dark:text-gray-200 text-sm"><span class="font-medium">4. "3 Cooking Mistakes You're Making Every Day (Number 2 Will Shock You)"</span><br>
+                                    Why: Uses social proof ("every day"), creates curiosity with "shock," and includes a number</p>
+                                    <p class="text-gray-800 dark:text-gray-200 text-sm"><span class="font-medium">5. "The Lazy Chef's Guide to Gourmet Meals in 20 Minutes"</span><br>
+                                    Why: Targets a specific identity ("lazy chef"), promises time efficiency, and sets expectations ("gourmet")</p>
+                                </div>
+                                <div class="flex justify-end">
+                                    <button class="text-xs px-2 py-1 bg-red-100 dark:bg-red-900/30 text-admin-red rounded hover:bg-red-200 dark:hover:bg-red-900/50">
+                                        Save as Example
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Testing Tip:</strong> Test your prompt with edge cases like "cooking" and "professional chefs" to ensure it handles different audience types appropriately.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Prompt Examples -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Prompt Examples</h2>
+                    <div class="space-y-3">
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="font-medium text-gray-900 dark:text-white">YouTube Title Generator</div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">topic: cooking, audience: home cooks</p>
+                            <div class="mt-2 flex justify-end">
+                                <button class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500">
+                                    Test
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="font-medium text-gray-900 dark:text-white">Script Hook Builder</div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">genre: tutorial, duration: 10 minutes</p>
+                            <div class="mt-2 flex justify-end">
+                                <button class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500">
+                                    Test
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="font-medium text-gray-900 dark:text-white">Faith Integration Guide</div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">content_type: YouTube, values: integrity</p>
+                            <div class="mt-2 flex justify-end">
+                                <button class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500">
+                                    Test
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Emergency Panel -->
+                <div class="bg-red-50 dark:bg-red-900/20 rounded-2xl p-6 shadow-lg border border-red-200 dark:border-red-800">
+                    <h2 class="text-xl font-bold text-red-900 dark:text-red-100 mb-4">Emergency Tools</h2>
+                    <div class="space-y-3">
+                        <p class="text-sm text-red-800 dark:text-red-200">
+                            Critical functions for immediate prompt library management and recovery.
+                        </p>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                            ONE BUTTON: Revert to Default Prompts
+                        </button>
+                        <div class="flex space-x-2">
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Disable All Prompts
+                            </button>
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Enable Safe Mode
+                            </button>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                            Send SOS Email to Dev Friend
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-apply theme
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Initialize sidebar active state
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set JohnGPT as active in sidebar
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.href.includes('johngpt')) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Toggle create prompt panel
+            document.getElementById('create-prompt-btn').addEventListener('click', function() {
+                document.getElementById('create-prompt-panel').classList.remove('hidden');
+                document.getElementById('prompt-config-panel').classList.add('hidden');
+            });
+            
+            document.getElementById('cancel-create').addEventListener('click', function() {
+                document.getElementById('create-prompt-panel').classList.add('hidden');
+                document.getElementById('prompt-config-panel').classList.remove('hidden');
+            });
+            
+            // Simulate token count animation
+            setTimeout(() => {
+                document.querySelectorAll('.token-count').forEach(el => {
+                    el.textContent = el.textContent.replace(/\d+/, () => {
+                        return Math.floor(Math.random() * 100 + 150);
+                    }) + ' tokens';
+                });
+            }, 500);
+        });
+    </script>
+</body>
+</html>

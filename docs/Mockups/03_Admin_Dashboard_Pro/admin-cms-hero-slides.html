@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - Hero Slides Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'admin-red': '#DC2626'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-tier1: linear-gradient(135deg, var(--brand-blue) 0%, #3B82F6 100%);
+            --gradient-tier2: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-admin: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        }
+        .btn-enhanced {
+            transition: all 300ms ease;
+        }
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+        }
+        .card-interactive {
+            transition: all 300ms ease;
+            cursor: pointer;
+        }
+        .card-interactive:hover {
+            transform: translateY(-4px);
+        }
+        .module-card {
+            transition: all 300ms ease;
+            border-left: 3px solid transparent;
+        }
+        .module-card:hover {
+            border-left-color: #DC2626;
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-active {
+            background-color: #10B981;
+        }
+        .status-warning {
+            background-color: #F59E0B;
+        }
+        .status-critical {
+            background-color: #EF4444;
+        }
+        .activity-item {
+            transition: all 200ms ease;
+        }
+        .activity-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .sidebar-item {
+            transition: all 200ms ease;
+        }
+        .sidebar-item:hover {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: #DC2626;
+        }
+        .sidebar-item.active {
+            background-color: rgba(220, 38, 38, 0.15);
+            color: #DC2626;
+            font-weight: 600;
+            border-left: 3px solid #DC2626;
+        }
+        .quick-action {
+            transition: all 300ms ease;
+        }
+        .quick-action:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.2);
+        }
+        .system-metric {
+            transition: all 200ms ease;
+        }
+        .system-metric:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-value {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        .slide-preview {
+            transition: all 200ms ease;
+        }
+        .slide-preview:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .gradient-preview {
+            height: 30px;
+            border-radius: 4px;
+            margin: 4px 0;
+        }
+        .tier-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .tier-admin {
+            background: var(--gradient-admin);
+            color: white;
+        }
+        .reorder-handle {
+            cursor: grab;
+        }
+        .reorder-handle:active {
+            cursor: grabbing;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <!-- Theme Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="document.documentElement.classList.toggle('dark')" 
+                class="p-2 rounded-full bg-jstar-blue text-white hover:bg-faith-purple transition-all duration-300"
+                aria-label="Toggle dark/light theme">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Admin Navigation -->
+    <div class="fixed top-0 left-0 h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <a href="/admin" class="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                J StaR Admin
+            </a>
+        </div>
+        
+        <div class="p-4">
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Platform Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="/admin/cms" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        CMS
+                    </a>
+                    <a href="/admin/johngpt" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                        JohnGPT
+                    </a>
+                    <a href="/admin/cge" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        CGE Tools
+                    </a>
+                    <a href="/admin/users" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        User Management
+                    </a>
+                    <a href="/admin/analytics" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Analytics
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    System Management
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin/system-diagnostic" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                        System Diagnostics
+                    </a>
+                    <a href="/admin/migration-center" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                        </svg>
+                        Migration Center
+                    </a>
+                    <a href="/admin/security" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                        Security
+                    </a>
+                    <a href="/admin/feature-flags" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v11m3 4l3-3m0 0l-3-3m3 3V7"></path>
+                        </svg>
+                        Feature Flags
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center">
+                        <span class="text-white font-bold">JO</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Admin Access</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 p-6">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center mb-2">
+                        <a href="/admin/cms" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">CMS</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <span class="text-gray-900 dark:text-white">Hero Slides</span>
+                    </div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
+                        Hero Slides Management
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">
+                        Create, edit, and manage homepage hero slides
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced" id="create-slide-btn">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        Create New Slide
+                    </button>
+                    <div class="relative">
+                        <input type="text" placeholder="Search slides..." 
+                               class="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                        <svg class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- System Status -->
+        <section class="mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Hero Slides Status</h2>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">
+                            Current slides and configuration
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">4 Active Slides</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">API Connected</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Auto-Advance: 7s</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Stats -->
+        <section class="mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-admin-red mb-2">4</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Total Slides</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-purple-500 mb-2">2</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Active Slides</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-green-500 mb-2">2</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Inactive Slides</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-red-500 mb-2">7s</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Slide Interval</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Slides Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - Slides List -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Slides List -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-center mb-5">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Hero Slides</h2>
+                        <div class="flex space-x-2">
+                            <select class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <option>All Statuses</option>
+                                <option>Active</option>
+                                <option>Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <!-- Slide 1 -->
+                        <div class="slide-preview p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Elevate Your Story</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">With Purpose & Excellence</p>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 rounded text-xs font-medium">
+                                        Active
+                                    </span>
+                                    <span class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">Order #1</span>
+                                </div>
+                            </div>
+                            <div class="mt-2 grid grid-cols-2 gap-2">
+                                <div class="text-xs text-gray-500 dark:text-gray-400">Tagline:</div>
+                                <div class="font-medium text-gray-900 dark:text-white">Creative Vision, Technical Excellence</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">Sort Order:</div>
+                                <div class="font-medium text-gray-900 dark:text-white">1</div>
+                            </div>
+                            <div class="mt-3 flex justify-between">
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Created: June 10, 2024</div>
+                                <div class="flex space-x-2">
+                                    <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                        Edit
+                                    </button>
+                                    <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                        Preview
+                                    </button>
+                                    <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                        Disable
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Slide 2 -->
+                        <div class="slide-preview p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Where Faith Meets</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Creative Excellence</p>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 rounded text-xs font-medium">
+                                        Active
+                                    </span>
+                                    <span class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">Order #2</span>
+                                </div>
+                            </div>
+                            <div class="mt-2 grid grid-cols-2 gap-2">
+                                <div class="text-xs text-gray-500 dark:text-gray-400">Tagline:</div>
+                                <div class="font-medium text-gray-900 dark:text-white">Faith-based filmmaking</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">Sort Order:</div>
+                                <div class="font-medium text-gray-900 dark:text-white">2</div>
+                            </div>
+                            <div class="mt-3 flex justify-between">
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Created: June 12, 2024</div>
+                                <div class="flex space-x-2">
+                                    <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                        Edit
+                                    </button>
+                                    <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                        Preview
+                                    </button>
+                                    <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                        Disable
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Slide 3 -->
+                        <div class="slide-preview p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">YouTube Virality Guide</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Master YouTube Algorithm</p>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded text-xs font-medium">
+                                        Inactive
+                                    </span>
+                                    <span class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">Order #3</span>
+                                </div>
+                            </div>
+                            <div class="mt-2 grid grid-cols-2 gap-2">
+                                <div class="text-xs text-gray-500 dark:text-gray-400">Tagline:</div>
+                                <div class="font-medium text-gray-900 dark:text-white">Data-driven YouTube strategy</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">Sort Order:</div>
+                                <div class="font-medium text-gray-900 dark:text-white">3</div>
+                            </div>
+                            <div class="mt-3 flex justify-between">
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Created: June 15, 2024</div>
+                                <div class="flex space-x-2">
+                                    <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                        Edit
+                                    </button>
+                                    <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                        Preview
+                                    </button>
+                                    <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                        Enable
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Slide Reordering -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Slide Order</h2>
+                    <div class="space-y-3">
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg flex items-center">
+                            <div class="reorder-handle mr-3 cursor-move">
+                                <svg class="h-5 w-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
+                                </svg>
+                            </div>
+                            <span class="font-medium text-gray-900 dark:text-white">1. Elevate Your Story</span>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg flex items-center">
+                            <div class="reorder-handle mr-3 cursor-move">
+                                <svg class="h-5 w-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
+                                </svg>
+                            </div>
+                            <span class="font-medium text-gray-900 dark:text-white">2. Where Faith Meets</span>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg flex items-center">
+                            <div class="reorder-handle mr-3 cursor-move">
+                                <svg class="h-5 w-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
+                                </svg>
+                            </div>
+                            <span class="font-medium text-gray-900 dark:text-white">3. YouTube Virality Guide</span>
+                        </div>
+                        <div class="flex justify-end mt-4">
+                            <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium">
+                                Save Order
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Slide History -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Change History</h2>
+                    <div class="space-y-4">
+                        <div class="slide-preview p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Slide Order Updated</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Reordered slides for better flow</div>
+                                </div>
+                                <span class="text-sm text-gray-500 dark:text-gray-400">Today, 2:45 PM</span>
+                            </div>
+                            <div class="mt-2 flex justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-6 h-6 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center text-white text-xs mr-2">
+                                        JO
+                                    </div>
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">John Oluleke-Oke</span>
+                                </div>
+                                <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                    View Changes
+                                </button>
+                            </div>
+                        </div>
+                        <div class="slide-preview p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">YouTube Virality Guide - Disabled</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Temporarily disabled for content review</div>
+                                </div>
+                                <span class="text-sm text-gray-500 dark:text-gray-400">June 18, 2024</span>
+                            </div>
+                            <div class="mt-2 flex justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-6 h-6 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center text-white text-xs mr-2">
+                                        JO
+                                    </div>
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">John Oluleke-Oke</span>
+                                </div>
+                                <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                    View Changes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Slide Configuration -->
+            <div class="space-y-6">
+                <!-- Create New Slide Panel -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 hidden" id="create-slide-panel">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Create New Slide</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Slide Title (Line 1)</label>
+                            <input type="text" placeholder="Elevate Your Story" 
+                                   class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Slide Title (Line 2)</label>
+                            <input type="text" placeholder="With Purpose & Excellence" 
+                                   class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tagline</label>
+                            <input type="text" placeholder="Creative Vision, Technical Excellence" 
+                                   class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+                            <textarea rows="3" placeholder="Transform your ideas into compelling visual stories that resonate with audiences and reflect your values." 
+                                      class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Image URL</label>
+                            <div class="flex">
+                                <input type="text" placeholder="https://example.com/image.jpg" 
+                                       class="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-l-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <button class="px-4 py-3 bg-gray-100 dark:bg-gray-700 border border-l-0 border-gray-300 dark:border-gray-600 rounded-r-lg text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600">
+                                    Upload
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Background Gradient</label>
+                            <select class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <option>from-jstar-blue to-faith-purple</option>
+                                <option>from-faith-purple to-growth-green</option>
+                                <option>from-jstar-blue to-growth-green</option>
+                                <option>from-gray-800 to-gray-900</option>
+                                <option>from-red-500 to-yellow-500</option>
+                            </select>
+                            <div class="mt-2">
+                                <div class="gradient-preview" style="background: linear-gradient(135deg, #2563EB 0%, #8B5CF6 100%)"></div>
+                                <div class="gradient-preview" style="background: linear-gradient(135deg, #8B5CF6 0%, #059669 100%)"></div>
+                                <div class="gradient-preview" style="background: linear-gradient(135deg, #2563EB 0%, #059669 100%)"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-3">Button Styling</h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Button Gradient</label>
+                                    <select class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                        <option>from-jstar-blue to-faith-purple</option>
+                                        <option>from-faith-purple to-growth-green</option>
+                                        <option>from-jstar-blue to-growth-green</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Button Border</label>
+                                    <input type="text" value="border-jstar-blue" 
+                                           class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Button Text</label>
+                                    <input type="text" value="text-white" 
+                                           class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-3">Project Overlay (Optional)</h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project Title</label>
+                                    <input type="text" placeholder="Latest Project" 
+                                           class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project Description</label>
+                                    <textarea rows="2" placeholder="Brand Storytelling for Tech Startup" 
+                                              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex space-x-3">
+                            <button class="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 font-medium" id="cancel-create">
+                                Cancel
+                            </button>
+                            <button class="flex-1 px-4 py-3 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium">
+                                Create Slide
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Slide Configuration -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700" id="slide-config-panel">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Slide Configuration</h2>
+                    <div class="space-y-5">
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="text-sm text-gray-500 dark:text-gray-400">Slide ID</div>
+                            <div class="font-mono font-medium text-gray-900 dark:text-white">slide-1</div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+                            <select class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <option>Active</option>
+                                <option>Inactive</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sort Order</label>
+                            <input type="number" value="1" min="1" 
+                                   class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-3">Accessibility</h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Alt Text</label>
+                                    <input type="text" value="Video Production" 
+                                           class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                </div>
+                                <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                    <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                        <strong>Best Practice:</strong> Use descriptive alt text that conveys the content and function of the image.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-3">Analytics</h3>
+                            <div class="space-y-3">
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-500 dark:text-gray-400">Views</span>
+                                        <span class="text-sm font-medium text-gray-900 dark:text-white">1,247</span>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-500 dark:text-gray-400">Clicks</span>
+                                        <span class="text-sm font-medium text-gray-900 dark:text-white">287</span>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-500 dark:text-gray-400">Conversion Rate</span>
+                                        <span class="text-sm font-medium text-green-600">23.0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button class="w-full px-4 py-3 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium">
+                            Save Changes
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Slide Preview -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Slide Preview</h2>
+                    <div class="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+                        <div class="relative h-64" style="background: linear-gradient(135deg, #2563EB 0%, #8B5CF6 100%)">
+                            <div class="absolute inset-0 bg-cover bg-center opacity-20" style="background-image: url('https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80')"></div>
+                            <div class="absolute inset-0 flex items-center">
+                                <div class="container mx-auto px-6">
+                                    <div class="max-w-2xl">
+                                        <p class="text-white/80 mb-2 text-lg font-medium">Creative Vision, Technical Excellence</p>
+                                        <h1 class="text-white text-4xl md:text-5xl font-bold leading-tight mb-4">
+                                            Elevate Your Story
+                                            <br>
+                                            <span class="text-yellow-300">With Purpose & Excellence</span>
+                                        </h1>
+                                        <p class="text-white/90 mb-6 text-lg">Transform your ideas into compelling visual stories that resonate with audiences and reflect your values.</p>
+                                        <div class="flex flex-col sm:flex-row gap-3">
+                                            <button class="px-6 py-3 bg-white text-jstar-blue font-medium rounded-lg hover:bg-gray-100 transition-colors">
+                                                Get Started
+                                            </button>
+                                            <button class="px-6 py-3 border-2 border-white text-white font-medium rounded-lg hover:bg-white/10 transition-colors">
+                                                View Portfolio
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-500 dark:text-gray-400">Preview Mode</span>
+                            <div class="flex space-x-2">
+                                <button class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500">
+                                    Desktop
+                                </button>
+                                <button class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500">
+                                    Mobile
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Emergency Panel -->
+                <div class="bg-red-50 dark:bg-red-900/20 rounded-2xl p-6 shadow-lg border border-red-200 dark:border-red-800">
+                    <h2 class="text-xl font-bold text-red-900 dark:text-red-100 mb-4">Emergency Tools</h2>
+                    <div class="space-y-3">
+                        <p class="text-sm text-red-800 dark:text-red-200">
+                            Critical functions for immediate hero section management.
+                        </p>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                            ONE BUTTON: Revert to Default Slides
+                        </button>
+                        <div class="flex space-x-2">
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Disable All Slides
+                            </button>
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Enable Safe Mode
+                            </button>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                            Send SOS Email to Dev Friend
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-apply theme
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Initialize sidebar active state
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set CMS as active in sidebar
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.href.includes('cms')) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Toggle create slide panel
+            document.getElementById('create-slide-btn').addEventListener('click', function() {
+                document.getElementById('create-slide-panel').classList.remove('hidden');
+                document.getElementById('slide-config-panel').classList.add('hidden');
+            });
+            
+            document.getElementById('cancel-create').addEventListener('click', function() {
+                document.getElementById('create-slide-panel').classList.add('hidden');
+                document.getElementById('slide-config-panel').classList.remove('hidden');
+            });
+            
+            // Reordering functionality
+            const reorderHandles = document.querySelectorAll('.reorder-handle');
+            reorderHandles.forEach(handle => {
+                handle.addEventListener('mousedown', function(e) {
+                    const item = this.closest('.p-3');
+                    const container = item.parentElement;
+                    
+                    // Store original position
+                    const startY = e.clientY;
+                    const startRect = item.getBoundingClientRect();
+                    const startTop = startRect.top;
+                    
+                    // Create placeholder
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'border-2 border-dashed border-admin-red bg-admin-red/10 rounded-lg h-12 my-1';
+                    container.insertBefore(placeholder, item);
+                    
+                    // Create ghost element
+                    const ghost = item.cloneNode(true);
+                    ghost.style.position = 'fixed';
+                    ghost.style.top = `${startTop}px`;
+                    ghost.style.left = `${startRect.left}px`;
+                    ghost.style.width = `${startRect.width}px`;
+                    ghost.style.zIndex = '1000';
+                    ghost.style.opacity = '0.8';
+                    document.body.appendChild(ghost);
+                    
+                    // Move ghost with cursor
+                    const moveGhost = (e) => {
+                        ghost.style.top = `${e.clientY - startRect.height / 2}px`;
+                        ghost.style.left = `${e.clientX - startRect.width / 2}px`;
+                        
+                        // Check if we're hovering over another item
+                        const items = container.querySelectorAll('.p-3');
+                        for (let i = 0; i < items.length; i++) {
+                            const rect = items[i].getBoundingClientRect();
+                            if (e.clientY < rect.top + rect.height / 2) {
+                                container.insertBefore(placeholder, items[i]);
+                                break;
+                            }
+                            if (i === items.length - 1) {
+                                container.appendChild(placeholder);
+                            }
+                        }
+                    };
+                    
+                    // Mouse move handler
+                    const mouseMove = (e) => {
+                        moveGhost(e);
+                    };
+                    
+                    // Mouse up handler
+                    const mouseUp = () => {
+                        // Remove event listeners
+                        document.removeEventListener('mousemove', mouseMove);
+                        document.removeEventListener('mouseup', mouseUp);
+                        
+                        // Move original item to new position
+                        container.insertBefore(item, placeholder);
+                        
+                        // Clean up
+                        document.body.removeChild(ghost);
+                        placeholder.remove();
+                        
+                        // Update sort order numbers
+                        const items = container.querySelectorAll('.p-3');
+                        items.forEach((item, index) => {
+                            const span = item.querySelector('span');
+                            if (span) {
+                                span.textContent = `Order #${index + 1}`;
+                            }
+                        });
+                    };
+                    
+                    // Add event listeners
+                    document.addEventListener('mousemove', mouseMove);
+                    document.addEventListener('mouseup', mouseUp);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
