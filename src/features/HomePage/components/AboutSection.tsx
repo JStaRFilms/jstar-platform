@@ -2,6 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ShieldCheckIcon, CheckIcon } from './IconComponents';
+import ClientLogoPlaceholder from '../../../components/ui/ClientLogoPlaceholder';
 
 const teamMembers = [
   { name: 'John Doe', role: 'Founder & Creative Director', image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80' },
@@ -10,14 +11,19 @@ const teamMembers = [
   { name: 'Sarah Williams', role: 'Motion Designer', image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80' },
 ];
 
-// Placeholder for client logos
-const ClientLogoPlaceholder = ({ className }: { className?: string }) => (
-    <svg className={`h-12 text-gray-700 dark:text-gray-300 ${className}`} viewBox="0 0 120 40" fill="currentColor">
-        <rect width="120" height="40" rx="8" ry="8" fill="#4B5563" />
-        <text x="60" y="25" fontFamily="sans-serif" fontSize="12" fill="white" textAnchor="middle">Client Logo</text>
-    </svg>
-);
+// Example client data - replace with your actual client information
+const clients = [
+  { name: 'TechCorp', logo: '/logos/techcorp.png', alt: 'TechCorp logo' },
+  { name: 'DesignStudio', logo: '/logos/designstudio.svg', alt: 'Design Studio logo' },
+  { name: 'MediaGroup', logo: undefined, alt: 'Media Group logo' }, // Will show placeholder
+  { name: 'CreativeAgency', logo: '/logos/creativeagency.jpg', alt: 'Creative Agency logo' },
+];
 
+/**
+ * AboutSection - Homepage about section component
+ * Displays company overview, team members, and client logos
+ * Part of the homepage hero area showcasing J StaR Films
+ */
 const AboutSection = () => {
   return (
     <section id="about" className="py-20 bg-gray-50 dark:bg-gray-900/50">
@@ -157,18 +163,16 @@ const AboutSection = () => {
             </p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center">
-            <div className="flex justify-center opacity-70 hover:opacity-100 transition-opacity duration-300">
-                <ClientLogoPlaceholder />
-            </div>
-            <div className="flex justify-center opacity-70 hover:opacity-100 transition-opacity duration-300">
-                <ClientLogoPlaceholder />
-            </div>
-            <div className="flex justify-center opacity-70 hover:opacity-100 transition-opacity duration-300">
-                <ClientLogoPlaceholder />
-            </div>
-            <div className="flex justify-center opacity-70 hover:opacity-100 transition-opacity duration-300">
-                <ClientLogoPlaceholder />
-            </div>
+            {clients.map((client, index) => (
+              <div key={index} className="flex justify-center opacity-70 hover:opacity-100 transition-opacity duration-300">
+                <ClientLogoPlaceholder
+                  src={client.logo}
+                  alt={client.alt}
+                  name={client.name}
+                  type={client.logo?.endsWith('.svg') ? 'svg' : 'image'}
+                />
+              </div>
+            ))}
           </div>
         </div>
       </div>
