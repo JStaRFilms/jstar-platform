@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - Agent Slot Machine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'admin-red': '#DC2626'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-admin: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        }
+        
+        .btn-enhanced {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .model-card {
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+        
+        .model-card:hover {
+            border-color: #DC2626;
+            transform: translateY(-2px);
+        }
+        
+        .token-count {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-top: 0.5rem;
+            text-align: right;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        
+        .status-active {
+            background-color: #10B981;
+        }
+        
+        .status-warning {
+            background-color: #F59E0B;
+        }
+        
+        .status-critical {
+            background-color: #EF4444;
+        }
+        
+        .model-response {
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .model-response::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .model-response::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        .model-response::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 4px;
+        }
+        
+        .model-response::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            .model-response::-webkit-scrollbar-track {
+                background: #374151;
+            }
+            
+            .model-response::-webkit-scrollbar-thumb {
+                background: #4b5563;
+            }
+            
+            .model-response::-webkit-scrollbar-thumb:hover {
+                background: #6b7280;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen">
+    <!-- Sidebar Navigation -->
+    <div class="fixed inset-y-0 left-0 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-50">
+        <div class="p-6">
+            <a href="/admin" class="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                J StaR Admin
+            </a>
+        </div>
+        
+        <nav class="mt-6">
+            <a href="/admin/johngpt" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                </svg>
+                JohnGPT
+            </a>
+            <a href="/admin/cge" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                </svg>
+                CGE
+            </a>
+            <a href="/admin/cms" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                </svg>
+                CMS
+            </a>
+            <a href="/admin/analytics" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+                Analytics
+            </a>
+        </nav>
+        
+        <div class="absolute bottom-6 w-60 px-6">
+            <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                <div class="font-medium text-gray-900 dark:text-white mb-2">System Status</div>
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span>JohnGPT Service</span>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Active</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span>API Connections</span>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">4/4</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span>Admin Access</span>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Admin Access</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="ml-64 p-6">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center mb-2">
+                        <a href="/admin/johngpt" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">JohnGPT</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <span class="text-gray-900 dark:text-white">Agent Slot Machine</span>
+                    </div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
+                        Agent Slot Machine
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">
+                        Compare AI model outputs by sending the same prompt to multiple configured models
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <div class="relative">
+                        <input type="text" placeholder="Search tests..." class="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                        <svg class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                    <button id="create-test-btn" class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        New Test
+                    </button>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Total Tests</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">24</p>
+                    </div>
+                    <div class="p-2 bg-red-100 dark:bg-red-900/20 rounded-lg">
+                        <svg class="h-6 w-6 text-admin-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Active Models</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">5</p>
+                    </div>
+                    <div class="p-2 bg-red-100 dark:bg-red-900/20 rounded-lg">
+                        <svg class="h-6 w-6 text-admin-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Best Performing</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">GPT-4o</p>
+                    </div>
+                    <div class="p-2 bg-red-100 dark:bg-red-900/20 rounded-lg">
+                        <svg class="h-6 w-6 text-admin-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Last Test</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">2h ago</p>
+                    </div>
+                    <div class="p-2 bg-red-100 dark:bg-red-900/20 rounded-lg">
+                        <svg class="h-6 w-6 text-admin-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Column - Prompt Input and Model Selection -->
+            <div class="lg:col-span-1">
+                <!-- Current Test Configuration -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Test Configuration</h2>
+                        <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 text-xs rounded-full">Current Test</span>
+                    </div>
+                    
+                    <div class="space-y-5">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Prompt Template
+                            </label>
+                            <select class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                                <option>Default Prompt Structure</option>
+                                <option>Content Creation Framework</option>
+                                <option>Script Writing Template</option>
+                                <option>Marketing Strategy Prompt</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Your Prompt
+                                </label>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">248 tokens</span>
+                            </div>
+                            <textarea id="test-prompt" class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg h-40 focus:ring-2 focus:ring-admin-red focus:border-transparent" placeholder="Enter your prompt to test across multiple AI models...">How would you create a YouTube video script about building authentic online presence that aligns with Christian values while still being engaging and viral-worthy?</textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Select Models to Test
+                            </label>
+                            <div class="space-y-3">
+                                <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    <input type="checkbox" checked class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                    <span class="ml-3 flex-1">
+                                        <span class="block font-medium text-gray-900 dark:text-white">GPT-4o</span>
+                                        <span class="block text-sm text-gray-500 dark:text-gray-400">OpenAI's latest model (Fast, high quality)</span>
+                                    </span>
+                                    <span class="text-xs px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded">Active</span>
+                                </label>
+                                
+                                <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    <input type="checkbox" checked class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                    <span class="ml-3 flex-1">
+                                        <span class="block font-medium text-gray-900 dark:text-white">Gemini 1.5 Pro</span>
+                                        <span class="block text-sm text-gray-500 dark:text-gray-400">Google's advanced multimodal model</span>
+                                    </span>
+                                    <span class="text-xs px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded">Active</span>
+                                </label>
+                                
+                                <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    <input type="checkbox" checked class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                    <span class="ml-3 flex-1">
+                                        <span class="block font-medium text-gray-900 dark:text-white">Llama 3 70B</span>
+                                        <span class="block text-sm text-gray-500 dark:text-gray-400">Meta's open-source large language model</span>
+                                    </span>
+                                    <span class="text-xs px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded">Active</span>
+                                </label>
+                                
+                                <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    <input type="checkbox" class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                    <span class="ml-3 flex-1">
+                                        <span class="block font-medium text-gray-900 dark:text-white">Claude 3 Opus</span>
+                                        <span class="block text-sm text-gray-500 dark:text-gray-400">Anthropic's most powerful model</span>
+                                    </span>
+                                    <span class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded">Inactive</span>
+                                </label>
+                                
+                                <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    <input type="checkbox" class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                    <span class="ml-3 flex-1">
+                                        <span class="block font-medium text-gray-900 dark:text-white">Mistral Large</span>
+                                        <span class="block text-sm text-gray-500 dark:text-gray-400">Mistral AI's most advanced model</span>
+                                    </span>
+                                    <span class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded">Inactive</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="pt-4">
+                            <button id="run-test-btn" class="w-full px-4 py-3 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced flex items-center justify-center">
+                                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                SPIN THE SLOT MACHINE
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Tests -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Recent Tests</h2>
+                        <button class="text-admin-red text-sm hover:underline">View All</button>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Content Strategy Comparison</h3>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">3 models • 2h ago</p>
+                                </div>
+                                <span class="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded">Active</span>
+                            </div>
+                        </div>
+                        
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Script Writing Test</h3>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">5 models • 5h ago</p>
+                                </div>
+                                <span class="text-xs px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded">Complete</span>
+                            </div>
+                        </div>
+                        
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Faith Integration Test</h3>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">4 models • Yesterday</p>
+                                </div>
+                                <span class="text-xs px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded">Complete</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Results Display -->
+            <div class="lg:col-span-2">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-0">Test Results</h2>
+                        <div class="flex flex-wrap gap-2">
+                            <button class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm hover:bg-gray-200 dark:hover:bg-gray-600">
+                                Side-by-Side
+                            </button>
+                            <button class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm hover:bg-gray-200 dark:hover:bg-gray-600">
+                                Sequential
+                            </button>
+                            <button class="px-3 py-1 bg-admin-red text-white rounded-lg text-sm flex items-center">
+                                <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+                                </svg>
+                                Export Results
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- GPT-4o Result -->
+                        <div class="model-card border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+                            <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-4">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h3 class="font-bold text-white">GPT-4o</h3>
+                                        <p class="text-blue-100 text-sm mt-1">OpenAI • 2.1s response</p>
+                                    </div>
+                                    <div class="bg-white bg-opacity-20 px-2 py-1 rounded text-xs">Best Overall</div>
+                                </div>
+                            </div>
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700/50">
+                                <div class="model-response">
+                                    <p class="mb-3">Here's a YouTube video script framework that balances authenticity, Christian values, and viral potential:</p>
+                                    
+                                    <p class="font-medium mb-2">Title: "Authentic Faith in a Filtered World: Creating Content That Matters"</p>
+                                    
+                                    <p class="mb-3"><strong>Hook (0:00-0:30):</strong> "What if I told you that the most successful Christian creators aren't the ones with perfect lighting or the most followers... but the ones who dare to be authentically human? In a world of filters and facades, your genuine story is your greatest asset."</p>
+                                    
+                                    <p class="mb-3"><strong>Problem (0:30-2:00):</strong> Discuss how many Christian creators feel pressured to present a "perfect" image that doesn't reflect real life, leading to burnout and disconnection. Share statistics about authenticity in content creation.</p>
+                                    
+                                    <p class="mb-3"><strong>Solution (2:00-5:00):</strong> Introduce the J StaR framework (Joy, Strength, Authenticity, Resilience) as a way to create content that's both faithful and engaging. Provide specific examples of how to share struggles while maintaining hope.</p>
+                                    
+                                    <p class="mb-3"><strong>Call to Action (5:00-5:30):</strong> "Don't wait until you're 'perfect' to start creating. Your journey, exactly as it is right now, has value. Share one authentic moment from your week in the comments - not the highlight reel, but the real story."</p>
+                                    
+                                    <p><strong>Bonus Tip:</strong> End with a practical challenge viewers can implement immediately, making your content actionable and shareable.</p>
+                                </div>
+                                
+                                <div class="mt-4 flex justify-between items-center">
+                                    <div class="flex space-x-2">
+                                        <button class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500 flex items-center">
+                                            <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                            </svg>
+                                            Copy
+                                        </button>
+                                        <button class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500">Rate</button>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <svg class="h-4 w-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                        </svg>
+                                        <span class="ml-1 text-xs font-medium">4.7</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Gemini 1.5 Pro Result -->
+                        <div class="model-card border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+                            <div class="bg-gradient-to-r from-purple-500 to-purple-600 p-4">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h3 class="font-bold text-white">Gemini 1.5 Pro</h3>
+                                        <p class="text-purple-100 text-sm mt-1">Google • 3.4s response</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700/50">
+                                <div class="model-response">
+                                    <p class="mb-3">Creating authentic Christian content that resonates requires a strategic approach that honors both your faith and audience expectations. Here's a script structure:</p>
+                                    
+                                    <p class="font-medium mb-2">Title: "Faith-Fueled Content: How to Stay True While Growing Your Platform"</p>
+                                    
+                                    <p class="mb-3"><strong>Opening (0:00-0:45):</strong> Begin with a personal story of when you struggled to balance authenticity and platform growth. "Last month, I deleted three videos because they felt inauthentic - here's what I learned..."</p>
+                                    
+                                    <p class="mb-3"><strong>Value Proposition (0:45-2:30):</strong> Explain the tension between viral content and authentic faith expression. Reference Matthew 5:16 ("Let your light shine before others") as the foundation for creating content that serves both God and audience.</p>
+                                    
+                                    <p class="mb-3"><strong>Framework (2:30-5:00):</strong> Introduce the "Authentic Creator's Triangle":</p>
+                                    
+                                    <ul class="list-disc list-inside ml-4 mb-3">
+                                        <li class="mb-1"><strong>Vulnerability:</strong> Share specific struggles (e.g., "Here's how I handled burnout last week")</li>
+                                        <li class="mb-1"><strong>Value:</strong> Ensure every piece provides tangible help (statistics, actionable steps)</li>
+                                        <li class="mb-1"><strong>Vision:</strong> Connect content to larger purpose (your "why" beyond views)</li>
+                                    </ul>
+                                    
+                                    <p class="mb-3"><strong>Engagement Strategy (5:00-6:00):</strong> "Ask viewers to share one area where they're struggling with authenticity - not just 'Amen' comments, but real conversation."</p>
+                                    
+                                    <p><strong>Pro Tip:</strong> Use YouTube's community tab for more authentic, less polished interactions that build deeper connection.</p>
+                                </div>
+                                
+                                <div class="mt-4 flex justify-between items-center">
+                                    <div class="flex space-x-2">
+                                        <button class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500 flex items-center">
+                                            <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                            </svg>
+                                            Copy
+                                        </button>
+                                        <button class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500">Rate</button>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <svg class="h-4 w-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                        </svg>
+                                        <span class="ml-1 text-xs font-medium">4.3</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Llama 3 70B Result -->
+                        <div class="model-card border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+                            <div class="bg-gradient-to-r from-gray-700 to-gray-800 p-4">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h3 class="font-bold text-white">Llama 3 70B</h3>
+                                        <p class="text-gray-300 text-sm mt-1">Meta • 4.7s response</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700/50">
+                                <div class="model-response">
+                                    <p class="mb-3">To create YouTube content that authentically integrates Christian values while maintaining viral potential, consider this script structure:</p>
+                                    
+                                    <p class="font-medium mb-2">Title: "Beyond the Highlight Reel: Building a Faith-Based Channel That Genuinely Connects"</p>
+                                    
+                                    <p class="mb-3"><strong>Introduction (0:00-0:35):</strong> "Today I'm sharing something raw - my recent struggle with creating content that feels authentic to my faith while still getting views. This isn't the polished version; this is the real journey."</p>
+                                    
+                                    <p class="mb-3"><strong>Core Tension (0:35-2:00):</strong> Address the common misconception that faith-based content must be either overly polished (inauthentic) or too casual (lacking depth). Reference Proverbs 11:3 ("The integrity of the upright guides them") as the foundation.</p>
+                                    
+                                    <p class="mb-3"><strong>Practical Framework (2:00-4:30):</strong></p>
+                                    
+                                    <ol class="list-decimal list-inside ml-4 mb-3">
+                                        <li class="mb-2"><strong>The Vulnerability Ratio:</strong> For every 3 pieces of advice, share 1 personal struggle</li>
+                                        <li class="mb-2"><strong>The Value Check:</strong> Before publishing, ask "Does this help someone beyond just affirming my beliefs?"</li>
+                                        <li class="mb-2"><strong>The Virality Filter:</strong> Would someone share this with a non-believing friend? If not, refine.</li>
+                                    </ol>
+                                    
+                                    <p class="mb-3"><strong>Engagement Strategy (4:30-5:45):</strong> "In the comments, share one area where you're trying to be more authentic in your content creation. Not just 'God bless,' but a real struggle or victory."</p>
+                                    
+                                    <p><strong>Pro Tip:</strong> Use YouTube's pinned comment feature to continue the conversation authentically beyond the video.</p>
+                                </div>
+                                
+                                <div class="mt-4 flex justify-between items-center">
+                                    <div class="flex space-x-2">
+                                        <button class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500 flex items-center">
+                                            <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                            </svg>
+                                            Copy
+                                        </button>
+                                        <button class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500">Rate</button>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <svg class="h-4 w-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                        </svg>
+                                        <span class="ml-1 text-xs font-medium">3.9</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Comparison Analysis -->
+                    <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Comparison Analysis</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                <h4 class="font-medium text-gray-900 dark:text-white mb-2">Strengths</h4>
+                                <ul class="space-y-2">
+                                    <li class="flex items-start">
+                                        <svg class="h-4 w-4 text-blue-500 mt-1 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        <span class="text-sm text-gray-600 dark:text-gray-300">GPT-4o provided the most actionable, structured framework with clear timing</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <svg class="h-4 w-4 text-blue-500 mt-1 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        <span class="text-sm text-gray-600 dark:text-gray-300">Gemini offered the strongest theological integration with practical application</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <svg class="h-4 w-4 text-blue-500 mt-1 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        <span class="text-sm text-gray-600 dark:text-gray-300">Llama 3 provided the most innovative engagement strategy ideas</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                                <h4 class="font-medium text-gray-900 dark:text-white mb-2">Considerations</h4>
+                                <ul class="space-y-2">
+                                    <li class="flex items-start">
+                                        <svg class="h-4 w-4 text-amber-500 mt-1 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                        </svg>
+                                        <span class="text-sm text-gray-600 dark:text-gray-300">GPT-4o's approach may be too formulaic for some creators</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <svg class="h-4 w-4 text-amber-500 mt-1 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                        </svg>
+                                        <span class="text-sm text-gray-600 dark:text-gray-300">Gemini's theological references could be more accessible to non-Christians</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <svg class="h-4 w-4 text-amber-500 mt-1 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                        </svg>
+                                        <span class="text-sm text-gray-600 dark:text-gray-300">Llama 3's response lacked specific biblical references that would resonate with target audience</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                                <h4 class="font-medium text-gray-900 dark:text-white mb-2">Recommendation</h4>
+                                <p class="text-sm text-gray-600 dark:text-gray-300">
+                                    For this specific prompt, GPT-4o provides the most balanced approach with actionable steps, appropriate timing, and clear structure. Consider combining GPT-4o's framework with Gemini's theological depth for optimal results.
+                                </p>
+                                <div class="mt-3">
+                                    <button class="w-full px-3 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium text-sm">
+                                        Apply This Configuration
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Prompt History -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 mt-6">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Test History</h2>
+                    <div class="space-y-4">
+                        <div class="prompt-section p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Content Strategy Comparison</div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">3 models tested • Completed 2h ago</p>
+                                </div>
+                                <div class="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded">Active</div>
+                            </div>
+                            <div class="mt-3 flex justify-between items-center">
+                                <div class="flex space-x-2">
+                                    <span class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded">GPT-4o</span>
+                                    <span class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded">Gemini 1.5</span>
+                                    <span class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded">Llama 3</span>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500">View</button>
+                                    <button class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500">Duplicate</button>
+                                    <button class="text-xs px-2 py-1 bg-red-100 dark:bg-red-900/30 text-admin-red rounded hover:bg-red-200 dark:hover:bg-red-900/50">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="prompt-section p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Script Writing Test</div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">5 models tested • Completed 5h ago</p>
+                                </div>
+                                <div class="text-xs px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded">Complete</div>
+                            </div>
+                            <div class="mt-3 flex justify-between items-center">
+                                <div class="flex space-x-2">
+                                    <span class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded">GPT-4o</span>
+                                    <span class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded">Gemini 1.5</span>
+                                    <span class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded">Claude 3</span>
+                                    <span class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded">Mistral</span>
+                                    <span class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded">Llama 3</span>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500">View</button>
+                                    <button class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500">Duplicate</button>
+                                    <button class="text-xs px-2 py-1 bg-red-100 dark:bg-red-900/30 text-admin-red rounded hover:bg-red-200 dark:hover:bg-red-900/50">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Emergency Panel -->
+        <div class="bg-red-50 dark:bg-red-900/20 rounded-2xl p-6 shadow-lg border border-red-200 dark:border-red-800 mt-6">
+            <h2 class="text-xl font-bold text-red-900 dark:text-red-100 mb-4">Emergency Tools</h2>
+            <div class="space-y-3">
+                <p class="text-sm text-red-800 dark:text-red-200">Critical functions for immediate JohnGPT model management and recovery.</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <button class="px-4 py-2 bg-white dark:bg-gray-700 text-admin-red border border-red-200 dark:border-red-800 rounded-lg font-medium hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors">
+                        Reset All Model Configurations
+                    </button>
+                    <button class="px-4 py-2 bg-white dark:bg-gray-700 text-admin-red border border-red-200 dark:border-red-800 rounded-lg font-medium hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors">
+                        Force Reconnect All APIs
+                    </button>
+                    <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                        ONE BUTTON: Revert to Last Working Configuration
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Theme handling
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Initialize sidebar active state
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set JohnGPT as active in sidebar
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.href.includes('johngpt')) {
+                    item.classList.add('active');
+                    item.classList.remove('text-gray-600', 'dark:text-gray-400');
+                    item.classList.add('text-gray-700', 'dark:text-gray-200', 'font-medium', 'bg-gray-100', 'dark:bg-gray-700');
+                }
+            });
+            
+            // Token count simulation
+            setTimeout(() => {
+                const tokenCountEl = document.querySelector('.token-count');
+                if (tokenCountEl) {
+                    const tokens = Math.floor(Math.random() * 100 + 150);
+                    tokenCountEl.textContent = `${tokens} tokens`;
+                }
+            }, 500);
+            
+            // Button interactions
+            const runTestBtn = document.getElementById('run-test-btn');
+            if (runTestBtn) {
+                runTestBtn.addEventListener('click', function() {
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<svg class="animate-spin h-5 w-5 mr-2 inline text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Running Test...';
+                    
+                    // Simulate API call
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                        alert('Test completed successfully! Results are now displayed.');
+                        
+                        // Add animation to results
+                        document.querySelectorAll('.model-card').forEach(card => {
+                            card.style.animation = 'none';
+                            card.offsetHeight; // Trigger reflow
+                            card.style.animation = 'fadeIn 0.5s ease forwards';
+                        });
+                    }, 1500);
+                });
+            }
+            
+            // Create test button
+            const createTestBtn = document.getElementById('create-test-btn');
+            if (createTestBtn) {
+                createTestBtn.addEventListener('click', function() {
+                    document.getElementById('test-prompt').value = '';
+                    document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                        checkbox.checked = false;
+                    });
+                    
+                    // Auto-select the first 3 models
+                    document.querySelectorAll('input[type="checkbox"]')[0].checked = true;
+                    document.querySelectorAll('input[type="checkbox"]')[1].checked = true;
+                    document.querySelectorAll('input[type="checkbox"]')[2].checked = true;
+                });
+            }
+        });
+    </script>
+</body>
+</html>
