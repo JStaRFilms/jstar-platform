@@ -50,6 +50,167 @@ export const HeroSlidesGrid: React.FC<HeroSlidesGridProps> = ({
     setLocalSlides(slides);
   }, [slides]);
 
+  /**
+   * Export slides in different formats
+   */
+  const exportSlides = (format: 'json' | 'csv' | 'markdown') => {
+    const exportData = {
+      version: "1.0",
+      exportedAt: new Date().toISOString(),
+      slides: localSlides.map(slide => ({
+        id: slide.id,
+        titleLine1: slide.titleLine1,
+        titleLine2: slide.titleLine2,
+        tagline: slide.tagline,
+        description: slide.description,
+        imageUrl: slide.imageUrl,
+        gradient: slide.gradient,
+        buttonGradient: slide.buttonGradient,
+        buttonBorder: slide.buttonBorder,
+        buttonText: slide.buttonText,
+        buttonHover: slide.buttonHover,
+        sortOrder: slide.sortOrder,
+        isActive: slide.isActive,
+        altText: slide.altText,
+        projectTitle: slide.projectTitle,
+        projectDesc: slide.projectDesc
+      }))
+    };
+
+    let content: string;
+    let filename: string;
+    let mimeType: string;
+
+    switch (format) {
+      case 'json':
+        content = JSON.stringify(exportData, null, 2);
+        filename = `hero-slides-export-${new Date().toISOString().split('T')[0]}.json`;
+        mimeType = 'application/json';
+        break;
+
+      case 'csv':
+        const headers = ['ID', 'Title Line 1', 'Title Line 2', 'Tagline', 'Description', 'Image URL', 'Sort Order', 'Active'];
+        const csvRows = [
+          headers.join(','),
+          ...localSlides.map(slide => [
+            slide.id,
+            `"${slide.titleLine1.replace(/"/g, '""')}"`,
+            `"${slide.titleLine2.replace(/"/g, '""')}"`,
+            `"${slide.tagline.replace(/"/g, '""')}"`,
+            `"${slide.description.replace(/"/g, '""')}"`,
+            slide.imageUrl,
+            slide.sortOrder,
+            slide.isActive ? 'Yes' : 'No'
+          ].join(','))
+        ];
+        content = csvRows.join('\n');
+        filename = `hero-slides-export-${new Date().toISOString().split('T')[0]}.csv`;
+        mimeType = 'text/csv';
+        break;
+
+      case 'markdown':
+        content = `# Hero Slides Export\n\n**Exported:** ${new Date().toLocaleString()}\n**Total Slides:** ${localSlides.length}\n\n${localSlides.map((slide, index) => `## Slide ${index + 1}: ${slide.titleLine1}\n\n**Title Line 2:** ${slide.titleLine2}\n**Tagline:** ${slide.tagline}\n**Description:** ${slide.description}\n**Image:** ${slide.imageUrl}\n**Sort Order:** ${slide.sortOrder}\n**Active:** ${slide.isActive ? 'Yes' : 'No'}\n\n---\n`).join('\n')}`;
+        filename = `hero-slides-export-${new Date().toISOString().split('T')[0]}.md`;
+        mimeType = 'text/markdown';
+        break;
+
+      default:
+        return;
+    }
+
+    // Create and download file
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  /**
+   * Import slides from file
+   */
+  const importSlides = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json,.csv';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const content = e.target?.result as string;
+          let importedSlides: any[] = [];
+
+          if (file.name.endsWith('.json')) {
+            const data = JSON.parse(content);
+            importedSlides = data.slides || [];
+          } else if (file.name.endsWith('.csv')) {
+            // Parse CSV (simple implementation)
+            const lines = content.split('\n');
+            const headers = lines[0].split(',');
+            importedSlides = lines.slice(1).map(line => {
+              const values = line.split(',');
+              return {
+                titleLine1: values[1]?.replace(/"/g, '') || '',
+                titleLine2: values[2]?.replace(/"/g, '') || '',
+                tagline: values[3]?.replace(/"/g, '') || '',
+                description: values[4]?.replace(/"/g, '') || '',
+                imageUrl: values[5] || '',
+                gradient: 'from-primary to-accent',
+                buttonGradient: 'from-primary to-accent',
+                buttonBorder: 'border-primary',
+                buttonText: 'text-primary',
+                buttonHover: 'hover:bg-primary/10',
+                sortOrder: parseInt(values[6]) || 0,
+                isActive: values[7]?.toLowerCase() === 'yes'
+              };
+            });
+          }
+
+          if (importedSlides.length > 0) {
+            console.log('Imported slides:', importedSlides);
+            alert(`Successfully imported ${importedSlides.length} slides. You can now save them to the database.`);
+          }
+        } catch (error) {
+          console.error('Error importing slides:', error);
+          alert('Error importing slides. Please check the file format.');
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  };
+
+  /**
+   * Duplicate all active slides
+   */
+  const duplicateAllSlides = () => {
+    const activeSlides = localSlides.filter(slide => slide.isActive);
+    if (activeSlides.length === 0) {
+      alert('No active slides to duplicate.');
+      return;
+    }
+
+    const duplicatedSlides = activeSlides.map((slide, index) => ({
+      ...slide,
+      id: `duplicate-${Date.now()}-${index}`,
+      titleLine1: `${slide.titleLine1} (Copy)`,
+      titleLine2: `${slide.titleLine2} (Copy)`,
+      sortOrder: Math.max(...localSlides.map(s => s.sortOrder)) + index + 1,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }));
+
+    setLocalSlides([...localSlides, ...duplicatedSlides]);
+    alert(`Successfully duplicated ${duplicatedSlides.length} slides.`);
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
       {/* Left Column - Slides List */}
@@ -109,28 +270,54 @@ export const HeroSlidesGrid: React.FC<HeroSlidesGridProps> = ({
             Quick Actions
           </h2>
           <div className="space-y-3">
-            <button
-              className="w-full px-4 py-2.5 bg-gradient-to-r from-red-600 to-red-500 text-white rounded-lg font-medium transition-all duration-300 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-              aria-label="Export all slides"
-            >
-              <svg
-                className="h-4 w-4 mr-2 inline"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
+            <div className="relative">
+              <button
+                onClick={() => exportSlides('json')}
+                className="w-full px-4 py-2.5 bg-gradient-to-r from-red-600 to-red-500 text-white rounded-lg font-medium transition-all duration-300 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                aria-label="Export all slides as JSON"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
-              Export Slides
-            </button>
+                <svg
+                  className="h-4 w-4 mr-2 inline"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+                Export Slides
+              </button>
+
+              {/* Export format dropdown */}
+              <div className="absolute top-full left-0 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                <button
+                  onClick={() => exportSlides('json')}
+                  className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-t-lg"
+                >
+                  📄 Export as JSON
+                </button>
+                <button
+                  onClick={() => exportSlides('csv')}
+                  className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  📊 Export as CSV
+                </button>
+                <button
+                  onClick={() => exportSlides('markdown')}
+                  className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-b-lg"
+                >
+                  📝 Export as Markdown
+                </button>
+              </div>
+            </div>
 
             <button
+              onClick={importSlides}
               className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
               aria-label="Import slides from file"
             >
@@ -152,6 +339,7 @@ export const HeroSlidesGrid: React.FC<HeroSlidesGridProps> = ({
             </button>
 
             <button
+              onClick={duplicateAllSlides}
               className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
               aria-label="Duplicate all active slides"
             >

@@ -175,6 +175,223 @@ model HeroSlideshowConfig {
   @@map("hero_slideshow_config")
 }
 
+/**
+ * Admin Vault - File Storage System
+ * Comprehensive file management with local/cloud storage and Google Drive integration
+ */
+
+// Users table (for future multi-user support)
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  tier      UserTier @default(GUEST)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Storage quota
+  storageQuota Int    @default(1073741824) // 1GB in bytes
+  storageUsed  Int    @default(0)
+
+  // Relations
+  files       File[]
+  folders     Folder[]
+  fileShares  FileShare[] @relation("SharedByUser")
+  receivedShares FileShare[] @relation("SharedWithUser")
+  googleDriveConfig GoogleDriveConfig?
+
+  @@map("users")
+}
+
+// Files table - Core file storage
+model File {
+  id          String   @id @default(cuid())
+  name        String
+  originalName String
+  mimeType    String
+  size        Int
+  path        String   // Local file system path or cloud URL
+  folderId    String?
+  ownerId     String
+
+  // Storage provider
+  storageProvider String @default("local") // 'local', 'cloud', 'google-drive'
+  storagePath String?  // Provider-specific path/URL
+
+  // File integrity
+  checksum    String?  // MD5 or SHA256 hash
+  metadata    Json?    // Additional file metadata
+
+  // Access control
+  isPublic    Boolean  @default(false)
+
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  owner       User     @relation(fields: [ownerId], references: [id])
+  folder      Folder?  @relation(fields: [folderId], references: [id])
+  shares      FileShare[]
+  versions    FileVersion[]
+
+  @@map("files")
+}
+
+// Folders table - Hierarchical organization
+model Folder {
+  id          String   @id @default(cuid())
+  name        String
+  path        String   // Full path for quick access
+  parentId    String?
+  ownerId     String
+
+  // Visual customization
+  color       String?
+  icon        String?
+
+  // Sharing
+  isShared    Boolean  @default(false)
+
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  owner       User     @relation(fields: [ownerId], references: [id])
+  parent      Folder?  @relation("FolderHierarchy", fields: [parentId], references: [id])
+  children    Folder[] @relation("FolderHierarchy")
+  files       File[]
+
+  @@map("folders")
+}
+
+// File sharing and permissions
+model FileShare {
+  id          String   @id @default(cuid())
+  fileId      String
+  sharedById  String
+  sharedWithId String?
+
+  // Share type and permissions
+  shareType   ShareType @default(USER) // USER, PUBLIC, TEAM
+  permissions PermissionLevel @default(READ) // READ, WRITE, ADMIN
+
+  // Expiration
+  expiresAt   DateTime?
+
+  // Timestamps
+  createdAt   DateTime @default(now())
+
+  // Relations
+  file        File     @relation(fields: [fileId], references: [id])
+  sharedBy    User     @relation("SharedByUser", fields: [sharedById], references: [id])
+  sharedWith  User?    @relation("SharedWithUser", fields: [sharedWithId], references: [id])
+
+  @@map("file_shares")
+}
+
+// File versions (for future version control)
+model FileVersion {
+  id          String   @id @default(cuid())
+  fileId      String
+  version     Int
+  size        Int
+  checksum    String
+  storagePath String
+  createdAt   DateTime @default(now())
+
+  // Relations
+  file        File     @relation(fields: [fileId], references: [id])
+
+  @@map("file_versions")
+}
+
+// Storage analytics
+model StorageAnalytics {
+  id          String   @id @default(cuid())
+  userId      String?
+  date        DateTime @default(now())
+
+  // Usage metrics
+  uploads     Int      @default(0)
+  downloads   Int      @default(0)
+  storageUsed Int      @default(0)
+  bandwidthUsed Int    @default(0)
+
+  // File type breakdown
+  fileTypes   Json?    // JSON object with file type counts
+
+  @@unique([userId, date])
+  @@map("storage_analytics")
+}
+
+// Google Drive sync configuration
+model GoogleDriveConfig {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+
+  // OAuth tokens
+  accessToken String
+  refreshToken String
+  tokenExpiry DateTime
+
+  // Sync settings
+  enabled     Boolean  @default(false)
+  syncDirection SyncDirection @default(BIDIRECTIONAL)
+  conflictResolution ConflictResolution @default(LOCAL_WINS)
+  syncInterval Int     @default(60) // minutes
+
+  // Folder mappings
+  folderMappings Json? // JSON object mapping local to remote folders
+
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  lastSync    DateTime?
+
+  // Relations
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@map("google_drive_configs")
+}
+
+// Enums for storage system
+enum UserTier {
+  ADMIN     // Unlimited storage
+  TIER3     // 100GB
+  TIER2     // 50GB
+  TIER1     // 10GB
+  GUEST     // 1GB temporary
+}
+
+enum ShareType {
+  USER      // Share with specific user
+  PUBLIC    // Public link
+  TEAM      // Share with team (future)
+}
+
+enum PermissionLevel {
+  READ      // View/download only
+  WRITE     // Read + upload/modify
+  ADMIN     // Full control + sharing management
+}
+
+enum SyncDirection {
+  UPLOAD        // Local to Google Drive only
+  DOWNLOAD      // Google Drive to local only
+  BIDIRECTIONAL // Sync both ways
+}
+
+enum ConflictResolution {
+  LOCAL_WINS    // Keep local version
+  REMOTE_WINS   // Keep Google Drive version
+  MANUAL        // Ask user to choose
+}
+
+// Add relations to existing User model
+// Note: Relations will be added when User model is implemented
+
 // Indexes for performance
 // Note: SQLite doesn't support all index types, but these are defined for future PostgreSQL migration
 // @@index([email])
@@ -183,3 +400,8 @@ model HeroSlideshowConfig {
 // @@index([service])
 // @@index([isActive])
 // @@index([sortOrder])
+// @@index([ownerId])
+// @@index([folderId])
+// @@index([path])
+// @@index([storageProvider])
+// @@index([createdAt])
