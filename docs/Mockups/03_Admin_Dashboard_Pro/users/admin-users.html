@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - User Command Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'admin-red': '#DC2626'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-tier1: linear-gradient(135deg, var(--brand-blue) 0%, #3B82F6 100%);
+            --gradient-tier2: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-admin: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        }
+        .btn-enhanced {
+            transition: all 300ms ease;
+        }
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+        }
+        .card-interactive {
+            transition: all 300ms ease;
+            cursor: pointer;
+        }
+        .card-interactive:hover {
+            transform: translateY(-4px);
+        }
+        .module-card {
+            transition: all 300ms ease;
+            border-left: 3px solid transparent;
+        }
+        .module-card:hover {
+            border-left-color: #DC2626;
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-active {
+            background-color: #10B981;
+        }
+        .status-warning {
+            background-color: #F59E0B;
+        }
+        .status-critical {
+            background-color: #EF4444;
+        }
+        .activity-item {
+            transition: all 200ms ease;
+        }
+        .activity-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .sidebar-item {
+            transition: all 200ms ease;
+        }
+        .sidebar-item:hover {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: #DC2626;
+        }
+        .sidebar-item.active {
+            background-color: rgba(220, 38, 38, 0.15);
+            color: #DC2626;
+            font-weight: 600;
+            border-left: 3px solid #DC2626;
+        }
+        .quick-action {
+            transition: all 300ms ease;
+        }
+        .quick-action:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.2);
+        }
+        .system-metric {
+            transition: all 200ms ease;
+        }
+        .system-metric:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .user-item {
+            transition: all 200ms ease;
+        }
+        .user-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .user-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .user-active {
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+            color: white;
+        }
+        .user-inactive {
+            background: #E5E7EB;
+            color: #6B7280;
+        }
+        .user-suspended {
+            background: #6B7280;
+            color: white;
+        }
+        .user-tier1 {
+            background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
+            color: white;
+        }
+        .user-tier2 {
+            background: linear-gradient(135deg, #2563EB 0%, #8B5CF6 100%);
+            color: white;
+        }
+        .user-tier3 {
+            background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+            color: white;
+        }
+        .user-admin {
+            background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+            color: white;
+        }
+        .tier-badge {
+            padding: 0.15rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .tier-1 {
+            background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
+            color: white;
+        }
+        .tier-2 {
+            background: linear-gradient(135deg, #2563EB 0%, #8B5CF6 100%);
+            color: white;
+        }
+        .tier-3 {
+            background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+            color: white;
+        }
+        .activity-timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+        .activity-timeline:before {
+            content: "";
+            position: absolute;
+            left: 5px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #D1D5DB;
+        }
+        .activity-point {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .activity-point:before {
+            content: "";
+            position: absolute;
+            left: -7px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #D1D5DB;
+            border: 2px solid white;
+        }
+        .activity-point.active:before {
+            background-color: #DC2626;
+        }
+        .session-badge {
+            padding: 0.15rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            background-color: #F3F4F6;
+            color: #4B5563;
+            margin-right: 0.25rem;
+        }
+        .session-active {
+            background-color: #D1FAE5;
+            color: #047857;
+        }
+        .session-inactive {
+            background-color: #FEE2E2;
+            color: #B91C1C;
+        }
+        .suspicious-activity {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .user-stats {
+            background-color: #F9FAFB;
+            border-radius: 0.375rem;
+            padding: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .stat-value {
+            font-weight: 600;
+            color: #1F2937;
+        }
+        .stat-label {
+            font-size: 0.75rem;
+            color: #6B7280;
+        }
+        .security-level {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            background-color: #E5E7EB;
+        }
+        .security-score {
+            height: 100%;
+            border-radius: 4px;
+        }
+        .security-high {
+            background-color: #10B981;
+            width: 85%;
+        }
+        .security-medium {
+            background-color: #F59E0B;
+            width: 65%;
+        }
+        .security-low {
+            background-color: #EF4444;
+            width: 35%;
+        }
+        .suspicious-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #EF4444;
+            margin-right: 5px;
+            animation: blink 1.5s infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <!-- Theme Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="document.documentElement.classList.toggle('dark')" 
+                class="p-2 rounded-full bg-jstar-blue text-white hover:bg-faith-purple transition-all duration-300"
+                aria-label="Toggle dark/light theme">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Admin Navigation -->
+    <div class="fixed top-0 left-0 h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <a href="/admin" class="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                J StaR Admin
+            </a>
+        </div>
+        
+        <div class="p-4">
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Platform Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="/admin/cms" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        CMS
+                    </a>
+                    <a href="/admin/johngpt" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                        JohnGPT
+                    </a>
+                    <a href="/admin/cge" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        CGE Tools
+                    </a>
+                    <a href="/admin/users" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        User Management
+                    </a>
+                    <a href="/admin/analytics" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Analytics
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    CMS Management
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin/cms" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        Pages
+                    </a>
+                    <a href="/admin/cms/hero-slides" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4h16M4 8h16M4 12h16M4 16h16M4 20h16"></path>
+                        </svg>
+                        Hero Slides
+                    </a>
+                    <a href="/admin/cms/page-builder" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.927-1.756 3.353 0a1.724 1.724 0 002.573 1.066c1.704.92 3.675.331 4.967-1.212a.5.5 0 00-.454-.772H13.88c.068.22.111.45.21.686l1.9 3.8a.5.5 0 00.859.027l7-14A.5.5 0 0017.527 3H13.754a.5.5 0 00-.424.736l3.827 5.74a.5.5 0 00.027.86l-12 7a.5.5 0 00.729.646l5-2.906a.5.5 0 00.163-.538l-2-3.5a.5.5 0 00-.658-.21l-2 1.148V4.317zM14.5 12a2.5 2.5 0 10-5 0 2.5 2.5 0 005 0z"></path>
+                        </svg>
+                        Page Builder
+                    </a>
+                    <a href="/admin/cms/blog-posts" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-5a2 2 0 00-2 2v10a2 2 0 002 2h5z"></path>
+                        </svg>
+                        Blog Posts
+                    </a>
+                    <a href="/admin/cms/vault-editor" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 012 2v2a2 2 0 01-2 2H5a2 2 0 01-2-2v-2z"></path>
+                        </svg>
+                        Vault Editor
+                    </a>
+                    <a href="/admin/cms/content-audit" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h.01M12 12h.01M15 12h.01M6 12h.01M18 12h.01"></path>
+                        </svg>
+                        Content Audit
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center">
+                        <span class="text-white font-bold">JO</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Admin Access</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 p-6">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center mb-2">
+                        <a href="/admin" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Admin</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <span class="text-gray-900 dark:text-white">User Command Center</span>
+                    </div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
+                        User Command Center
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">
+                        Real-time user management with proactive security monitoring
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced" id="impersonate-btn">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                        Impersonate User
+                    </button>
+                    <div class="relative">
+                        <input type="text" placeholder="Search users..." 
+                               class="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                        <svg class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+        <!-- System Status -->
+        <section class="mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">User Management Status</h2>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">
+                            Current user management system status and security monitoring
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">All Synced</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">API Connected</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Security Active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Stats -->
+        <section class="mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-admin-red mb-2">1,247</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Total Users</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-purple-500 mb-2">42</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Active Sessions</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-green-500 mb-2">Tier 1: 75%</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">User Distribution</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-red-500 mb-2">3</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Suspicious Activities</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main User Management Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - User List -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- User Filters -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-center mb-5">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">User Directory</h2>
+                        <div class="flex space-x-2">
+                            <select class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <option>All Users</option>
+                                <option>Active</option>
+                                <option>Suspended</option>
+                                <option>Suspicious</option>
+                                <option>Tier 1</option>
+                                <option>Tier 2</option>
+                                <option>Tier 3</option>
+                                <option>Admin</option>
+                            </select>
+                            <select class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <option>Sort by: Last Active</option>
+                                <option>Sort by: Date Created</option>
+                                <option>Sort by: Tier Level</option>
+                                <option>Sort by: Suspicious Score</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">User</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tier</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Last Active</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Security</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center mr-3">
+                                                <span class="text-jstar-blue font-bold">JO</span>
+                                            </div>
+                                            <div>
+                                                <div class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-400">john@jstarfilms.com</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <span class="tier-badge tier-3">Tier 3</span>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <span class="status-indicator status-active"></span>
+                                            <span class="text-sm text-gray-900 dark:text-white">Active</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">Today, 11:30 AM</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">From: Chrome, US</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="security-level">
+                                            <div class="security-score security-high"></div>
+                                        </div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">High Trust</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400 mr-3">View</a>
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400">Impersonate</a>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 suspicious-activity">
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center mr-3">
+                                                <span class="text-faith-purple font-bold">AO</span>
+                                            </div>
+                                            <div>
+                                                <div class="font-medium text-gray-900 dark:text-white">Adebayo Ogunleye</div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-400">adebayo@example.com</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <span class="tier-badge tier-3">Tier 3</span>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <span class="status-indicator status-warning"></span>
+                                            <span class="text-sm text-gray-900 dark:text-white">Suspicious</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">Today, 10:15 AM</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">From: Firefox, NG</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="security-level">
+                                            <div class="security-score security-low"></div>
+                                        </div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">Low Trust</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400 mr-3">View</a>
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400">Review</a>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center mr-3">
+                                                <span class="text-growth-green font-bold">SM</span>
+                                            </div>
+                                            <div>
+                                                <div class="font-medium text-gray-900 dark:text-white">Sarah Mitchell</div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-400">sarahm@example.com</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <span class="tier-badge tier-2">Tier 2</span>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <span class="status-indicator status-active"></span>
+                                            <span class="text-sm text-gray-900 dark:text-white">Active</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">Yesterday, 3:45 PM</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">From: Safari, UK</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="security-level">
+                                            <div class="security-score security-high"></div>
+                                        </div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">High Trust</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400 mr-3">View</a>
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400">Impersonate</a>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center mr-3">
+                                                <span class="text-gray-500 font-bold">TG</span>
+                                            </div>
+                                            <div>
+                                                <div class="font-medium text-gray-900 dark:text-white">Thomas Garcia</div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-400">tgarcia@example.com</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <span class="tier-badge tier-1">Tier 1</span>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <span class="status-indicator status-active"></span>
+                                            <span class="text-sm text-gray-900 dark:text-white">Active</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">June 15, 2024</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">From: Edge, US</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="security-level">
+                                            <div class="security-score security-medium"></div>
+                                        </div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">Medium Trust</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400 mr-3">View</a>
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400">Impersonate</a>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center mr-3">
+                                                <span class="text-admin-red font-bold">JS</span>
+                                            </div>
+                                            <div>
+                                                <div class="font-medium text-gray-900 dark:text-white">James Smith</div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-400">j.smith@example.com</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <span class="tier-badge tier-1">Tier 1</span>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <span class="status-indicator status-active"></span>
+                                            <span class="text-sm text-gray-900 dark:text-white">Active</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">June 14, 2024</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">From: Chrome, CA</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="security-level">
+                                            <div class="security-score security-high"></div>
+                                        </div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">High Trust</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400 mr-3">View</a>
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400">Impersonate</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4 flex justify-between items-center">
+                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                            Showing 1 to 5 of 1,247 users
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                Previous
+                            </button>
+                            <button class="px-3 py-1 bg-admin-red text-white rounded-lg">1</button>
+                            <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                2
+                            </button>
+                            <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Suspicious Activity -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Suspicious Activity</h2>
+                    <div class="space-y-4">
+                        <div class="user-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg suspicious-activity">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Adebayo Ogunleye</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">adebayo@example.com</div>
+                                </div>
+                                <span class="text-sm text-red-500 dark:text-red-400 font-medium flex items-center">
+                                    <span class="suspicious-indicator"></span> High Risk
+                                </span>
+                            </div>
+                            <div class="mt-3">
+                                <div class="flex flex-wrap gap-2 mb-3">
+                                    <span class="session-badge session-inactive">Payment: Stolen Card</span>
+                                    <span class="session-badge session-inactive">Location: Nigeria</span>
+                                    <span class="session-badge session-inactive">Tier: 3</span>
+                                    <span class="session-badge session-inactive">Activity: Multiple logins</span>
+                                </div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                    User attempted to purchase Tier 3 subscription with stolen credit card. 
+                                    Multiple login attempts from different locations within short timeframe.
+                                </p>
+                            </div>
+                            <div class="flex justify-end space-x-3">
+                                <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    Review
+                                </button>
+                                <button class="px-3 py-1 bg-red-500 text-white rounded-lg">
+                                    Suspend Account
+                                </button>
+                            </div>
+                        </div>
+                        <div class="user-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Chinedu Eze</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">chinedu@example.com</div>
+                                </div>
+                                <span class="text-sm text-yellow-500 dark:text-yellow-400 font-medium flex items-center">
+                                    <span class="status-indicator status-warning"></span> Medium Risk
+                                </span>
+                            </div>
+                            <div class="mt-3">
+                                <div class="flex flex-wrap gap-2 mb-3">
+                                    <span class="session-badge session-inactive">Location: Nigeria</span>
+                                    <span class="session-badge session-inactive">Tier: 2</span>
+                                    <span class="session-badge session-inactive">Activity: Rapid content creation</span>
+                                </div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                    User created 15 blog posts in 5 minutes. Unusual activity pattern for new user.
+                                </p>
+                            </div>
+                            <div class="flex justify-end space-x-3">
+                                <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    Review
+                                </button>
+                                <button class="px-3 py-1 bg-yellow-500 text-white rounded-lg">
+                                    Monitor Activity
+                                </button>
+                            </div>
+                        </div>
+                        <div class="user-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Femi Adeyemi</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">femi@example.com</div>
+                                </div>
+                                <span class="text-sm text-yellow-500 dark:text-yellow-400 font-medium flex items-center">
+                                    <span class="status-indicator status-warning"></span> Medium Risk
+                                </span>
+                            </div>
+                            <div class="mt-3">
+                                <div class="flex flex-wrap gap-2 mb-3">
+                                    <span class="session-badge session-inactive">Location: Nigeria</span>
+                                    <span class="session-badge session-inactive">Tier: 1</span>
+                                    <span class="session-badge session-inactive">Activity: Email verification failed</span>
+                                </div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                    User failed email verification multiple times. Using disposable email service.
+                                </p>
+                            </div>
+                            <div class="flex justify-end space-x-3">
+                                <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    Review
+                                </button>
+                                <button class="px-3 py-1 bg-yellow-500 text-white rounded-lg">
+                                    Request Verification
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- User Activity -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Real-time User Activity</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-3">Active Sessions (42)</h3>
+                            <div class="space-y-3">
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400">Chrome, US</div>
+                                        </div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">Active now</div>
+                                    </div>
+                                    <div class="mt-2 flex flex-wrap gap-1">
+                                        <span class="session-badge session-active">CMS</span>
+                                        <span class="session-badge session-active">Page Builder</span>
+                                        <span class="session-badge session-active">Tier 3</span>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">Sarah Mitchell</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400">Safari, UK</div>
+                                        </div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">Active now</div>
+                                    </div>
+                                    <div class="mt-2 flex flex-wrap gap-1">
+                                        <span class="session-badge session-active">Vault Editor</span>
+                                        <span class="session-badge session-active">Tier 2</span>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">Thomas Garcia</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400">Edge, US</div>
+                                        </div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">Active now</div>
+                                    </div>
+                                    <div class="mt-2 flex flex-wrap gap-1">
+                                        <span class="session-badge session-active">Content Audit</span>
+                                        <span class="session-badge session-active">Tier 1</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-3">Recent Sign-ups</h3>
+                            <div class="space-y-3">
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">Michael Chen</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400">michael@example.com</div>
+                                        </div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">5 min ago</div>
+                                    </div>
+                                    <div class="mt-2 flex items-center">
+                                        <span class="tier-badge tier-1 mr-2">Tier 1</span>
+                                        <span class="text-sm text-gray-500 dark:text-gray-400">Free trial</span>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">Jennifer Williams</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400">jwilliams@example.com</div>
+                                        </div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">12 min ago</div>
+                                    </div>
+                                    <div class="mt-2 flex items-center">
+                                        <span class="tier-badge tier-2 mr-2">Tier 2</span>
+                                        <span class="text-sm text-gray-500 dark:text-gray-400">Monthly</span>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg suspicious-activity">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">Adebayo Ogunleye</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400">adebayo@example.com</div>
+                                        </div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">15 min ago</div>
+                                    </div>
+                                    <div class="mt-2 flex items-center">
+                                        <span class="tier-badge tier-3 mr-2">Tier 3</span>
+                                        <span class="text-sm text-red-500 dark:text-red-400">Stolen card</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - User Management -->
+            <div class="space-y-6">
+                <!-- User Profile -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-start mb-5">
+                        <div>
+                            <h2 class="text-xl font-bold text-gray-900 dark:text-white">User Profile</h2>
+                            <p class="text-gray-600 dark:text-gray-400 mt-1">John Oluleke-Oke</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="p-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                            </button>
+                            <button class="p-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="space-y-5">
+                        <div class="flex items-center justify-center">
+                            <div class="w-24 h-24 rounded-full bg-gradient-to-r from-jstar-blue to-faith-purple flex items-center justify-center">
+                                <span class="text-white text-3xl font-bold">JO</span>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">User ID</label>
+                                <input type="text" value="usr_123456" 
+                                       class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400" readonly>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tier Level</label>
+                                <select class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                    <option>Tier 3</option>
+                                    <option>Tier 2</option>
+                                    <option>Tier 1</option>
+                                    <option>Guest</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                            <input type="email" value="john@jstarfilms.com" 
+                                   class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
+                            <input type="text" value="John Oluleke-Oke" 
+                                   class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Account Status</label>
+                            <select class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <option>Active</option>
+                                <option>Suspended</option>
+                                <option>Cancelled</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Security Level</label>
+                            <div class="mt-2">
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">Account Trust Score</span>
+                                    <span class="text-sm font-medium">92%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                    <div class="bg-admin-red h-2 rounded-full" style="width: 92%"></div>
+                                </div>
+                                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                                    High trust user with consistent activity and verified payment method.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex space-x-3">
+                            <button class="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 font-medium" id="cancel-profile">
+                                Cancel
+                            </button>
+                            <button class="flex-1 px-4 py-3 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium">
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- User Activity Timeline -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Activity Timeline</h2>
+                    <div class="activity-timeline">
+                        <div class="activity-point active">
+                            <h3 class="font-medium text-gray-900 dark:text-white">Updated Hero Slides</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Today, 11:30 AM</p>
+                        </div>
+                        <div class="activity-point active">
+                            <h3 class="font-medium text-gray-900 dark:text-white">Edited Vault Content</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Today, 10:45 AM</p>
+                        </div>
+                        <div class="activity-point active">
+                            <h3 class="font-medium text-gray-900 dark:text-white">Viewed Analytics Dashboard</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Today, 10:15 AM</p>
+                        </div>
+                        <div class="activity-point">
+                            <h3 class="font-medium text-gray-900 dark:text-white">Logged In</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Today, 10:00 AM</p>
+                        </div>
+                        <div class="activity-point">
+                            <h3 class="font-medium text-gray-900 dark:text-white">Created New Blog Post</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">June 15, 2024</p>
+                        </div>
+                        <div class="activity-point">
+                            <h3 class="font-medium text-gray-900 dark:text-white">Upgraded to Tier 3</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">June 1, 2024</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- User Security -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Security Information</h2>
+                    <div class="space-y-4">
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">Last Login</span>
+                                <span class="text-sm text-gray-500 dark:text-gray-400">Today, 10:00 AM</span>
+                            </div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">Chrome on Windows 11, United States</div>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">Payment Method</span>
+                                <span class="text-sm text-gray-500 dark:text-gray-400">Verified</span>
+                            </div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">Visa •••• 4242, Expires 12/26</div>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">Account Age</span>
+                                <span class="text-sm text-gray-500 dark:text-gray-400">1 year, 3 months</span>
+                            </div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">Created June 1, 2023</div>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">Security Events</span>
+                                <span class="text-sm text-gray-500 dark:text-gray-400">None</span>
+                            </div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">No suspicious activity detected</div>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">Two-Factor Auth</span>
+                                <span class="text-sm text-gray-500 dark:text-gray-400">Enabled</span>
+                            </div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">Authenticator app</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Emergency Panel -->
+                <div class="bg-red-50 dark:bg-red-900/20 rounded-2xl p-6 shadow-lg border border-red-200 dark:border-red-800">
+                    <h2 class="text-xl font-bold text-red-900 dark:text-red-100 mb-4">Security Emergency Tools</h2>
+                    <div class="space-y-3">
+                        <p class="text-sm text-red-800 dark:text-red-200">
+                            Critical functions for immediate user management and security response.
+                        </p>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                            ONE BUTTON: Suspend Suspicious Account
+                        </button>
+                        <div class="flex space-x-2">
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Revoke All Sessions
+                            </button>
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Disable Login
+                            </button>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                            Send Security Alert to Dev Friend
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-apply theme
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Initialize sidebar active state
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set users as active in sidebar
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.href.includes('users')) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Impersonate user button
+            document.getElementById('impersonate-btn').addEventListener('click', function() {
+                alert('Impersonation mode activated! You are now viewing the platform as a Tier 3 user.');
+            });
+            
+            // User item click
+            const userItems = document.querySelectorAll('.user-item');
+            userItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // In a real implementation, this would load the user profile
+                    console.log('Loading user profile:', this.querySelector('.font-medium').textContent);
+                });
+            });
+            
+            // Toggle suspicious activity animation
+            setInterval(() => {
+                const suspiciousItems = document.querySelectorAll('.suspicious-activity');
+                suspiciousItems.forEach(item => {
+                    item.classList.toggle('suspicious-activity');
+                    setTimeout(() => {
+                        item.classList.toggle('suspicious-activity');
+                    }, 1000);
+                });
+            }, 5000);
+        });
+    </script>
+</body>
+</html>

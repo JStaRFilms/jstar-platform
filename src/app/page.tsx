@@ -13,7 +13,7 @@ import FinalCTASection from "@/features/HomePage/components/FinalCTASection";
 
 export default function HomePage() {
   return (
-    <main className="pt-16">
+    <main>
       <HeroSection />
       <AboutSection />
       <ServicesSection />

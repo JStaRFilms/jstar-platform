@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { HeroSlide } from '../hooks/useHeroSlides';
 import SlidesList from './SlidesList';
+import SlideshowConfig from './SlideshowConfig';
 
 /**
  * Props for HeroSlidesGrid component
@@ -87,88 +88,8 @@ export const HeroSlidesGrid: React.FC<HeroSlidesGridProps> = ({
 
       {/* Right Column - Configuration Panels */}
       <div className="space-y-4 sm:space-y-6">
-        {/* Slide Configuration */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-5">
-            Slide Configuration
-          </h2>
-
-          {/* Global Settings */}
-          <div className="space-y-4">
-            <div>
-              <label
-                htmlFor="autoAdvance"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-              >
-                Auto-Advance Interval
-              </label>
-              <select
-                id="autoAdvance"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
-                defaultValue="7000"
-                aria-label="Auto-advance interval in milliseconds"
-              >
-                <option value="3000">3 seconds</option>
-                <option value="5000">5 seconds</option>
-                <option value="7000">7 seconds</option>
-                <option value="10000">10 seconds</option>
-                <option value="15000">15 seconds</option>
-              </select>
-            </div>
-
-            <div>
-              <label
-                htmlFor="transitionEffect"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-              >
-                Transition Effect
-              </label>
-              <select
-                id="transitionEffect"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
-                defaultValue="fade"
-                aria-label="Slide transition effect"
-              >
-                <option value="fade">Fade</option>
-                <option value="slide">Slide</option>
-                <option value="zoom">Zoom</option>
-                <option value="flip">Flip</option>
-              </select>
-            </div>
-
-            <div className="flex items-center">
-              <input
-                id="showIndicators"
-                type="checkbox"
-                className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 dark:border-gray-600 rounded"
-                defaultChecked
-                aria-label="Show slide indicators"
-              />
-              <label
-                htmlFor="showIndicators"
-                className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-              >
-                Show slide indicators
-              </label>
-            </div>
-
-            <div className="flex items-center">
-              <input
-                id="autoPlay"
-                type="checkbox"
-                className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 dark:border-gray-600 rounded"
-                defaultChecked
-                aria-label="Enable auto-play"
-              />
-              <label
-                htmlFor="autoPlay"
-                className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-              >
-                Enable auto-play
-              </label>
-            </div>
-          </div>
-        </div>
+        {/* Slideshow Configuration - Functional */}
+        <SlideshowConfig />
 
         {/* Slide Preview */}
         <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-200 dark:border-gray-700">

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useSlideshow } from '../hooks/useSlideshow';
 import { useHeroSlides } from '../hooks/useHeroSlides';
+import { useSlideshowConfig } from '../hooks/useSlideshowConfig';
 import { PlayCircleIcon } from './IconComponents';
 
 /**
@@ -118,14 +119,25 @@ const HeroSection: React.FC<HeroSectionProps> = ({
   // Fetch dynamic slides from API with fallback to defaults
   const { slides: dynamicSlides, loading, error } = useHeroSlides();
 
+  // Fetch slideshow configuration
+  const { config: slideshowConfig } = useSlideshowConfig();
+
   // Use custom slides if provided, otherwise use dynamic slides
   const allSlides = customSlides || dynamicSlides;
 
   // Filter to only show active slides on the homepage
   const activeSlides = allSlides.filter(slide => slide.isActive !== false);
 
-  // Initialize slideshow hook with current slide count
-  const { currentSlide, setCurrentSlide } = useSlideshow(activeSlides.length, slideInterval);
+  // Use dynamic configuration or fallback to props/defaults
+  const finalSlideInterval = slideshowConfig.autoPlayEnabled
+    ? slideshowConfig.autoPlayInterval
+    : slideInterval;
+
+  // Initialize slideshow hook with current slide count and configuration
+  const { currentSlide, setCurrentSlide } = useSlideshow(
+    activeSlides.length,
+    finalSlideInterval
+  );
 
   // Show loading state (AFTER all hooks are called)
   if (loading && !customSlides) {
@@ -153,17 +165,51 @@ const HeroSection: React.FC<HeroSectionProps> = ({
         <div className="absolute top-1/3 right-1/3 w-64 h-64 bg-secondary/10 rounded-full filter blur-3xl animate-pulse animation-delay-1000"></div>
       </div>
 
-      <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="relative">
-          {activeSlides.map((slide, index) => (
-            <div
-              key={slide.id}
-              className={`transition-opacity duration-700 ease-in-out ${currentSlide === index ? 'opacity-100' : 'opacity-0 absolute inset-0'}`}
-              role="tabpanel"
-              aria-labelledby={`slide-tab-${index}`}
-              aria-hidden={currentSlide !== index}>
-              {currentSlide === index && (
-                 <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
+      <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
+        <div className="relative w-full h-full">
+          {activeSlides.map((slide, index) => {
+            // Dynamic transition classes and styles based on configuration
+            const getTransitionClasses = () => {
+              const baseClasses = 'absolute inset-0 flex items-center';
+
+              switch (slideshowConfig.transitionEffect) {
+                case 'slide':
+                  return `${baseClasses} transition-transform ease-in-out ${
+                    currentSlide === index
+                      ? 'translate-x-0 opacity-100'
+                      : index < currentSlide
+                      ? '-translate-x-full opacity-0'
+                      : 'translate-x-full opacity-0'
+                  }`;
+                case 'zoom':
+                  return `${baseClasses} transition-all ease-in-out ${
+                    currentSlide === index
+                      ? 'scale-100 opacity-100'
+                      : 'scale-95 opacity-0'
+                  }`;
+                case 'fade':
+                default:
+                  return `${baseClasses} transition-opacity ease-in-out ${
+                    currentSlide === index ? 'opacity-100' : 'opacity-0'
+                  }`;
+              }
+            };
+
+            const getTransitionStyle = () => {
+              return {
+                transitionDuration: `${slideshowConfig.transitionDuration}ms`,
+              };
+            };
+
+            return (
+              <div
+                key={slide.id}
+                className={getTransitionClasses()}
+                style={getTransitionStyle()}
+                role="tabpanel"
+                aria-labelledby={`slide-tab-${index}`}
+                aria-hidden={currentSlide !== index}>
+                <div className="flex flex-col lg:flex-row items-center justify-between gap-12 w-full">
                    {/* Text Content */}
                    <div className={`lg:w-1/2 text-center lg:text-left animate-fade-in-up ${slide.id === 1 ? 'lg:order-1' : ''}`}>
                      <span className={`inline-block px-4 py-1.5 rounded-full text-sm font-medium mb-4 ${
@@ -234,33 +280,35 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                      </div>
                    </div>
                  </div>
-              )}
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
-      {/* Slideshow Controls */}
-      <div
-        className="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10"
-        role="tablist"
-        aria-label="Hero slideshow navigation">
-        {activeSlides.map((_, index) => (
-          <button
-            key={index}
-            id={`slide-tab-${index}`}
-            onClick={() => setCurrentSlide(index)}
-            className={`w-3 h-3 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-black ${
-              currentSlide === index
-                ? 'bg-primary dark:bg-accent opacity-100'
-                : 'bg-gray-300 dark:bg-gray-600 opacity-50 hover:opacity-75'
-            }`}
-            aria-label={`Go to slide ${index + 1} of ${activeSlides.length}`}
-            aria-selected={currentSlide === index}
-            role="tab"
-          />
-        ))}
-      </div>
+      {/* Slideshow Controls - Only show if indicators are enabled */}
+      {slideshowConfig.showIndicators && activeSlides.length > 1 && (
+        <div
+          className="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10"
+          role="tablist"
+          aria-label="Hero slideshow navigation">
+          {activeSlides.map((_, index) => (
+            <button
+              key={index}
+              id={`slide-tab-${index}`}
+              onClick={() => setCurrentSlide(index)}
+              className={`w-3 h-3 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-black ${
+                currentSlide === index
+                  ? 'bg-primary dark:bg-accent opacity-100'
+                  : 'bg-gray-300 dark:bg-gray-600 opacity-50 hover:opacity-75'
+              }`}
+              aria-label={`Go to slide ${index + 1} of ${activeSlides.length}`}
+              aria-selected={currentSlide === index}
+              role="tab"
+            />
+          ))}
+        </div>
+      )}
 
       {/* Scroll Indicator */}
       <a href="#about" className="absolute bottom-10 left-1/2 transform -translate-x-1/2 text-center scroll-indicator hidden lg:block">
