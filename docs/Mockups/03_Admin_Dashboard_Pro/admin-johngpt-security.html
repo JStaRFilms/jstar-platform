@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - JohnGPT Security</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'admin-red': '#DC2626'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-admin: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        }
+        
+        .btn-enhanced {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .card-interactive {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .card-interactive:hover {
+            transform: translateY(-2px);
+        }
+        
+        .security-card {
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .security-card:hover {
+            border-left-color: #DC2626;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        
+        .status-active {
+            background-color: #10B981;
+        }
+        
+        .status-warning {
+            background-color: #F59E0B;
+        }
+        
+        .status-critical {
+            background-color: #EF4444;
+        }
+        
+        .security-log {
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .security-log::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .security-log::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        .security-log::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 4px;
+        }
+        
+        .security-log::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            .security-log::-webkit-scrollbar-track {
+                background: #374151;
+            }
+            
+            .security-log::-webkit-scrollbar-thumb {
+                background: #4b5563;
+            }
+            
+            .security-log::-webkit-scrollbar-thumb:hover {
+                background: #6b7280;
+            }
+        }
+        
+        .security-level {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #e5e7eb;
+            overflow: hidden;
+            display: flex;
+            margin-top: 4px;
+        }
+        
+        .security-level-high {
+            background: linear-gradient(90deg, #10B981, #34D399);
+            flex: 3;
+        }
+        
+        .security-level-medium {
+            background: linear-gradient(90deg, #F59E0B, #F97316);
+            flex: 2;
+        }
+        
+        .security-level-low {
+            background: linear-gradient(90deg, #EF4444, #DC2626);
+            flex: 1;
+        }
+        
+        .security-level-disabled {
+            background-color: #f3f4f6;
+            flex: 1;
+        }
+        
+        .dark .security-level {
+            background-color: #4b5563;
+        }
+        
+        .dark .security-level-disabled {
+            background-color: #374151;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen">
+    <!-- Sidebar Navigation -->
+    <div class="fixed inset-y-0 left-0 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-50">
+        <div class="p-6">
+            <a href="/admin" class="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                J StaR Admin
+            </a>
+        </div>
+        
+        <nav class="mt-6">
+            <a href="/admin/johngpt" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                </svg>
+                JohnGPT
+            </a>
+            <a href="/admin/cge" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                </svg>
+                CGE
+            </a>
+            <a href="/admin/cms" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                </svg>
+                CMS
+            </a>
+            <a href="/admin/analytics" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+                Analytics
+            </a>
+            <a href="/admin/security" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200 font-medium bg-gray-100 dark:bg-gray-700">
+                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                </svg>
+                Security
+            </a>
+        </nav>
+        
+        <div class="absolute bottom-6 w-60 px-6">
+            <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                <div class="font-medium text-gray-900 dark:text-white mb-2">System Status</div>
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span>JohnGPT Service</span>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Active</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span>Security Status</span>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Secure</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span>Admin Access</span>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Admin Access</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="ml-64 p-6">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center mb-2">
+                        <a href="/admin/johngpt" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">JohnGPT</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <span class="text-gray-900 dark:text-white">Security</span>
+                    </div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
+                        JohnGPT Security
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">
+                        Configure security settings and monitor system integrity
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <div class="relative">
+                        <input type="text" placeholder="Search security logs..." class="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                        <svg class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                    <button id="audit-btn" class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h.01M12 12h.01M15 12h.01M6 12h.01M18 12h.01M9 16h.01M12 16h.01M15 16h.01M6 16h.01M18 16h.01M9 8h.01M12 8h.01M15 8h.01M6 8h.01M18 8h.01M7 20h10a2 2 0 002-2V6a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        Security Audit
+                    </button>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Security Rating</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">94/100</p>
+                    </div>
+                    <div class="p-2 bg-red-100 dark:bg-red-900/20 rounded-lg">
+                        <svg class="h-6 w-6 text-admin-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Active API Keys</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">3</p>
+                    </div>
+                    <div class="p-2 bg-red-100 dark:bg-red-900/20 rounded-lg">
+                        <svg class="h-6 w-6 text-admin-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 4a4 4 0 01-1-4.97A7.46 7.46 0 0015.5 4 7.46 7.46 0 0013 1.03A7.46 7.46 0 0010.5 4a7.46 7.46 0 00-2.5 2.97A4 4 0 014 11a4 4 0 01-1 4.97A7.46 7.46 0 002 19a7.46 7.46 0 002.5 2.97 7.46 7.46 0 002.5 1.03 7.46 7.46 0 002.5-1.03 7.46 7.46 0 002.5-2.97 7.46 7.46 0 002.5-2.97 7.46 7.46 0 002.5-2.97 7.46 7.46 0 001-4.97 4 4 0 011-4.97 7.46 7.46 0 00.5-2.97z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Last Audit</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">15m ago</p>
+                    </div>
+                    <div class="p-2 bg-red-100 dark:bg-red-900/20 rounded-lg">
+                        <svg class="h-6 w-6 text-admin-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h.01M12 12h.01M15 12h.01M6 12h.01M18 12h.01M9 16h.01M12 16h.01M15 16h.01M6 16h.01M18 16h.01M9 8h.01M12 8h.01M15 8h.01M6 8h.01M18 8h.01M7 20h10a2 2 0 002-2V6a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Suspicious Events</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">0</p>
+                    </div>
+                    <div class="p-2 bg-red-100 dark:bg-red-900/20 rounded-lg">
+                        <svg class="h-6 w-6 text-admin-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Column - Security Configuration -->
+            <div class="lg:col-span-1">
+                <!-- Security Configuration -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Security Configuration</h2>
+                        <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 text-xs rounded-full">Active Settings</span>
+                    </div>
+                    
+                    <div class="space-y-5">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Authentication Settings
+                            </label>
+                            <div class="space-y-3">
+                                <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    <input type="checkbox" checked class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                    <span class="ml-3 flex-1">
+                                        <span class="block font-medium text-gray-900 dark:text-white">Require JWT Authentication</span>
+                                        <span class="block text-sm text-gray-500 dark:text-gray-400">All API requests require valid JWT</span>
+                                    </span>
+                                </label>
+                                
+                                <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    <input type="checkbox" checked class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                    <span class="ml-3 flex-1">
+                                        <span class="block font-medium text-gray-900 dark:text-white">Enable Rate Limiting</span>
+                                        <span class="block text-sm text-gray-500 dark:text-gray-400">Limit requests to 100/min per user</span>
+                                    </span>
+                                </label>
+                                
+                                <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    <input type="checkbox" class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                    <span class="ml-3 flex-1">
+                                        <span class="block font-medium text-gray-900 dark:text-white">Enable IP Whitelisting</span>
+                                        <span class="block text-sm text-gray-500 dark:text-gray-400">Restrict access to specific IPs</span>
+                                    </span>
+                                </label>
+                                
+                                <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    <input type="checkbox" checked class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                    <span class="ml-3 flex-1">
+                                        <span class="block font-medium text-gray-900 dark:text-white">Auto-Expire API Keys</span>
+                                        <span class="block text-sm text-gray-500 dark:text-gray-400">Keys expire after 90 days</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Content Safety
+                            </label>
+                            <div class="space-y-3">
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="font-medium text-gray-900 dark:text-white">Content Filtering Level</span>
+                                        <span class="text-xs px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded">High</span>
+                                    </div>
+                                    <div class="security-level">
+                                        <div class="security-level-high"></div>
+                                        <div class="security-level-disabled"></div>
+                                        <div class="security-level-disabled"></div>
+                                    </div>
+                                    <div class="flex justify-between mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                        <span>Low</span>
+                                        <span>Medium</span>
+                                        <span>High</span>
+                                    </div>
+                                </div>
+                                
+                                <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    <input type="checkbox" checked class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                    <span class="ml-3 flex-1">
+                                        <span class="block font-medium text-gray-900 dark:text-white">Enable Content Moderation</span>
+                                        <span class="block text-sm text-gray-500 dark:text-gray-400">Filter inappropriate content</span>
+                                    </span>
+                                </label>
+                                
+                                <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    <input type="checkbox" checked class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                    <span class="ml-3 flex-1">
+                                        <span class="block font-medium text-gray-900 dark:text-white">Block Harmful Prompts</span>
+                                        <span class="block text-sm text-gray-500 dark:text-gray-400">Prevent harmful request patterns</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="pt-4">
+                            <button id="save-security-btn" class="w-full px-4 py-3 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                                Save Security Settings
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- API Key Management -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">API Key Management</h2>
+                        <button class="text-admin-red text-sm hover:underline">Manage</button>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">OpenAI API Key</h3>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">••••••••••••••••4b7f</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Expires: June 18, 2024</p>
+                                </div>
+                                <div class="flex items-center">
+                                    <span class="status-indicator status-active"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Google API Key</h3>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">••••••••••••••••7d3a</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Expires: July 5, 2024</p>
+                                </div>
+                                <div class="flex items-center">
+                                    <span class="status-indicator status-active"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Groq API Key</h3>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">••••••••••••••••9e2c</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Expires: August 12, 2024</p>
+                                </div>
+                                <div class="flex items-center">
+                                    <span class="status-indicator status-active"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button id="new-api-key-btn" class="w-full mt-2 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                            <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            Generate New API Key
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Security Logs & Events -->
+            <div class="lg:col-span-2">
+                <!-- Security Events -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 mb-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-0">Security Events</h2>
+                        <div class="flex flex-wrap gap-2">
+                            <select class="px-3 py-1 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm">
+                                <option>Last 24 hours</option>
+                                <option>Last 7 days</option>
+                                <option>Last 30 days</option>
+                            </select>
+                            <button class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm hover:bg-gray-200 dark:hover:bg-gray-600">
+                                <svg class="h-4 w-4 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+                                </svg>
+                                Export Logs
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="security-log p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                        <div class="space-y-4">
+                            <div class="flex">
+                                <div class="mr-3 mt-1">
+                                    <span class="status-indicator status-active"></span>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-900 dark:text-white">Security audit completed successfully</p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Today at 10:45 AM • System</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex">
+                                <div class="mr-3 mt-1">
+                                    <span class="status-indicator status-active"></span>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-900 dark:text-white">New API key generated for Groq</p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Today at 9:30 AM • Admin</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex">
+                                <div class="mr-3 mt-1">
+                                    <span class="status-indicator status-warning"></span>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-900 dark:text-white">Multiple failed login attempts detected</p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Yesterday at 3:22 PM • 192.168.1.105</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex">
+                                <div class="mr-3 mt-1">
+                                    <span class="status-indicator status-active"></span>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-900 dark:text-white">Content filtering rules updated</p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Yesterday at 11:45 AM • Admin</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex">
+                                <div class="mr-3 mt-1">
+                                    <span class="status-indicator status-active"></span>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-900 dark:text-white">Security settings saved successfully</p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Yesterday at 9:15 AM • Admin</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex">
+                                <div class="mr-3 mt-1">
+                                    <span class="status-indicator status-active"></span>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-900 dark:text-white">API key rotation completed</p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">June 17, 2024 at 2:30 PM • System</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Threat Intelligence -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-0">Threat Intelligence</h2>
+                        <div class="flex flex-wrap gap-2">
+                            <select class="px-3 py-1 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm">
+                                <option>Global Threat Feed</option>
+                                <option>AI-Specific Threats</option>
+                                <option>Platform Vulnerabilities</option>
+                            </select>
+                            <button class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm hover:bg-gray-200 dark:hover:bg-gray-600">
+                                <svg class="h-4 w-4 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Current Threat Landscape</h3>
+                            <div class="space-y-4">
+                                <div class="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                                    <div class="flex items-start">
+                                        <svg class="h-5 w-5 text-red-500 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                        </svg>
+                                        <div>
+                                            <h4 class="font-medium text-red-900 dark:text-red-100">New AI Prompt Injection Vulnerability</h4>
+                                            <p class="text-sm text-red-800 dark:text-red-200 mt-1">A new prompt injection technique has been identified that could potentially bypass content filters. Our system is not vulnerable due to our multi-layered filtering approach.</p>
+                                            <div class="mt-2 flex justify-end">
+                                                <button class="text-xs px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-100 rounded hover:bg-red-200 dark:hover:bg-red-900/50">View Details</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                                    <div class="flex items-start">
+                                        <svg class="h-5 w-5 text-yellow-500 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                        </svg>
+                                        <div>
+                                            <h4 class="font-medium text-yellow-900 dark:text-yellow-100">API Rate Limiting Bypass Attempt</h4>
+                                            <p class="text-sm text-yellow-800 dark:text-yellow-200 mt-1">Multiple attempts detected to bypass rate limits using IP rotation. Our system successfully blocked all attempts.</p>
+                                            <div class="mt-2 flex justify-end">
+                                                <button class="text-xs px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-100 rounded hover:bg-yellow-200 dark:hover:bg-yellow-900/50">View Details</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Security Recommendations</h3>
+                            <div class="space-y-4">
+                                <div class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                    <h4 class="font-medium text-blue-900 dark:text-blue-100 mb-2">Recommended Action</h4>
+                                    <p class="text-sm text-blue-800 dark:text-blue-200">Consider enabling IP whitelisting for production API keys to add an additional layer of security. This would restrict access to only approved servers.</p>
+                                    <div class="mt-3 flex justify-end">
+                                        <button class="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded hover:bg-blue-200 dark:hover:bg-blue-900/50">Enable Now</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                                    <h4 class="font-medium text-gray-900 dark:text-white mb-2">Best Practice</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300">Rotate API keys every 60-90 days as part of your security hygiene. Our system can automate this process for you.</p>
+                                    <div class="mt-3 flex justify-end">
+                                        <button class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500">Schedule Rotation</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                                    <h4 class="font-medium text-gray-900 dark:text-white mb-2">Information</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300">Our security rating improved from 91 to 94 this week due to your recent configuration updates. Keep up the good work!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Emergency Panel -->
+        <div class="bg-red-50 dark:bg-red-900/20 rounded-2xl p-6 shadow-lg border border-red-200 dark:border-red-800 mt-6">
+            <h2 class="text-xl font-bold text-red-900 dark:text-red-100 mb-4">Emergency Tools</h2>
+            <div class="space-y-3">
+                <p class="text-sm text-red-800 dark:text-red-200">Critical functions for immediate security management and recovery.</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <button class="px-4 py-2 bg-white dark:bg-gray-700 text-admin-red border border-red-200 dark:border-red-800 rounded-lg font-medium hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors">
+                        Revoke All API Keys
+                    </button>
+                    <button class="px-4 py-2 bg-white dark:bg-gray-700 text-admin-red border border-red-200 dark:border-red-800 rounded-lg font-medium hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors">
+                        Enable Maintenance Mode
+                    </button>
+                    <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                        ONE BUTTON: Lock Down System
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Theme handling
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Initialize sidebar active state
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set Security as active in sidebar
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.href.includes('security')) {
+                    item.classList.add('active');
+                    item.classList.remove('text-gray-600', 'dark:text-gray-400');
+                    item.classList.add('text-gray-700', 'dark:text-gray-200', 'font-medium', 'bg-gray-100', 'dark:bg-gray-700');
+                }
+            });
+            
+            // Security audit button
+            const auditBtn = document.getElementById('audit-btn');
+            if (auditBtn) {
+                auditBtn.addEventListener('click', function() {
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2 inline text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Auditing...';
+                    
+                    // Simulate API call
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                        alert('Security audit completed successfully! No vulnerabilities detected.');
+                    }, 2500);
+                });
+            }
+            
+            // Save security settings button
+            const saveSecurityBtn = document.getElementById('save-security-btn');
+            if (saveSecurityBtn) {
+                saveSecurityBtn.addEventListener('click', function() {
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2 inline text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Saving...';
+                    
+                    // Simulate API call
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                        alert('Security settings saved successfully! New configuration will take effect immediately.');
+                    }, 1500);
+                });
+            }
+            
+            // New API key button
+            const newApiKeyBtn = document.getElementById('new-api-key-btn');
+            if (newApiKeyBtn) {
+                newApiKeyBtn.addEventListener('click', function() {
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2 inline text-gray-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Generating...';
+                    
+                    // Simulate API call
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                        alert('New API key generated successfully! Please copy the key now as it will only be shown once.');
+                    }, 1500);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

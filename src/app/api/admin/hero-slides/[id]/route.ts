@@ -3,6 +3,50 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+// Default slides data
+const defaultSlides = [
+  {
+    id: 'default-1',
+    titleLine1: 'Elevate Your Story',
+    titleLine2: 'With Purpose & Excellence',
+    tagline: 'Creative Vision, Technical Excellence',
+    description: 'Transform your ideas into compelling visual stories that resonate with audiences and reflect your values.',
+    imageUrl: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80',
+    gradient: 'from-blue-500 to-purple-600',
+    buttonGradient: 'from-blue-500 to-purple-600',
+    buttonBorder: 'border-blue-500',
+    buttonText: 'text-white',
+    buttonHover: 'hover:bg-blue-600',
+    isActive: true,
+    sortOrder: 1,
+    altText: 'Video Production',
+    projectTitle: 'Latest Project',
+    projectDesc: 'Brand Storytelling for Tech Startup',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'default-2',
+    titleLine1: 'Where Faith Meets',
+    titleLine2: 'Creative Excellence',
+    tagline: 'Faith-based filmmaking',
+    description: 'Creating impactful content that inspires and connects communities through authentic storytelling.',
+    imageUrl: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80',
+    gradient: 'from-purple-500 to-pink-600',
+    buttonGradient: 'from-purple-500 to-pink-600',
+    buttonBorder: 'border-purple-500',
+    buttonText: 'text-white',
+    buttonHover: 'hover:bg-purple-600',
+    isActive: true,
+    sortOrder: 2,
+    altText: 'Faith-based Content Creation',
+    projectTitle: 'Community Project',
+    projectDesc: 'Documentary series for local church',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+];
+
 // Note: All database operations now use Prisma instead of mock data
 
 /**
@@ -58,6 +102,37 @@ export async function PUT(
     const body = await request.json();
     const { id } = await params;
 
+    // Check if this is a default slide that needs to be saved to database
+    if (id.startsWith('default-')) {
+      // Find the default slide data
+      const defaultSlide = defaultSlides.find(slide => slide.id === id);
+      if (!defaultSlide) {
+        return NextResponse.json(
+          {
+            status: 'error',
+            message: 'Default slide not found',
+          },
+          { status: 404 }
+        );
+      }
+
+      // Create a new custom slide with the updated data
+      const newSlide = await prisma.heroSlide.create({
+        data: {
+          ...defaultSlide,
+          ...body,
+          id: undefined, // Let Prisma generate new ID
+        },
+      });
+
+      return NextResponse.json({
+        status: 'success',
+        data: newSlide,
+        message: 'Default slide saved as custom slide successfully',
+      });
+    }
+
+    // Update existing custom slide
     const slide = await prisma.heroSlide.update({
       where: { id },
       data: body,
@@ -101,6 +176,17 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
+
+    // Check if this is a default slide
+    if (id.startsWith('default-')) {
+      return NextResponse.json(
+        {
+          status: 'error',
+          message: 'Default slides cannot be deleted. You can disable them or create custom slides instead.',
+        },
+        { status: 400 }
+      );
+    }
 
     // Soft delete by setting isActive to false
     const slide = await prisma.heroSlide.update({

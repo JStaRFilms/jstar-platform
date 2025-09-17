@@ -3,11 +3,54 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// Note: All database operations now use Prisma instead of mock data
+// Default slides data
+const defaultSlides = [
+  {
+    id: 'default-1',
+    titleLine1: 'Elevate Your Story',
+    titleLine2: 'With Purpose & Excellence',
+    tagline: 'Creative Vision, Technical Excellence',
+    description: 'Transform your ideas into compelling visual stories that resonate with audiences and reflect your values.',
+    imageUrl: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80',
+    gradient: 'from-blue-500 to-purple-600',
+    buttonGradient: 'from-blue-500 to-purple-600',
+    buttonBorder: 'border-blue-500',
+    buttonText: 'text-white',
+    buttonHover: 'hover:bg-blue-600',
+    isActive: true,
+    sortOrder: 1,
+    altText: 'Video Production',
+    projectTitle: 'Latest Project',
+    projectDesc: 'Brand Storytelling for Tech Startup',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'default-2',
+    titleLine1: 'Where Faith Meets',
+    titleLine2: 'Creative Excellence',
+    tagline: 'Faith-based filmmaking',
+    description: 'Creating impactful content that inspires and connects communities through authentic storytelling.',
+    imageUrl: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80',
+    gradient: 'from-purple-500 to-pink-600',
+    buttonGradient: 'from-purple-500 to-pink-600',
+    buttonBorder: 'border-purple-500',
+    buttonText: 'text-white',
+    buttonHover: 'hover:bg-purple-600',
+    isActive: true,
+    sortOrder: 2,
+    altText: 'Faith-based Content Creation',
+    projectTitle: 'Community Project',
+    projectDesc: 'Documentary series for local church',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+];
 
 /**
  * GET /api/admin/hero-slides
  * Get all active hero slides ordered by sort order
+ * Returns default slides if no custom slides exist
  */
 export async function GET() {
   try {
@@ -35,19 +78,27 @@ export async function GET() {
       },
     });
 
+    // If no custom slides exist, return default slides
+    if (slides.length === 0) {
+      return NextResponse.json({
+        status: 'success',
+        data: defaultSlides,
+        message: 'Showing default slides. Create custom slides to replace them.',
+      });
+    }
+
     return NextResponse.json({
       status: 'success',
       data: slides,
     });
   } catch (error) {
     console.error('Error fetching hero slides:', error);
-    return NextResponse.json(
-      {
-        status: 'error',
-        message: 'Failed to fetch hero slides',
-      },
-      { status: 500 }
-    );
+    // Return default slides on error
+    return NextResponse.json({
+      status: 'success',
+      data: defaultSlides,
+      message: 'Showing default slides due to database error.',
+    });
   }
 }
 
@@ -58,6 +109,29 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+
+    // Check if this is a reset to defaults request
+    if (body.action === 'reset-to-defaults') {
+      // Delete all existing slides
+      await prisma.heroSlide.deleteMany({});
+
+      // Create default slides in database
+      const createdSlides = await prisma.heroSlide.createMany({
+        data: defaultSlides.map((slide, index) => ({
+          ...slide,
+          sortOrder: index + 1,
+        })),
+      });
+
+      return NextResponse.json(
+        {
+          status: 'success',
+          data: defaultSlides,
+          message: 'Successfully reset to default slides',
+        },
+        { status: 200 }
+      );
+    }
 
     // Validate required fields
     const requiredFields = [

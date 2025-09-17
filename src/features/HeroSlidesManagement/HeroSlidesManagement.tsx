@@ -65,7 +65,7 @@ export const HeroSlidesManagement: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Admin Sidebar - Hidden on mobile, shown on desktop */}
-      <AdminSidebar />
+      <AdminSidebar activeSection="cms" />
 
       {/* Main Content - Responsive layout */}
       <div className="ml-0 md:ml-64 p-4 sm:p-6">

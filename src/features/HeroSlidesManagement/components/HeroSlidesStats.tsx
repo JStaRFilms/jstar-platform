@@ -27,6 +27,11 @@ export const HeroSlidesStats: React.FC<HeroSlidesStatsProps> = ({
   const activeSlides = slides.filter(slide => slide.isActive).length;
   const inactiveSlides = totalSlides - activeSlides;
 
+  // Check if we're showing default slides
+  const isShowingDefaults = slides.length > 0 && slides.every(slide =>
+    slide.id.startsWith('default-')
+  );
+
   // Status indicators
   const getStatusIndicator = (isActive: boolean) => (
     <span

@@ -267,6 +267,49 @@ export const HeroSlidesGrid: React.FC<HeroSlidesGridProps> = ({
               </svg>
               Duplicate All
             </button>
+
+            {/* Reset to Defaults Button */}
+            <button
+              onClick={async () => {
+                if (window.confirm('Are you sure you want to reset to default slides? This will delete all custom slides.')) {
+                  try {
+                    const response = await fetch('/api/admin/hero-slides', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ action: 'reset-to-defaults' }),
+                    });
+
+                    if (response.ok) {
+                      // Refresh the page to show updated slides
+                      window.location.reload();
+                    } else {
+                      alert('Failed to reset to defaults');
+                    }
+                  } catch (error) {
+                    console.error('Error resetting to defaults:', error);
+                    alert('Failed to reset to defaults');
+                  }
+                }
+              }}
+              className="w-full px-4 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium transition-all duration-300 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              aria-label="Reset to default slides"
+            >
+              <svg
+                className="h-4 w-4 mr-2 inline"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                />
+              </svg>
+              Reset to Defaults
+            </button>
           </div>
         </div>
       </div>

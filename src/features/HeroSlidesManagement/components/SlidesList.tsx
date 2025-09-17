@@ -50,9 +50,22 @@ const SlidesList: React.FC<SlidesListProps> = ({
     <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-200 dark:border-gray-700">
       {/* Header with Filter */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4 sm:mb-6">
-        <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
-          Hero Slides
-        </h2>
+        <div>
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
+            Hero Slides
+          </h2>
+          {/* Show indicator if showing default slides */}
+          {filteredSlides.length > 0 && filteredSlides.every(slide => slide.id.startsWith('default-')) && (
+            <div className="flex items-center mt-1">
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300">
+                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Default Slides
+              </span>
+            </div>
+          )}
+        </div>
 
         {/* Filter Dropdown */}
         <div className="flex items-center gap-2">
