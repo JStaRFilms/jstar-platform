@@ -17,9 +17,34 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   activeSection = 'dashboard'
 }) => {
   return (
-    <div className="fixed top-0 left-0 h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40">
+    <>
+      {/* Theme Toggle */}
+      <div className="fixed top-4 right-4 z-50">
+        <button
+          onClick={() => document.documentElement.classList.toggle('dark')}
+          className="p-2 rounded-full bg-jstar-blue text-white hover:bg-faith-purple transition-all duration-300"
+          aria-label="Toggle dark/light theme"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+            />
+          </svg>
+        </button>
+      </div>
+
+      <div className="fixed top-0 left-0 h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40">
       <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-        <Link href="/admin" className="text-xl font-bold bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent flex items-center">
+        <Link href="/admin" className="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
           <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
           </svg>
@@ -142,7 +167,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 
         <div className="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-red-600 to-red-500 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center">
               <span className="text-white font-bold">JO</span>
             </div>
             <div className="ml-3">
@@ -156,5 +181,6 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
         </div>
       </div>
     </div>
+    </>
   );
 };
