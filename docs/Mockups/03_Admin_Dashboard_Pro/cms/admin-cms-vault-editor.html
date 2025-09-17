@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - Vault Editor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'admin-red': '#DC2626'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-tier1: linear-gradient(135deg, var(--brand-blue) 0%, #3B82F6 100%);
+            --gradient-tier2: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-admin: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        }
+        .btn-enhanced {
+            transition: all 300ms ease;
+        }
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+        }
+        .card-interactive {
+            transition: all 300ms ease;
+            cursor: pointer;
+        }
+        .card-interactive:hover {
+            transform: translateY(-4px);
+        }
+        .module-card {
+            transition: all 300ms ease;
+            border-left: 3px solid transparent;
+        }
+        .module-card:hover {
+            border-left-color: #DC2626;
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-active {
+            background-color: #10B981;
+        }
+        .status-warning {
+            background-color: #F59E0B;
+        }
+        .status-critical {
+            background-color: #EF4444;
+        }
+        .activity-item {
+            transition: all 200ms ease;
+        }
+        .activity-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .sidebar-item {
+            transition: all 200ms ease;
+        }
+        .sidebar-item:hover {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: #DC2626;
+        }
+        .sidebar-item.active {
+            background-color: rgba(220, 38, 38, 0.15);
+            color: #DC2626;
+            font-weight: 600;
+            border-left: 3px solid #DC2626;
+        }
+        .quick-action {
+            transition: all 300ms ease;
+        }
+        .quick-action:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.2);
+        }
+        .system-metric {
+            transition: all 200ms ease;
+        }
+        .system-metric:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .vault-item {
+            transition: all 200ms ease;
+        }
+        .vault-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .vault-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .vault-file {
+            background: #E5E7EB;
+            color: #6B7280;
+        }
+        .vault-folder {
+            background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
+            color: white;
+        }
+        .vault-link {
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+            color: white;
+        }
+        .vault-internal {
+            background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+            color: white;
+        }
+        .vault-preview {
+            background-color: #202020;
+            color: #dcddde;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            min-height: 400px;
+            overflow-x: auto;
+        }
+        .vault-preview h1 {
+            color: #dcddde;
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .vault-preview h2 {
+            color: #dcddde;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+        .vault-preview p {
+            color: #dcddde;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        .vault-preview a {
+            color: #8b5cf6;
+            text-decoration: underline;
+        }
+        .vault-preview code {
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            padding: 0.2em 0.4em;
+            border-radius: 0.25rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .vault-preview pre {
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1rem;
+            border-radius: 0.375rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+        .vault-preview blockquote {
+            border-left: 3px solid #8b5cf6;
+            padding-left: 1rem;
+            margin-left: 0;
+            color: #b8b8b8;
+        }
+        .vault-preview ul, .vault-preview ol {
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .vault-preview li {
+            margin-bottom: 0.5rem;
+        }
+        .vault-preview img {
+            max-width: 100%;
+            border-radius: 0.375rem;
+            margin: 1rem 0;
+        }
+        .vault-preview hr {
+            border: 0;
+            border-top: 1px solid #444;
+            margin: 1.5rem 0;
+        }
+        .vault-preview .internal-link {
+            color: #7c3aed;
+            text-decoration: underline;
+        }
+        .vault-editor {
+            background-color: #1E293B;
+            color: #E2E8F0;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            min-height: 400px;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .vault-tree-item {
+            padding-left: 1.5rem;
+            position: relative;
+            margin-left: 0.5rem;
+        }
+        .vault-tree-item:before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 1.1rem;
+            bottom: 0;
+            border-left: 1px solid #D1D5DB;
+        }
+        .vault-tree-item:last-child:before {
+            bottom: 1.1rem;
+        }
+        .vault-tree-item:only-child:before {
+            bottom: 0;
+        }
+        .vault-tree-item:after {
+            content: "";
+            position: absolute;
+            left: -0.5rem;
+            top: 1rem;
+            width: 0.8rem;
+            height: 1px;
+            border-top: 1px solid #D1D5DB;
+        }
+        .vault-tree-item.file:after {
+            width: 0.5rem;
+        }
+        .vault-tree-item.folder:after {
+            width: 0.5rem;
+        }
+        .vault-tree-item.active {
+            background-color: rgba(220, 38, 38, 0.1);
+        }
+        .vault-tree-item.active:before, .vault-tree-item.active:after {
+            border-color: #DC2626;
+        }
+        .vault-tree-item.active .vault-item-name {
+            color: #DC2626;
+            font-weight: 600;
+        }
+        .vault-item-name {
+            transition: all 200ms ease;
+        }
+        .vault-item-name:hover {
+            color: #DC2626;
+            cursor: pointer;
+        }
+        .editor-tabs {
+            border-bottom: 1px solid #E5E7EB;
+            display: flex;
+        }
+        .editor-tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            color: #6B7280;
+            border-bottom: 2px solid transparent;
+        }
+        .editor-tab.active {
+            color: #DC2626;
+            border-bottom: 2px solid #DC2626;
+        }
+        .editor-controls {
+            border-top: 1px solid #E5E7EB;
+            border-bottom: 1px solid #E5E7EB;
+            padding: 0.5rem 0;
+        }
+        .editor-control {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.375rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6B7280;
+            cursor: pointer;
+        }
+        .editor-control:hover {
+            background-color: #F3F4F6;
+            color: #1F2937;
+        }
+        .editor-control.active {
+            background-color: #F3F4F6;
+            color: #DC2626;
+            font-weight: bold;
+        }
+        .editor-control svg {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+        .vault-stats {
+            background-color: #F9FAFB;
+            border-radius: 0.375rem;
+            padding: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .stat-value {
+            font-weight: 600;
+            color: #1F2937;
+        }
+        .stat-label {
+            font-size: 0.75rem;
+            color: #6B7280;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <!-- Theme Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="document.documentElement.classList.toggle('dark')" 
+                class="p-2 rounded-full bg-jstar-blue text-white hover:bg-faith-purple transition-all duration-300"
+                aria-label="Toggle dark/light theme">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Admin Navigation -->
+    <div class="fixed top-0 left-0 h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <a href="/admin" class="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                J StaR Admin
+            </a>
+        </div>
+        
+        <div class="p-4">
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Platform Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="/admin/cms" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        CMS
+                    </a>
+                    <a href="/admin/johngpt" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                        JohnGPT
+                    </a>
+                    <a href="/admin/cge" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        CGE Tools
+                    </a>
+                    <a href="/admin/users" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        User Management
+                    </a>
+                    <a href="/admin/analytics" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Analytics
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    CMS Management
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin/cms" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        Pages
+                    </a>
+                    <a href="/admin/cms/hero-slides" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4h16M4 8h16M4 12h16M4 16h16M4 20h16"></path>
+                        </svg>
+                        Hero Slides
+                    </a>
+                    <a href="/admin/cms/page-builder" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.927-1.756 3.353 0a1.724 1.724 0 002.573 1.066c1.704.92 3.675.331 4.967-1.212a.5.5 0 00-.454-.772H13.88c.068.22.111.45.21.686l1.9 3.8a.5.5 0 00.859.027l7-14A.5.5 0 0017.527 3H13.754a.5.5 0 00-.424.736l3.827 5.74a.5.5 0 00.027.86l-12 7a.5.5 0 00.729.646l5-2.906a.5.5 0 00.163-.538l-2-3.5a.5.5 0 00-.658-.21l-2 1.148V4.317zM14.5 12a2.5 2.5 0 10-5 0 2.5 2.5 0 005 0z"></path>
+                        </svg>
+                        Page Builder
+                    </a>
+                    <a href="/admin/cms/blog-posts" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-5a2 2 0 00-2 2v10a2 2 0 002 2h5z"></path>
+                        </svg>
+                        Blog Posts
+                    </a>
+                    <a href="/admin/cms/vault-editor" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 012 2v2a2 2 0 01-2 2H5a2 2 0 01-2-2v-2z"></path>
+                        </svg>
+                        Vault Editor
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center">
+                        <span class="text-white font-bold">JO</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Admin Access</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 p-6">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center mb-2">
+                        <a href="/admin/cms" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">CMS</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <span class="text-gray-900 dark:text-white">Vault Editor</span>
+                    </div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
+                        Obsidian Vault Editor
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">
+                        Edit and manage your Obsidian-compatible knowledge base
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced" id="save-vault-btn">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+                        </svg>
+                        Save Vault
+                    </button>
+                    <div class="relative">
+                        <input type="text" placeholder="Search vault content..." 
+                               class="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                        <svg class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+        <!-- System Status -->
+        <section class="mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Vault Editor Status</h2>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">
+                            Current vault editor configuration and sync status
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Synced to Cloud</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">API Connected</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">All Files Synced</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Vault Editor Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - Vault Structure -->
+            <div class="space-y-6">
+                <!-- Vault Structure -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Vault Structure</h2>
+                        <div class="flex space-x-2">
+                            <button class="p-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                        <div class="bg-gray-50 dark:bg-gray-700/50 p-3 border-b border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-lg bg-gradient-to-r from-jstar-blue to-faith-purple flex items-center justify-center mr-3">
+                                    <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 012 2v2a2 2 0 01-2 2H5a2 2 0 01-2-2v-2z"></path>
+                                    </svg>
+                                </div>
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">J StaR Vault</span>
+                            </div>
+                        </div>
+                        <div class="p-3 space-y-1 overflow-y-auto" style="max-height: 500px;">
+                            <!-- Vault structure tree -->
+                            <div class="vault-tree-item folder active">
+                                <div class="vault-item p-2 rounded-lg">
+                                    <div class="flex items-center">
+                                        <div class="w-5 h-5 mr-2">
+                                            <svg class="h-5 w-5 text-faith-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+                                            </svg>
+                                        </div>
+                                        <span class="vault-item-name font-medium">Content Strategy</span>
+                                    </div>
+                                </div>
+                                <div class="vault-tree-item file">
+                                    <div class="vault-item p-2 rounded-lg">
+                                        <div class="flex items-center">
+                                            <div class="w-5 h-5 mr-2">
+                                                <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h.01M12 12h.01M15 12h.01M6 12h.01M18 12h.01"></path>
+                                                </svg>
+                                            </div>
+                                            <span class="vault-item-name">Viral Formulas.md</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="vault-tree-item file">
+                                    <div class="vault-item p-2 rounded-lg">
+                                        <div class="flex items-center">
+                                            <div class="w-5 h-5 mr-2">
+                                                <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h.01M12 12h.01M15 12h.01M6 12h.01M18 12h.01"></path>
+                                                </svg>
+                                            </div>
+                                            <span class="vault-item-name">YouTube Strategy.md</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="vault-tree-item folder">
+                                    <div class="vault-item p-2 rounded-lg">
+                                        <div class="flex items-center">
+                                            <div class="w-5 h-5 mr-2">
+                                                <svg class="h-5 w-5 text-faith-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+                                                </svg>
+                                            </div>
+                                            <span class="vault-item-name">Templates</span>
+                                        </div>
+                                    </div>
+                                    <div class="vault-tree-item file">
+                                        <div class="vault-item p-2 rounded-lg">
+                                            <div class="flex items-center">
+                                                <div class="w-5 h-5 mr-2">
+                                                    <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h.01M12 12h.01M15 12h.01M6 12h.01M18 12h.01"></path>
+                                                    </svg>
+                                                </div>
+                                                <span class="vault-item-name">Content Calendar.md</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="vault-tree-item folder">
+                                <div class="vault-item p-2 rounded-lg">
+                                    <div class="flex items-center">
+                                        <div class="w-5 h-5 mr-2">
+                                            <svg class="h-5 w-5 text-faith-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+                                            </svg>
+                                        </div>
+                                        <span class="vault-item-name">Faith Integration</span>
+                                    </div>
+                                </div>
+                                <div class="vault-tree-item file">
+                                    <div class="vault-item p-2 rounded-lg">
+                                        <div class="flex items-center">
+                                            <div class="w-5 h-5 mr-2">
+                                                <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h.01M12 12h.01M15 12h.01M6 12h.01M18 12h.01"></path>
+                                                </svg>
+                                            </div>
+                                            <span class="vault-item-name">Biblical Principles.md</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="vault-tree-item folder">
+                                <div class="vault-item p-2 rounded-lg">
+                                    <div class="flex items-center">
+                                        <div class="w-5 h-5 mr-2">
+                                            <svg class="h-5 w-5 text-faith-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+                                            </svg>
+                                        </div>
+                                        <span class="vault-item-name">Marketing</span>
+                                    </div>
+                                </div>
+                                <div class="vault-tree-item file">
+                                    <div class="vault-item p-2 rounded-lg">
+                                        <div class="flex items-center">
+                                            <div class="w-5 h-5 mr-2">
+                                                <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h.01M12 12h.01M15 12h.01M6 12h.01M18 12h.01"></path>
+                                                </svg>
+                                            </div>
+                                            <span class="vault-item-name">Viral Analytics.md</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="vault-tree-item file">
+                                    <div class="vault-item p-2 rounded-lg">
+                                        <div class="flex items-center">
+                                            <div class="w-5 h-5 mr-2">
+                                                <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h.01M12 12h.01M15 12h.01M6 12h.01M18 12h.01"></path>
+                                                </svg>
+                                            </div>
+                                            <span class="vault-item-name">Audience Targeting.md</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="vault-tree-item folder">
+                                <div class="vault-item p-2 rounded-lg">
+                                    <div class="flex items-center">
+                                        <div class="w-5 h-5 mr-2">
+                                            <svg class="h-5 w-5 text-faith-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+                                            </svg>
+                                        </div>
+                                        <span class="vault-item-name">Projects</span>
+                                    </div>
+                                </div>
+                                <div class="vault-tree-item file">
+                                    <div class="vault-item p-2 rounded-lg">
+                                        <div class="flex items-center">
+                                            <div class="w-5 h-5 mr-2">
+                                                <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h.01M12 12h.01M15 12h.01M6 12h.01M18 12h.01"></path>
+                                                </svg>
+                                            </div>
+                                            <span class="vault-item-name">J StaR Platform.md</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="vault-tree-item file">
+                                    <div class="vault-item p-2 rounded-lg">
+                                        <div class="flex items-center">
+                                            <div class="w-5 h-5 mr-2">
+                                                <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h.01M12 12h.01M15 12h.01M6 12h.01M18 12h.01"></path>
+                                                </svg>
+                                            </div>
+                                            <span class="vault-item-name">Faith Integration Guide.md</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Vault Connections -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Vault Connections</h2>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Obsidian Sync</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Connected to Obsidian vault</p>
+                                </div>
+                                <span class="status-indicator status-active"></span>
+                            </div>
+                            <div class="mt-2 flex justify-between">
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Last sync:</div>
+                                <div class="font-medium text-gray-900 dark:text-white">Today, 11:45 AM</div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Cloud Backup</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Automatic backups enabled</p>
+                                </div>
+                                <span class="status-indicator status-active"></span>
+                            </div>
+                            <div class="mt-2 flex justify-between">
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Next backup:</div>
+                                <div class="font-medium text-gray-900 dark:text-white">In 12 hours</div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Web Integration</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Website content sync</p>
+                                </div>
+                                <span class="status-indicator status-active"></span>
+                            </div>
+                            <div class="mt-2 flex justify-between">
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Sync status:</div>
+                                <div class="font-medium text-gray-900 dark:text-white">Up to date</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Vault Analytics -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Vault Analytics</h2>
+                    <div class="space-y-4">
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm text-gray-600 dark:text-gray-400">Total Files</span>
+                                <span class="text-sm font-medium">42</span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                <div class="bg-admin-red h-2 rounded-full" style="width: 75%"></div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm text-gray-600 dark:text-gray-400">Total Links</span>
+                                <span class="text-sm font-medium">128</span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                <div class="bg-admin-red h-2 rounded-full" style="width: 65%"></div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm text-gray-600 dark:text-gray-400">Daily Edits</span>
+                                <span class="text-sm font-medium">8.2</span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                <div class="bg-admin-red h-2 rounded-full" style="width: 85%"></div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm text-gray-600 dark:text-gray-400">Most Linked</span>
+                                <span class="text-sm font-medium">Viral Formulas</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Center Column - Vault Editor -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Vault Editor -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div class="editor-tabs">
+                        <div class="editor-tab active" data-mode="markdown">Markdown</div>
+                        <div class="editor-tab" data-mode="wysiwyg">Visual Editor</div>
+                        <div class="editor-tab" data-mode="preview">Preview</div>
+                    </div>
+                    
+                    <div class="editor-controls">
+                        <div class="flex space-x-1">
+                            <div class="editor-control" title="Bold">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V9a2 2 0 00-2-2h-4M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                            </div>
+                            <div class="editor-control" title="Italic">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l5-7-5-7" />
+                                </svg>
+                            </div>
+                            <div class="editor-control" title="Heading 1">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v6M3 10h10a8 8 0 018 8v6m0 0v-3m0 3h3m-3 0h-3" />
+                                </svg>
+                            </div>
+                            <div class="editor-control" title="Heading 2">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v6M3 10h10a8 8 0 018 8v6m0 0v-3m0 3h3m-3 0h-3" />
+                                </svg>
+                            </div>
+                            <div class="editor-control" title="Bullet List">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V9a2 2 0 00-2-2h-4M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                            </div>
+                            <div class="editor-control" title="Numbered List">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V9a2 2 0 00-2-2h-4M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                            </div>
+                            <div class="editor-control" title="Blockquote">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V9a2 2 0 00-2-2h-4M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                            </div>
+                            <div class="editor-control" title="Link">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14m-6 6h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <div class="editor-control" title="Internal Link">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                </svg>
+                            </div>
+                            <div class="editor-control" title="JohnGPT Assistant">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Markdown Editor -->
+                    <div class="vault-editor p-4">
+# Viral Formulas
+
+## Core Principles
+
+- **Hook → Build → Payoff** structure for maximum engagement
+- **Emotional resonance** through authentic storytelling
+- **Clear value proposition** within first 5 seconds
+
+## Proven Structures
+
+### The Problem/Solution Framework
+1. Identify a common pain point
+2. Present your unique solution
+3. Show the transformation
+
+> "The best viral content solves a problem people didn't know they had" - John Oluleke-Oke
+
+### Faith Integration Model
+- Start with a **biblical principle**
+- Connect to a **real-world application**
+- Show the **practical implementation**
+
+[[Faith Integration Guide]] provides more detailed examples of how to weave spiritual principles into content without being preachy.
+
+## Case Studies
+
+### Cooking Channel Growth
+- Implemented **Problem/Solution** framework
+- Focused on **time-saving** for busy parents
+- Grew from 5k to 50k subscribers in 6 months
+
+### Tech Review Channel
+- Used **Faith Integration Model** with business principles
+- Created content around **stewardship of resources**
+- Achieved 2.3x higher engagement than competitors
+
+## Key Metrics
+| Metric | Before | After |
+|--------|--------|-------|
+| Avg. View Duration | 1:23 | 2:45 |
+| CTR | 4.2% | 7.8% |
+| Subscribers/Mo | 1,200 | 3,800 |
+
+For more templates and examples, see [[Content Strategy Templates]].
+                    </div>
+                </div>
+                
+                <!-- Vault Stats -->
+                <div class="vault-stats">
+                    <div class="stat-item">
+                        <span class="stat-value">1,247</span>
+                        <span class="stat-label">Words</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value">8 min</span>
+                        <span class="stat-label">Read Time</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value">42</span>
+                        <span class="stat-label">Reading Score</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value">B+</span>
+                        <span class="stat-label">Grade Level</span>
+                    </div>
+                </div>
+                
+                <!-- Vault Links -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Internal Links</h2>
+                    <div class="space-y-3">
+                        <div class="vault-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Faith Integration Guide</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Referenced 12 times in this file</p>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="vault-badge vault-internal">Internal</span>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex justify-between">
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Last updated</div>
+                                <div class="font-medium text-gray-900 dark:text-white">June 15, 2024</div>
+                            </div>
+                            <div class="mt-3 flex justify-end">
+                                <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                    Open File
+                                </button>
+                            </div>
+                        </div>
+                        <div class="vault-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Content Strategy Templates</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Referenced 5 times in this file</p>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="vault-badge vault-internal">Internal</span>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex justify-between">
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Last updated</div>
+                                <div class="font-medium text-gray-900 dark:text-white">June 10, 2024</div>
+                            </div>
+                            <div class="mt-3 flex justify-end">
+                                <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                    Open File
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- JohnGPT Assistant -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">JohnGPT Assistant</h2>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Content Optimization</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Improve your vault content for better engagement</p>
+                                </div>
+                                <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                    Optimize
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Link Analysis</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Check internal link structure and recommendations</p>
+                                </div>
+                                <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                    Analyze
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Faith Integration</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Add spiritual alignment to your content</p>
+                                </div>
+                                <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                    Enhance
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Viral Formula Check</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Verify against proven viral structures</p>
+                                </div>
+                                <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                    Check
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-apply theme
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Initialize sidebar active state
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set CMS as active in sidebar
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.href.includes('cms')) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Editor tab switching
+            const editorTabs = document.querySelectorAll('.editor-tab');
+            editorTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    editorTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // In a real implementation, this would switch the editor mode
+                    const mode = this.getAttribute('data-mode');
+                    console.log('Switching to', mode, 'mode');
+                });
+            });
+            
+            // Save vault button
+            document.getElementById('save-vault-btn').addEventListener('click', function() {
+                const originalText = this.innerHTML;
+                this.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2 inline text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Saving...';
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    alert('Vault saved successfully!');
+                }, 1500);
+            });
+            
+            // Vault tree item click
+            const vaultItems = document.querySelectorAll('.vault-item');
+            vaultItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // Remove active class from all items
+                    document.querySelectorAll('.vault-item').forEach(i => {
+                        i.closest('.vault-tree-item').classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked item
+                    this.closest('.vault-tree-item').classList.add('active');
+                    
+                    // Update editor content based on clicked file
+                    const fileName = this.querySelector('.vault-item-name').textContent;
+                    document.querySelector('.editor-tab.active').click();
+                    
+                    // In a real implementation, this would load the file content
+                    console.log('Loading file:', fileName);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -38,6 +38,18 @@ export const HeroSlidesManagement: React.FC = () => {
    * Handle slide deletion
    */
   const handleDeleteSlide = async (slideId: string) => {
+    // Find the slide being deleted
+    const slideToDelete = slides.find(slide => slide.id === slideId);
+
+    // Prevent deletion if it would leave zero active slides
+    if (slideToDelete?.isActive) {
+      const activeSlidesCount = slides.filter(slide => slide.isActive && slide.id !== slideId).length;
+      if (activeSlidesCount === 0) {
+        alert('Cannot delete this slide. At least one slide must remain active.');
+        return;
+      }
+    }
+
     if (!window.confirm('Are you sure you want to delete this slide?')) {
       return;
     }
@@ -56,6 +68,15 @@ export const HeroSlidesManagement: React.FC = () => {
    */
   const handleToggleSlide = async (slideId: string, isActive: boolean) => {
     try {
+      // Prevent disabling if it would leave zero active slides
+      if (!isActive) {
+        const activeSlidesCount = slides.filter(slide => slide.isActive).length;
+        if (activeSlidesCount <= 1) {
+          alert('Cannot disable this slide. At least one slide must remain active.');
+          return;
+        }
+      }
+
       await updateSlide(slideId, { isActive });
       // TODO: Show success notification
     } catch (err) {

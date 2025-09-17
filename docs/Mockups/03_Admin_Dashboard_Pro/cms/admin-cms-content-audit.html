@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - Content Audit</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'admin-red': '#DC2626'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-tier1: linear-gradient(135deg, var(--brand-blue) 0%, #3B82F6 100%);
+            --gradient-tier2: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-admin: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        }
+        .btn-enhanced {
+            transition: all 300ms ease;
+        }
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+        }
+        .card-interactive {
+            transition: all 300ms ease;
+            cursor: pointer;
+        }
+        .card-interactive:hover {
+            transform: translateY(-4px);
+        }
+        .module-card {
+            transition: all 300ms ease;
+            border-left: 3px solid transparent;
+        }
+        .module-card:hover {
+            border-left-color: #DC2626;
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-active {
+            background-color: #10B981;
+        }
+        .status-warning {
+            background-color: #F59E0B;
+        }
+        .status-critical {
+            background-color: #EF4444;
+        }
+        .activity-item {
+            transition: all 200ms ease;
+        }
+        .activity-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .sidebar-item {
+            transition: all 200ms ease;
+        }
+        .sidebar-item:hover {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: #DC2626;
+        }
+        .sidebar-item.active {
+            background-color: rgba(220, 38, 38, 0.15);
+            color: #DC2626;
+            font-weight: 600;
+            border-left: 3px solid #DC2626;
+        }
+        .quick-action {
+            transition: all 300ms ease;
+        }
+        .quick-action:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.2);
+        }
+        .system-metric {
+            transition: all 200ms ease;
+        }
+        .system-metric:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .content-item {
+            transition: all 200ms ease;
+        }
+        .content-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .content-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .content-active {
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+            color: white;
+        }
+        .content-draft {
+            background: #E5E7EB;
+            color: #6B7280;
+        }
+        .content-archived {
+            background: #6B7280;
+            color: white;
+        }
+        .content-tier1 {
+            background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
+            color: white;
+        }
+        .content-tier2 {
+            background: linear-gradient(135deg, #2563EB 0%, #8B5CF6 100%);
+            color: white;
+        }
+        .content-tier3 {
+            background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+            color: white;
+        }
+        .content-admin {
+            background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+            color: white;
+        }
+        .category-badge {
+            padding: 0.15rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            background-color: #F3F4F6;
+            color: #4B5563;
+            margin-right: 0.25rem;
+        }
+        .health-bar {
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .health-level {
+            height: 100%;
+            border-radius: 4px;
+        }
+        .health-high {
+            background-color: #10B981;
+        }
+        .health-medium {
+            background-color: #F59E0B;
+        }
+        .health-low {
+            background-color: #EF4444;
+        }
+        .content-health {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 5px solid #F3F4F6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.25rem;
+        }
+        .content-health.good {
+            color: #10B981;
+            border-color: #D1FAE5;
+        }
+        .content-health.medium {
+            color: #F59E0B;
+            border-color: #FEF3C7;
+        }
+        .content-health.poor {
+            color: #EF4444;
+            border-color: #FEE2E2;
+        }
+        .audit-metric {
+            transition: all 200ms ease;
+        }
+        .audit-metric:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .metric-badge {
+            padding: 0.15rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .metric-high {
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+            color: white;
+        }
+        .metric-medium {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            color: white;
+        }
+        .metric-low {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            color: white;
+        }
+        .content-preview {
+            background-color: #202020;
+            color: #dcddde;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            min-height: 400px;
+            overflow-x: auto;
+        }
+        .content-preview h1 {
+            color: #dcddde;
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .content-preview h2 {
+            color: #dcddde;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+        .content-preview p {
+            color: #dcddde;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        .content-preview a {
+            color: #8b5cf6;
+            text-decoration: underline;
+        }
+        .content-preview code {
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            padding: 0.2em 0.4em;
+            border-radius: 0.25rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .content-preview pre {
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1rem;
+            border-radius: 0.375rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+        .content-preview blockquote {
+            border-left: 3px solid #8b5cf6;
+            padding-left: 1rem;
+            margin-left: 0;
+            color: #b8b8b8;
+        }
+        .content-preview ul, .content-preview ol {
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .content-preview li {
+            margin-bottom: 0.5rem;
+        }
+        .content-preview img {
+            max-width: 100%;
+            border-radius: 0.375rem;
+            margin: 1rem 0;
+        }
+        .content-preview hr {
+            border: 0;
+            border-top: 1px solid #444;
+            margin: 1.5rem 0;
+        }
+        .content-preview .internal-link {
+            color: #7c3aed;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <!-- Theme Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="document.documentElement.classList.toggle('dark')" 
+                class="p-2 rounded-full bg-jstar-blue text-white hover:bg-faith-purple transition-all duration-300"
+                aria-label="Toggle dark/light theme">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Admin Navigation -->
+    <div class="fixed top-0 left-0 h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <a href="/admin" class="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                J StaR Admin
+            </a>
+        </div>
+        
+        <div class="p-4">
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Platform Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="/admin/cms" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        CMS
+                    </a>
+                    <a href="/admin/johngpt" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                        JohnGPT
+                    </a>
+                    <a href="/admin/cge" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        CGE Tools
+                    </a>
+                    <a href="/admin/users" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        User Management
+                    </a>
+                    <a href="/admin/analytics" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Analytics
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    CMS Management
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin/cms" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        Pages
+                    </a>
+                    <a href="/admin/cms/hero-slides" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4h16M4 8h16M4 12h16M4 16h16M4 20h16"></path>
+                        </svg>
+                        Hero Slides
+                    </a>
+                    <a href="/admin/cms/page-builder" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.927-1.756 3.353 0a1.724 1.724 0 002.573 1.066c1.704.92 3.675.331 4.967-1.212a.5.5 0 00-.454-.772H13.88c.068.22.111.45.21.686l1.9 3.8a.5.5 0 00.859.027l7-14A.5.5 0 0017.527 3H13.754a.5.5 0 00-.424.736l3.827 5.74a.5.5 0 00.027.86l-12 7a.5.5 0 00.729.646l5-2.906a.5.5 0 00.163-.538l-2-3.5a.5.5 0 00-.658-.21l-2 1.148V4.317zM14.5 12a2.5 2.5 0 10-5 0 2.5 2.5 0 005 0z"></path>
+                        </svg>
+                        Page Builder
+                    </a>
+                    <a href="/admin/cms/blog-posts" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-5a2 2 0 00-2 2v10a2 2 0 002 2h5z"></path>
+                        </svg>
+                        Blog Posts
+                    </a>
+                    <a href="/admin/cms/vault-editor" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 012 2v2a2 2 0 01-2 2H5a2 2 0 01-2-2v-2z"></path>
+                        </svg>
+                        Vault Editor
+                    </a>
+                    <a href="/admin/cms/content-audit" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h.01M12 12h.01M15 12h.01M6 12h.01M18 12h.01"></path>
+                        </svg>
+                        Content Audit
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center">
+                        <span class="text-white font-bold">JO</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Admin Access</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 p-6">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center mb-2">
+                        <a href="/admin/cms" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">CMS</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <span class="text-gray-900 dark:text-white">Content Audit</span>
+                    </div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
+                        Content Audit
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">
+                        Analyze and optimize your content for maximum engagement and SEO
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced" id="run-audit-btn">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                        Run Full Audit
+                    </button>
+                    <div class="relative">
+                        <input type="text" placeholder="Search content..." 
+                               class="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                        <svg class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+        <!-- System Status -->
+        <section class="mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Content Audit Status</h2>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">
+                            Current content audit configuration and system status
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">All Synced</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">API Connected</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Database Healthy</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Stats -->
+        <section class="mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <div class="text-2xl font-bold text-admin-red mb-2">87%</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">Content Health</div>
+                        </div>
+                        <div class="content-health good">87</div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="flex justify-between mb-1">
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Total Pages</span>
+                            <span class="text-xs font-medium">42</span>
+                        </div>
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                            <div class="health-level health-high" style="width: 87%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <div class="text-2xl font-bold text-purple-500 mb-2">3.2%</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">Conversion Rate</div>
+                        </div>
+                        <div class="content-health good">3.2</div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="flex justify-between mb-1">
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Top Page</span>
+                            <span class="text-xs font-medium">Blog Post</span>
+                        </div>
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                            <div class="health-level health-high" style="width: 75%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <div class="text-2xl font-bold text-green-500 mb-2">12</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">Needs Update</div>
+                        </div>
+                        <div class="content-health medium">12</div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="flex justify-between mb-1">
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Content Age</span>
+                            <span class="text-xs font-medium">6+ months</span>
+                        </div>
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                            <div class="health-level health-medium" style="width: 45%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <div class="text-2xl font-bold text-red-500 mb-2">3</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">Broken Links</div>
+                        </div>
+                        <div class="content-health poor">3</div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="flex justify-between mb-1">
+                            <span class="text-xs text-gray-500 dark:text-gray-400">High Priority</span>
+                            <span class="text-xs font-medium">Critical</span>
+                        </div>
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                            <div class="health-level health-low" style="width: 15%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content Audit Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - Content Inventory -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Content Filters -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-center mb-5">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Content Inventory</h2>
+                        <div class="flex space-x-2">
+                            <select class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <option>All Content</option>
+                                <option>Needs Update</option>
+                                <option>High Priority</option>
+                                <option>Blog Posts</option>
+                                <option>Pages</option>
+                            </select>
+                            <select class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <option>Sort by: Health Score</option>
+                                <option>Sort by: Last Updated</option>
+                                <option>Sort by: Page Views</option>
+                                <option>Sort by: Conversion Rate</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Content</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Health</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">SEO</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Readability</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Age</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center mr-3">
+                                                <svg class="h-5 w-5 text-jstar-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <div class="font-medium text-gray-900 dark:text-white">How to Create Viral YouTube Content</div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-400">/blog/viral-youtube-content</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-16 h-3 bg-gray-200 dark:bg-gray-700 rounded-full mr-2 overflow-hidden">
+                                                <div class="h-full health-high" style="width: 92%"></div>
+                                            </div>
+                                            <span class="text-sm font-medium text-gray-900 dark:text-white">92%</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <span class="metric-badge metric-high">92</span>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <span class="metric-badge metric-high">B+</span>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">2 months</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Updated: Apr 15, 2024</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400 mr-3">Audit</a>
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400">Update</a>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center mr-3">
+                                                <svg class="h-5 w-5 text-faith-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <div class="font-medium text-gray-900 dark:text-white">Faith Integration Guide</div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-400">/resources/faith-integration</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-16 h-3 bg-gray-200 dark:bg-gray-700 rounded-full mr-2 overflow-hidden">
+                                                <div class="h-full health-medium" style="width: 78%"></div>
+                                            </div>
+                                            <span class="text-sm font-medium text-gray-900 dark:text-white">78%</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <span class="metric-badge metric-medium">75</span>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <span class="metric-badge metric-medium">C+</span>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">8 months</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Updated: Oct 12, 2023</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400 mr-3">Audit</a>
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400">Update</a>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center mr-3">
+                                                <svg class="h-5 w-5 text-growth-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <div class="font-medium text-gray-900 dark:text-white">Content Calendar Template</div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-400">/resources/content-calendar</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-16 h-3 bg-gray-200 dark:bg-gray-700 rounded-full mr-2 overflow-hidden">
+                                                <div class="h-full health-high" style="width: 85%"></div>
+                                            </div>
+                                            <span class="text-sm font-medium text-gray-900 dark:text-white">85%</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <span class="metric-badge metric-high">88</span>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <span class="metric-badge metric-high">B</span>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">1 month</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Updated: May 20, 2024</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400 mr-3">Audit</a>
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400">Update</a>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center mr-3">
+                                                <svg class="h-5 w-5 text-admin-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h.01M12 12h.01M15 12h.01M6 12h.01M18 12h.01"></path>
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <div class="font-medium text-gray-900 dark:text-white">YouTube Analytics Guide</div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-400">/blog/youtube-analytics</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-16 h-3 bg-gray-200 dark:bg-gray-700 rounded-full mr-2 overflow-hidden">
+                                                <div class="h-full health-low" style="width: 65%"></div>
+                                            </div>
+                                            <span class="text-sm font-medium text-gray-900 dark:text-white">65%</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <span class="metric-badge metric-low">60</span>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <span class="metric-badge metric-medium">C</span>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">10 months</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Updated: Aug 5, 2023</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400 mr-3">Audit</a>
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400">Update</a>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center mr-3">
+                                                <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <div class="font-medium text-gray-900 dark:text-white">Homepage Hero</div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-400">/</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-16 h-3 bg-gray-200 dark:bg-gray-700 rounded-full mr-2 overflow-hidden">
+                                                <div class="h-full health-high" style="width: 95%"></div>
+                                            </div>
+                                            <span class="text-sm font-medium text-gray-900 dark:text-white">95%</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <span class="metric-badge metric-high">98</span>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <span class="metric-badge metric-high">A-</span>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">1 week</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Updated: Jun 1, 2024</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400 mr-3">Audit</a>
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400">Update</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4 flex justify-between items-center">
+                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                            Showing 1 to 5 of 42 content items
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                Previous
+                            </button>
+                            <button class="px-3 py-1 bg-admin-red text-white rounded-lg">1</button>
+                            <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                2
+                            </button>
+                            <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                3
+                            </button>
+                            <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Content Metrics -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Content Metrics</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-3">Content Health by Type</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm text-gray-600 dark:text-gray-400">Blog Posts</span>
+                                        <span class="text-sm font-medium">87%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                        <div class="health-level health-high" style="width: 87%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm text-gray-600 dark:text-gray-400">Resource Pages</span>
+                                        <span class="text-sm font-medium">75%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                        <div class="health-level health-medium" style="width: 75%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm text-gray-600 dark:text-gray-400">Landing Pages</span>
+                                        <span class="text-sm font-medium">92%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                        <div class="health-level health-high" style="width: 92%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm text-gray-600 dark:text-gray-400">Documentation</span>
+                                        <span class="text-sm font-medium">68%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                        <div class="health-level health-low" style="width: 68%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-3">SEO Performance</h3>
+                            <div class="h-64 bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 flex items-center justify-center">
+                                <div class="text-center">
+                                    <svg class="h-12 w-12 text-admin-red mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                                    </svg>
+                                    <p class="text-gray-600 dark:text-gray-400">SEO performance chart would appear here</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Content History -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Content Changes</h2>
+                    <div class="space-y-4">
+                        <div class="content-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Updated YouTube Analytics Guide</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Improved SEO and readability</div>
+                                </div>
+                                <span class="text-sm text-gray-500 dark:text-gray-400">Today, 11:30 AM</span>
+                            </div>
+                            <div class="mt-2 flex justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-6 h-6 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center text-white text-xs mr-2">
+                                        JO
+                                    </div>
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">John Oluleke-Oke</span>
+                                </div>
+                                <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                    View Changes
+                                </button>
+                            </div>
+                        </div>
+                        <div class="content-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Created new Content Calendar Template</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Added for Tier 2 users</div>
+                                </div>
+                                <span class="text-sm text-gray-500 dark:text-gray-400">June 20, 2024</span>
+                            </div>
+                            <div class="mt-2 flex justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-6 h-6 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center text-white text-xs mr-2">
+                                        JO
+                                    </div>
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">John Oluleke-Oke</span>
+                                </div>
+                                <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                    View Changes
+                                </button>
+                            </div>
+                        </div>
+                        <div class="content-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Updated Homepage Hero</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Added new call-to-action</div>
+                                </div>
+                                <span class="text-sm text-gray-500 dark:text-gray-400">June 1, 2024</span>
+                            </div>
+                            <div class="mt-2 flex justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-6 h-6 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center text-white text-xs mr-2">
+                                        JO
+                                    </div>
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">John Oluleke-Oke</span>
+                                </div>
+                                <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                    View Changes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Audit Details -->
+            <div class="space-y-6">
+                <!-- Content Audit Panel -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Content Audit</h2>
+                    <div class="space-y-5">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Select Content</label>
+                            <select class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <option>Select content to audit</option>
+                                <option>How to Create Viral YouTube Content</option>
+                                <option>Faith Integration Guide</option>
+                                <option>Content Calendar Template</option>
+                                <option>YouTube Analytics Guide</option>
+                                <option>Homepage Hero</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Content Health Score</h3>
+                            <div class="flex justify-between items-center mb-2">
+                                <div class="text-3xl font-bold text-admin-red">87%</div>
+                                <div class="content-health good">87</div>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                                <div class="health-level health-high" style="width: 87%"></div>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                                Your content is in good health. Focus on improving SEO and updating older content.
+                            </p>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">SEO Score</h3>
+                                <div class="text-2xl font-bold text-gray-900 dark:text-white">92</div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mt-1">
+                                    <div class="health-level health-high" style="width: 92%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">Readability</h3>
+                                <div class="text-2xl font-bold text-gray-900 dark:text-white">B+</div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mt-1">
+                                    <div class="health-level health-high" style="width: 85%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Content Preview</h3>
+                            <div class="content-preview">
+# How to Create Viral YouTube Content While Staying True to Your Values
+
+In today's digital landscape, content creators face a constant tension between creating content that performs well algorithmically and staying true to their core values. This post explores practical strategies for achieving both.
+
+## The Viral Content Dilemma
+
+Many creators feel pressured to compromise their authenticity in pursuit of views and engagement. However, our research shows that **content aligned with creator values actually performs better long-term**.
+
+### Key Statistics:
+- 73% of viewers prefer authentic content over highly polished but inauthentic videos
+- Channels maintaining consistent values see 2.3x higher subscriber retention
+- Values-driven content generates 41% more meaningful engagement
+
+## Practical Framework
+
+Here's a step-by-step approach to creating viral content without compromising your values:
+
+1. **Identify Your Core Values**
+   - What principles guide your work?
+   - Which values are non-negotiable?
+   - How do these translate to content creation?
+
+2. **Develop Your Unique Angle**
+   - Find the intersection between what's trending and what matters to you
+   - Example: If you value authenticity, create content about "imperfect" success stories
+
+3. **Optimize Within Your Boundaries**
+   - Use proven viral techniques that align with your values
+   - Avoid clickbait if it contradicts your authenticity values
+   - Focus on genuine hooks that reflect your message
+
+## Case Study: Faith-Based Content
+
+[[Faith Integration Guide]] provides a perfect example of how to integrate values into viral content. One creator we worked with saw their channel grow from 5k to 50k subscribers in 6 months by:
+
+- Creating content around "faith in everyday work"
+- Using viral storytelling techniques while maintaining spiritual integrity
+- Building community around shared values rather than just views
+
+> "When I stopped chasing trends and started creating content aligned with my values, my engagement skyrocketed." - Sarah J., Content Creator
+
+## Conclusion
+
+Creating viral content doesn't require compromising your values. In fact, the most successful creators find ways to **leverage their values as their unique competitive advantage**.
+
+By staying true to what matters most, you'll attract an audience that genuinely connects with your message and sticks around for the long haul.
+                            </div>
+                        </div>
+                        
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Audit Tip:</strong> For YouTube content, adding timestamps in the description can increase watch time by up to 15%.
+                            </p>
+                        </div>
+                        
+                        <button class="w-full px-4 py-3 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium">
+                            Run Detailed Audit
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Audit Metrics -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Detailed Audit Metrics</h2>
+                    <div class="space-y-4">
+                        <div class="audit-metric p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between">
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">SEO Score</span>
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">92/100</span>
+                            </div>
+                            <div class="mt-1 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                <div class="health-level health-high" style="width: 92%"></div>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                                Excellent keyword usage and meta tags. Consider adding more internal links.
+                            </p>
+                        </div>
+                        <div class="audit-metric p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between">
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">Readability Score</span>
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">B+</span>
+                            </div>
+                            <div class="mt-1 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                <div class="health-level health-high" style="width: 85%"></div>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                                Well-structured content with good paragraph length. Some complex sentences could be simplified.
+                            </p>
+                        </div>
+                        <div class="audit-metric p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between">
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">Content Freshness</span>
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">2 months</span>
+                            </div>
+                            <div class="mt-1 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                <div class="health-level health-high" style="width: 80%"></div>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                                Content is relatively fresh. YouTube analytics data could be updated for better accuracy.
+                            </p>
+                        </div>
+                        <div class="audit-metric p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between">
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">Internal Links</span>
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">4/5</span>
+                            </div>
+                            <div class="mt-1 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                <div class="health-level health-high" style="width: 80%"></div>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                                Good internal linking. Consider adding link to [[Content Calendar Template]].
+                            </p>
+                        </div>
+                        <div class="audit-metric p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between">
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">External Links</span>
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">3/5</span>
+                            </div>
+                            <div class="mt-1 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                <div class="health-level health-medium" style="width: 60%"></div>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                                Could benefit from more authoritative external references. Consider linking to YouTube's official resources.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- JohnGPT Recommendations -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">JohnGPT Recommendations</h2>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">SEO Optimization</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Improve SEO for better search visibility</p>
+                                </div>
+                                <span class="metric-badge metric-high">High</span>
+                            </div>
+                            <div class="mt-3">
+                                <p class="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                                    Add timestamps in the description to increase watch time by up to 15%.
+                                </p>
+                                <p class="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                                    Include target keywords in the first 100 words of your content.
+                                </p>
+                                <p class="text-sm text-gray-700 dark:text-gray-300">
+                                    Add internal link to [[Content Calendar Template]] for better site structure.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Content Update</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Update statistics with latest data</p>
+                                </div>
+                                <span class="metric-badge metric-medium">Medium</span>
+                            </div>
+                            <div class="mt-3">
+                                <p class="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                                    YouTube's latest algorithm update (May 2024) has changed engagement metrics.
+                                </p>
+                                <p class="text-sm text-gray-700 dark:text-gray-300">
+                                    Update statistics to reflect current industry benchmarks.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Faith Integration</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Enhance spiritual alignment</p>
+                                </div>
+                                <span class="metric-badge metric-high">High</span>
+                            </div>
+                            <div class="mt-3">
+                                <p class="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                                    Add section on "Biblical Principles for Content Creation".
+                                </p>
+                                <p class="text-sm text-gray-700 dark:text-gray-300">
+                                    Include reference to [[Faith Integration Guide]] in the case study.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Emergency Panel -->
+                <div class="bg-red-50 dark:bg-red-900/20 rounded-2xl p-6 shadow-lg border border-red-200 dark:border-red-800">
+                    <h2 class="text-xl font-bold text-red-900 dark:text-red-100 mb-4">Emergency Tools</h2>
+                    <div class="space-y-3">
+                        <p class="text-sm text-red-800 dark:text-red-200">
+                            Critical functions for immediate content management and recovery.
+                        </p>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                            ONE BUTTON: Revert to Last Working Version
+                        </button>
+                        <div class="flex space-x-2">
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Disable All Content
+                            </button>
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Enable Safe Mode
+                            </button>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                            Send SOS Email to Dev Friend
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-apply theme
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Initialize sidebar active state
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set CMS as active in sidebar
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.href.includes('cms')) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Run audit button
+            document.getElementById('run-audit-btn').addEventListener('click', function() {
+                const originalText = this.innerHTML;
+                this.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2 inline text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Running Audit...';
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    alert('Content audit completed successfully!');
+                }, 2000);
+            });
+            
+            // Content item click
+            const contentItems = document.querySelectorAll('.content-item');
+            contentItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // In a real implementation, this would load the content audit details
+                    console.log('Loading audit for:', this.querySelector('.font-medium').textContent);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

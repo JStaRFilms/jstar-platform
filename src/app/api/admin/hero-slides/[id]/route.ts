@@ -102,7 +102,7 @@ export async function PUT(
     const body = await request.json();
     const { id } = await params;
 
-    // Check if this is a default slide that needs to be saved to database
+    // Check if this is a default slide
     if (id.startsWith('default-')) {
       // Find the default slide data
       const defaultSlide = defaultSlides.find(slide => slide.id === id);
@@ -116,23 +116,43 @@ export async function PUT(
         );
       }
 
-      // For default slides, create a new custom slide with the updated data
-      // This preserves the original default slide for future resets
-      const newSlide = await prisma.heroSlide.create({
-        data: {
-          ...defaultSlide,
-          ...body,
-          id: undefined, // Let Prisma generate new ID
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
+      // Check if this default slide already exists in database
+      const existingSlide = await prisma.heroSlide.findUnique({
+        where: { id },
       });
 
-      return NextResponse.json({
-        status: 'success',
-        data: newSlide,
-        message: 'Default slide saved as custom slide successfully',
-      });
+      if (existingSlide) {
+        // Update the existing default slide in database
+        const updatedSlide = await prisma.heroSlide.update({
+          where: { id },
+          data: {
+            ...body,
+            updatedAt: new Date(),
+          },
+        });
+
+        return NextResponse.json({
+          status: 'success',
+          data: updatedSlide,
+          message: 'Default slide updated successfully',
+        });
+      } else {
+        // Create the default slide in database for the first time
+        const newSlide = await prisma.heroSlide.create({
+          data: {
+            ...defaultSlide,
+            ...body,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        });
+
+        return NextResponse.json({
+          status: 'success',
+          data: newSlide,
+          message: 'Default slide saved to database successfully',
+        });
+      }
     }
 
     // Update existing custom slide
@@ -180,16 +200,7 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    // Check if this is a default slide
-    if (id.startsWith('default-')) {
-      return NextResponse.json(
-        {
-          status: 'error',
-          message: 'Default slides cannot be deleted. You can disable them or create custom slides instead.',
-        },
-        { status: 400 }
-      );
-    }
+    // Allow deletion of any slide (including defaults) - validation happens on frontend
 
     // Soft delete by setting isActive to false
     const slide = await prisma.heroSlide.update({

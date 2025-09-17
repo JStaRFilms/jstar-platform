@@ -79,9 +79,19 @@ export async function GET() {
       },
     });
 
-    // Always return custom slides + default slides for consistency
-    // This ensures the admin UI always shows all available slides
-    const allSlides = [...customSlides, ...defaultSlides];
+    // Check which default slides are not already in the database
+    const defaultSlideIds = defaultSlides.map(slide => slide.id);
+    const existingDefaultIds = customSlides
+      .filter(slide => defaultSlideIds.includes(slide.id))
+      .map(slide => slide.id);
+
+    // Only include default slides that don't exist in the database
+    const missingDefaultSlides = defaultSlides.filter(
+      slide => !existingDefaultIds.includes(slide.id)
+    );
+
+    // Combine custom slides with missing default slides
+    const allSlides = [...customSlides, ...missingDefaultSlides];
 
     // Sort by sortOrder to maintain proper order
     allSlides.sort((a, b) => a.sortOrder - b.sortOrder);
