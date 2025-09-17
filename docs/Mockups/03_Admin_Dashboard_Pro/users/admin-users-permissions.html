@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - Granular Access Matrix</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'admin-red': '#DC2626'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-tier1: linear-gradient(135deg, var(--brand-blue) 0%, #3B82F6 100%);
+            --gradient-tier2: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-admin: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        }
+        .btn-enhanced {
+            transition: all 300ms ease;
+        }
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+        }
+        .card-interactive {
+            transition: all 300ms ease;
+            cursor: pointer;
+        }
+        .card-interactive:hover {
+            transform: translateY(-4px);
+        }
+        .module-card {
+            transition: all 300ms ease;
+            border-left: 3px solid transparent;
+        }
+        .module-card:hover {
+            border-left-color: #DC2626;
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-active {
+            background-color: #10B981;
+        }
+        .status-warning {
+            background-color: #F59E0B;
+        }
+        .status-critical {
+            background-color: #EF4444;
+        }
+        .activity-item {
+            transition: all 200ms ease;
+        }
+        .activity-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .sidebar-item {
+            transition: all 200ms ease;
+        }
+        .sidebar-item:hover {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: #DC2626;
+        }
+        .sidebar-item.active {
+            background-color: rgba(220, 38, 38, 0.15);
+            color: #DC2626;
+            font-weight: 600;
+            border-left: 3px solid #DC2626;
+        }
+        .quick-action {
+            transition: all 300ms ease;
+        }
+        .quick-action:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.2);
+        }
+        .system-metric {
+            transition: all 200ms ease;
+        }
+        .system-metric:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .permission-item {
+            transition: all 200ms ease;
+        }
+        .permission-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .permission-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .permission-active {
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+            color: white;
+        }
+        .permission-inactive {
+            background: #E5E7EB;
+            color: #6B7280;
+        }
+        .permission-tiers {
+            padding: 0.15rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            background-color: #F3F4F6;
+            color: #4B5563;
+            margin-right: 0.25rem;
+        }
+        .tier-1 {
+            background-color: #DBEAFE;
+            color: #1D4ED8;
+        }
+        .tier-2 {
+            background-color: #F3F4F6;
+            color: #1F2937;
+        }
+        .tier-3 {
+            background-color: #FEF3C7;
+            color: #D97706;
+        }
+        .admin-tier {
+            background-color: #FEE2E2;
+            color: #B91C1C;
+        }
+        .permission-tree {
+            position: relative;
+            padding-left: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        .permission-tree:before {
+            content: "";
+            position: absolute;
+            left: 0.5rem;
+            top: 0.5rem;
+            bottom: -1.5rem;
+            width: 2px;
+            background-color: #D1D5DB;
+        }
+        .permission-node {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .permission-node:before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.5rem;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #D1D5DB;
+            border: 2px solid white;
+        }
+        .permission-node.active:before {
+            background-color: #DC2626;
+            border-color: white;
+        }
+        .permission-node-label {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        .permission-node-description {
+            font-size: 0.875rem;
+            color: #6B7280;
+        }
+        .access-level {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        .level-1 {
+            background-color: #2563EB;
+        }
+        .level-2 {
+            background-color: #8B5CF6;
+        }
+        .level-3 {
+            background-color: #059669;
+        }
+        .level-admin {
+            background-color: #DC2626;
+        }
+        .permission-toggle {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 24px;
+        }
+        .permission-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .permission-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #E5E7EB;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .permission-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        input:checked + .permission-slider {
+            background-color: #DC2626;
+        }
+        input:checked + .permission-slider:before {
+            transform: translateX(16px);
+        }
+        .temp-access-card {
+            border-left: 3px solid #DC2626;
+        }
+        .temp-access-card.active {
+            border-left-color: #10B981;
+        }
+        .temp-access-code {
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+            background-color: #F3F4F6;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-weight: 600;
+            color: #DC2626;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <!-- Theme Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="document.documentElement.classList.toggle('dark')" 
+                class="p-2 rounded-full bg-jstar-blue text-white hover:bg-faith-purple transition-all duration-300"
+                aria-label="Toggle dark/light theme">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Admin Navigation -->
+    <div class="fixed top-0 left-0 h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <a href="/admin" class="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                J StaR Admin
+            </a>
+        </div>
+        
+        <div class="p-4">
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Platform Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="/admin/cms" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        CMS
+                    </a>
+                    <a href="/admin/johngpt" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                        JohnGPT
+                    </a>
+                    <a href="/admin/cge" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        CGE Tools
+                    </a>
+                    <a href="/admin/users" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        User Management
+                    </a>
+                    <a href="/admin/analytics" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Analytics
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    User Management
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin/users" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        Users
+                    </a>
+                    <a href="/admin/users/lead-magnets" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                        </svg>
+                        Lead Magnet Lab
+                    </a>
+                    <a href="/admin/users/subscriptions" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Billing War Room
+                    </a>
+                    <a href="/admin/users/permissions" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v-2H5v-2H3v-2h2V9H3V7h2V5h2V3h2v2h2V3h2v2h2V7zm-10 5h2V7h-2v5zm4 0h2V7h-2v5z"></path>
+                        </svg>
+                        Granular Access Matrix
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center">
+                        <span class="text-white font-bold">JO</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Admin Access</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 p-6">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center mb-2">
+                        <a href="/admin/users" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">User Management</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <span class="text-gray-900 dark:text-white">Granular Access Matrix</span>
+                    </div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
+                        Granular Access Matrix
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">
+                        Surgical precision for access control across the platform
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced" id="apply-changes-btn">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Apply All Changes
+                    </button>
+                    <div class="relative">
+                        <input type="text" placeholder="Search permissions..." 
+                               class="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                        <svg class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+        <!-- System Status -->
+        <section class="mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Access Control Status</h2>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">
+                            Current access control system status and configuration
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">RBAC System Active</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Permissions Synced</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Audit Logging Active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Stats -->
+        <section class="mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-admin-red mb-2">42</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Total Permissions</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-purple-500 mb-2">Tier 1: 12</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Permissions by Tier</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-green-500 mb-2">Tier 2: 18</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Permissions by Tier</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-red-500 mb-2">Tier 3: 12</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Permissions by Tier</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Permission Management Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - User/Role Selection -->
+            <div class="space-y-6">
+                <!-- Role Selection -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Role Management</h2>
+                    <div class="space-y-3">
+                        <div class="permission-item p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Tier 1 User</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Basic access</div>
+                                </div>
+                                <span class="permission-badge permission-active">Active</span>
+                            </div>
+                        </div>
+                        <div class="permission-item p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Tier 2 User</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Advanced access</div>
+                                </div>
+                                <span class="permission-badge permission-active">Active</span>
+                            </div>
+                        </div>
+                        <div class="permission-item p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Tier 3 User</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Full access</div>
+                                </div>
+                                <span class="permission-badge permission-active">Active</span>
+                            </div>
+                        </div>
+                        <div class="permission-item p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Client Manager</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Client-facing role</div>
+                                </div>
+                                <span class="permission-badge permission-active">Active</span>
+                            </div>
+                        </div>
+                        <div class="permission-item p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Content Creator</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Content-focused role</div>
+                                </div>
+                                <span class="permission-badge permission-active">Active</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- User Selection -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">User Selection</h2>
+                    <div class="relative mb-4">
+                        <input type="text" placeholder="Search users..." 
+                               class="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                        <svg class="h-5 w-5 absolute right-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                    <div class="space-y-3 max-h-60 overflow-y-auto">
+                        <div class="permission-item p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mr-3">
+                                    <span class="text-jstar-blue font-bold">JO</span>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Admin</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="permission-item p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mr-3">
+                                    <span class="text-faith-purple font-bold">SM</span>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Sarah Mitchell</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Tier 3</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="permission-item p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mr-3">
+                                    <span class="text-growth-green font-bold">TG</span>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Thomas Garcia</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Tier 2</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="permission-item p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mr-3">
+                                    <span class="text-gray-500 font-bold">JS</span>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">James Smith</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Tier 1</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="permission-item p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mr-3">
+                                    <span class="text-admin-red font-bold">AO</span>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Adebayo Ogunleye</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Client Manager</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="permission-item p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mr-3">
+                                    <span class="text-purple-500 font-bold">CE</span>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Chinedu Eze</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Content Creator</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Permission Templates -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Permission Templates</h2>
+                    <div class="space-y-3">
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Default Tier 1</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">12 permissions</div>
+                                </div>
+                                <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm">Apply</button>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Default Tier 2</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">18 permissions</div>
+                                </div>
+                                <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm">Apply</button>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Default Tier 3</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">30 permissions</div>
+                                </div>
+                                <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm">Apply</button>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Client Manager</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">24 permissions</div>
+                                </div>
+                                <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm">Apply</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Middle Column - Permission Matrix -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Permission Matrix -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-center mb-5">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Permission Matrix</h2>
+                        <div class="flex space-x-2">
+                            <select class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <option>All Permissions</option>
+                                <option>CGE Tools</option>
+                                <option>JohnGPT</option>
+                                <option>CMS</option>
+                                <option>Admin</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Resource</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tier 1</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tier 2</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tier 3</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Client Manager</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Content Creator</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="font-medium text-gray-900 dark:text-white">/cge/virality-os</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Virality OS Dashboard</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox" checked>
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox" checked>
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox" checked>
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox" checked>
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox">
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="font-medium text-gray-900 dark:text-white">/cge/client-leads</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Client Leads Database</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox">
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox">
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox" checked>
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox" checked>
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox">
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="font-medium text-gray-900 dark:text-white">/cge/analytics</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Analytics Dashboard</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox">
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox" checked>
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox" checked>
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox" checked>
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox" checked>
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="font-medium text-gray-900 dark:text-white">/johngpt/chat</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">JohnGPT Chat Interface</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox" checked>
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox" checked>
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox" checked>
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox" checked>
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox" checked>
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="font-medium text-gray-900 dark:text-white">/johngpt/system-prompts</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">System Prompt Editor</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox">
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox">
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox" checked>
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox">
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox" checked>
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="font-medium text-gray-900 dark:text-white">/cms/vault-editor</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Obsidian Vault Editor</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox" checked>
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox" checked>
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox" checked>
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox">
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox" checked>
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="font-medium text-gray-900 dark:text-white">/admin/users</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">User Management</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox">
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox">
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox">
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox">
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox">
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="font-medium text-gray-900 dark:text-white">/admin/users/subscriptions</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Billing Management</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox">
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox">
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox">
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox">
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox">
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="font-medium text-gray-900 dark:text-white">/admin/cms/page-builder</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Page Builder</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox">
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox" checked>
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox" checked>
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox">
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <label class="permission-toggle">
+                                            <input type="checkbox" checked>
+                                            <span class="permission-slider"></span>
+                                        </label>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Permission History -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Permission History</h2>
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <div class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mr-3 mt-1">
+                                <span class="text-jstar-blue font-bold">JO</span>
+                            </div>
+                            <div class="flex-1">
+                                <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400">Updated permissions for Tier 2 users</div>
+                                        </div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">Today, 10:30 AM</div>
+                                    </div>
+                                    <div class="mt-2 text-sm">
+                                        <div class="flex items-center mb-1">
+                                            <span class="access-level level-2 mr-2"></span>
+                                            <span class="text-gray-700 dark:text-gray-300">/cge/analytics: Enabled</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <span class="access-level level-2 mr-2"></span>
+                                            <span class="text-gray-700 dark:text-gray-300">/admin/users: Disabled</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mr-3 mt-1">
+                                <span class="text-faith-purple font-bold">SM</span>
+                            </div>
+                            <div class="flex-1">
+                                <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">Sarah Mitchell</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400">Requested temporary access</div>
+                                        </div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">Yesterday, 2:45 PM</div>
+                                    </div>
+                                    <div class="mt-2 text-sm">
+                                        <div class="flex items-center mb-1">
+                                            <span class="access-level level-3 mr-2"></span>
+                                            <span class="text-gray-700 dark:text-gray-300">/cge/client-leads: Temporary access requested</span>
+                                        </div>
+                                        <div class="flex justify-end space-x-2 mt-2">
+                                            <button class="px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                                Deny
+                                            </button>
+                                            <button class="px-2 py-1 text-xs bg-admin-red text-white rounded">
+                                                Approve
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mr-3 mt-1">
+                                <span class="text-growth-green font-bold">TG</span>
+                            </div>
+                            <div class="flex-1">
+                                <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">Thomas Garcia</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400">Updated permissions for Client Manager role</div>
+                                        </div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">June 15, 2024</div>
+                                    </div>
+                                    <div class="mt-2 text-sm">
+                                        <div class="flex items-center">
+                                            <span class="access-level level-3 mr-2"></span>
+                                            <span class="text-gray-700 dark:text-gray-300">/cms/vault-editor: Enabled</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Access Management -->
+            <div class="space-y-6">
+                <!-- Temporary Access Pass -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Temporary Access Pass</h2>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Select Resource</label>
+                            <select class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white">
+                                <option>/cge/virality-os</option>
+                                <option>/cge/client-leads</option>
+                                <option>/cge/analytics</option>
+                                <option>/johngpt/system-prompts</option>
+                                <option>/cms/vault-editor</option>
+                                <option>/admin/users</option>
+                            </select>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Select User</label>
+                            <select class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white">
+                                <option>Sarah Mitchell (Tier 3)</option>
+                                <option>Thomas Garcia (Tier 2)</option>
+                                <option>James Smith (Tier 1)</option>
+                                <option>Adebayo Ogunleye (Client Manager)</option>
+                                <option>Chinedu Eze (Content Creator)</option>
+                            </select>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Duration</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <button class="px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700/50">
+                                    1 hour
+                                </button>
+                                <button class="px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700/50">
+                                    4 hours
+                                </button>
+                                <button class="px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700/50">
+                                    1 day
+                                </button>
+                                <button class="px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700/50">
+                                    3 days
+                                </button>
+                                <button class="px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700/50">
+                                    1 week
+                                </button>
+                                <button class="px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700/50">
+                                    Custom
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Access Code</label>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="temp-access-code">JST-7X9B-2R4M</span>
+                                <button class="text-sm text-admin-red hover:text-red-700 dark:hover:text-red-400">
+                                    Generate New
+                                </button>
+                            </div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">
+                                This code will expire in 24 hours
+                            </div>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium">
+                            Generate Temporary Access
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Permission Inheritance Visualizer -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Permission Inheritance</h2>
+                    <div class="space-y-4">
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white">Base Permissions</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">All users inherit these permissions</div>
+                        </div>
+                        <div class="permission-tree">
+                            <div class="permission-node active">
+                                <div class="permission-node-label">Tier 1</div>
+                                <div class="permission-node-description">Basic access to platform features</div>
+                            </div>
+                            <div class="permission-tree">
+                                <div class="permission-node active">
+                                    <div class="permission-node-label">Tier 2</div>
+                                    <div class="permission-node-description">Advanced features & analytics</div>
+                                </div>
+                                <div class="permission-tree">
+                                    <div class="permission-node active">
+                                        <div class="permission-node-label">Tier 3</div>
+                                        <div class="permission-node-description">Full access to all platform features</div>
+                                    </div>
+                                </div>
+                                <div class="permission-tree">
+                                    <div class="permission-node">
+                                        <div class="permission-node-label">Client Manager</div>
+                                        <div class="permission-node-description">Access to client leads & management</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="permission-tree">
+                                <div class="permission-node">
+                                    <div class="permission-node-label">Content Creator</div>
+                                    <div class="permission-node-description">Access to content creation tools</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white">Custom Role: Marketing Specialist</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">Inherits from Tier 2 + additional permissions</div>
+                            <div class="mt-2 flex flex-wrap gap-2">
+                                <span class="permission-tiers tier-2">Tier 2</span>
+                                <span class="permission-tiers admin-tier">/cge/client-leads</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Permission Audit -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Permission Audit</h2>
+                    <div class="space-y-4">
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Audit Finding:</strong> Tier 1 users have access to /cge/client-leads. This violates FR006 requirements.
+                            </p>
+                        </div>
+                        <div class="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                            <p class="text-yellow-800 dark:text-yellow-200 text-sm">
+                                <strong>Warning:</strong> 3 users have admin permissions without approval.
+                            </p>
+                        </div>
+                        <div class="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                            <p class="text-green-800 dark:text-green-200 text-sm">
+                                <strong>Compliant:</strong> All Tier 2+ users have appropriate access to analytics.
+                            </p>
+                        </div>
+                        <button class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 font-medium">
+                            Run Full Audit
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Emergency Panel -->
+                <div class="bg-red-50 dark:bg-red-900/20 rounded-2xl p-6 shadow-lg border border-red-200 dark:border-red-800">
+                    <h2 class="text-xl font-bold text-red-900 dark:text-red-100 mb-4">Access Control Emergency Tools</h2>
+                    <div class="space-y-3">
+                        <p class="text-sm text-red-800 dark:text-red-200">
+                            Critical functions for immediate access control management.
+                        </p>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                            ONE BUTTON: Revoke All Temporary Access
+                        </button>
+                        <div class="flex space-x-2">
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Lock All Admin Access
+                            </button>
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Emergency Audit
+                            </button>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                            Send Access Report to Dev Friend
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-apply theme
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Initialize sidebar active state
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set permissions as active in sidebar
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.href.includes('permissions')) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Apply changes button
+            document.getElementById('apply-changes-btn').addEventListener('click', function() {
+                const originalText = this.innerHTML;
+                this.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2 inline text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Applying...';
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    alert('Permissions updated successfully!');
+                }, 2000);
+            });
+            
+            // Permission item click
+            const permissionItems = document.querySelectorAll('.permission-item');
+            permissionItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // In a real implementation, this would load the permission details
+                    console.log('Loading permission details:', this.querySelector('.font-medium')?.textContent);
+                });
+            });
+            
+            // Temporary access code generation
+            document.querySelector('.temp-access-code').addEventListener('click', function() {
+                this.textContent = 'JST-' + Math.random().toString(36).substr(2, 4).toUpperCase() + 
+                                 '-' + Math.random().toString(36).substr(2, 4).toUpperCase();
+            });
+            
+            // Duration buttons
+            const durationButtons = document.querySelectorAll('[class*="py-1"]:not(.text-admin-red)');
+            durationButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    durationButtons.forEach(btn => {
+                        btn.classList.remove('bg-admin-red', 'text-white');
+                        btn.classList.add('border-gray-300', 'dark:border-gray-600', 'hover:bg-gray-100', 'dark:hover:bg-gray-700/50');
+                    });
+                    this.classList.remove('border-gray-300', 'dark:border-gray-600', 'hover:bg-gray-100', 'dark:hover:bg-gray-700/50');
+                    this.classList.add('bg-admin-red', 'text-white');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

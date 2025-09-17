@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - Lead Magnet Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'admin-red': '#DC2626'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-tier1: linear-gradient(135deg, var(--brand-blue) 0%, #3B82F6 100%);
+            --gradient-tier2: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-admin: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        }
+        .btn-enhanced {
+            transition: all 300ms ease;
+        }
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+        }
+        .card-interactive {
+            transition: all 300ms ease;
+            cursor: pointer;
+        }
+        .card-interactive:hover {
+            transform: translateY(-4px);
+        }
+        .module-card {
+            transition: all 300ms ease;
+            border-left: 3px solid transparent;
+        }
+        .module-card:hover {
+            border-left-color: #DC2626;
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-active {
+            background-color: #10B981;
+        }
+        .status-warning {
+            background-color: #F59E0B;
+        }
+        .status-critical {
+            background-color: #EF4444;
+        }
+        .activity-item {
+            transition: all 200ms ease;
+        }
+        .activity-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .sidebar-item {
+            transition: all 200ms ease;
+        }
+        .sidebar-item:hover {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: #DC2626;
+        }
+        .sidebar-item.active {
+            background-color: rgba(220, 38, 38, 0.15);
+            color: #DC2626;
+            font-weight: 600;
+            border-left: 3px solid #DC2626;
+        }
+        .quick-action {
+            transition: all 300ms ease;
+        }
+        .quick-action:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.2);
+        }
+        .system-metric {
+            transition: all 200ms ease;
+        }
+        .system-metric:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .lead-magnet-item {
+            transition: all 200ms ease;
+        }
+        .lead-magnet-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .lead-magnet-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .lead-magnet-active {
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+            color: white;
+        }
+        .lead-magnet-draft {
+            background: #E5E7EB;
+            color: #6B7280;
+        }
+        .lead-magnet-archived {
+            background: #6B7280;
+            color: white;
+        }
+        .lead-magnet-tier1 {
+            background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
+            color: white;
+        }
+        .lead-magnet-tier2 {
+            background: linear-gradient(135deg, #2563EB 0%, #8B5CF6 100%);
+            color: white;
+        }
+        .lead-magnet-tier3 {
+            background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+            color: white;
+        }
+        .funnel-step {
+            position: relative;
+            padding-left: 2rem;
+            margin-bottom: 2rem;
+        }
+        .funnel-step:before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.5rem;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            background-color: #F3F4F6;
+            border: 2px solid #D1D5DB;
+            z-index: 10;
+        }
+        .funnel-step.active:before {
+            background-color: #DC2626;
+            border-color: #DC2626;
+        }
+        .funnel-step:after {
+            content: "";
+            position: absolute;
+            left: 0.75rem;
+            top: 2rem;
+            bottom: -2rem;
+            width: 2px;
+            background-color: #D1D5DB;
+        }
+        .funnel-step:last-child:after {
+            display: none;
+        }
+        .funnel-step.active:after {
+            background-color: #DC2626;
+        }
+        .funnel-metric {
+            text-align: center;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            margin-top: 1rem;
+        }
+        .funnel-metric-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+        .funnel-metric-label {
+            font-size: 0.875rem;
+            color: #6B7280;
+        }
+        .funnel-metric-change {
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+        .funnel-metric-positive {
+            color: #10B981;
+        }
+        .funnel-metric-negative {
+            color: #EF4444;
+        }
+        .conversion-bar {
+            height: 24px;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        .conversion-fill {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.5s ease;
+        }
+        .funnel-chart {
+            height: 300px;
+            position: relative;
+        }
+        .funnel-segment {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            border-style: solid;
+            border-width: 0 100px 50px 100px;
+            border-color: transparent transparent #DC2626 transparent;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            padding: 10px 0;
+            width: 200px;
+        }
+        .funnel-segment-1 {
+            border-width: 0 120px 60px 120px;
+            width: 240px;
+            bottom: 0;
+        }
+        .funnel-segment-2 {
+            border-width: 0 100px 50px 100px;
+            width: 200px;
+            bottom: 50px;
+        }
+        .funnel-segment-3 {
+            border-width: 0 80px 40px 80px;
+            width: 160px;
+            bottom: 90px;
+        }
+        .funnel-segment-4 {
+            border-width: 0 60px 30px 60px;
+            width: 120px;
+            bottom: 120px;
+        }
+        .funnel-label {
+            position: absolute;
+            text-align: center;
+            width: 100%;
+            font-weight: bold;
+        }
+        .funnel-label-1 {
+            bottom: 15px;
+        }
+        .funnel-label-2 {
+            bottom: 65px;
+        }
+        .funnel-label-3 {
+            bottom: 105px;
+        }
+        .funnel-label-4 {
+            bottom: 135px;
+        }
+        .funnel-value {
+            position: absolute;
+            text-align: center;
+            width: 100%;
+            font-weight: bold;
+            font-size: 0.875rem;
+        }
+        .funnel-value-1 {
+            bottom: 5px;
+        }
+        .funnel-value-2 {
+            bottom: 55px;
+        }
+        .funnel-value-3 {
+            bottom: 95px;
+        }
+        .funnel-value-4 {
+            bottom: 125px;
+        }
+        .lead-magnet-preview {
+            background-color: #F9FAFB;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            border: 1px solid #E5E7EB;
+        }
+        .gdpr-consent {
+            border-left: 4px solid #DC2626;
+            padding-left: 1rem;
+            margin: 1rem 0;
+        }
+        .prediction-metric {
+            border: 1px solid #D1D5DB;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            transition: all 200ms ease;
+        }
+        .prediction-metric:hover {
+            border-color: #DC2626;
+            transform: translateY(-2px);
+        }
+        .prediction-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+        .prediction-good {
+            color: #10B981;
+        }
+        .prediction-warning {
+            color: #F59E0B;
+        }
+        .prediction-critical {
+            color: #EF4444;
+        }
+        .prediction-trend {
+            height: 60px;
+            background: linear-gradient(to right, #EF4444, #F59E0B, #10B981);
+            border-radius: 4px;
+            position: relative;
+        }
+        .trend-indicator {
+            position: absolute;
+            top: 50%;
+            left: 60%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: white;
+            border: 2px solid #DC2626;
+        }
+        .resource-type {
+            padding: 0.15rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            background-color: #F3F4F6;
+            color: #4B5563;
+            margin-right: 0.25rem;
+        }
+        .type-guide {
+            background-color: #DBEAFE;
+            color: #1D4ED8;
+        }
+        .type-checklist {
+            background-color: #FEF3C7;
+            color: #D97706;
+        }
+        .type-template {
+            background-color: #DCFCE7;
+            color: #166534;
+        }
+        .type-course {
+            background-color: #FCE7F3;
+            color: #BE123C;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <!-- Theme Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="document.documentElement.classList.toggle('dark')" 
+                class="p-2 rounded-full bg-jstar-blue text-white hover:bg-faith-purple transition-all duration-300"
+                aria-label="Toggle dark/light theme">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Admin Navigation -->
+    <div class="fixed top-0 left-0 h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <a href="/admin" class="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                J StaR Admin
+            </a>
+        </div>
+        
+        <div class="p-4">
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Platform Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="/admin/cms" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        CMS
+                    </a>
+                    <a href="/admin/johngpt" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                        JohnGPT
+                    </a>
+                    <a href="/admin/cge" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        CGE Tools
+                    </a>
+                    <a href="/admin/users" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        User Management
+                    </a>
+                    <a href="/admin/analytics" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Analytics
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    User Management
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin/users" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        Users
+                    </a>
+                    <a href="/admin/users/lead-magnets" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                        </svg>
+                        Lead Magnet Lab
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center">
+                        <span class="text-white font-bold">JO</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Admin Access</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 p-6">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center mb-2">
+                        <a href="/admin/users" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">User Management</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <span class="text-gray-900 dark:text-white">Lead Magnet Lab</span>
+                    </div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
+                        Lead Magnet Lab
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">
+                        Optimize your lead generation with data-driven insights
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced" id="optimize-btn">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V9a2 2 0 00-2-2h-4M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        Optimize All
+                    </button>
+                    <div class="relative">
+                        <input type="text" placeholder="Search lead magnets..." 
+                               class="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                        <svg class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+        <!-- System Status -->
+        <section class="mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Lead Magnet Status</h2>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">
+                            Current lead generation system status and analytics
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">All Synced</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Analytics Active</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">GDPR Compliant</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Stats -->
+        <section class="mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-admin-red mb-2">3.2%</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Average Conversion Rate</div>
+                    <div class="mt-3 flex items-center">
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                            <div class="conversion-fill" style="width: 3.2%; background-color: #DC2626;"></div>
+                        </div>
+                        <span class="ml-2 text-sm text-gray-500 dark:text-gray-400">+0.4%</span>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-purple-500 mb-2">1,247</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Total Leads Generated</div>
+                    <div class="mt-3 flex items-center">
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                            <div class="conversion-fill" style="width: 85%; background-color: #8B5CF6;"></div>
+                        </div>
+                        <span class="ml-2 text-sm text-gray-500 dark:text-gray-400">+12%</span>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-green-500 mb-2">42%</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Email Open Rate</div>
+                    <div class="mt-3 flex items-center">
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                            <div class="conversion-fill" style="width: 42%; background-color: #059669;"></div>
+                        </div>
+                        <span class="ml-2 text-sm text-gray-500 dark:text-gray-400">+3.2%</span>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-red-500 mb-2">2.1%</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Unsubscribe Rate</div>
+                    <div class="mt-3 flex items-center">
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                            <div class="conversion-fill" style="width: 2.1%; background-color: #EF4444;"></div>
+                        </div>
+                        <span class="ml-2 text-sm text-gray-500 dark:text-gray-400">-0.3%</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Lead Magnet Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - Lead Magnet Performance -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Lead Magnet Funnel -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-center mb-5">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Lead Generation Funnel</h2>
+                        <div class="flex space-x-2">
+                            <select class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <option>Last 30 Days</option>
+                                <option>Last 7 Days</option>
+                                <option>Last 90 Days</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <div class="funnel-step active">
+                                <h3 class="font-medium text-gray-900 dark:text-white">Website Visitors</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">People who see your content</p>
+                                <div class="funnel-metric">
+                                    <div class="funnel-metric-value">38,752</div>
+                                    <div class="funnel-metric-label">Visitors</div>
+                                    <div class="funnel-metric-change funnel-metric-positive">+12% from last month</div>
+                                </div>
+                            </div>
+                            <div class="funnel-step active">
+                                <h3 class="font-medium text-gray-900 dark:text-white">Interest Shown</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Clicks on lead magnet offers</p>
+                                <div class="funnel-metric">
+                                    <div class="funnel-metric-value">2,468</div>
+                                    <div class="funnel-metric-label">Clicks</div>
+                                    <div class="funnel-metric-change funnel-metric-positive">+8% from last month</div>
+                                </div>
+                            </div>
+                            <div class="funnel-step active">
+                                <h3 class="font-medium text-gray-900 dark:text-white">Email Capture</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Form submissions completed</p>
+                                <div class="funnel-metric">
+                                    <div class="funnel-metric-value">1,247</div>
+                                    <div class="funnel-metric-label">Subscribers</div>
+                                    <div class="funnel-metric-change funnel-metric-positive">+15% from last month</div>
+                                </div>
+                            </div>
+                            <div class="funnel-step">
+                                <h3 class="font-medium text-gray-900 dark:text-white">Content Delivered</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Emails successfully sent</p>
+                                <div class="funnel-metric">
+                                    <div class="funnel-metric-value">1,222</div>
+                                    <div class="funnel-metric-label">Delivered</div>
+                                    <div class="funnel-metric-change funnel-metric-positive">+14% from last month</div>
+                                </div>
+                            </div>
+                            <div class="funnel-step">
+                                <h3 class="font-medium text-gray-900 dark:text-white">Engagement</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Opened email & clicked link</p>
+                                <div class="funnel-metric">
+                                    <div class="funnel-metric-value">523</div>
+                                    <div class="funnel-metric-label">Engaged Users</div>
+                                    <div class="funnel-metric-change funnel-metric-positive">+18% from last month</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="funnel-chart">
+                            <div class="funnel-segment funnel-segment-1" style="border-color: transparent transparent #D1D5DB transparent;">
+                                <div class="funnel-label funnel-label-1">Website Visitors</div>
+                                <div class="funnel-value funnel-value-1">38,752</div>
+                            </div>
+                            <div class="funnel-segment funnel-segment-2" style="border-color: transparent transparent #F59E0B transparent;">
+                                <div class="funnel-label funnel-label-2">Interest Shown</div>
+                                <div class="funnel-value funnel-value-2">2,468 (6.4%)</div>
+                            </div>
+                            <div class="funnel-segment funnel-segment-3" style="border-color: transparent transparent #10B981 transparent;">
+                                <div class="funnel-label funnel-label-3">Email Capture</div>
+                                <div class="funnel-value funnel-value-3">1,247 (50.5%)</div>
+                            </div>
+                            <div class="funnel-segment funnel-segment-4" style="border-color: transparent transparent #DC2626 transparent;">
+                                <div class="funnel-label funnel-label-4">Content Delivered</div>
+                                <div class="funnel-value funnel-value-4">1,222 (98%)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Lead Magnet Performance -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Lead Magnet Performance</h2>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Lead Magnet</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Type</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Visitors</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Conversion</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Unsubscribe</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">ROI</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center mr-3">
+                                                <svg class="h-5 w-5 text-jstar-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <div class="font-medium text-gray-900 dark:text-white">Viral Formula Guide</div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-400">/lead-magnets/viral-formula</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <span class="resource-type type-guide">Guide</span>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">12,450</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex flex-col">
+                                            <div class="text-sm font-medium text-gray-900 dark:text-white">5.2%</div>
+                                            <div class="conversion-bar">
+                                                <div class="conversion-fill" style="width: 5.2%; background-color: #10B981;"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">1.8%</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-green-600">+24.5%</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400 mr-3">Optimize</a>
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400">Edit</a>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center mr-3">
+                                                <svg class="h-5 w-5 text-faith-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h.01M12 12h.01M15 12h.01M6 12h.01M18 12h.01"></path>
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <div class="font-medium text-gray-900 dark:text-white">Content Calendar Template</div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-400">/lead-magnets/content-calendar</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <span class="resource-type type-template">Template</span>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">8,742</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex flex-col">
+                                            <div class="text-sm font-medium text-gray-900 dark:text-white">3.8%</div>
+                                            <div class="conversion-bar">
+                                                <div class="conversion-fill" style="width: 3.8%; background-color: #F59E0B;"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">2.5%</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-yellow-600">+8.2%</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400 mr-3">Optimize</a>
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400">Edit</a>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center mr-3">
+                                                <svg class="h-5 w-5 text-growth-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <div class="font-medium text-gray-900 dark:text-white">YouTube Checklist</div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-400">/lead-magnets/youtube-checklist</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <span class="resource-type type-checklist">Checklist</span>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">10,287</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex flex-col">
+                                            <div class="text-sm font-medium text-gray-900 dark:text-white">2.1%</div>
+                                            <div class="conversion-bar">
+                                                <div class="conversion-fill" style="width: 2.1%; background-color: #EF4444;"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">3.7%</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-red-600">-5.3%</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400 mr-3">Optimize</a>
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400">Edit</a>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center mr-3">
+                                                <svg class="h-5 w-5 text-admin-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <div class="font-medium text-gray-900 dark:text-white">Faith Integration Guide</div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-400">/lead-magnets/faith-guide</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <span class="resource-type type-guide">Guide</span>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">7,291</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex flex-col">
+                                            <div class="text-sm font-medium text-gray-900 dark:text-white">4.7%</div>
+                                            <div class="conversion-bar">
+                                                <div class="conversion-fill" style="width: 4.7%; background-color: #10B981;"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">1.2%</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-green-600">+19.8%</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400 mr-3">Optimize</a>
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400">Edit</a>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center mr-3">
+                                                <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <div class="font-medium text-gray-900 dark:text-white">Free Course: Viral Basics</div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-400">/lead-magnets/viral-basics</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <span class="resource-type type-course">Course</span>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">5,984</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex flex-col">
+                                            <div class="text-sm font-medium text-gray-900 dark:text-white">6.3%</div>
+                                            <div class="conversion-bar">
+                                                <div class="conversion-fill" style="width: 6.3%; background-color: #10B981;"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">2.9%</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-green-600">+32.1%</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400 mr-3">Optimize</a>
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400">Edit</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4 flex justify-between items-center">
+                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                            Showing 1 to 5 of 8 lead magnets
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                Previous
+                            </button>
+                            <button class="px-3 py-1 bg-admin-red text-white rounded-lg">1</button>
+                            <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                2
+                            </button>
+                            <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Lead Magnet Recommendations -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Optimization Recommendations</h2>
+                    <div class="space-y-4">
+                        <div class="lead-magnet-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">YouTube Checklist</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Low conversion rate (2.1%)</div>
+                                </div>
+                                <span class="text-sm text-yellow-500 dark:text-yellow-400 font-medium">Priority</span>
+                            </div>
+                            <div class="mt-3">
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                    This lead magnet has the lowest conversion rate (2.1%) and highest unsubscribe rate (3.7%).
+                                    Consider these improvements:
+                                </p>
+                                <ul class="list-disc pl-5 space-y-1 text-sm text-gray-600 dark:text-gray-400">
+                                    <li>Update the PDF to be more actionable and specific to current YouTube algorithm</li>
+                                    <li>Add a video component to increase engagement before the email capture</li>
+                                    <li>Test a different headline focusing on pain points rather than features</li>
+                                    <li>Reduce the form fields from 4 to 2 to decrease friction</li>
+                                </ul>
+                            </div>
+                            <div class="mt-3 flex justify-end">
+                                <button class="px-3 py-1 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium">
+                                    Implement Recommendations
+                                </button>
+                            </div>
+                        </div>
+                        <div class="lead-magnet-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Content Calendar Template</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Medium conversion rate (3.8%)</div>
+                                </div>
+                                <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">Medium Priority</span>
+                            </div>
+                            <div class="mt-3">
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                    This lead magnet has room for improvement (3.8% conversion, 2.5% unsubscribe).
+                                    Consider these improvements:
+                                </p>
+                                <ul class="list-disc pl-5 space-y-1 text-sm text-gray-600 dark:text-gray-400">
+                                    <li>Add a quick video walkthrough of how to use the template effectively</li>
+                                    <li>Update the template to include 2024 YouTube best practices</li>
+                                    <li>Offer a "premium version" as a Tier 1 upsell opportunity</li>
+                                    <li>Add social proof elements showing creator success stories</li>
+                                </ul>
+                            </div>
+                            <div class="mt-3 flex justify-end">
+                                <button class="px-3 py-1 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium">
+                                    Implement Recommendations
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Lead Magnet Details -->
+            <div class="space-y-6">
+                <!-- Lead Magnet Preview -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Lead Magnet Preview</h2>
+                    <div class="space-y-5">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Select Lead Magnet</label>
+                            <select class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <option>Select lead magnet to preview</option>
+                                <option>Viral Formula Guide</option>
+                                <option>Content Calendar Template</option>
+                                <option>YouTube Checklist</option>
+                                <option>Faith Integration Guide</option>
+                                <option>Free Course: Viral Basics</option>
+                            </select>
+                        </div>
+                        
+                        <div class="lead-magnet-preview">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <div class="font-bold text-lg text-gray-900 dark:text-white">Viral Formula Guide</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Lead magnet for YouTube creators</div>
+                                </div>
+                                <span class="resource-type type-guide">Guide</span>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <img src="https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1074&q=80" 
+                                     alt="Viral Formula Guide" 
+                                     class="w-full h-48 object-cover rounded-lg">
+                            </div>
+                            
+                            <div class="text-gray-700 dark:text-gray-300 mb-4">
+                                <p class="mb-2">Discover the exact formula used by top creators to make viral YouTube content that aligns with their values.</p>
+                                <p class="mb-2">In this comprehensive guide, you'll learn:</p>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>Hook → Build → Payoff structure for maximum engagement</li>
+                                    <li>How to integrate faith without being preachy</li>
+                                    <li>3 proven viral frameworks for different content types</li>
+                                    <li>Case studies from successful creators in your niche</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg mb-4">
+                                <div class="flex items-center mb-2">
+                                    <svg class="h-5 w-5 text-jstar-blue mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                    <span class="font-medium text-gray-900 dark:text-white">Email Capture Form</span>
+                                </div>
+                                <div class="space-y-2">
+                                    <input type="text" placeholder="Full Name" 
+                                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white">
+                                    <input type="email" placeholder="Email Address" 
+                                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white">
+                                    <div class="gdpr-consent">
+                                        <div class="flex items-start">
+                                            <input type="checkbox" id="gdpr1" class="mt-1 h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                            <label for="gdpr1" class="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                                                I agree to receive emails about content creation resources. You can unsubscribe at any time.
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium">
+                                        Get My Free Guide
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-between">
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-gray-900 dark:text-white">5.2%</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Conversion</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-gray-900 dark:text-white">1.8%</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Unsubscribe</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-gray-900 dark:text-white">+24.5%</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">ROI</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- GDPR Compliance -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">GDPR Compliance</h2>
+                    <div class="space-y-5">
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Consent Management</h3>
+                            <div class="space-y-3">
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="font-medium text-gray-900 dark:text-white">Email Marketing</span>
+                                        <span class="text-sm text-green-600 dark:text-green-400">Compliant</span>
+                                    </div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                                        Double opt-in process with clear consent language
+                                    </p>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="font-medium text-gray-900 dark:text-white">Data Processing</span>
+                                        <span class="text-sm text-green-600 dark:text-green-400">Compliant</span>
+                                    </div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                                        Clear privacy policy with data usage explanation
+                                    </p>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="font-medium text-gray-900 dark:text-white">Data Storage</span>
+                                        <span class="text-sm text-yellow-600 dark:text-yellow-400">Needs Review</span>
+                                    </div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                                        Review retention period for unsubscribed users
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Consent Language</h3>
+                            <div class="space-y-3">
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                        Standard Consent Text
+                                    </label>
+                                    <textarea class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white"
+                                              rows="3">I agree to receive emails about content creation resources from J StaR Films. You can unsubscribe at any time using the link in the footer of our emails.</textarea>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                        Enhanced Consent Text (Recommended)
+                                    </label>
+                                    <textarea class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white"
+                                              rows="3">I agree to receive valuable content creation resources, tips, and offers from J StaR Films via email. I understand I can unsubscribe at any time by clicking the link in the footer of any email I receive. My information will be processed in accordance with J StaR Films' Privacy Policy.</textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>GDPR Tip:</strong> Adding "valuable" to your consent language increases conversion by 1.2% 
+                                while maintaining compliance. Be specific about what users will receive.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Unsubscribe Rate Predictor -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Unsubscribe Rate Predictor</h2>
+                    <div class="space-y-5">
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Current Risk Assessment</h3>
+                            <div class="prediction-metric bg-gray-50 dark:bg-gray-700/50">
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Predicted Unsubscribe Rate</div>
+                                <div class="prediction-value prediction-good">1.8%</div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Below average for your niche</div>
+                                <div class="prediction-trend mt-2">
+                                    <div class="trend-indicator"></div>
+                                </div>
+                                <div class="flex justify-between text-xs mt-1 text-gray-500 dark:text-gray-400">
+                                    <span>0.5%</span>
+                                    <span>3.5%</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Risk Factors</h3>
+                            <div class="space-y-3">
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-900 dark:text-white">Content Relevance</span>
+                                        <span class="text-green-600 dark:text-green-400">Low Risk</span>
+                                    </div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                        Your content is highly relevant to subscribers' interests
+                                    </p>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-900 dark:text-white">Email Frequency</span>
+                                        <span class="text-yellow-600 dark:text-yellow-400">Medium Risk</span>
+                                    </div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                        Consider reducing from weekly to bi-weekly for better retention
+                                    </p>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-900 dark:text-white">Content Value</span>
+                                        <span class="text-green-600 dark:text-green-400">Low Risk</span>
+                                    </div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                        High-quality content with practical, actionable advice
+                                    </p>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-900 dark:text-white">Personalization</span>
+                                        <span class="text-red-600 dark:text-red-400">High Risk</span>
+                                    </div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                        Low personalization score - add more tailored content
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Prediction:</strong> Your unsubscribe rate is predicted to remain at 1.8% 
+                                if current practices continue. Adding personalization could reduce this to 1.2%.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Emergency Panel -->
+                <div class="bg-red-50 dark:bg-red-900/20 rounded-2xl p-6 shadow-lg border border-red-200 dark:border-red-800">
+                    <h2 class="text-xl font-bold text-red-900 dark:text-red-100 mb-4">Lead Magnet Emergency Tools</h2>
+                    <div class="space-y-3">
+                        <p class="text-sm text-red-800 dark:text-red-200">
+                            Critical functions for immediate lead generation management.
+                        </p>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                            ONE BUTTON: Disable Low-Performing Lead Magnet
+                        </button>
+                        <div class="flex space-x-2">
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Stop All Emails
+                            </button>
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Emergency Review
+                            </button>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                            Send Lead Data to Dev Friend
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-apply theme
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Initialize sidebar active state
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set lead magnets as active in sidebar
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.href.includes('lead-magnets')) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Optimize button
+            document.getElementById('optimize-btn').addEventListener('click', function() {
+                const originalText = this.innerHTML;
+                this.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2 inline text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Optimizing...';
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    alert('Lead magnets optimized successfully!');
+                }, 2000);
+            });
+            
+            // Lead magnet item click
+            const leadMagnetItems = document.querySelectorAll('.lead-magnet-item');
+            leadMagnetItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // In a real implementation, this would load the lead magnet details
+                    console.log('Loading lead magnet details:', this.querySelector('.font-medium').textContent);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - Billing War Room</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'admin-red': '#DC2626'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-tier1: linear-gradient(135deg, var(--brand-blue) 0%, #3B82F6 100%);
+            --gradient-tier2: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-admin: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        }
+        .btn-enhanced {
+            transition: all 300ms ease;
+        }
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+        }
+        .card-interactive {
+            transition: all 300ms ease;
+            cursor: pointer;
+        }
+        .card-interactive:hover {
+            transform: translateY(-4px);
+        }
+        .module-card {
+            transition: all 300ms ease;
+            border-left: 3px solid transparent;
+        }
+        .module-card:hover {
+            border-left-color: #DC2626;
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-active {
+            background-color: #10B981;
+        }
+        .status-warning {
+            background-color: #F59E0B;
+        }
+        .status-critical {
+            background-color: #EF4444;
+        }
+        .activity-item {
+            transition: all 200ms ease;
+        }
+        .activity-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .sidebar-item {
+            transition: all 200ms ease;
+        }
+        .sidebar-item:hover {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: #DC2626;
+        }
+        .sidebar-item.active {
+            background-color: rgba(220, 38, 38, 0.15);
+            color: #DC2626;
+            font-weight: 600;
+            border-left: 3px solid #DC2626;
+        }
+        .quick-action {
+            transition: all 300ms ease;
+        }
+        .quick-action:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.2);
+        }
+        .system-metric {
+            transition: all 200ms ease;
+        }
+        .system-metric:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .subscription-item {
+            transition: all 200ms ease;
+        }
+        .subscription-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .subscription-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .subscription-active {
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+            color: white;
+        }
+        .subscription-pending {
+            background: #E5E7EB;
+            color: #6B7280;
+        }
+        .subscription-failed {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            color: white;
+        }
+        .subscription-refunded {
+            background: #6B7280;
+            color: white;
+        }
+        .subscription-tier1 {
+            background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
+            color: white;
+        }
+        .subscription-tier2 {
+            background: linear-gradient(135deg, #2563EB 0%, #8B5CF6 100%);
+            color: white;
+        }
+        .subscription-tier3 {
+            background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+            color: white;
+        }
+        .subscription-lifetime {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: white;
+        }
+        .retry-schedule {
+            position: relative;
+            height: 100px;
+            background: #F9FAFB;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        .retry-event {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            background-color: #EF4444;
+            border-radius: 0.25rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 0.25rem;
+        }
+        .retry-event:hover {
+            transform: scale(1.05);
+            z-index: 10;
+        }
+        .retry-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: repeat(24, 1fr);
+            border-right: 1px solid #E5E7EB;
+        }
+        .retry-grid-line {
+            border-left: 1px solid #E5E7EB;
+            height: 100%;
+        }
+        .retry-grid-label {
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(24, 1fr);
+            font-size: 0.75rem;
+            color: #6B7280;
+        }
+        .retry-grid-label span {
+            text-align: center;
+        }
+        .tax-rate {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            background-color: #E5E7EB;
+            margin-top: 0.5rem;
+        }
+        .tax-fill {
+            height: 100%;
+            border-radius: 4px;
+        }
+        .tax-high {
+            background-color: #EF4444;
+            width: 22%;
+        }
+        .tax-medium {
+            background-color: #F59E0B;
+            width: 15%;
+        }
+        .tax-low {
+            background-color: #10B981;
+            width: 5%;
+        }
+        .refund-progress {
+            position: relative;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            background-color: #E5E7EB;
+            margin-top: 0.5rem;
+        }
+        .refund-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            border-radius: 4px;
+            background-color: #10B981;
+        }
+        .refund-1 {
+            width: 25%;
+        }
+        .refund-2 {
+            width: 50%;
+        }
+        .refund-3 {
+            width: 75%;
+        }
+        .refund-4 {
+            width: 100%;
+        }
+        .refund-step {
+            position: absolute;
+            top: 12px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #D1D5DB;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            color: #4B5563;
+            font-weight: 500;
+        }
+        .refund-step.active {
+            background-color: #10B981;
+            color: white;
+        }
+        .refund-step.completed {
+            background-color: #10B981;
+            color: white;
+        }
+        .refund-step-label {
+            position: absolute;
+            top: 40px;
+            width: 80px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #6B7280;
+        }
+        .lifetime-badge {
+            padding: 0.15rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background-color: #DCFCE7;
+            color: #166534;
+        }
+        .failed-payment {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .payment-method {
+            padding: 0.15rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            background-color: #F3F4F6;
+            color: #4B5563;
+            margin-right: 0.25rem;
+        }
+        .method-card {
+            background-color: #DBEAFE;
+            color: #1D4ED8;
+        }
+        .method-apple {
+            background-color: #F3F4F6;
+            color: #1F2937;
+        }
+        .method-google {
+            background-color: #FEF3C7;
+            color: #D97706;
+        }
+        .method-paypal {
+            background-color: #F0F9FF;
+            color: #0EA5E9;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <!-- Theme Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="document.documentElement.classList.toggle('dark')" 
+                class="p-2 rounded-full bg-jstar-blue text-white hover:bg-faith-purple transition-all duration-300"
+                aria-label="Toggle dark/light theme">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Admin Navigation -->
+    <div class="fixed top-0 left-0 h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <a href="/admin" class="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                J StaR Admin
+            </a>
+        </div>
+        
+        <div class="p-4">
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Platform Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="/admin/cms" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        CMS
+                    </a>
+                    <a href="/admin/johngpt" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                        JohnGPT
+                    </a>
+                    <a href="/admin/cge" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        CGE Tools
+                    </a>
+                    <a href="/admin/users" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        User Management
+                    </a>
+                    <a href="/admin/analytics" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Analytics
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    User Management
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin/users" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        Users
+                    </a>
+                    <a href="/admin/users/lead-magnets" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                        </svg>
+                        Lead Magnet Lab
+                    </a>
+                    <a href="/admin/users/subscriptions" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Billing War Room
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center">
+                        <span class="text-white font-bold">JO</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Admin Access</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 p-6">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center mb-2">
+                        <a href="/admin/users" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">User Management</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <span class="text-gray-900 dark:text-white">Billing War Room</span>
+                    </div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
+                        Billing War Room
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">
+                        Revenue protection and subscription management center
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced" id="retry-all-btn">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        Retry All Failed
+                    </button>
+                    <div class="relative">
+                        <input type="text" placeholder="Search subscriptions..." 
+                               class="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                        <svg class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+        <!-- System Status -->
+        <section class="mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Billing System Status</h2>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">
+                            Current billing system status and payment processing
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Stripe Connected</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Tax Engine Active</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Revenue Synced</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Stats -->
+        <section class="mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-admin-red mb-2">$42,875</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Monthly Recurring Revenue</div>
+                    <div class="mt-3 flex items-center">
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                            <div class="conversion-fill" style="width: 85%; background-color: #DC2626;"></div>
+                        </div>
+                        <span class="ml-2 text-sm text-gray-500 dark:text-gray-400">+12% from last month</span>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-purple-500 mb-2">1,247</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Active Subscribers</div>
+                    <div class="mt-3 flex items-center">
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                            <div class="conversion-fill" style="width: 78%; background-color: #8B5CF6;"></div>
+                        </div>
+                        <span class="ml-2 text-sm text-gray-500 dark:text-gray-400">+8% from last month</span>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-green-500 mb-2">2.1%</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Failed Payments</div>
+                    <div class="mt-3 flex items-center">
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                            <div class="conversion-fill" style="width: 2.1%; background-color: #059669;"></div>
+                        </div>
+                        <span class="ml-2 text-sm text-gray-500 dark:text-gray-400">-0.3% from last month</span>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-red-500 mb-2">14</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Refund Requests</div>
+                    <div class="mt-3 flex items-center">
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                            <div class="conversion-fill" style="width: 3.2%; background-color: #EF4444;"></div>
+                        </div>
+                        <span class="ml-2 text-sm text-gray-500 dark:text-gray-400">+2 from last week</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Billing Management Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - Failed Payments & Refunds -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Failed Payment Management -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-center mb-5">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Failed Payment Management</h2>
+                        <div class="flex space-x-2">
+                            <select class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <option>Last 30 Days</option>
+                                <option>Last 7 Days</option>
+                                <option>Last 90 Days</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <div class="text-lg font-medium text-gray-900 dark:text-white mb-3">Retry Schedule</div>
+                            <div class="retry-schedule mb-6">
+                                <div class="retry-grid">
+                                    <div class="retry-grid-line"></div>
+                                    <div class="retry-grid-line"></div>
+                                    <div class="retry-grid-line"></div>
+                                    <div class="retry-grid-line"></div>
+                                    <div class="retry-grid-line"></div>
+                                    <div class="retry-grid-line"></div>
+                                    <div class="retry-grid-line"></div>
+                                    <div class="retry-grid-line"></div>
+                                    <div class="retry-grid-line"></div>
+                                    <div class="retry-grid-line"></div>
+                                    <div class="retry-grid-line"></div>
+                                    <div class="retry-grid-line"></div>
+                                    <div class="retry-grid-line"></div>
+                                    <div class="retry-grid-line"></div>
+                                    <div class="retry-grid-line"></div>
+                                    <div class="retry-grid-line"></div>
+                                    <div class="retry-grid-line"></div>
+                                    <div class="retry-grid-line"></div>
+                                    <div class="retry-grid-line"></div>
+                                    <div class="retry-grid-line"></div>
+                                    <div class="retry-grid-line"></div>
+                                    <div class="retry-grid-line"></div>
+                                    <div class="retry-grid-line"></div>
+                                    <div class="retry-grid-line"></div>
+                                </div>
+                                <div class="retry-event" style="width: 4%; left: 10%;">
+                                    <span>1st Retry</span>
+                                    <span class="text-xs">+24h</span>
+                                </div>
+                                <div class="retry-event" style="width: 4%; left: 20%;">
+                                    <span>2nd Retry</span>
+                                    <span class="text-xs">+48h</span>
+                                </div>
+                                <div class="retry-event" style="width: 4%; left: 35%;">
+                                    <span>3rd Retry</span>
+                                    <span class="text-xs">+72h</span>
+                                </div>
+                                <div class="retry-event failed-payment" style="width: 4%; left: 50%;">
+                                    <span>Downgrade</span>
+                                    <span class="text-xs">+96h</span>
+                                </div>
+                            </div>
+                            <div class="retry-grid-label">
+                                <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+                                <span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span>
+                                <span>12</span><span>13</span><span>14</span><span>15</span><span>16</span><span>17</span>
+                                <span>18</span><span>19</span><span>20</span><span>21</span><span>22</span><span>23</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-lg font-medium text-gray-900 dark:text-white mb-3">Current Failed Payments (26)</div>
+                            <div class="space-y-3">
+                                <div class="subscription-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg failed-payment">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">Adebayo Ogunleye</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400">adebayo@example.com</div>
+                                        </div>
+                                        <span class="subscription-badge subscription-failed">Failed</span>
+                                    </div>
+                                    <div class="mt-3">
+                                        <div class="flex flex-wrap gap-2 mb-2">
+                                            <span class="payment-method method-card">Visa •••• 4242</span>
+                                            <span class="text-sm text-gray-500 dark:text-gray-400">Tier 3 - $49.99/mo</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                            Payment failed: Insufficient funds (code: insufficient_funds)
+                                        </p>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                                            Last attempt: 24 hours ago
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 flex justify-end space-x-2">
+                                        <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                            View Details
+                                        </button>
+                                        <button class="px-3 py-1 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg">
+                                            Retry Now
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="subscription-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">Sarah Mitchell</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400">sarahm@example.com</div>
+                                        </div>
+                                        <span class="subscription-badge subscription-failed">Failed</span>
+                                    </div>
+                                    <div class="mt-3">
+                                        <div class="flex flex-wrap gap-2 mb-2">
+                                            <span class="payment-method method-apple">Apple Pay</span>
+                                            <span class="text-sm text-gray-500 dark:text-gray-400">Tier 2 - $29.99/mo</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                            Payment failed: Card expired (code: expired_card)
+                                        </p>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                                            Last attempt: 48 hours ago
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 flex justify-end space-x-2">
+                                        <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                            View Details
+                                        </button>
+                                        <button class="px-3 py-1 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg">
+                                            Retry Now
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="subscription-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">Thomas Garcia</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400">tgarcia@example.com</div>
+                                        </div>
+                                        <span class="subscription-badge subscription-failed">Failed</span>
+                                    </div>
+                                    <div class="mt-3">
+                                        <div class="flex flex-wrap gap-2 mb-2">
+                                            <span class="payment-method method-google">Google Pay</span>
+                                            <span class="text-sm text-gray-500 dark:text-gray-400">Tier 1 - $9.99/mo</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                            Payment failed: Card declined (code: card_declined)
+                                        </p>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                                            Last attempt: 72 hours ago
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 flex justify-end space-x-2">
+                                        <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                            View Details
+                                        </button>
+                                        <button class="px-3 py-1 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg">
+                                            Retry Now
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Refund Requests -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Refund Requests (14)</h2>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">User</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tier</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Request Date</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center mr-3">
+                                                <span class="text-jstar-blue font-bold">JO</span>
+                                            </div>
+                                            <div>
+                                                <div class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-400">john@jstarfilms.com</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <span class="subscription-badge subscription-tier3">Tier 3</span>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">$49.99</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">June 20, 2024</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">14 days ago</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex flex-col">
+                                            <div class="text-sm font-medium text-gray-900 dark:text-white">Processing</div>
+                                            <div class="refund-progress">
+                                                <div class="refund-fill refund-2"></div>
+                                                <div class="refund-step completed" style="left: 0%;">1</div>
+                                                <div class="refund-step active" style="left: 33%;">2</div>
+                                                <div class="refund-step" style="left: 66%;">3</div>
+                                                <div class="refund-step" style="left: 99%;">4</div>
+                                                <div class="refund-step-label" style="left: 0%;">Request</div>
+                                                <div class="refund-step-label" style="left: 33%;">Review</div>
+                                                <div class="refund-step-label" style="left: 66%;">Process</div>
+                                                <div class="refund-step-label" style="left: 99%;">Complete</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400 mr-3">Review</a>
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400">Approve</a>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center mr-3">
+                                                <span class="text-faith-purple font-bold">SM</span>
+                                            </div>
+                                            <div>
+                                                <div class="font-medium text-gray-900 dark:text-white">Sarah Mitchell</div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-400">sarahm@example.com</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <span class="subscription-badge subscription-tier2">Tier 2</span>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">$29.99</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">June 15, 2024</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">19 days ago</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex flex-col">
+                                            <div class="text-sm font-medium text-gray-900 dark:text-white">Pending</div>
+                                            <div class="refund-progress">
+                                                <div class="refund-fill refund-1"></div>
+                                                <div class="refund-step completed" style="left: 0%;">1</div>
+                                                <div class="refund-step" style="left: 33%;">2</div>
+                                                <div class="refund-step" style="left: 66%;">3</div>
+                                                <div class="refund-step" style="left: 99%;">4</div>
+                                                <div class="refund-step-label" style="left: 0%;">Request</div>
+                                                <div class="refund-step-label" style="left: 33%;">Review</div>
+                                                <div class="refund-step-label" style="left: 66%;">Process</div>
+                                                <div class="refund-step-label" style="left: 99%;">Complete</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400 mr-3">Review</a>
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400">Approve</a>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center mr-3">
+                                                <span class="text-growth-green font-bold">TG</span>
+                                            </div>
+                                            <div>
+                                                <div class="font-medium text-gray-900 dark:text-white">Thomas Garcia</div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-400">tgarcia@example.com</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <span class="subscription-badge subscription-tier1">Tier 1</span>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">$9.99</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">June 10, 2024</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">24 days ago</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex flex-col">
+                                            <div class="text-sm font-medium text-gray-900 dark:text-white">Completed</div>
+                                            <div class="refund-progress">
+                                                <div class="refund-fill refund-4"></div>
+                                                <div class="refund-step completed" style="left: 0%;">1</div>
+                                                <div class="refund-step completed" style="left: 33%;">2</div>
+                                                <div class="refund-step completed" style="left: 66%;">3</div>
+                                                <div class="refund-step completed" style="left: 99%;">4</div>
+                                                <div class="refund-step-label" style="left: 0%;">Request</div>
+                                                <div class="refund-step-label" style="left: 33%;">Review</div>
+                                                <div class="refund-step-label" style="left: 66%;">Process</div>
+                                                <div class="refund-step-label" style="left: 99%;">Complete</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400 mr-3">View</a>
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400">History</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4 flex justify-between items-center">
+                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                            Showing 1 to 3 of 14 refund requests
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                Previous
+                            </button>
+                            <button class="px-3 py-1 bg-admin-red text-white rounded-lg">1</button>
+                            <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                2
+                            </button>
+                            <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Lifetime Deal Management -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Lifetime Deal Management</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <div class="text-lg font-medium text-gray-900 dark:text-white mb-3">Lifetime Deal Overview</div>
+                            <div class="space-y-4">
+                                <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="font-medium text-gray-900 dark:text-white">Total Lifetime Deals</span>
+                                        <span class="text-2xl font-bold text-gray-900 dark:text-white">42</span>
+                                    </div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Generating $2,100 in one-time revenue</div>
+                                </div>
+                                <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="font-medium text-gray-900 dark:text-white">Lifetime Deal Tiers</span>
+                                    </div>
+                                    <div class="mt-2 space-y-2">
+                                        <div class="flex justify-between">
+                                            <span class="text-sm text-gray-600 dark:text-gray-400">Tier 3 Lifetime</span>
+                                            <span class="text-sm font-medium">28</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-sm text-gray-600 dark:text-gray-400">Tier 2 Lifetime</span>
+                                            <span class="text-sm font-medium">12</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-sm text-gray-600 dark:text-gray-400">Tier 1 Lifetime</span>
+                                            <span class="text-sm font-medium">2</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center">
+                                        <span class="font-medium text-gray-900 dark:text-white">Revenue Impact</span>
+                                        <span class="text-green-600 dark:text-green-400">+12.5%</span>
+                                    </div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                        Lifetime deals increase customer acquisition with lower churn
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-lg font-medium text-gray-900 dark:text-white mb-3">Active Lifetime Deals (42)</div>
+                            <div class="space-y-3">
+                                <div class="subscription-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">Chinedu Eze</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400">chinedu@example.com</div>
+                                        </div>
+                                        <span class="subscription-badge subscription-lifetime">Lifetime</span>
+                                    </div>
+                                    <div class="mt-3">
+                                        <div class="flex flex-wrap gap-2 mb-2">
+                                            <span class="text-sm text-gray-500 dark:text-gray-400">Tier 3 Lifetime Deal</span>
+                                            <span class="text-sm text-gray-500 dark:text-gray-400">Purchased: Mar 15, 2024</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                            One-time payment of $299 for lifetime access to Tier 3
+                                        </p>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                                            Value: $599.88 (24 months of Tier 3)
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 flex justify-end">
+                                        <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                            View Details
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="subscription-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">Femi Adeyemi</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400">femi@example.com</div>
+                                        </div>
+                                        <span class="subscription-badge subscription-lifetime">Lifetime</span>
+                                    </div>
+                                    <div class="mt-3">
+                                        <div class="flex flex-wrap gap-2 mb-2">
+                                            <span class="text-sm text-gray-500 dark:text-gray-400">Tier 2 Lifetime Deal</span>
+                                            <span class="text-sm text-gray-500 dark:text-gray-400">Purchased: Feb 28, 2024</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                            One-time payment of $149 for lifetime access to Tier 2
+                                        </p>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                                            Value: $359.88 (12 months of Tier 2)
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 flex justify-end">
+                                        <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                            View Details
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="subscription-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">Adebayo Ogunleye</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400">adebayo@example.com</div>
+                                        </div>
+                                        <span class="subscription-badge subscription-lifetime">Lifetime</span>
+                                    </div>
+                                    <div class="mt-3">
+                                        <div class="flex flex-wrap gap-2 mb-2">
+                                            <span class="text-sm text-gray-500 dark:text-gray-400">Tier 3 Lifetime Deal</span>
+                                            <span class="text-sm text-gray-500 dark:text-gray-400">Purchased: Jan 10, 2024</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                            One-time payment of $299 for lifetime access to Tier 3
+                                        </p>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                                            Value: $599.88 (24 months of Tier 3)
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 flex justify-end">
+                                        <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                            View Details
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Billing Management -->
+            <div class="space-y-6">
+                <!-- Tax Compliance -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Tax Compliance</h2>
+                    <div class="space-y-5">
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Tax Rates by Region</h3>
+                            <div class="space-y-3">
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between mb-1">
+                                        <span class="font-medium text-gray-900 dark:text-white">United States</span>
+                                        <span class="text-sm text-gray-500 dark:text-gray-400">2.9% + state tax</span>
+                                    </div>
+                                    <div class="tax-rate">
+                                        <div class="tax-fill tax-medium"></div>
+                                    </div>
+                                    <div class="flex justify-between text-xs mt-1 text-gray-500 dark:text-gray-400">
+                                        <span>0%</span>
+                                        <span>15%</span>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between mb-1">
+                                        <span class="font-medium text-gray-900 dark:text-white">European Union</span>
+                                        <span class="text-sm text-gray-500 dark:text-gray-400">VAT 20%</span>
+                                    </div>
+                                    <div class="tax-rate">
+                                        <div class="tax-fill tax-high"></div>
+                                    </div>
+                                    <div class="flex justify-between text-xs mt-1 text-gray-500 dark:text-gray-400">
+                                        <span>0%</span>
+                                        <span>22%</span>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between mb-1">
+                                        <span class="font-medium text-gray-900 dark:text-white">Canada</span>
+                                        <span class="text-sm text-gray-500 dark:text-gray-400">GST 5% + PST</span>
+                                    </div>
+                                    <div class="tax-rate">
+                                        <div class="tax-fill tax-low"></div>
+                                    </div>
+                                    <div class="flex justify-between text-xs mt-1 text-gray-500 dark:text-gray-400">
+                                        <span>0%</span>
+                                        <span>15%</span>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between mb-1">
+                                        <span class="font-medium text-gray-900 dark:text-white">Nigeria</span>
+                                        <span class="text-sm text-gray-500 dark:text-gray-400">VAT 7.5%</span>
+                                    </div>
+                                    <div class="tax-rate">
+                                        <div class="tax-fill tax-medium"></div>
+                                    </div>
+                                    <div class="flex justify-between text-xs mt-1 text-gray-500 dark:text-gray-400">
+                                        <span>0%</span>
+                                        <span>15%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Tax Configuration</h3>
+                            <div class="space-y-3">
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        Tax Calculation Method
+                                    </label>
+                                    <select class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white">
+                                        <option>Tax Inclusive (display tax-inclusive prices)</option>
+                                        <option>Tax Exclusive (display base prices + tax)</option>
+                                    </select>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        Tax Nexus Settings
+                                    </label>
+                                    <div class="space-y-2">
+                                        <label class="flex items-center">
+                                            <input type="checkbox" checked class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">United States (25+ states)</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" checked class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">European Union</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Canada</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Australia</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Tax Tip:</strong> Enabling tax nexus in the EU requires VAT ID validation 
+                                for business customers. This reduces tax compliance risk by 78%.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Billing Metrics -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Billing Metrics</h2>
+                    <div class="space-y-5">
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Revenue by Tier</h3>
+                            <div class="space-y-3">
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between mb-1">
+                                        <div class="flex items-center">
+                                            <span class="w-3 h-3 rounded-full bg-gradient-to-r from-jstar-blue to-faith-purple mr-2"></span>
+                                            <span class="text-gray-900 dark:text-white">Tier 1</span>
+                                        </div>
+                                        <span class="text-sm font-medium">$8,425</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                        <div class="bg-gradient-to-r from-jstar-blue to-faith-purple h-2 rounded-full" style="width: 20%"></div>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between mb-1">
+                                        <div class="flex items-center">
+                                            <span class="w-3 h-3 rounded-full bg-gradient-to-r from-jstar-blue to-faith-purple mr-2"></span>
+                                            <span class="text-gray-900 dark:text-white">Tier 2</span>
+                                        </div>
+                                        <span class="text-sm font-medium">$14,850</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                        <div class="bg-gradient-to-r from-jstar-blue to-faith-purple h-2 rounded-full" style="width: 35%"></div>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between mb-1">
+                                        <div class="flex items-center">
+                                            <span class="w-3 h-3 rounded-full bg-gradient-to-r from-jstar-blue to-faith-purple mr-2"></span>
+                                            <span class="text-gray-900 dark:text-white">Tier 3</span>
+                                        </div>
+                                        <span class="text-sm font-medium">$19,600</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                        <div class="bg-gradient-to-r from-jstar-blue to-faith-purple h-2 rounded-full" style="width: 45%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Churn Rate</h3>
+                            <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                <div class="text-2xl font-bold text-gray-900 dark:text-white mb-1">3.2%</div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-2">
+                                    <div class="bg-admin-red h-2 rounded-full" style="width: 3.2%"></div>
+                                </div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">
+                                    Down 0.5% from last month. Failed payments are the main churn driver (68%).
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Emergency Panel -->
+                <div class="bg-red-50 dark:bg-red-900/20 rounded-2xl p-6 shadow-lg border border-red-200 dark:border-red-800">
+                    <h2 class="text-xl font-bold text-red-900 dark:text-red-100 mb-4">Billing Emergency Tools</h2>
+                    <div class="space-y-3">
+                        <p class="text-sm text-red-800 dark:text-red-200">
+                            Critical functions for immediate revenue protection and billing management.
+                        </p>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                            ONE BUTTON: Auto-Retry All Failed Payments
+                        </button>
+                        <div class="flex space-x-2">
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Disable Downgrades
+                            </button>
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Emergency Refund
+                            </button>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                            Send Billing Report to Dev Friend
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-apply theme
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Initialize sidebar active state
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set subscriptions as active in sidebar
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.href.includes('subscriptions')) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Retry all button
+            document.getElementById('retry-all-btn').addEventListener('click', function() {
+                const originalText = this.innerHTML;
+                this.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2 inline text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Retrying...';
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    alert('All failed payments are now being retried!');
+                }, 2000);
+            });
+            
+            // Subscription item click
+            const subscriptionItems = document.querySelectorAll('.subscription-item');
+            subscriptionItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // In a real implementation, this would load the subscription details
+                    console.log('Loading subscription details:', this.querySelector('.font-medium').textContent);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { HeroSlide } from '../hooks/useHeroSlides';
 import SlidesList from './SlidesList';
 import SlideshowConfig from './SlideshowConfig';
+import LivePreview from './LivePreview';
 
 /**
  * Props for HeroSlidesGrid component
@@ -40,6 +41,7 @@ export const HeroSlidesGrid: React.FC<HeroSlidesGridProps> = ({
   onSlideToggle,
 }) => {
   const [filter, setFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [selectedSlideForPreview, setSelectedSlideForPreview] = useState<HeroSlide | null>(null);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -50,7 +52,10 @@ export const HeroSlidesGrid: React.FC<HeroSlidesGridProps> = ({
           slides={slides}
           loading={loading}
           error={error}
-          onSlideSelect={onSlideSelect}
+          onSlideSelect={(slide) => {
+            setSelectedSlideForPreview(slide);
+            onSlideSelect?.(slide);
+          }}
           onSlideEdit={onSlideEdit}
           onSlideDelete={onSlideDelete}
           onSlideToggle={onSlideToggle}
@@ -91,34 +96,13 @@ export const HeroSlidesGrid: React.FC<HeroSlidesGridProps> = ({
         {/* Slideshow Configuration - Functional */}
         <SlideshowConfig />
 
-        {/* Slide Preview */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-5">
-            Live Preview
-          </h2>
-          <div className="text-center py-8 sm:py-12 text-gray-500 dark:text-gray-400">
-            <svg
-              className="h-12 w-12 mx-auto mb-4 text-gray-300 dark:text-gray-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-              />
-            </svg>
-            <p className="text-sm sm:text-base font-medium mb-2">
-              Live Preview
-            </p>
-            <p className="text-xs sm:text-sm">
-              Interactive preview will be implemented here
-            </p>
-          </div>
-        </div>
+        {/* Live Preview */}
+        <LivePreview
+          slide={selectedSlideForPreview}
+          loading={loading}
+          allSlides={slides}
+          onSlideChange={setSelectedSlideForPreview}
+        />
 
         {/* Quick Actions */}
         <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-200 dark:border-gray-700">
