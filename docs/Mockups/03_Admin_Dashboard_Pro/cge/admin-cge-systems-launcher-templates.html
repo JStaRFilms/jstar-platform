@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - Starter Kit Forge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'admin-red': '#DC2626'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-tier1: linear-gradient(135deg, var(--brand-blue) 0%, #3B82F6 100%);
+            --gradient-tier2: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-admin: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        }
+        .btn-enhanced {
+            transition: all 300ms ease;
+        }
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+        }
+        .card-interactive {
+            transition: all 300ms ease;
+            cursor: pointer;
+        }
+        .card-interactive:hover {
+            transform: translateY(-4px);
+        }
+        .module-card {
+            transition: all 300ms ease;
+            border-left: 3px solid transparent;
+        }
+        .module-card:hover {
+            border-left-color: #DC2626;
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-active {
+            background-color: #10B981;
+        }
+        .status-warning {
+            background-color: #F59E0B;
+        }
+        .status-critical {
+            background-color: #EF4444;
+        }
+        .activity-item {
+            transition: all 200ms ease;
+        }
+        .activity-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .sidebar-item {
+            transition: all 200ms ease;
+        }
+        .sidebar-item:hover {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: #DC2626;
+        }
+        .sidebar-item.active {
+            background-color: rgba(220, 38, 38, 0.15);
+            color: #DC2626;
+            font-weight: 600;
+            border-left: 3px solid #DC2626;
+        }
+        .quick-action {
+            transition: all 300ms ease;
+        }
+        .quick-action:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.2);
+        }
+        .system-metric {
+            transition: all 200ms ease;
+        }
+        .system-metric:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .template-item {
+            transition: all 200ms ease;
+        }
+        .template-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .template-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .template-active {
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+            color: white;
+        }
+        .template-inactive {
+            background: #E5E7EB;
+            color: #6B7280;
+        }
+        .template-tiers {
+            padding: 0.15rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            background-color: #F3F4F6;
+            color: #4B5563;
+            margin-right: 0.25rem;
+        }
+        .tier-1 {
+            background-color: #DBEAFE;
+            color: #1D4ED8;
+        }
+        .tier-2 {
+            background-color: #F3F4F6;
+            color: #1F2937;
+        }
+        .tier-3 {
+            background-color: #FEF3C7;
+            color: #D97706;
+        }
+        .admin-tier {
+            background-color: #FEE2E2;
+            color: #B91C1C;
+        }
+        .version-history {
+            padding: 0.15rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            background-color: #F3F4F6;
+            color: #4B5563;
+            margin-right: 0.25rem;
+        }
+        .version-current {
+            background-color: #DCFCE7;
+            color: #166534;
+        }
+        .version-old {
+            background-color: #FEF3C7;
+            color: #92400E;
+        }
+        .leak-detector {
+            position: relative;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        .leak-highlight {
+            background-color: #FEE2E2;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { background-color: #FEE2E2; }
+            50% { background-color: #FECACA; }
+            100% { background-color: #FEE2E2; }
+        }
+        .dependency-graph {
+            height: 150px;
+            background: linear-gradient(to bottom, #F9FAFB, #FFFFFF);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            position: relative;
+        }
+        .dependency-node {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .dependency-line {
+            position: absolute;
+            background-color: #D1D5DB;
+            transform-origin: 0 0;
+        }
+        .usage-chart {
+            height: 180px;
+            position: relative;
+        }
+        .usage-bar {
+            position: absolute;
+            bottom: 0;
+            width: 20px;
+            border-radius: 4px 4px 0 0;
+            transition: height 0.3s ease;
+        }
+        .chart-label {
+            position: absolute;
+            bottom: -20px;
+            width: 20px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #6B7280;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <!-- Theme Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="document.documentElement.classList.toggle('dark')" 
+                class="p-2 rounded-full bg-jstar-blue text-white hover:bg-faith-purple transition-all duration-300"
+                aria-label="Toggle dark/light theme">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Admin Navigation -->
+    <div class="fixed top-0 left-0 h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <a href="/admin" class="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                J StaR Admin
+            </a>
+        </div>
+        
+        <div class="p-4">
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Platform Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="/admin/cms" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        CMS
+                    </a>
+                    <a href="/admin/johngpt" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                        JohnGPT
+                    </a>
+                    <a href="/admin/cge" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        CGE Tools
+                    </a>
+                    <a href="/admin/users" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        User Management
+                    </a>
+                    <a href="/admin/analytics" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Analytics
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    CGE Tools
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin/cge" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        CGE Dashboard
+                    </a>
+                    <a href="/admin/cge/virality-os" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                        Virality OS
+                    </a>
+                    <a href="/admin/cge/client-leads" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        Client Leads
+                    </a>
+                    <a href="/admin/cge/systems-launcher" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                        </svg>
+                        Systems Launcher
+                    </a>
+                    <a href="/admin/cge/systems-launcher/templates" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.708.954 3.653.393 4.833-1.449 1.179-1.842 1.179-4.031 0-5.873a1.724 1.724 0 00-2.573-1.066c-1.708.954-3.653.393-4.833 1.449-1.179 1.842-1.179 4.031 0 5.873m-4.743-2.242A1.024 1.024 0 019 1.025v11a1.024 1.024 0 01-1.025 1.025H3.025A1.024 1.024 0 012 12.025V8.975c0-.565.46-1.025 1.025-1.025h3.95a1.024 1.024 0 011.025 1.025z"></path>
+                        </svg>
+                        Starter Kit Forge
+                    </a>
+                    <a href="/admin/cge/analytics" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Analytics Dashboard
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center">
+                        <span class="text-white font-bold">JO</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Admin Access</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 p-6">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center mb-2">
+                        <a href="/admin/cge" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">CGE Tools</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <a href="/admin/cge/systems-launcher" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Systems Launcher</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <span class="text-gray-900 dark:text-white">Starter Kit Forge</span>
+                    </div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
+                        Starter Kit Forge
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">
+                        Create, manage, and protect your starter kit templates
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced" id="apply-templates-btn">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Apply Template Changes
+                    </button>
+                    <div class="relative">
+                        <input type="text" placeholder="Search templates..." 
+                               class="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                        <svg class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+        <!-- System Status -->
+        <section class="mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Template System Status</h2>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">
+                            Current template management system status and configuration
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Templates Active</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">IP Protection Active</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Analytics Tracking Active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Stats -->
+        <section class="mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-admin-red mb-2">24</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Total Starter Kits</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-purple-500 mb-2">$7,128</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Revenue Generated</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-green-500 mb-2">18</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Active Leaks Blocked</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-red-500 mb-2">100%</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">IP Protection</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Template Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - Template Management -->
+            <div class="space-y-6">
+                <!-- Template Version Control -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Template Version Control</h2>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">YouTube Starter Pack</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Premium template</div>
+                                </div>
+                                <span class="version-history version-current">v2.3</span>
+                            </div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                                Last updated: June 20, 2024 • 14:30 PM
+                            </div>
+                            <div class="flex justify-between">
+                                <button class="text-sm text-admin-red hover:text-red-700 dark:hover:text-red-400">
+                                    View History
+                                </button>
+                                <button class="text-sm bg-admin-red/10 text-admin-red px-2 py-1 rounded hover:bg-admin-red/20">
+                                    Create New Version
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Content Creator Toolkit</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Free template</div>
+                                </div>
+                                <span class="version-history version-current">v1.5</span>
+                            </div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                                Last updated: June 15, 2024 • 09:23 AM
+                            </div>
+                            <div class="flex justify-between">
+                                <button class="text-sm text-admin-red hover:text-red-700 dark:hover:text-red-400">
+                                    View History
+                                </button>
+                                <button class="text-sm bg-admin-red/10 text-admin-red px-2 py-1 rounded hover:bg-admin-red/20">
+                                    Create New Version
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Business Coaching Framework</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Premium template</div>
+                                </div>
+                                <span class="version-history version-old">v1.2</span>
+                            </div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                                Last updated: May 28, 2024 • 11:45 AM
+                            </div>
+                            <div class="flex justify-between">
+                                <button class="text-sm text-admin-red hover:text-red-700 dark:hover:text-red-400">
+                                    View History
+                                </button>
+                                <button class="text-sm bg-admin-red/10 text-admin-red px-2 py-1 rounded hover:bg-admin-red/20">
+                                    Create New Version
+                                </button>
+                            </div>
+                        </div>
+                        <button class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 font-medium">
+                            Create New Template
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Asset Dependencies -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Asset Dependencies</h2>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">YouTube Starter Pack Dependencies</div>
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300">Thumbnail Templates</div>
+                                    <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                        Active
+                                    </span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300">Hook Formulas</div>
+                                    <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                        Active
+                                    </span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300">Analytics Dashboard</div>
+                                    <span class="text-xs bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-200 px-2 py-1 rounded">
+                                        Needs Update
+                                    </span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300">Script Templates</div>
+                                    <span class="text-xs bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-200 px-2 py-1 rounded">
+                                        Missing
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dependency-graph">
+                            <div class="dependency-node" style="background-color: #DC2626; left: 20px; top: 50px;">YT</div>
+                            <div class="dependency-node" style="background-color: #3B82F6; left: 100px; top: 20px;">TH</div>
+                            <div class="dependency-node" style="background-color: #8B5CF6; left: 100px; top: 80px;">HF</div>
+                            <div class="dependency-node" style="background-color: #F59E0B; left: 180px; top: 50px;">AD</div>
+                            <div class="dependency-node" style="background-color: #10B981; left: 260px; top: 50px;">ST</div>
+                            
+                            <div class="dependency-line" style="width: 70px; height: 2px; transform: rotate(45deg); left: 25px; top: 55px;"></div>
+                            <div class="dependency-line" style="width: 70px; height: 2px; transform: rotate(-45deg); left: 25px; top: 55px;"></div>
+                            <div class="dependency-line" style="width: 70px; height: 2px; transform: rotate(0deg); left: 105px; top: 25px;"></div>
+                            <div class="dependency-line" style="width: 70px; height: 2px; transform: rotate(0deg); left: 105px; top: 85px;"></div>
+                            <div class="dependency-line" style="width: 70px; height: 2px; transform: rotate(0deg); left: 185px; top: 55px;"></div>
+                        </div>
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Dependency Tip:</strong> Missing assets will cause template errors. Update or replace missing dependencies.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Middle Column - Template Usage -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Template Usage Analytics -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-center mb-5">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Template Usage Analytics</h2>
+                        <div class="flex space-x-2">
+                            <select class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <option>Last 7 Days</option>
+                                <option>Last 30 Days</option>
+                                <option>Last 90 Days</option>
+                                <option>All Time</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-3">YouTube Starter Pack</h3>
+                            <div class="usage-chart relative">
+                                <div class="usage-bar" style="background-color: #DC2626; height: 150px; left: 10px;"></div>
+                                <div class="usage-bar" style="background-color: #DC2626; height: 130px; left: 40px;"></div>
+                                <div class="usage-bar" style="background-color: #DC2626; height: 140px; left: 70px;"></div>
+                                <div class="usage-bar" style="background-color: #DC2626; height: 120px; left: 100px;"></div>
+                                <div class="usage-bar" style="background-color: #DC2626; height: 160px; left: 130px;"></div>
+                                <div class="usage-bar" style="background-color: #DC2626; height: 145px; left: 160px;"></div>
+                                <div class="usage-bar" style="background-color: #DC2626; height: 155px; left: 190px;"></div>
+                                
+                                <div class="chart-label" style="left: 10px;">Mon</div>
+                                <div class="chart-label" style="left: 40px;">Tue</div>
+                                <div class="chart-label" style="left: 70px;">Wed</div>
+                                <div class="chart-label" style="left: 100px;">Thu</div>
+                                <div class="chart-label" style="left: 130px;">Fri</div>
+                                <div class="chart-label" style="left: 160px;">Sat</div>
+                                <div class="chart-label" style="left: 190px;">Sun</div>
+                            </div>
+                            <div class="mt-4 grid grid-cols-3 gap-4">
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Total Downloads</div>
+                                    <div class="text-2xl font-bold text-gray-900 dark:text-white">124</div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Active Users</div>
+                                    <div class="text-2xl font-bold text-gray-900 dark:text-white">87</div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Conversion Rate</div>
+                                    <div class="text-2xl font-bold text-gray-900 dark:text-white">23.5%</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-3">Template Performance</h3>
+                            <div class="space-y-4">
+                                <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <div class="font-medium text-gray-900 dark:text-white">User Satisfaction</div>
+                                        <div class="flex items-center">
+                                            <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                            </svg>
+                                            <span class="ml-1 font-medium">4.7/5</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                                        Based on 87 user reviews
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <div class="font-medium text-gray-900 dark:text-white">Revenue Generated</div>
+                                        <div class="text-2xl font-bold text-gray-900 dark:text-white">$2,964</div>
+                                    </div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                                        From 124 downloads at $24 each
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="font-medium text-gray-900 dark:text-white mb-2">Feature Usage</div>
+                                    <div class="space-y-2">
+                                        <div>
+                                            <div class="flex justify-between mb-1">
+                                                <span class="text-sm text-gray-600 dark:text-gray-400">Thumbnail Templates</span>
+                                                <span class="text-sm font-medium">89%</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                                <div class="bg-admin-red h-2 rounded-full" style="width: 89%"></div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="flex justify-between mb-1">
+                                                <span class="text-sm text-gray-600 dark:text-gray-400">Hook Formulas</span>
+                                                <span class="text-sm font-medium">95%</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                                <div class="bg-admin-red h-2 rounded-full" style="width: 95%"></div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="flex justify-between mb-1">
+                                                <span class="text-sm text-gray-600 dark:text-gray-400">Analytics Dashboard</span>
+                                                <span class="text-sm font-medium">72%</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                                <div class="bg-admin-red h-2 rounded-full" style="width: 72%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Template Editor -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-center mb-5">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Template Editor</h2>
+                        <div class="flex space-x-2">
+                            <select class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <option>YouTube Starter Pack (v2.3)</option>
+                                <option>Content Creator Toolkit (v1.5)</option>
+                                <option>Business Coaching Framework (v1.2)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="space-y-4">
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <div class="font-medium text-gray-900 dark:text-white mb-2">Template Metadata</div>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Template Name</label>
+                                        <input type="text" value="YouTube Starter Pack" 
+                                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Template Version</label>
+                                        <input type="text" value="v2.3" 
+                                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Price</label>
+                                        <input type="text" value="$24.99" 
+                                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Access Tier</label>
+                                        <select class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white">
+                                            <option>Tier 3</option>
+                                            <option>Tier 2</option>
+                                            <option>Tier 1</option>
+                                            <option>Public</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <div class="font-medium text-gray-900 dark:text-white mb-2">Template Description</div>
+                                <textarea class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white min-h-[120px]">The YouTube Starter Pack provides everything you need to launch and grow your YouTube channel, including thumbnail templates, hook formulas, and analytics templates.</textarea>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <div class="font-medium text-gray-900 dark:text-white mb-2">Template Content</div>
+                                <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden">
+                                    <div class="border-b border-gray-200 dark:border-gray-600 p-3 bg-gray-50 dark:bg-gray-700/50">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center space-x-2">
+                                                <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                                </svg>
+                                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">thumbnail-templates.notion</span>
+                                            </div>
+                                            <div class="flex items-center space-x-2">
+                                                <span class="text-xs text-gray-500 dark:text-gray-400">Modified: 2h ago</span>
+                                                <button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="p-4 font-mono text-sm bg-gray-50 dark:bg-gray-700/50 h-48 overflow-y-auto">
+                                        # YouTube Thumbnail Templates
+                                        
+                                        ## Premium Thumbnail Pack
+                                        
+                                        - **Hook Formula**: "You Won't Believe [Result]"
+                                        - **Color Palette**: 
+                                          - Primary: #E62117 (Red)
+                                          - Secondary: #FFFFFF (White)
+                                        - **Font**: Impact, Arial Black
+                                        
+                                        ### Template 1: "The Shocking Truth"
+                                        - Layout: Left-aligned text with central image
+                                        - Example: "You Won't Believe What Happened!"
+                                        
+                                        ### Template 2: "How To [Result]"
+                                        - Layout: Top text with bottom image
+                                        - Example: "How To Get 10x More Views"
+                                        
+                                        [[Analytics Dashboard]]
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex justify-end space-x-3">
+                                <button class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 font-medium">
+                                    Preview Template
+                                </button>
+                                <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                                    Save Template
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Leak Detection -->
+            <div class="space-y-6">
+                <!-- Template Leak Detector -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Template Leak Detector</h2>
+                    <div class="space-y-5">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">Leak Detection Status</div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-sm text-gray-500 dark:text-gray-400">Low Risk</span>
+                                <span class="text-sm text-gray-500 dark:text-gray-400">High Risk</span>
+                            </div>
+                            <div class="relative h-8 rounded-lg overflow-hidden">
+                                <div class="absolute inset-0 bg-gradient-to-r from-green-500 via-yellow-500 to-red-500"></div>
+                                <div class="absolute left-1/4 w-1 h-full bg-white border border-gray-300 dark:border-gray-600"></div>
+                                <div class="absolute left-1/4 top-1/2 -translate-y-1/2 bg-white border border-gray-300 dark:border-gray-600 rounded-full w-4 h-4"></div>
+                                <div class="absolute left-1/4 bottom-1 text-xs text-white font-medium">
+                                    25%
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Recent Leak Attempts Detected</div>
+                            <div class="space-y-3">
+                                <div class="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                                    <div class="flex justify-between items-start mb-1">
+                                        <div class="font-medium text-gray-900 dark:text-white">notion-templates.com</div>
+                                        <span class="text-xs bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-200 px-2 py-1 rounded">
+                                            92% Match
+                                        </span>
+                                    </div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                        Exact copy of YouTube Starter Pack template
+                                    </div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                                        Detected: Today • 14:27:35
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                                    <div class="flex justify-between items-start mb-1">
+                                        <div class="font-medium text-gray-900 dark:text-white">viral-content.net</div>
+                                        <span class="text-xs bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-200 px-2 py-1 rounded">
+                                            68% Match
+                                        </span>
+                                    </div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                        Partial copy with minor modifications
+                                    </div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                                        Detected: June 20, 2024 • 09:23 AM
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                                    <div class="flex justify-between items-start mb-1">
+                                        <div class="font-medium text-gray-900 dark:text-white">content-creator-hub.org</div>
+                                        <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                            12% Match
+                                        </span>
+                                    </div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                            Common YouTube terminology only
+                                    </div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                                        Detected: June 15, 2024 • 11:45 AM
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Leak Sources</div>
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">Notion Template Marketplaces</span>
+                                    <span class="text-xs bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-200 px-2 py-1 rounded">
+                                        Active
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">YouTube Tutorial Videos</span>
+                                    <span class="text-xs bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-200 px-2 py-1 rounded">
+                                        Active
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">Telegram Channels</span>
+                                    <span class="text-xs bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-200 px-2 py-1 rounded">
+                                        Monitoring
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">Discord Servers</span>
+                                    <span class="text-xs bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-200 px-2 py-1 rounded">
+                                        Monitoring
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium">
+                            Run Leak Scan
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Emergency Panel -->
+                <div class="bg-red-50 dark:bg-red-900/20 rounded-2xl p-6 shadow-lg border border-red-200 dark:border-red-800">
+                    <h2 class="text-xl font-bold text-red-900 dark:text-red-100 mb-4">IP Protection Emergency Tools</h2>
+                    <div class="space-y-3">
+                        <p class="text-sm text-red-800 dark:text-red-200">
+                            Critical functions for immediate intellectual property protection.
+                        </p>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                            ONE BUTTON: Issue DMCA Takedown
+                        </button>
+                        <div class="flex space-x-2">
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Block Template
+                            </button>
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Emergency Scan
+                            </button>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                            Send IP Report to Legal Team
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-apply theme
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Initialize sidebar active state
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set starter kit forge as active in sidebar
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.href.includes('systems-launcher/templates')) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Apply templates button
+            document.getElementById('apply-templates-btn').addEventListener('click', function() {
+                const originalText = this.innerHTML;
+                this.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2 inline text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Applying...';
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    alert('Template changes updated successfully!');
+                }, 2000);
+            });
+            
+            // Leak scan button
+            document.querySelector('[class*="Run Leak Scan"]').addEventListener('click', function() {
+                const originalText = this.textContent;
+                this.textContent = 'Scanning...';
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    alert('Leak scan completed! 2 new leaks detected and blocked.');
+                }, 2000);
+            });
+            
+            // DMCA button
+            document.querySelector('[class*="ONE BUTTON: Issue DMCA Takedown"]').addEventListener('click', function() {
+                const originalText = this.textContent;
+                this.textContent = 'Issuing DMCA...';
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    alert('DMCA takedown notices successfully issued for all detected leaks!');
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>

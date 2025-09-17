@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - Course Health Monitor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'admin-red': '#DC2626'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-tier1: linear-gradient(135deg, var(--brand-blue) 0%, #3B82F6 100%);
+            --gradient-tier2: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-admin: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        }
+        .btn-enhanced {
+            transition: all 300ms ease;
+        }
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+        }
+        .card-interactive {
+            transition: all 300ms ease;
+            cursor: pointer;
+        }
+        .card-interactive:hover {
+            transform: translateY(-4px);
+        }
+        .module-card {
+            transition: all 300ms ease;
+            border-left: 3px solid transparent;
+        }
+        .module-card:hover {
+            border-left-color: #DC2626;
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-active {
+            background-color: #10B981;
+        }
+        .status-warning {
+            background-color: #F59E0B;
+        }
+        .status-critical {
+            background-color: #EF4444;
+        }
+        .activity-item {
+            transition: all 200ms ease;
+        }
+        .activity-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .sidebar-item {
+            transition: all 200ms ease;
+        }
+        .sidebar-item:hover {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: #DC2626;
+        }
+        .sidebar-item.active {
+            background-color: rgba(220, 38, 38, 0.15);
+            color: #DC2626;
+            font-weight: 600;
+            border-left: 3px solid #DC2626;
+        }
+        .quick-action {
+            transition: all 300ms ease;
+        }
+        .quick-action:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.2);
+        }
+        .system-metric {
+            transition: all 200ms ease;
+        }
+        .system-metric:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .course-item {
+            transition: all 200ms ease;
+        }
+        .course-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .course-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .course-active {
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+            color: white;
+        }
+        .course-inactive {
+            background: #E5E7EB;
+            color: #6B7280;
+        }
+        .course-tiers {
+            padding: 0.15rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            background-color: #F3F4F6;
+            color: #4B5563;
+            margin-right: 0.25rem;
+        }
+        .tier-1 {
+            background-color: #DBEAFE;
+            color: #1D4ED8;
+        }
+        .tier-2 {
+            background-color: #F3F4F6;
+            color: #1F2937;
+        }
+        .tier-3 {
+            background-color: #FEF3C7;
+            color: #D97706;
+        }
+        .admin-tier {
+            background-color: #FEE2E2;
+            color: #B91C1C;
+        }
+        .heatmap {
+            height: 200px;
+            background: linear-gradient(to bottom, #F9FAFB, #FFFFFF);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            position: relative;
+        }
+        .heatmap-bar {
+            position: absolute;
+            bottom: 0;
+            width: 20px;
+            border-radius: 4px 4px 0 0;
+            transition: height 0.3s ease;
+        }
+        .chart-label {
+            position: absolute;
+            bottom: -20px;
+            width: 20px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #6B7280;
+        }
+        .module-path {
+            height: 50px;
+            position: relative;
+            margin: 20px 0;
+        }
+        .module-node {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .module-line {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 2px;
+            background-color: #D1D5DB;
+        }
+        .dropoff-highlight {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { background-color: #FEE2E2; }
+            50% { background-color: #FECACA; }
+            100% { background-color: #FEE2E2; }
+        }
+        .answer-distribution {
+            height: 40px;
+            border-radius: 4px;
+            margin-top: 4px;
+            position: relative;
+        }
+        .answer-bar {
+            position: absolute;
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        .correct-answer {
+            background-color: #10B981;
+        }
+        .incorrect-answer {
+            background-color: #EF4444;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <!-- Theme Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="document.documentElement.classList.toggle('dark')" 
+                class="p-2 rounded-full bg-jstar-blue text-white hover:bg-faith-purple transition-all duration-300"
+                aria-label="Toggle dark/light theme">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Admin Navigation -->
+    <div class="fixed top-0 left-0 h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <a href="/admin" class="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                J StaR Admin
+            </a>
+        </div>
+        
+        <div class="p-4">
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Platform Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="/admin/cms" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        CMS
+                    </a>
+                    <a href="/admin/johngpt" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                        JohnGPT
+                    </a>
+                    <a href="/admin/cge" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        CGE Tools
+                    </a>
+                    <a href="/admin/users" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        User Management
+                    </a>
+                    <a href="/admin/analytics" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Analytics
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    CGE Tools
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin/cge" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        CGE Dashboard
+                    </a>
+                    <a href="/admin/cge/virality-os" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                        Virality OS
+                    </a>
+                    <a href="/admin/cge/client-leads" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        Client Leads
+                    </a>
+                    <a href="/admin/cge/course-builder" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        </svg>
+                        Course Builder
+                    </a>
+                    <a href="/admin/cge/course-builder/analytics" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.708.954 3.653.393 4.833-1.449 1.179-1.842 1.179-4.031 0-5.873a1.724 1.724 0 00-2.573-1.066c-1.708.954-3.653.393-4.833 1.449-1.179 1.842-1.179 4.031 0 5.873m-4.743-2.242A1.024 1.024 0 019 1.025v11a1.024 1.024 0 01-1.025 1.025H3.025A1.024 1.024 0 012 12.025V8.975c0-.565.46-1.025 1.025-1.025h3.95a1.024 1.024 0 011.025 1.025z"></path>
+                        </svg>
+                        Course Health Monitor
+                    </a>
+                    <a href="/admin/cge/analytics" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Analytics Dashboard
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center">
+                        <span class="text-white font-bold">JO</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Admin Access</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 p-6">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center mb-2">
+                        <a href="/admin/cge" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">CGE Tools</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <a href="/admin/cge/course-builder" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Course Builder</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <span class="text-gray-900 dark:text-white">Course Health Monitor</span>
+                    </div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
+                        Course Health Monitor
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">
+                        Monitor course quality and identify problem areas in real-time
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced" id="run-analysis-btn">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        Run Full Analysis
+                    </button>
+                    <div class="relative">
+                        <input type="text" placeholder="Search courses..." 
+                               class="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                        <svg class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+        <!-- System Status -->
+        <section class="mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Course Health Status</h2>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">
+                            Current course monitoring system status and configuration
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Analytics Active</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Drop-off Detection Active</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Fraud Detection Active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Stats -->
+        <section class="mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-admin-red mb-2">87%</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Average Course Completion</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-purple-500 mb-2">14</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Critical Drop-off Points</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-green-500 mb-2">98%</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Fraud-Free Certificates</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-red-500 mb-2">100%</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Quality Control</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Analytics Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - Course Selection & Heatmap -->
+            <div class="space-y-6">
+                <!-- Course Selection -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Course Selection</h2>
+                    <div class="space-y-3">
+                        <div class="course-item p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">YouTube Mastery</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Advanced content strategy</div>
+                                </div>
+                                <span class="course-badge course-active">Active</span>
+                            </div>
+                            <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                24 modules • 87% completion
+                            </div>
+                        </div>
+                        <div class="course-item p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Viral Content Creation</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">TikTok & Instagram strategies</div>
+                                </div>
+                                <span class="course-badge course-active">Active</span>
+                            </div>
+                            <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                18 modules • 72% completion
+                            </div>
+                        </div>
+                        <div class="course-item p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Business Coaching Framework</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Entrepreneurship course</div>
+                                </div>
+                                <span class="course-badge course-active">Active</span>
+                            </div>
+                            <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                32 modules • 65% completion
+                            </div>
+                        </div>
+                        <div class="course-item p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Content Creator Toolkit</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Free starter course</div>
+                                </div>
+                                <span class="course-badge course-active">Active</span>
+                            </div>
+                            <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                12 modules • 92% completion
+                            </div>
+                        </div>
+                        <button class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 font-medium">
+                            View All Courses
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Student Completion Heatmap -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Student Completion Heatmap</h2>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">YouTube Mastery Completion</div>
+                            <div class="heatmap relative">
+                                <div class="heatmap-bar" style="background-color: #10B981; height: 180px; left: 10px;"></div>
+                                <div class="heatmap-bar" style="background-color: #10B981; height: 170px; left: 40px;"></div>
+                                <div class="heatmap-bar" style="background-color: #10B981; height: 160px; left: 70px;"></div>
+                                <div class="heatmap-bar" style="background-color: #F59E0B; height: 120px; left: 100px;"></div>
+                                <div class="heatmap-bar dropoff-highlight" style="background-color: #EF4444; height: 60px; left: 130px;"></div>
+                                <div class="heatmap-bar" style="background-color: #10B981; height: 150px; left: 160px;"></div>
+                                <div class="heatmap-bar" style="background-color: #10B981; height: 140px; left: 190px;"></div>
+                                
+                                <div class="chart-label" style="left: 10px;">1</div>
+                                <div class="chart-label" style="left: 40px;">2</div>
+                                <div class="chart-label" style="left: 70px;">3</div>
+                                <div class="chart-label" style="left: 100px;">4</div>
+                                <div class="chart-label" style="left: 130px;">5</div>
+                                <div class="chart-label" style="left: 160px;">6</div>
+                                <div class="chart-label" style="left: 190px;">7</div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">Course Progress Path</div>
+                            <div class="module-path">
+                                <div class="module-line" style="width: 100%; left: 0;"></div>
+                                <div class="module-node" style="background-color: #10B981; left: 10%;">1</div>
+                                <div class="module-node" style="background-color: #10B981; left: 30%;">2</div>
+                                <div class="module-node" style="background-color: #10B981; left: 50%;">3</div>
+                                <div class="module-node" style="background-color: #F59E0B; left: 70%;">4</div>
+                                <div class="module-node dropoff-highlight" style="background-color: #EF4444; left: 90%;">5</div>
+                            </div>
+                            <div class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                                Significant drop-off detected at Module 5: "Advanced Thumbnail Design"
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Middle Column - Drop-off Points & Quiz Analysis -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Drop-off Point Detection -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Drop-off Point Detection</h2>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Course</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Module</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Drop-off Rate</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Student Feedback</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="font-medium text-gray-900 dark:text-white">YouTube Mastery</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">Module 5: Advanced Thumbnail Design</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">68%</div>
+                                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mt-1">
+                                            <div class="bg-red-500 h-2 rounded-full" style="width: 68%"></div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-600 dark:text-gray-400">"Too technical, needs simpler examples"</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <span class="course-badge course-active">Critical</span>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400 mr-3">Review</a>
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400">Fix Course</a>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="font-medium text-gray-900 dark:text-white">Viral Content Creation</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">Module 3: TikTok Algorithm Secrets</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">42%</div>
+                                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mt-1">
+                                            <div class="bg-yellow-500 h-2 rounded-full" style="width: 42%"></div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-600 dark:text-gray-400">"Information outdated, needs refresh"</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <span class="course-badge course-active">Warning</span>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400 mr-3">Review</a>
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400">Fix Course</a>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="font-medium text-gray-900 dark:text-white">Business Coaching Framework</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">Module 8: Client Acquisition Systems</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">53%</div>
+                                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mt-1">
+                                            <div class="bg-red-500 h-2 rounded-full" style="width: 53%"></div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-600 dark:text-gray-400">"Too theoretical, needs practical examples"</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <span class="course-badge course-active">Critical</span>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400 mr-3">Review</a>
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400">Fix Course</a>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="font-medium text-gray-900 dark:text-white">YouTube Mastery</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">Module 9: Monetization Strategies</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">31%</div>
+                                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mt-1">
+                                            <div class="bg-green-500 h-2 rounded-full" style="width: 31%"></div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-600 dark:text-gray-400">"Great content, very actionable"</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <span class="course-badge course-active">Good</span>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400 mr-3">Review</a>
+                                        <a href="#" class="text-admin-red hover:text-red-700 dark:hover:text-red-400">Fix Course</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Quiz Answer Analysis -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-center mb-5">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Quiz Answer Analysis</h2>
+                        <div class="flex space-x-2">
+                            <select class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <option>YouTube Mastery</option>
+                                <option>Viral Content Creation</option>
+                                <option>Business Coaching Framework</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <div class="font-medium text-gray-900 dark:text-white mb-2">Question 1: Best Thumbnail Strategy</div>
+                                <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">"Which thumbnail style typically gets the highest CTR?"</div>
+                                <div class="space-y-2">
+                                    <div>
+                                        <div class="flex justify-between mb-1">
+                                            <span class="text-sm text-gray-600 dark:text-gray-400">A. Minimal text with bold imagery</span>
+                                            <span class="text-sm font-medium">68%</span>
+                                        </div>
+                                        <div class="answer-distribution">
+                                            <div class="answer-bar correct-answer" style="width: 68%"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between mb-1">
+                                            <span class="text-sm text-gray-600 dark:text-gray-400">B. Complex text with detailed imagery</span>
+                                            <span class="text-sm font-medium">12%</span>
+                                        </div>
+                                        <div class="answer-distribution">
+                                            <div class="answer-bar incorrect-answer" style="width: 12%"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between mb-1">
+                                            <span class="text-sm text-gray-600 dark:text-gray-400">C. No text with abstract imagery</span>
+                                            <span class="text-sm font-medium">15%</span>
+                                        </div>
+                                        <div class="answer-distribution">
+                                            <div class="answer-bar incorrect-answer" style="width: 15%"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between mb-1">
+                                            <span class="text-sm text-gray-600 dark:text-gray-400">D. Multiple text elements with bright colors</span>
+                                            <span class="text-sm font-medium">5%</span>
+                                        </div>
+                                        <div class="answer-distribution">
+                                            <div class="answer-bar incorrect-answer" style="width: 5%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <div class="font-medium text-gray-900 dark:text-white mb-2">Question 2: Hook Formula</div>
+                                <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">"Which hook formula is most effective for YouTube?"</div>
+                                <div class="space-y-2">
+                                    <div>
+                                        <div class="flex justify-between mb-1">
+                                            <span class="text-sm text-gray-600 dark:text-gray-400">A. Question-based hooks</span>
+                                            <span class="text-sm font-medium">22%</span>
+                                        </div>
+                                        <div class="answer-distribution">
+                                            <div class="answer-bar incorrect-answer" style="width: 22%"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between mb-1">
+                                            <span class="text-sm text-gray-600 dark:text-gray-400">B. Shock value hooks</span>
+                                            <span class="text-sm font-medium">48%</span>
+                                        </div>
+                                        <div class="answer-distribution">
+                                            <div class="answer-bar correct-answer" style="width: 48%"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between mb-1">
+                                            <span class="text-sm text-gray-600 dark:text-gray-400">C. Storytelling hooks</span>
+                                            <span class="text-sm font-medium">25%</span>
+                                        </div>
+                                        <div class="answer-distribution">
+                                            <div class="answer-bar incorrect-answer" style="width: 25%"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between mb-1">
+                                            <span class="text-sm text-gray-600 dark:text-gray-400">D. Benefit-driven hooks</span>
+                                            <span class="text-sm font-medium">5%</span>
+                                        </div>
+                                        <div class="answer-distribution">
+                                            <div class="answer-bar incorrect-answer" style="width: 5%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Certificate Fraud Check -->
+            <div class="space-y-6">
+                <!-- Certificate Fraud Checker -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Certificate Fraud Checker</h2>
+                    <div class="space-y-5">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">Fraud Detection Status</div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-sm text-gray-500 dark:text-gray-400">Low Risk</span>
+                                <span class="text-sm text-gray-500 dark:text-gray-400">High Risk</span>
+                            </div>
+                            <div class="relative h-8 rounded-lg overflow-hidden">
+                                <div class="absolute inset-0 bg-gradient-to-r from-green-500 via-yellow-500 to-red-500"></div>
+                                <div class="absolute left-1/4 w-1 h-full bg-white border border-gray-300 dark:border-gray-600"></div>
+                                <div class="absolute left-1/4 top-1/2 -translate-y-1/2 bg-white border border-gray-300 dark:border-gray-600 rounded-full w-4 h-4"></div>
+                                <div class="absolute left-1/4 bottom-1 text-xs text-white font-medium">
+                                    25%
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Recent Fraud Attempts Detected</div>
+                            <div class="space-y-3">
+                                <div class="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                                    <div class="flex justify-between items-start mb-1">
+                                        <div class="font-medium text-gray-900 dark:text-white">user12345@example.com</div>
+                                        <span class="text-xs bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-200 px-2 py-1 rounded">
+                                            92% Fraud
+                                        </span>
+                                    </div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                        Certificate generated without completing course
+                                    </div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                                        Detected: Today • 14:27:35
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                                    <div class="flex justify-between items-start mb-1">
+                                        <div class="font-medium text-gray-900 dark:text-white">j.smith@example.com</div>
+                                        <span class="text-xs bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-200 px-2 py-1 rounded">
+                                            68% Fraud
+                                        </span>
+                                    </div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                        Suspiciously fast course completion
+                                    </div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                                        Detected: June 20, 2024 • 09:23 AM
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                                    <div class="flex justify-between items-start mb-1">
+                                        <div class="font-medium text-gray-900 dark:text-white">s.mitchell@example.com</div>
+                                        <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                            5% Fraud
+                                        </span>
+                                    </div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                            Legitimate certificate issuance
+                                    </div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                                        Detected: June 15, 2024 • 11:45 AM
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Fraud Detection Rules</div>
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">Minimum time per module</span>
+                                    <span class="text-xs bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-200 px-2 py-1 rounded">
+                                        5 min
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">Quiz pass threshold</span>
+                                    <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                        70%
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">Completion pattern check</span>
+                                    <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                        Active
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">Certificate generation delay</span>
+                                    <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                        24h
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium">
+                            Run Fraud Scan
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Emergency Panel -->
+                <div class="bg-red-50 dark:bg-red-900/20 rounded-2xl p-6 shadow-lg border border-red-200 dark:border-red-800">
+                    <h2 class="text-xl font-bold text-red-900 dark:text-red-100 mb-4">Course Quality Emergency Tools</h2>
+                    <div class="space-y-3">
+                        <p class="text-sm text-red-800 dark:text-red-200">
+                            Critical functions for immediate course quality management.
+                        </p>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                            ONE BUTTON: Fix Critical Drop-offs
+                        </button>
+                        <div class="flex space-x-2">
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Block Certificates
+                            </button>
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Emergency Review
+                            </button>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                            Send Course Report to Dev Team
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-apply theme
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Initialize sidebar active state
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set course health monitor as active in sidebar
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.href.includes('course-builder/analytics')) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Run analysis button
+            document.getElementById('run-analysis-btn').addEventListener('click', function() {
+                const originalText = this.innerHTML;
+                this.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2 inline text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Running Analysis...';
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    alert('Course health analysis completed successfully!');
+                }, 2000);
+            });
+            
+            // Fraud scan button
+            document.querySelector('[class*="Run Fraud Scan"]').addEventListener('click', function() {
+                const originalText = this.textContent;
+                this.textContent = 'Scanning...';
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    alert('Fraud scan completed! 3 new fraud attempts detected and blocked.');
+                }, 2000);
+            });
+            
+            // Fix critical drop-offs button
+            document.querySelector('[class*="ONE BUTTON: Fix Critical Drop-offs"]').addEventListener('click', function() {
+                const originalText = this.textContent;
+                this.textContent = 'Fixing drop-offs...';
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    alert('Critical drop-offs fixed! Updated course modules and added simpler examples.');
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>

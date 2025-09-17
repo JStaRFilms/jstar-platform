@@ -8,7 +8,7 @@ const DiagnosticHistory: React.FC = () => {
     <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
       <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-5">Diagnostic History</h2>
       <div className="space-y-4">
-        <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+        <div className="benchmark-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
           <div className="flex justify-between items-start">
             <div>
               <div className="font-medium text-gray-900 dark:text-white">Full System Diagnostic</div>
@@ -20,14 +20,13 @@ const DiagnosticHistory: React.FC = () => {
           </div>
           <div className="mt-2 flex justify-between">
             <div className="text-sm text-gray-500 dark:text-gray-400">Performance Score: 4.8/10</div>
-            <button className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-sm font-medium flex items-center">
-              <Eye className="h-4 w-4 mr-1" />
+            <button className="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
               View Details
             </button>
           </div>
         </div>
 
-        <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+        <div className="benchmark-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
           <div className="flex justify-between items-start">
             <div>
               <div className="font-medium text-gray-900 dark:text-white">AI Model Benchmark</div>
@@ -39,14 +38,13 @@ const DiagnosticHistory: React.FC = () => {
           </div>
           <div className="mt-2 flex justify-between">
             <div className="text-sm text-gray-500 dark:text-gray-400">VRAM usage at 92%</div>
-            <button className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-sm font-medium flex items-center">
-              <Eye className="h-4 w-4 mr-1" />
+            <button className="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
               View Details
             </button>
           </div>
         </div>
 
-        <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+        <div className="benchmark-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
           <div className="flex justify-between items-start">
             <div>
               <div className="font-medium text-gray-900 dark:text-white">Storage Scan</div>
@@ -58,8 +56,7 @@ const DiagnosticHistory: React.FC = () => {
           </div>
           <div className="mt-2 flex justify-between">
             <div className="text-sm text-gray-500 dark:text-gray-400">45.2 GB used</div>
-            <button className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-sm font-medium flex items-center">
-              <Eye className="h-4 w-4 mr-1" />
+            <button className="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
               View Details
             </button>
           </div>

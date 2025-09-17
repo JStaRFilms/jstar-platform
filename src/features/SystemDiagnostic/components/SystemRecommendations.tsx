@@ -7,7 +7,7 @@ const SystemRecommendations: React.FC = () => {
     <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
       <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-5">System Recommendations</h2>
       <div className="space-y-4">
-        <div className="p-4 border-l-4 border-red-500 rounded-r-lg bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors">
+        <div className="recommendation-card recommendation-high p-4 border-l-4 border-red-500 rounded-r-lg bg-red-50 dark:bg-red-900/20">
           <div className="flex justify-between items-start">
             <div>
               <h3 className="font-medium text-gray-900 dark:text-white">Upgrade VRAM Usage</h3>
@@ -18,13 +18,13 @@ const SystemRecommendations: React.FC = () => {
             </span>
           </div>
           <div className="mt-2">
-            <button className="text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 font-medium">
+            <button className="text-sm text-admin-red hover:text-red-700 dark:hover:text-red-400 font-medium">
               Switch to Llama3-8B
             </button>
           </div>
         </div>
 
-        <div className="p-4 border-l-4 border-yellow-500 rounded-r-lg bg-yellow-50 dark:bg-yellow-900/20 hover:bg-yellow-100 dark:hover:bg-yellow-900/30 transition-colors">
+        <div className="recommendation-card recommendation-medium p-4 border-l-4 border-yellow-500 rounded-r-lg bg-yellow-50 dark:bg-yellow-900/20">
           <div className="flex justify-between items-start">
             <div>
               <h3 className="font-medium text-gray-900 dark:text-white">Optimize Storage</h3>
@@ -35,13 +35,13 @@ const SystemRecommendations: React.FC = () => {
             </span>
           </div>
           <div className="mt-2">
-            <button className="text-sm text-yellow-700 dark:text-yellow-300 hover:text-yellow-800 dark:hover:text-yellow-200 font-medium">
+            <button className="text-sm text-yellow-700 hover:text-yellow-800 dark:hover:text-yellow-300 font-medium">
               Run Storage Scan
             </button>
           </div>
         </div>
 
-        <div className="p-4 border-l-4 border-green-500 rounded-r-lg bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors">
+        <div className="recommendation-card recommendation-low p-4 border-l-4 border-green-500 rounded-r-lg bg-green-50 dark:bg-green-900/20">
           <div className="flex justify-between items-start">
             <div>
               <h3 className="font-medium text-gray-900 dark:text-white">Network Optimization</h3>
@@ -52,7 +52,7 @@ const SystemRecommendations: React.FC = () => {
             </span>
           </div>
           <div className="mt-2">
-            <button className="text-sm text-green-700 dark:text-green-300 hover:text-green-800 dark:hover:text-green-200 font-medium">
+            <button className="text-sm text-green-700 hover:text-green-800 dark:hover:text-green-300 font-medium">
               Test Connection
             </button>
           </div>

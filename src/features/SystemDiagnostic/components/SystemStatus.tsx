@@ -15,15 +15,15 @@ const SystemStatus: React.FC = () => {
           </div>
           <div className="flex flex-wrap gap-3">
             <div className="flex items-center">
-              <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+              <span className="status-indicator status-active"></span>
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Local Mode</span>
             </div>
             <div className="flex items-center">
-              <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+              <span className="status-indicator status-active"></span>
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">AI Models Running</span>
             </div>
             <div className="flex items-center">
-              <div className="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
+              <span className="status-indicator status-warning"></span>
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Cloud Sync Pending</span>
             </div>
           </div>

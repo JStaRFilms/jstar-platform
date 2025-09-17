@@ -13,8 +13,8 @@ const PerformanceBenchmarks: React.FC = () => {
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">CPU Benchmark</span>
             <span className="text-sm font-medium text-gray-900 dark:text-white">12,450</span>
           </div>
-          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
-            <div className="bg-gradient-to-r from-red-600 to-red-500 h-2.5 rounded-full transition-all duration-500" style={{ width: '72%' }}></div>
+          <div className="progress-bar bg-gray-200 dark:bg-gray-700">
+            <div className="progress-value bg-gradient-to-r from-admin-red to-red-500" style={{ width: '72%' }}></div>
           </div>
           <div className="mt-1 flex justify-between text-xs text-gray-500 dark:text-gray-400">
             <span>Current</span>
@@ -28,8 +28,8 @@ const PerformanceBenchmarks: React.FC = () => {
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">AI Processing</span>
             <span className="text-sm font-medium text-gray-900 dark:text-white">8,740</span>
           </div>
-          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
-            <div className="bg-gradient-to-r from-red-600 to-red-500 h-2.5 rounded-full transition-all duration-500" style={{ width: '68%' }}></div>
+          <div className="progress-bar bg-gray-200 dark:bg-gray-700">
+            <div className="progress-value bg-gradient-to-r from-admin-red to-red-500" style={{ width: '68%' }}></div>
           </div>
           <div className="mt-1 flex justify-between text-xs text-gray-500 dark:text-gray-400">
             <span>Current</span>
@@ -43,8 +43,8 @@ const PerformanceBenchmarks: React.FC = () => {
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Storage Speed</span>
             <span className="text-sm font-medium text-gray-900 dark:text-white">3,450 MB/s</span>
           </div>
-          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
-            <div className="bg-gradient-to-r from-red-600 to-red-500 h-2.5 rounded-full transition-all duration-500" style={{ width: '92%' }}></div>
+          <div className="progress-bar bg-gray-200 dark:bg-gray-700">
+            <div className="progress-value bg-gradient-to-r from-admin-red to-red-500" style={{ width: '92%' }}></div>
           </div>
           <div className="mt-1 flex justify-between text-xs text-gray-500 dark:text-gray-400">
             <span>Current</span>
@@ -58,8 +58,8 @@ const PerformanceBenchmarks: React.FC = () => {
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Network Speed</span>
             <span className="text-sm font-medium text-gray-900 dark:text-white">58 Mbps</span>
           </div>
-          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
-            <div className="bg-gradient-to-r from-red-600 to-red-500 h-2.5 rounded-full transition-all duration-500" style={{ width: '42%' }}></div>
+          <div className="progress-bar bg-gray-200 dark:bg-gray-700">
+            <div className="progress-value bg-gradient-to-r from-admin-red to-red-500" style={{ width: '42%' }}></div>
           </div>
           <div className="mt-1 flex justify-between text-xs text-gray-500 dark:text-gray-400">
             <span>Current</span>
