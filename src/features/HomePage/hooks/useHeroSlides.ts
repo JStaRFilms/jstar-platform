@@ -18,6 +18,7 @@ interface DatabaseHeroSlide {
   buttonBorder: string;
   buttonText: string;
   buttonHover: string;
+  isActive: boolean;
   altText?: string;
   projectTitle?: string;
   projectDesc?: string;
@@ -59,6 +60,7 @@ export const useHeroSlides = () => {
       buttonBorder: 'border-primary dark:border-accent',
       buttonText: 'text-primary dark:text-accent',
       buttonHover: 'hover:bg-primary/10 dark:hover:bg-accent/10',
+      isActive: true,
       altText: 'Video Production',
       projectTitle: 'Latest Project',
       projectDesc: 'Brand Storytelling for Tech Startup',
@@ -79,6 +81,7 @@ export const useHeroSlides = () => {
       buttonBorder: 'border-jstar-blue dark:border-faith-purple',
       buttonText: 'text-jstar-blue dark:text-faith-purple',
       buttonHover: 'hover:bg-jstar-blue/10 dark:hover:bg-faith-purple/10',
+      isActive: true,
       altText: 'Creative Solutions',
       projectTitle: 'Faith-Driven Content',
       projectDesc: 'Purposeful Storytelling',

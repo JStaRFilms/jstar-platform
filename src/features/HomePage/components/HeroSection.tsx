@@ -36,6 +36,8 @@ interface HeroSlide {
   buttonText: string;
   /** Tailwind hover classes for the secondary button */
   buttonHover: string;
+  /** Whether the slide is active and should be displayed */
+  isActive?: boolean;
   /** Alt text for accessibility */
   altText?: string;
   /** Project title for overlay */
@@ -117,7 +119,10 @@ const HeroSection: React.FC<HeroSectionProps> = ({
   const { slides: dynamicSlides, loading, error } = useHeroSlides();
 
   // Use custom slides if provided, otherwise use dynamic slides
-  const activeSlides = customSlides || dynamicSlides;
+  const allSlides = customSlides || dynamicSlides;
+
+  // Filter to only show active slides on the homepage
+  const activeSlides = allSlides.filter(slide => slide.isActive !== false);
 
   // Initialize slideshow hook with current slide count
   const { currentSlide, setCurrentSlide } = useSlideshow(activeSlides.length, slideInterval);

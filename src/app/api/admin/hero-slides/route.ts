@@ -49,13 +49,13 @@ const defaultSlides = [
 
 /**
  * GET /api/admin/hero-slides
- * Get all active hero slides ordered by sort order
+ * Get all hero slides (both active and inactive) for admin management
  * Always returns custom slides + default slides for consistency
  */
 export async function GET() {
   try {
+    // Get ALL custom slides (both active and inactive) for admin management
     const customSlides = await prisma.heroSlide.findMany({
-      where: { isActive: true },
       orderBy: { sortOrder: 'asc' },
       select: {
         id: true,
@@ -69,6 +69,7 @@ export async function GET() {
         buttonBorder: true,
         buttonText: true,
         buttonHover: true,
+        isActive: true,
         altText: true,
         projectTitle: true,
         projectDesc: true,
@@ -85,11 +86,14 @@ export async function GET() {
     // Sort by sortOrder to maintain proper order
     allSlides.sort((a, b) => a.sortOrder - b.sortOrder);
 
+    const activeSlides = customSlides.filter(slide => slide.isActive);
+    const inactiveSlides = customSlides.filter(slide => !slide.isActive);
+
     return NextResponse.json({
       status: 'success',
       data: allSlides,
       message: customSlides.length > 0
-        ? `Showing ${customSlides.length} custom slides and ${defaultSlides.length} default slides.`
+        ? `Showing ${activeSlides.length} active, ${inactiveSlides.length} inactive custom slides and ${defaultSlides.length} default slides.`
         : `Showing ${defaultSlides.length} default slides. Create custom slides to add more content.`,
     });
   } catch (error) {

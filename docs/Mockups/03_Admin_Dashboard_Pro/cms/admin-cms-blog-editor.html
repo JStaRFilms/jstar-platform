@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - Blog Editor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'admin-red': '#DC2626'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-tier1: linear-gradient(135deg, var(--brand-blue) 0%, #3B82F6 100%);
+            --gradient-tier2: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-admin: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        }
+        .btn-enhanced {
+            transition: all 300ms ease;
+        }
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+        }
+        .card-interactive {
+            transition: all 300ms ease;
+            cursor: pointer;
+        }
+        .card-interactive:hover {
+            transform: translateY(-4px);
+        }
+        .module-card {
+            transition: all 300ms ease;
+            border-left: 3px solid transparent;
+        }
+        .module-card:hover {
+            border-left-color: #DC2626;
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-active {
+            background-color: #10B981;
+        }
+        .status-warning {
+            background-color: #F59E0B;
+        }
+        .status-critical {
+            background-color: #EF4444;
+        }
+        .activity-item {
+            transition: all 200ms ease;
+        }
+        .activity-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .sidebar-item {
+            transition: all 200ms ease;
+        }
+        .sidebar-item:hover {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: #DC2626;
+        }
+        .sidebar-item.active {
+            background-color: rgba(220, 38, 38, 0.15);
+            color: #DC2626;
+            font-weight: 600;
+            border-left: 3px solid #DC2626;
+        }
+        .quick-action {
+            transition: all 300ms ease;
+        }
+        .quick-action:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.2);
+        }
+        .system-metric {
+            transition: all 200ms ease;
+        }
+        .system-metric:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .blog-section {
+            transition: all 200ms ease;
+        }
+        .blog-section:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .section-handle {
+            cursor: grab;
+        }
+        .section-handle:active {
+            cursor: grabbing;
+        }
+        .section-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .section-hero {
+            background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
+            color: white;
+        }
+        .section-features {
+            background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+            color: white;
+        }
+        .section-testimonials {
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+            color: white;
+        }
+        .section-cta {
+            background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+            color: white;
+        }
+        .component-preview {
+            transition: all 200ms ease;
+        }
+        .component-preview:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .component-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .component-core {
+            background: #E5E7EB;
+            color: #6B7280;
+        }
+        .component-marketing {
+            background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+            color: white;
+        }
+        .component-analytics {
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+            color: white;
+        }
+        .component-johngpt {
+            background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
+            color: white;
+        }
+        .page-preview {
+            transition: all 200ms ease;
+        }
+        .page-preview:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .preview-mode {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 0.25rem 0.5rem;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+        .draggable-area {
+            min-height: 60px;
+            transition: all 200ms ease;
+        }
+        .draggable-area:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+            border: 1px dashed #DC2626;
+        }
+        .draggable-area.drag-over {
+            background-color: rgba(220, 38, 38, 0.1);
+            border: 2px dashed #DC2626;
+        }
+        .component-library-item {
+            transition: all 200ms ease;
+        }
+        .component-library-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-color: #DC2626;
+        }
+        .editor-tabs {
+            border-bottom: 1px solid #E5E7EB;
+            display: flex;
+        }
+        .editor-tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            color: #6B7280;
+            border-bottom: 2px solid transparent;
+        }
+        .editor-tab.active {
+            color: #DC2626;
+            border-bottom: 2px solid #DC2626;
+        }
+        .markdown-editor {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #1E293B;
+            color: #E2E8F0;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            min-height: 400px;
+            overflow-x: auto;
+        }
+        .obsidian-preview {
+            background-color: #202020;
+            color: #dcddde;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            min-height: 400px;
+            overflow-x: auto;
+        }
+        .obsidian-preview h1 {
+            color: #dcddde;
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .obsidian-preview h2 {
+            color: #dcddde;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+        .obsidian-preview p {
+            color: #dcddde;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        .obsidian-preview a {
+            color: #8b5cf6;
+            text-decoration: underline;
+        }
+        .obsidian-preview code {
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            padding: 0.2em 0.4em;
+            border-radius: 0.25rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .obsidian-preview pre {
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1rem;
+            border-radius: 0.375rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+        .obsidian-preview blockquote {
+            border-left: 3px solid #8b5cf6;
+            padding-left: 1rem;
+            margin-left: 0;
+            color: #b8b8b8;
+        }
+        .obsidian-preview ul, .obsidian-preview ol {
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .obsidian-preview li {
+            margin-bottom: 0.5rem;
+        }
+        .obsidian-preview img {
+            max-width: 100%;
+            border-radius: 0.375rem;
+            margin: 1rem 0;
+        }
+        .obsidian-preview hr {
+            border: 0;
+            border-top: 1px solid #444;
+            margin: 1.5rem 0;
+        }
+        .obsidian-preview .internal-link {
+            color: #7c3aed;
+            text-decoration: underline;
+        }
+        .editor-controls {
+            border-top: 1px solid #E5E7EB;
+            border-bottom: 1px solid #E5E7EB;
+            padding: 0.5rem 0;
+        }
+        .editor-control {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.375rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6B7280;
+            cursor: pointer;
+        }
+        .editor-control:hover {
+            background-color: #F3F4F6;
+            color: #1F2937;
+        }
+        .editor-control.active {
+            background-color: #F3F4F6;
+            color: #DC2626;
+            font-weight: bold;
+        }
+        .editor-control svg {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+        .blog-post-stats {
+            background-color: #F9FAFB;
+            border-radius: 0.375rem;
+            padding: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .stat-value {
+            font-weight: 600;
+            color: #1F2937;
+        }
+        .stat-label {
+            font-size: 0.75rem;
+            color: #6B7280;
+        }
+        .featured-image {
+            border: 1px dashed #D1D5DB;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 200ms ease;
+        }
+        .featured-image:hover {
+            border-color: #DC2626;
+            background-color: #FEF2F2;
+        }
+        .featured-image img {
+            max-width: 100%;
+            border-radius: 0.25rem;
+            margin-bottom: 0.5rem;
+        }
+        .seo-preview {
+            background-color: #F9FAFB;
+            border: 1px solid #E5E7EB;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            margin-top: 0.5rem;
+        }
+        .seo-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1F2937;
+            line-height: 1.25;
+        }
+        .seo-url {
+            font-size: 0.875rem;
+            color: #6B7280;
+            margin: 0.25rem 0;
+        }
+        .seo-description {
+            font-size: 0.875rem;
+            color: #4B5563;
+            line-height: 1.5;
+        }
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            background-color: #F3F4F6;
+            color: #4B5563;
+            border-radius: 9999px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .tag:hover {
+            background-color: #E5E7EB;
+            cursor: pointer;
+        }
+        .tag-remove {
+            margin-left: 0.25rem;
+            width: 1rem;
+            height: 1rem;
+            opacity: 0.7;
+        }
+        .tag-remove:hover {
+            opacity: 1;
+        }
+        .category {
+            display: inline-block;
+            background-color: #F0F9FF;
+            color: #1D4ED8;
+            border: 1px solid #BFDBFE;
+            border-radius: 9999px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <!-- Theme Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="document.documentElement.classList.toggle('dark')" 
+                class="p-2 rounded-full bg-jstar-blue text-white hover:bg-faith-purple transition-all duration-300"
+                aria-label="Toggle dark/light theme">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Admin Navigation -->
+    <div class="fixed top-0 left-0 h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <a href="/admin" class="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                J StaR Admin
+            </a>
+        </div>
+        
+        <div class="p-4">
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Platform Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="/admin/cms" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        CMS
+                    </a>
+                    <a href="/admin/johngpt" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                        JohnGPT
+                    </a>
+                    <a href="/admin/cge" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        CGE Tools
+                    </a>
+                    <a href="/admin/users" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        User Management
+                    </a>
+                    <a href="/admin/analytics" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Analytics
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    CMS Management
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin/cms" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        Pages
+                    </a>
+                    <a href="/admin/cms/hero-slides" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4h16M4 8h16M4 12h16M4 16h16M4 20h16"></path>
+                        </svg>
+                        Hero Slides
+                    </a>
+                    <a href="/admin/cms/page-builder" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.927-1.756 3.353 0a1.724 1.724 0 002.573 1.066c1.704.92 3.675.331 4.967-1.212a.5.5 0 00-.454-.772H13.88c.068.22.111.45.21.686l1.9 3.8a.5.5 0 00.859.027l7-14A.5.5 0 0017.527 3H13.754a.5.5 0 00-.424.736l3.827 5.74a.5.5 0 00.027.86l-12 7a.5.5 0 00.729.646l5-2.906a.5.5 0 00.163-.538l-2-3.5a.5.5 0 00-.658-.21l-2 1.148V4.317zM14.5 12a2.5 2.5 0 10-5 0 2.5 2.5 0 005 0z"></path>
+                        </svg>
+                        Page Builder
+                    </a>
+                    <a href="/admin/cms/blog-posts" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-5a2 2 0 00-2 2v10a2 2 0 002 2h5z"></path>
+                        </svg>
+                        Blog Posts
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center">
+                        <span class="text-white font-bold">JO</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Admin Access</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 p-6">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center mb-2">
+                        <a href="/admin/cms" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">CMS</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <a href="/admin/cms/blog-posts" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Blog Posts</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <span class="text-gray-900 dark:text-white">Edit Post</span>
+                    </div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
+                        Blog Post Editor
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">
+                        Create and edit blog content for the J StaR Platform
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced" id="save-draft-btn">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+                        </svg>
+                        Save Draft
+                    </button>
+                    <button class="px-4 py-2 bg-white dark:bg-gray-800 border border-admin-red text-admin-red rounded-lg font-medium">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                        Preview
+                    </button>
+                    <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced" id="publish-btn">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        </svg>
+                        Publish
+                    </button>
+                </div>
+            </div>
+
+        <!-- System Status -->
+        <section class="mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Blog Editor Status</h2>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">
+                            Current blog post configuration and version status
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="flex items-center">
+                            <span class="status-indicator status-warning"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Draft Version</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">API Connected</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">All Synced</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Blog Editor Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - Blog Editor -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Post Title -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Post Title</h2>
+                    <input type="text" value="How to Create Viral YouTube Content While Staying True to Your Values" 
+                           class="w-full px-4 py-3 text-2xl border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white"
+                           placeholder="Enter post title...">
+                </div>
+                
+                <!-- Post Content -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div class="editor-tabs">
+                        <div class="editor-tab active" data-mode="markdown">Markdown</div>
+                        <div class="editor-tab" data-mode="wysiwyg">Visual Editor</div>
+                        <div class="editor-tab" data-mode="obsidian">Obsidian Preview</div>
+                    </div>
+                    
+                    <div class="editor-controls">
+                        <div class="flex space-x-1">
+                            <div class="editor-control" title="Bold">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V9a2 2 0 00-2-2h-4M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                            </div>
+                            <div class="editor-control" title="Italic">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l5-7-5-7" />
+                                </svg>
+                            </div>
+                            <div class="editor-control" title="Heading 1">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v6M3 10h10a8 8 0 018 8v6m0 0v-3m0 3h3m-3 0h-3" />
+                                </svg>
+                            </div>
+                            <div class="editor-control" title="Heading 2">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v6M3 10h10a8 8 0 018 8v6m0 0v-3m0 3h3m-3 0h-3" />
+                                </svg>
+                            </div>
+                            <div class="editor-control" title="Bullet List">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V9a2 2 0 00-2-2h-4M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                            </div>
+                            <div class="editor-control" title="Numbered List">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V9a2 2 0 00-2-2h-4M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                            </div>
+                            <div class="editor-control" title="Blockquote">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V9a2 2 0 00-2-2h-4M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                            </div>
+                            <div class="editor-control" title="Link">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                            </div>
+                            <div class="editor-control" title="Image">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <div class="editor-control" title="JohnGPT Assistant">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Markdown Editor -->
+                    <div class="markdown-editor p-4">
+# How to Create Viral YouTube Content While Staying True to Your Values
+
+In today's digital landscape, content creators face a constant tension between creating content that performs well algorithmically and staying true to their core values. This post explores practical strategies for achieving both.
+
+## The Viral Content Dilemma
+
+Many creators feel pressured to compromise their authenticity in pursuit of views and engagement. However, our research shows that **content aligned with creator values actually performs better long-term**.
+
+### Key Statistics:
+- 73% of viewers prefer authentic content over highly polished but inauthentic videos
+- Channels maintaining consistent values see 2.3x higher subscriber retention
+- Values-driven content generates 41% more meaningful engagement
+
+## Practical Framework
+
+Here's a step-by-step approach to creating viral content without compromising your values:
+
+1. **Identify Your Core Values**
+   - What principles guide your work?
+   - Which values are non-negotiable?
+   - How do these translate to content creation?
+
+2. **Develop Your Unique Angle**
+   - Find the intersection between what's trending and what matters to you
+   - Example: If you value authenticity, create content about "imperfect" success stories
+
+3. **Optimize Within Your Boundaries**
+   - Use proven viral techniques that align with your values
+   - Avoid clickbait if it contradicts your authenticity values
+   - Focus on genuine hooks that reflect your message
+
+## Case Study: Faith-Based Content
+
+[[Faith Integration Guide]] provides a perfect example of how to integrate values into viral content. One creator we worked with saw their channel grow from 5k to 50k subscribers in 6 months by:
+
+- Creating content around "faith in everyday work"
+- Using viral storytelling techniques while maintaining spiritual integrity
+- Building community around shared values rather than just views
+
+> "When I stopped chasing trends and started creating content aligned with my values, my engagement skyrocketed." - Sarah J., Content Creator
+
+## Conclusion
+
+Creating viral content doesn't require compromising your values. In fact, the most successful creators find ways to **leverage their values as their unique competitive advantage**.
+
+By staying true to what matters most, you'll attract an audience that genuinely connects with your message and sticks around for the long haul.
+                    </div>
+                </div>
+                
+                <!-- Blog Post Stats -->
+                <div class="blog-post-stats">
+                    <div class="stat-item">
+                        <span class="stat-value">1,247</span>
+                        <span class="stat-label">Words</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value">8 min</span>
+                        <span class="stat-label">Read Time</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value">42</span>
+                        <span class="stat-label">Reading Score</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value">B+</span>
+                        <span class="stat-label">Grade Level</span>
+                    </div>
+                </div>
+                
+                <!-- JohnGPT Assistant -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">JohnGPT Assistant</h2>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Content Optimization</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Improve your post for better engagement</p>
+                                </div>
+                                <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                    Optimize
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">SEO Analysis</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Check SEO readiness and suggestions</p>
+                                </div>
+                                <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                    Analyze
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Faith Integration</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Add spiritual alignment to your content</p>
+                                </div>
+                                <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                    Enhance
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Viral Formula Check</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Verify against proven viral structures</p>
+                                </div>
+                                <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                    Check
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Blog History -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Change History</h2>
+                    <div class="space-y-4">
+                        <div class="blog-section p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Added case study section</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Expanded with faith-based example</div>
+                                </div>
+                                <span class="text-sm text-gray-500 dark:text-gray-400">Today, 10:45 AM</span>
+                            </div>
+                            <div class="mt-2 flex justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-6 h-6 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center text-white text-xs mr-2">
+                                        JO
+                                    </div>
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">John Oluleke-Oke</span>
+                                </div>
+                                <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                    View Changes
+                                </button>
+                            </div>
+                        </div>
+                        <div class="blog-section p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Updated statistics</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Added latest engagement metrics</div>
+                                </div>
+                                <span class="text-sm text-gray-500 dark:text-gray-400">June 18, 2024</span>
+                            </div>
+                            <div class="mt-2 flex justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-6 h-6 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center text-white text-xs mr-2">
+                                        JO
+                                    </div>
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">John Oluleke-Oke</span>
+                                </div>
+                                <button class="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">
+                                    View Changes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Blog Configuration -->
+            <div class="space-y-6">
+                <!-- Featured Image -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Featured Image</h2>
+                    <div class="featured-image">
+                        <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80" 
+                             alt="Content creation workspace">
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">Click to upload or select from media library</p>
+                    </div>
+                    <div class="mt-3 flex justify-between">
+                        <div>
+                            <span class="text-sm text-gray-500 dark:text-gray-400">Current image</span>
+                            <span class="ml-2 text-sm font-medium">content-creation.jpg</span>
+                        </div>
+                        <button class="text-sm text-admin-red hover:text-red-700 dark:hover:text-red-400 font-medium">
+                            Replace
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Post Settings -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Post Settings</h2>
+                    <div class="space-y-5">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">URL Slug</label>
+                            <input type="text" value="how-to-create-viral-youtube-content-while-staying-true-to-your-values" 
+                                   class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Meta Description</label>
+                            <textarea rows="3" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white"
+                                      placeholder="Enter a brief description for SEO...">Discover how to create viral YouTube content while staying true to your core values. Practical strategies for authentic content that performs well.</textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">SEO Preview</label>
+                            <div class="seo-preview">
+                                <div class="seo-title">How to Create Viral YouTube Content While Staying True to Your Values</div>
+                                <div class="seo-url">jstarfilms.com/blog/how-to-create-viral-youtube-content-while-staying-true-to-your-values</div>
+                                <div class="seo-description">Discover how to create viral YouTube content while staying true to your core values. Practical strategies for authentic content that performs well.</div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Categories</label>
+                            <div class="flex flex-wrap gap-2 mb-2">
+                                <span class="category">Content Creation</span>
+                                <span class="category">YouTube Strategy</span>
+                                <span class="category">Faith Integration</span>
+                            </div>
+                            <select class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <option>Select category</option>
+                                <option>Content Creation</option>
+                                <option>YouTube Strategy</option>
+                                <option>Video Production</option>
+                                <option>Faith Integration</option>
+                                <option>Business Growth</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tags</label>
+                            <div class="flex flex-wrap gap-2 mb-2">
+                                <span class="tag">
+                                    YouTube
+                                    <svg class="tag-remove" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </span>
+                                <span class="tag">
+                                    Viral Content
+                                    <svg class="tag-remove" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </span>
+                                <span class="tag">
+                                    Authenticity
+                                    <svg class="tag-remove" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </span>
+                            </div>
+                            <div class="flex">
+                                <input type="text" placeholder="Add tag..." 
+                                       class="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-l-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <button class="px-4 py-3 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-r-lg text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600">
+                                    Add
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Publish Settings</label>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Publish Date</label>
+                                    <input type="datetime-local" value="2024-06-20T10:00" 
+                                           class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                </div>
+                                <div>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" checked class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                        <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Enable comments</span>
+                                    </label>
+                                </div>
+                                <div>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" checked class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                        <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Show author info</span>
+                                    </label>
+                                </div>
+                                <div>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                        <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Featured post</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Post Analytics -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Post Analytics</h2>
+                    <div class="space-y-5">
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-500 dark:text-gray-400">Views</span>
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">1,247</span>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-500 dark:text-gray-400">Engagement Rate</span>
+                                <span class="text-sm font-medium text-green-600">3.2%</span>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-500 dark:text-gray-400">Avg. Time on Page</span>
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">2m 14s</span>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-500 dark:text-gray-400">Conversion Rate</span>
+                                <span class="text-sm font-medium text-green-600">1.8%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="h-48 bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+                            <div class="text-center h-full flex items-center justify-center text-gray-500 dark:text-gray-400">
+                                Analytics chart would appear here
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Emergency Panel -->
+                <div class="bg-red-50 dark:bg-red-900/20 rounded-2xl p-6 shadow-lg border border-red-200 dark:border-red-800">
+                    <h2 class="text-xl font-bold text-red-900 dark:text-red-100 mb-4">Emergency Tools</h2>
+                    <div class="space-y-3">
+                        <p class="text-sm text-red-800 dark:text-red-200">
+                            Critical functions for immediate blog management and recovery.
+                        </p>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                            ONE BUTTON: Revert to Last Working Version
+                        </button>
+                        <div class="flex space-x-2">
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Disable Comments
+                            </button>
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Enable Safe Mode
+                            </button>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                            Send SOS Email to Dev Friend
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-apply theme
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Initialize sidebar active state
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set CMS as active in sidebar
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.href.includes('cms')) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Editor tab switching
+            const editorTabs = document.querySelectorAll('.editor-tab');
+            editorTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    editorTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // In a real implementation, this would switch the editor mode
+                    const mode = this.getAttribute('data-mode');
+                    console.log('Switching to', mode, 'mode');
+                });
+            });
+            
+            // Save draft button
+            document.getElementById('save-draft-btn').addEventListener('click', function() {
+                const originalText = this.innerHTML;
+                this.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2 inline text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Saving...';
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    alert('Draft saved successfully!');
+                }, 1500);
+            });
+            
+            // Publish button
+            document.getElementById('publish-btn').addEventListener('click', function() {
+                if (confirm('Are you sure you want to publish this post?')) {
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2 inline text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Publishing...';
+                    
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                        alert('Post published successfully!');
+                        window.location.href = '/admin/cms/blog-posts';
+                    }, 2000);
+                }
+            });
+            
+            // Tag removal
+            const tagRemoves = document.querySelectorAll('.tag-remove');
+            tagRemoves.forEach(remove => {
+                remove.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const tag = this.closest('.tag');
+                    tag.remove();
+                });
+            });
+        });
+    </script>
+</body>
+</html>

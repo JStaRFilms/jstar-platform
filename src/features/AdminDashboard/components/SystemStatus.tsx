@@ -13,6 +13,7 @@ export const SystemStatus: React.FC = () => {
     storage: 'checking',
     overall: 'checking'
   });
+  const [lastUpdated, setLastUpdated] = useState<string>('');
 
   // Simulate system health checks
   useEffect(() => {
@@ -25,6 +26,8 @@ export const SystemStatus: React.FC = () => {
           storage: 'healthy',
           overall: 'healthy'
         });
+        // Set last updated time on client only
+        setLastUpdated(new Date().toLocaleTimeString());
       }, 1000);
     };
 
@@ -124,7 +127,7 @@ export const SystemStatus: React.FC = () => {
         {/* Last Updated */}
         <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            Last updated: {new Date().toLocaleTimeString()}
+            Last updated: {lastUpdated || 'Checking...'}
           </p>
         </div>
       </div>

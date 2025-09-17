@@ -1,13 +1,18 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 /**
  * System Diagnostic Header Component
  * Displays the diagnostic page header with system overview
  */
 export const SystemDiagnosticHeader: React.FC = () => {
-  const currentTime = new Date();
+  const [currentTime, setCurrentTime] = useState<string>('');
+
+  // Set time on client only to avoid hydration mismatch
+  useEffect(() => {
+    setCurrentTime(new Date().toLocaleTimeString());
+  }, []);
 
   return (
     <header className="mb-6 sm:mb-8">
@@ -21,7 +26,7 @@ export const SystemDiagnosticHeader: React.FC = () => {
             Monitor system health, performance, and troubleshoot issues
           </p>
           <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-            Last diagnostic run: {currentTime.toLocaleTimeString()}
+            Last diagnostic run: {currentTime || 'Loading...'}
           </p>
         </div>
 

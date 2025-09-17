@@ -158,8 +158,14 @@ export const useHeroSlides = () => {
       const data = await response.json();
 
       if (data.status === 'success') {
-        // Refresh slides list
-        await fetchSlides();
+        // If this was a default slide that got converted to a custom slide,
+        // we need to refresh the entire list to get the new slide
+        if (id.startsWith('default-') && data.data && data.data.id !== id) {
+          await fetchSlides();
+        } else {
+          // For regular updates, just refresh the list
+          await fetchSlides();
+        }
         return data.data;
       } else {
         throw new Error(data.message || 'Failed to update slide');

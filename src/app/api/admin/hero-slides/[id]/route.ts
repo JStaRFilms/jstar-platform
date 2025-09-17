@@ -116,12 +116,15 @@ export async function PUT(
         );
       }
 
-      // Create a new custom slide with the updated data
+      // For default slides, create a new custom slide with the updated data
+      // This preserves the original default slide for future resets
       const newSlide = await prisma.heroSlide.create({
         data: {
           ...defaultSlide,
           ...body,
           id: undefined, // Let Prisma generate new ID
+          createdAt: new Date(),
+          updatedAt: new Date(),
         },
       });
 

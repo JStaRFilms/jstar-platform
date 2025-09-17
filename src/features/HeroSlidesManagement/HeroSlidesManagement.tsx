@@ -7,6 +7,7 @@ import { HeroSlidesHeader } from './components/HeroSlidesHeader';
 import { HeroSlidesStats } from './components/HeroSlidesStats';
 import { HeroSlidesGrid } from './components/HeroSlidesGrid';
 import { CreateSlideModal } from './components/CreateSlideModal';
+import { EditSlideModal } from './components/EditSlideModal';
 
 /**
  * Hero Slides Management Component
@@ -15,6 +16,7 @@ import { CreateSlideModal } from './components/CreateSlideModal';
  */
 export const HeroSlidesManagement: React.FC = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedSlide, setSelectedSlide] = useState<HeroSlide | null>(null);
   const { slides, loading, error, createSlide, updateSlide, deleteSlide } = useHeroSlides();
 
@@ -62,6 +64,31 @@ export const HeroSlidesManagement: React.FC = () => {
     }
   };
 
+  /**
+   * Handle slide editing
+   */
+  const handleEditSlide = (slide: HeroSlide) => {
+    setSelectedSlide(slide);
+    setIsEditModalOpen(true);
+  };
+
+  /**
+   * Handle slide update
+   */
+  const handleUpdateSlide = async (slideData: Partial<HeroSlide>) => {
+    if (!selectedSlide) return;
+
+    try {
+      await updateSlide(selectedSlide.id, slideData);
+      setIsEditModalOpen(false);
+      setSelectedSlide(null);
+      // TODO: Show success notification
+    } catch (err) {
+      console.error('Failed to update slide:', err);
+      // TODO: Show error notification
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Admin Sidebar - Hidden on mobile, shown on desktop */}
@@ -86,7 +113,7 @@ export const HeroSlidesManagement: React.FC = () => {
           loading={loading}
           error={error}
           onSlideSelect={setSelectedSlide}
-          onSlideEdit={setSelectedSlide}
+          onSlideEdit={handleEditSlide}
           onSlideDelete={handleDeleteSlide}
           onSlideToggle={handleToggleSlide}
         />
@@ -97,6 +124,18 @@ export const HeroSlidesManagement: React.FC = () => {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onSubmit={handleCreateSlide}
+        loading={loading}
+      />
+
+      {/* Edit Slide Modal */}
+      <EditSlideModal
+        isOpen={isEditModalOpen}
+        slide={selectedSlide}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedSlide(null);
+        }}
+        onSubmit={handleUpdateSlide}
         loading={loading}
       />
     </div>

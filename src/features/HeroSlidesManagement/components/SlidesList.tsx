@@ -190,11 +190,11 @@ const SlidesList: React.FC<SlidesListProps> = ({
                   </div>
                   <div className="flex items-center gap-2 ml-2">
                     <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${
-                      slide.isActive
+                      (slide.isActive === true || slide.isActive === undefined)
                         ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
                         : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300'
                     }`}>
-                      {slide.isActive ? 'Active' : 'Inactive'}
+                      {(slide.isActive === true || slide.isActive === undefined) ? 'Active' : 'Inactive'}
                     </span>
                   </div>
                 </div>
@@ -206,6 +206,7 @@ const SlidesList: React.FC<SlidesListProps> = ({
                 {/* Mobile Action Buttons */}
                 <div className="flex gap-2">
                   <button
+                    type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       onSlideEdit?.(slide);
@@ -216,6 +217,7 @@ const SlidesList: React.FC<SlidesListProps> = ({
                     Edit
                   </button>
                   <button
+                    type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       onSlideToggle?.(slide.id, !slide.isActive);
@@ -226,6 +228,7 @@ const SlidesList: React.FC<SlidesListProps> = ({
                     {slide.isActive ? 'Disable' : 'Enable'}
                   </button>
                   <button
+                    type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       if (window.confirm('Are you sure you want to delete this slide?')) {
@@ -253,11 +256,11 @@ const SlidesList: React.FC<SlidesListProps> = ({
                   </div>
                   <div className="flex items-center gap-2 ml-4">
                     <span className={`px-2 py-1 rounded text-xs font-medium ${
-                      slide.isActive
+                      (slide.isActive === true || slide.isActive === undefined)
                         ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
                         : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300'
                     }`}>
-                      {slide.isActive ? 'Active' : 'Inactive'}
+                      {(slide.isActive === true || slide.isActive === undefined) ? 'Active' : 'Inactive'}
                     </span>
                     <span className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
                       Order #{slide.sortOrder}
@@ -283,6 +286,7 @@ const SlidesList: React.FC<SlidesListProps> = ({
                 {/* Desktop Action Buttons */}
                 <div className="flex justify-end gap-3">
                   <button
+                    type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       onSlideEdit?.(slide);
@@ -293,6 +297,7 @@ const SlidesList: React.FC<SlidesListProps> = ({
                     Edit
                   </button>
                   <button
+                    type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       onSlideToggle?.(slide.id, !slide.isActive);
@@ -303,6 +308,7 @@ const SlidesList: React.FC<SlidesListProps> = ({
                     {slide.isActive ? 'Disable' : 'Enable'}
                   </button>
                   <button
+                    type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       if (window.confirm('Are you sure you want to delete this slide?')) {
