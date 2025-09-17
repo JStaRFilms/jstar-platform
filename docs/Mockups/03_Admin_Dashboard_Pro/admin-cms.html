@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - CMS Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'admin-red': '#DC2626'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-admin: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        }
+        
+        .btn-enhanced {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .card-interactive {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .card-interactive:hover {
+            transform: translateY(-2px);
+        }
+        
+        .module-card {
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .module-card:hover {
+            border-left-color: #DC2626;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        
+        .status-active {
+            background-color: #10B981;
+        }
+        
+        .status-warning {
+            background-color: #F59E0B;
+        }
+        
+        .status-critical {
+            background-color: #EF4444;
+        }
+        
+        .content-preview {
+            min-height: 120px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .content-preview::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .content-preview::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        .content-preview::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 4px;
+        }
+        
+        .content-preview::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            .content-preview::-webkit-scrollbar-track {
+                background: #374151;
+            }
+            
+            .content-preview::-webkit-scrollbar-thumb {
+                background: #4b5563;
+            }
+            
+            .content-preview::-webkit-scrollbar-thumb:hover {
+                background: #6b7280;
+            }
+        }
+        
+        .traffic-split {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #e5e7eb;
+            overflow: hidden;
+            display: flex;
+        }
+        
+        .traffic-split-enabled {
+            background: linear-gradient(90deg, #10B981, #34D399);
+            height: 100%;
+        }
+        
+        .traffic-split-disabled {
+            flex: 1;
+            background-color: #f3f4f6;
+        }
+        
+        .dark .traffic-split {
+            background-color: #4b5563;
+        }
+        
+        .dark .traffic-split-disabled {
+            background-color: #374151;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen">
+    <!-- Sidebar Navigation -->
+    <div class="fixed inset-y-0 left-0 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-50">
+        <div class="p-6">
+            <a href="/admin" class="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                J StaR Admin
+            </a>
+        </div>
+        
+        <nav class="mt-6">
+            <a href="/admin" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                </svg>
+                Dashboard
+            </a>
+            <a href="/admin/cms" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200 font-medium bg-gray-100 dark:bg-gray-700">
+                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                </svg>
+                CMS
+            </a>
+            <a href="/admin/johngpt" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                </svg>
+                JohnGPT
+            </a>
+            <a href="/admin/cge" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                </svg>
+                CGE
+            </a>
+            <a href="/admin/analytics" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+                Analytics
+            </a>
+        </nav>
+        
+        <div class="absolute bottom-6 w-60 px-6">
+            <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                <div class="font-medium text-gray-900 dark:text-white mb-2">System Status</div>
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span>CMS Service</span>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Active</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span>Database Connection</span>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Connected</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span>Admin Access</span>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Admin Access</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="ml-64 p-6">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
+                        Content Management System
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">
+                        Manage all website content including pages, blog posts, and media
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <div class="relative">
+                        <input type="text" placeholder="Search content..." class="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                        <svg class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                    <button id="new-content-btn" class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        New Content
+                    </button>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Total Pages</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">24</p>
+                    </div>
+                    <div class="p-2 bg-red-100 dark:bg-red-900/20 rounded-lg">
+                        <svg class="h-6 w-6 text-admin-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Blog Posts</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">56</p>
+                    </div>
+                    <div class="p-2 bg-red-100 dark:bg-red-900/20 rounded-lg">
+                        <svg class="h-6 w-6 text-admin-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h.01M12 12h.01M15 12h.01M6 12h.01M18 12h.01M9 16h.01M12 16h.01M15 16h.01M6 16h.01M18 16h.01M9 8h.01M12 8h.01M15 8h.01M6 8h.01M18 8h.01M7 20h10a2 2 0 002-2V6a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Media Items</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">142</p>
+                    </div>
+                    <div class="p-2 bg-red-100 dark:bg-red-900/20 rounded-lg">
+                        <svg class="h-6 w-6 text-admin-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Last Update</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">15m ago</p>
+                    </div>
+                    <div class="p-2 bg-red-100 dark:bg-red-900/20 rounded-lg">
+                        <svg class="h-6 w-6 text-admin-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Column - CMS Modules -->
+            <div class="lg:col-span-1">
+                <!-- CMS Modules -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">CMS Modules</h2>
+                        <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 text-xs rounded-full">Active Modules</span>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <a href="/admin/cms/pages" class="module-card block p-4 border-l-2 border-transparent hover:border-admin-red rounded-r-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-semibold text-gray-900 dark:text-white mb-1">Pages</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Edit static page content</p>
+                                </div>
+                                <div class="text-admin-red">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </a>
+                        
+                        <a href="/admin/cms/blog" class="module-card block p-4 border-l-2 border-transparent hover:border-admin-red rounded-r-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-semibold text-gray-900 dark:text-white mb-1">Blog</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Manage blog posts and categories</p>
+                                </div>
+                                <div class="text-admin-red">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </a>
+                        
+                        <a href="/admin/cms/hero-slides" class="module-card block p-4 border-l-2 border-transparent hover:border-admin-red rounded-r-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-semibold text-gray-900 dark:text-white mb-1">Hero Slides</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Manage homepage hero slides</p>
+                                </div>
+                                <div class="text-admin-red">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </a>
+                        
+                        <a href="/admin/cms/products" class="module-card block p-4 border-l-2 border-transparent hover:border-admin-red rounded-r-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-semibold text-gray-900 dark:text-white mb-1">Products</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Manage store products</p>
+                                </div>
+                                <div class="text-admin-red">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </a>
+                        
+                        <a href="/admin/cms/media" class="module-card block p-4 border-l-2 border-transparent hover:border-admin-red rounded-r-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-semibold text-gray-900 dark:text-white mb-1">Media Library</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Manage images and files</p>
+                                </div>
+                                <div class="text-admin-red">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- CMS Settings -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">CMS Settings</h2>
+                        <button class="text-admin-red text-sm hover:underline">Manage</button>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Content Publishing
+                            </label>
+                            <div class="space-y-2">
+                                <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    <input type="checkbox" checked class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                    <span class="ml-3 flex-1">
+                                        <span class="block font-medium text-gray-900 dark:text-white">Auto-publish changes</span>
+                                        <span class="block text-sm text-gray-500 dark:text-gray-400">Changes go live immediately</span>
+                                    </span>
+                                </label>
+                                
+                                <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    <input type="checkbox" class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                    <span class="ml-3 flex-1">
+                                        <span class="block font-medium text-gray-900 dark:text-white">Require approval</span>
+                                        <span class="block text-sm text-gray-500 dark:text-gray-400">Changes require admin approval</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Backup Schedule
+                            </label>
+                            <select class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                                <option>Daily</option>
+                                <option selected>Weekly</option>
+                                <option>Monthly</option>
+                                <option>Manual Only</option>
+                            </select>
+                        </div>
+                        
+                        <div class="pt-4">
+                            <button id="save-cms-settings" class="w-full px-4 py-3 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                                Save Settings
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Content & Activity -->
+            <div class="lg:col-span-2">
+                <!-- Recent Content -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 mb-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-0">Recent Content</h2>
+                        <div class="flex flex-wrap gap-2">
+                            <select class="px-3 py-1 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm">
+                                <option>All Content Types</option>
+                                <option>Pages</option>
+                                <option>Blog Posts</option>
+                                <option>Products</option>
+                            </select>
+                            <button class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm hover:bg-gray-200 dark:hover:bg-gray-600">
+                                <svg class="h-4 w-4 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+                                </svg>
+                                Export
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="content-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Homepage Hero Slide</div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Last updated: 15m ago • Type: Hero Slide</p>
+                                    <div class="mt-2 content-preview">
+                                        <p class="text-gray-600 dark:text-gray-400 text-sm line-clamp-2">"Authentic Faith in a Filtered World: Creating Content That Matters" - New homepage banner promoting faith-based content creation framework.</p>
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500">Edit</button>
+                                    <button class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500">Preview</button>
+                                    <button class="text-xs px-2 py-1 bg-red-100 dark:bg-red-900/30 text-admin-red rounded hover:bg-red-200 dark:hover:bg-red-900/50">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="content-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">New Blog Post: Content Strategy Framework</div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Last updated: 2h ago • Type: Blog Post</p>
+                                    <div class="mt-2 content-preview">
+                                        <p class="text-gray-600 dark:text-gray-400 text-sm line-clamp-2">How to create YouTube content that authentically integrates Christian values while maintaining viral potential. Includes practical framework and actionable steps.</p>
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500">Edit</button>
+                                    <button class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500">Preview</button>
+                                    <button class="text-xs px-2 py-1 bg-red-100 dark:bg-red-900/30 text-admin-red rounded hover:bg-red-200 dark:hover:bg-red-900/50">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="content-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">About Page Update</div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Last updated: 5h ago • Type: Page</p>
+                                    <div class="mt-2 content-preview">
+                                        <p class="text-gray-600 dark:text-gray-400 text-sm line-clamp-2">Updated mission statement and added new team member bios. Focused on strengthening the faith-based foundation of our platform.</p>
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500">Edit</button>
+                                    <button class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500">Preview</button>
+                                    <button class="text-xs px-2 py-1 bg-red-100 dark:bg-red-900/30 text-admin-red rounded hover:bg-red-200 dark:hover:bg-red-900/50">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="content-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Faith Development Product</div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Last updated: Yesterday • Type: Product</p>
+                                    <div class="mt-2 content-preview">
+                                        <p class="text-gray-600 dark:text-gray-400 text-sm line-clamp-2">New digital product: "Faith Integration Framework" - A 6-week course for creators wanting to authentically integrate their faith into content.</p>
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500">Edit</button>
+                                    <button class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500">Preview</button>
+                                    <button class="text-xs px-2 py-1 bg-red-100 dark:bg-red-900/30 text-admin-red rounded hover:bg-red-200 dark:hover:bg-red-900/50">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 flex justify-center">
+                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                            <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20">
+                                <span class="sr-only">Previous</span>
+                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                </svg>
+                            </a>
+                            <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-20">1</a>
+                            <a href="#" class="relative hidden md:inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20">2</a>
+                            <a href="#" class="relative hidden md:inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20">3</a>
+                            <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                                ...
+                            </span>
+                            <a href="#" class="relative hidden md:inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20">8</a>
+                            <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20">9</a>
+                            <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20">10</a>
+                            <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20">
+                                <span class="sr-only">Next</span>
+                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                </svg>
+                            </a>
+                        </nav>
+                    </div>
+                </div>
+                
+                <!-- Content Health -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-0">Content Health</h2>
+                        <div class="flex flex-wrap gap-2">
+                            <select class="px-3 py-1 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm">
+                                <option>Last 7 days</option>
+                                <option>Last 30 days</option>
+                                <option>All time</option>
+                            </select>
+                            <button class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm hover:bg-gray-200 dark:hover:bg-gray-600">
+                                <svg class="h-4 w-4 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                                View Report
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Content Performance</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Published Content</span>
+                                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">87%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                        <div class="bg-gradient-to-r from-admin-red to-red-500 h-2.5 rounded-full" style="width: 87%"></div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">SEO Optimized</span>
+                                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">63%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                        <div class="bg-gradient-to-r from-admin-red to-red-500 h-2.5 rounded-full" style="width: 63%"></div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Mobile Optimized</span>
+                                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">92%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                        <div class="bg-gradient-to-r from-admin-red to-red-500 h-2.5 rounded-full" style="width: 92%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Content Distribution</h3>
+                            <div class="space-y-4">
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="font-medium text-gray-900 dark:text-white">Blog Posts</span>
+                                        <span class="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded">56</span>
+                                    </div>
+                                    <div class="traffic-split">
+                                        <div class="traffic-split-enabled" style="width: 45%"></div>
+                                        <div class="traffic-split-disabled"></div>
+                                    </div>
+                                    <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">45% of total content</div>
+                                </div>
+                                
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="font-medium text-gray-900 dark:text-white">Static Pages</span>
+                                        <span class="text-xs px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 rounded">24</span>
+                                    </div>
+                                    <div class="traffic-split">
+                                        <div class="traffic-split-enabled" style="width: 21%"></div>
+                                        <div class="traffic-split-disabled"></div>
+                                    </div>
+                                    <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">21% of total content</div>
+                                </div>
+                                
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="font-medium text-gray-900 dark:text-white">Products</span>
+                                        <span class="text-xs px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded">18</span>
+                                    </div>
+                                    <div class="traffic-split">
+                                        <div class="traffic-split-enabled" style="width: 16%"></div>
+                                        <div class="traffic-split-disabled"></div>
+                                    </div>
+                                    <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">16% of total content</div>
+                                </div>
+                                
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="font-medium text-gray-900 dark:text-white">Media Items</span>
+                                        <span class="text-xs px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 rounded">142</span>
+                                    </div>
+                                    <div class="traffic-split">
+                                        <div class="traffic-split-enabled" style="width: 18%"></div>
+                                        <div class="traffic-split-disabled"></div>
+                                    </div>
+                                    <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">18% of total content</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Emergency Panel -->
+        <div class="bg-red-50 dark:bg-red-900/20 rounded-2xl p-6 shadow-lg border border-red-200 dark:border-red-800 mt-6">
+            <h2 class="text-xl font-bold text-red-900 dark:text-red-100 mb-4">Emergency Tools</h2>
+            <div class="space-y-3">
+                <p class="text-sm text-red-800 dark:text-red-200">Critical functions for immediate CMS management and recovery.</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <button class="px-4 py-2 bg-white dark:bg-gray-700 text-admin-red border border-red-200 dark:border-red-800 rounded-lg font-medium hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors">
+                        Clear CMS Cache
+                    </button>
+                    <button class="px-4 py-2 bg-white dark:bg-gray-700 text-admin-red border border-red-200 dark:border-red-800 rounded-lg font-medium hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors">
+                        Restore from Backup
+                    </button>
+                    <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                        ONE BUTTON: Revert to Default Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Theme handling
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Initialize sidebar active state
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set CMS as active in sidebar
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.href.includes('cms')) {
+                    item.classList.add('active');
+                    item.classList.remove('text-gray-600', 'dark:text-gray-400');
+                    item.classList.add('text-gray-700', 'dark:text-gray-200', 'font-medium', 'bg-gray-100', 'dark:bg-gray-700');
+                }
+            });
+            
+            // New content button
+            const newContentBtn = document.getElementById('new-content-btn');
+            if (newContentBtn) {
+                newContentBtn.addEventListener('click', function() {
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2 inline text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Creating...';
+                    
+                    // Simulate API call
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                        alert('New content creation started! Please select content type to continue.');
+                    }, 1500);
+                });
+            }
+            
+            // Save CMS settings button
+            const saveSettingsBtn = document.getElementById('save-cms-settings');
+            if (saveSettingsBtn) {
+                saveSettingsBtn.addEventListener('click', function() {
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2 inline text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Saving...';
+                    
+                    // Simulate API call
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                        alert('CMS settings saved successfully! New settings will take effect immediately.');
+                    }, 1500);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

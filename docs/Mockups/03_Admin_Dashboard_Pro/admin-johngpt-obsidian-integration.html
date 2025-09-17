@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - Obsidian Integration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'admin-red': '#DC2626'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-admin: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        }
+        
+        .btn-enhanced {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .card-interactive {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .card-interactive:hover {
+            transform: translateY(-2px);
+        }
+        
+        .module-card {
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .module-card:hover {
+            border-left-color: #DC2626;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        
+        .status-active {
+            background-color: #10B981;
+        }
+        
+        .status-warning {
+            background-color: #F59E0B;
+        }
+        
+        .status-critical {
+            background-color: #EF4444;
+        }
+        
+        .connection-status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        
+        .connection-active {
+            background-color: #10B981;
+        }
+        
+        .connection-warning {
+            background-color: #F59E0B;
+        }
+        
+        .connection-critical {
+            background-color: #EF4444;
+        }
+        
+        .path-input {
+            font-family: monospace;
+            background-color: #f3f4f6;
+            border-color: #e5e7eb;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+        }
+        
+        .dark .path-input {
+            background-color: #374151;
+            border-color: #4b5563;
+        }
+        
+        .template-preview {
+            min-height: 150px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .template-preview::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .template-preview::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        .template-preview::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 4px;
+        }
+        
+        .template-preview::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            .template-preview::-webkit-scrollbar-track {
+                background: #374151;
+            }
+            
+            .template-preview::-webkit-scrollbar-thumb {
+                background: #4b5563;
+            }
+            
+            .template-preview::-webkit-scrollbar-thumb:hover {
+                background: #6b7280;
+            }
+        }
+        
+        .markdown-preview {
+            background-color: #f9fafb;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            font-family: monospace;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+        
+        .dark .markdown-preview {
+            background-color: #1f2937;
+        }
+        
+        .markdown-header {
+            color: #dc2626;
+            font-weight: bold;
+        }
+        
+        .markdown-tag {
+            color: #8b5cf6;
+        }
+        
+        .markdown-link {
+            color: #2563eb;
+            text-decoration: underline;
+        }
+        
+        .markdown-blockquote {
+            border-left: 3px solid #e5e7eb;
+            padding-left: 0.75rem;
+            margin-left: 0;
+            color: #6b7280;
+        }
+        
+        .dark .markdown-blockquote {
+            border-left-color: #4b5563;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen">
+    <!-- Sidebar Navigation -->
+    <div class="fixed inset-y-0 left-0 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-50">
+        <div class="p-6">
+            <a href="/admin" class="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                J StaR Admin
+            </a>
+        </div>
+        
+        <nav class="mt-6">
+            <a href="/admin/johngpt" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                </svg>
+                JohnGPT
+            </a>
+            <a href="/admin/cge" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                </svg>
+                CGE
+            </a>
+            <a href="/admin/cms" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                </svg>
+                CMS
+            </a>
+            <a href="/admin/analytics" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+                Analytics
+            </a>
+        </nav>
+        
+        <div class="absolute bottom-6 w-60 px-6">
+            <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                <div class="font-medium text-gray-900 dark:text-white mb-2">System Status</div>
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span>JohnGPT Service</span>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Active</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span>Obsidian Connection</span>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Connected</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span>Admin Access</span>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Admin Access</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="ml-64 p-6">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center mb-2">
+                        <a href="/admin/johngpt" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">JohnGPT</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <span class="text-gray-900 dark:text-white">Obsidian Integration</span>
+                    </div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
+                        Obsidian Integration
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">
+                        Configure how JohnGPT content exports to your Obsidian vault
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <div class="relative">
+                        <input type="text" placeholder="Search configurations..." class="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                        <svg class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                    <button id="test-connection-btn" class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        </svg>
+                        Test Connection
+                    </button>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Total Exports</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">142</p>
+                    </div>
+                    <div class="p-2 bg-red-100 dark:bg-red-900/20 rounded-lg">
+                        <svg class="h-6 w-6 text-admin-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Last Export</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">15m ago</p>
+                    </div>
+                    <div class="p-2 bg-red-100 dark:bg-red-900/20 rounded-lg">
+                        <svg class="h-6 w-6 text-admin-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Active Vaults</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">3</p>
+                    </div>
+                    <div class="p-2 bg-red-100 dark:bg-red-900/20 rounded-lg">
+                        <svg class="h-6 w-6 text-admin-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Connection Status</p>
+                        <div class="flex items-center mt-1">
+                            <span class="connection-status connection-active"></span>
+                            <span class="text-2xl font-bold text-gray-900 dark:text-white">Connected</span>
+                        </div>
+                    </div>
+                    <div class="p-2 bg-red-100 dark:bg-red-900/20 rounded-lg">
+                        <svg class="h-6 w-6 text-admin-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Column - Configuration -->
+            <div class="lg:col-span-1">
+                <!-- Vault Configuration -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Vault Configuration</h2>
+                        <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 text-xs rounded-full">Primary Vault</span>
+                    </div>
+                    
+                    <div class="space-y-5">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Obsidian Vault Path
+                            </label>
+                            <div class="space-y-2">
+                                <div class="path-input flex items-center">
+                                    <svg class="h-4 w-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+                                    </svg>
+                                    <span class="truncate">C:\Users\John\Documents\Obsidian Vault\J StaR Personal</span>
+                                </div>
+                                <button id="change-path-btn" class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500">
+                                    Change Path
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Connection Status
+                            </label>
+                            <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                <div class="flex items-center">
+                                    <span class="connection-status connection-active"></span>
+                                    <span class="font-medium text-gray-900 dark:text-white">Connected</span>
+                                </div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Obsidian vault detected and accessible</p>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Export Settings
+                            </label>
+                            <div class="space-y-3">
+                                <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    <input type="checkbox" checked class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                    <span class="ml-3 flex-1">
+                                        <span class="block font-medium text-gray-900 dark:text-white">Automatic Export</span>
+                                        <span class="block text-sm text-gray-500 dark:text-gray-400">Save snippets automatically when requested</span>
+                                    </span>
+                                </label>
+                                
+                                <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    <input type="checkbox" checked class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                    <span class="ml-3 flex-1">
+                                        <span class="block font-medium text-gray-900 dark:text-white">Include Metadata</span>
+                                        <span class="block text-sm text-gray-500 dark:text-gray-400">Add date, source, and context metadata</span>
+                                    </span>
+                                </label>
+                                
+                                <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    <input type="checkbox" checked class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                    <span class="ml-3 flex-1">
+                                        <span class="block font-medium text-gray-900 dark:text-white">Create Backlinks</span>
+                                        <span class="block text-sm text-gray-500 dark:text-gray-400">Link to related notes in your vault</span>
+                                    </span>
+                                </label>
+                                
+                                <label class="flex items-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    <input type="checkbox" class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                    <span class="ml-3 flex-1">
+                                        <span class="block font-medium text-gray-900 dark:text-white">Sync with Obsidian Sync</span>
+                                        <span class="block text-sm text-gray-500 dark:text-gray-400">Enable cloud sync for exported content</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="pt-4">
+                            <button id="save-config-btn" class="w-full px-4 py-3 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                                Save Configuration
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Additional Vaults -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Additional Vaults</h2>
+                        <button class="text-admin-red text-sm hover:underline">Manage</button>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Content Creation Vault</h3>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate max-w-xs">C:\Users\John\Documents\Obsidian Vault\Content Creation</p>
+                                </div>
+                                <div class="flex items-center">
+                                    <span class="connection-status connection-active"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Personal Journal Vault</h3>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate max-w-xs">C:\Users\John\Documents\Obsidian Vault\Personal Journal</p>
+                                </div>
+                                <div class="flex items-center">
+                                    <span class="connection-status connection-active"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">Faith Development Vault</h3>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate max-w-xs">C:\Users\John\Documents\Obsidian Vault\Faith Development</p>
+                                </div>
+                                <div class="flex items-center">
+                                    <span class="connection-status connection-warning"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button class="w-full mt-2 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                            <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            Add New Vault
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Template & History -->
+            <div class="lg:col-span-2">
+                <!-- Template Configuration -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 mb-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-0">Template Configuration</h2>
+                        <div class="flex flex-wrap gap-2">
+                            <select class="px-3 py-1 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm">
+                                <option>Default Template</option>
+                                <option>Script Writing Template</option>
+                                <option>Content Strategy Template</option>
+                                <option>Personal Journal Template</option>
+                            </select>
+                            <button class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm hover:bg-gray-200 dark:hover:bg-gray-600">
+                                <svg class="h-4 w-4 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                                New Template
+                            </button>
+                            <button class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm hover:bg-gray-200 dark:hover:bg-gray-600">
+                                <svg class="h-4 w-4 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                                Preview
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Template Variables
+                                </label>
+                                <div class="space-y-2">
+                                    <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                        <div class="flex justify-between items-center">
+                                            <span class="font-mono text-sm text-gray-700 dark:text-gray-300">{{content}}</span>
+                                            <span class="text-xs text-gray-500 dark:text-gray-400">Chat content</span>
+                                        </div>
+                                    </div>
+                                    <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                        <div class="flex justify-between items-center">
+                                            <span class="font-mono text-sm text-gray-700 dark:text-gray-300">{{date}}</span>
+                                            <span class="text-xs text-gray-500 dark:text-gray-400">Export date</span>
+                                        </div>
+                                    </div>
+                                    <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                        <div class="flex justify-between items-center">
+                                            <span class="font-mono text-sm text-gray-700 dark:text-gray-300">{{source}}</span>
+                                            <span class="text-xs text-gray-500 dark:text-gray-400">Source context</span>
+                                        </div>
+                                    </div>
+                                    <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                        <div class="flex justify-between items-center">
+                                            <span class="font-mono text-sm text-gray-700 dark:text-gray-300">{{tags}}</span>
+                                            <span class="text-xs text-gray-500 dark:text-gray-400">Auto-generated tags</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-6">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Auto-Tagging Rules
+                                </label>
+                                <div class="space-y-2">
+                                    <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm text-gray-700 dark:text-gray-300">Faith-related content</span>
+                                            <span class="text-xs px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 rounded">#faith</span>
+                                        </div>
+                                    </div>
+                                    <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm text-gray-700 dark:text-gray-300">Content strategy</span>
+                                            <span class="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded">#content-strategy</span>
+                                        </div>
+                                    </div>
+                                    <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm text-gray-700 dark:text-gray-300">Script writing</span>
+                                            <span class="text-xs px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded">#script-writing</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="mt-3 text-sm text-admin-red hover:underline flex items-center">
+                                    <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                    </svg>
+                                    Add Rule
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Template Editor
+                                </label>
+                                <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
+                                    <textarea class="w-full h-40 bg-transparent border border-gray-300 dark:border-gray-600 rounded-lg p-2 font-mono text-sm focus:ring-2 focus:ring-admin-red focus:border-transparent" placeholder="Enter template here...">---
+tags: [{{tags}}]
+source: JohnGPT
+date: {{date}}
+---
+
+# {{title}}
+
+> {{content}}
+
+## Context
+This snippet was generated while discussing: {{source}}
+
+## Next Steps
+- Review and refine the content
+- Connect with related notes
+- Implement in your content plan</textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Markdown Preview
+                                </label>
+                                <div class="markdown-preview p-3 rounded-lg">
+                                    <div class="markdown-header">---
+tags: [#content-strategy, #script-writing]
+source: JohnGPT
+date: June 18, 2024
+---</div>
+                                    
+                                    <h1>YouTube Script Framework</h1>
+                                    
+                                    <blockquote class="markdown-blockquote">
+                                        Here's a YouTube video script framework that balances authenticity, Christian values, and viral potential...
+                                    </blockquote>
+                                    
+                                    <h2>Context</h2>
+                                    <p>This snippet was generated while discussing: <a href="content-strategy.md" class="markdown-link">Content Strategy</a></p>
+                                    
+                                    <h2>Next Steps</h2>
+                                    <ul>
+                                        <li>Review and refine the content</li>
+                                        <li>Connect with related notes</li>
+                                        <li>Implement in your content plan</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-end">
+                                <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                                    Save Template
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Export History -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-0">Export History</h2>
+                        <div class="flex flex-wrap gap-2">
+                            <select class="px-3 py-1 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm">
+                                <option>Last 7 days</option>
+                                <option>Last 30 days</option>
+                                <option>All time</option>
+                            </select>
+                            <button class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm hover:bg-gray-200 dark:hover:bg-gray-600">
+                                <svg class="h-4 w-4 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+                                </svg>
+                                Export History
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="export-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">YouTube Script Framework</div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Exported to: Content Creation Vault • 15m ago</p>
+                                    <div class="mt-2 flex flex-wrap gap-2">
+                                        <span class="text-xs px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 rounded">#faith</span>
+                                        <span class="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded">#content-strategy</span>
+                                        <span class="text-xs px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded">#script-writing</span>
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500">View</button>
+                                    <button class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500">Edit</button>
+                                    <button class="text-xs px-2 py-1 bg-red-100 dark:bg-red-900/30 text-admin-red rounded hover:bg-red-200 dark:hover:bg-red-900/50">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="export-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Marketing Strategy Framework</div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Exported to: Content Creation Vault • 2h ago</p>
+                                    <div class="mt-2 flex flex-wrap gap-2">
+                                        <span class="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded">#content-strategy</span>
+                                        <span class="text-xs px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 rounded">#marketing</span>
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500">View</button>
+                                    <button class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500">Edit</button>
+                                    <button class="text-xs px-2 py-1 bg-red-100 dark:bg-red-900/30 text-admin-red rounded hover:bg-red-200 dark:hover:bg-red-900/50">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="export-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Personal Journal Entry</div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Exported to: Personal Journal Vault • Yesterday</p>
+                                    <div class="mt-2 flex flex-wrap gap-2">
+                                        <span class="text-xs px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 rounded">#faith</span>
+                                        <span class="text-xs px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded">#reflection</span>
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500">View</button>
+                                    <button class="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded hover:bg-gray-300 dark:hover:bg-gray-500">Edit</button>
+                                    <button class="text-xs px-2 py-1 bg-red-100 dark:bg-red-900/30 text-admin-red rounded hover:bg-red-200 dark:hover:bg-red-900/50">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 flex justify-center">
+                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                            <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20">
+                                <span class="sr-only">Previous</span>
+                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                </svg>
+                            </a>
+                            <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-20">1</a>
+                            <a href="#" class="relative hidden md:inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20">2</a>
+                            <a href="#" class="relative hidden md:inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20">3</a>
+                            <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                                ...
+                            </span>
+                            <a href="#" class="relative hidden md:inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20">8</a>
+                            <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20">9</a>
+                            <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20">10</a>
+                            <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20">
+                                <span class="sr-only">Next</span>
+                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                </svg>
+                            </a>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Emergency Panel -->
+        <div class="bg-red-50 dark:bg-red-900/20 rounded-2xl p-6 shadow-lg border border-red-200 dark:border-red-800 mt-6">
+            <h2 class="text-xl font-bold text-red-900 dark:text-red-100 mb-4">Emergency Tools</h2>
+            <div class="space-y-3">
+                <p class="text-sm text-red-800 dark:text-red-200">Critical functions for immediate Obsidian integration management and recovery.</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <button class="px-4 py-2 bg-white dark:bg-gray-700 text-admin-red border border-red-200 dark:border-red-800 rounded-lg font-medium hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors">
+                        Reset Vault Configuration
+                    </button>
+                    <button class="px-4 py-2 bg-white dark:bg-gray-700 text-admin-red border border-red-200 dark:border-red-800 rounded-lg font-medium hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors">
+                        Clear Export History
+                    </button>
+                    <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                        ONE BUTTON: Revert to Default Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Theme handling
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Initialize sidebar active state
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set JohnGPT as active in sidebar
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.href.includes('johngpt')) {
+                    item.classList.add('active');
+                    item.classList.remove('text-gray-600', 'dark:text-gray-400');
+                    item.classList.add('text-gray-700', 'dark:text-gray-200', 'font-medium', 'bg-gray-100', 'dark:bg-gray-700');
+                }
+            });
+            
+            // Test connection button
+            const testConnectionBtn = document.getElementById('test-connection-btn');
+            if (testConnectionBtn) {
+                testConnectionBtn.addEventListener('click', function() {
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2 inline text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Testing...';
+                    
+                    // Simulate API call
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                        alert('Connection test successful! Obsidian vault is accessible and ready for exports.');
+                    }, 1500);
+                });
+            }
+            
+            // Save configuration button
+            const saveConfigBtn = document.getElementById('save-config-btn');
+            if (saveConfigBtn) {
+                saveConfigBtn.addEventListener('click', function() {
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2 inline text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Saving...';
+                    
+                    // Simulate API call
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                        alert('Configuration saved successfully! New settings will take effect immediately.');
+                    }, 1500);
+                });
+            }
+            
+            // Change path button
+            const changePathBtn = document.getElementById('change-path-btn');
+            if (changePathBtn) {
+                changePathBtn.addEventListener('click', function() {
+                    alert('Please select your Obsidian vault directory.\n\nThis will open a file dialog to choose your vault path.');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
