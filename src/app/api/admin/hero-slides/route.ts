@@ -50,11 +50,11 @@ const defaultSlides = [
 /**
  * GET /api/admin/hero-slides
  * Get all active hero slides ordered by sort order
- * Returns default slides if no custom slides exist
+ * Always returns custom slides + default slides for consistency
  */
 export async function GET() {
   try {
-    const slides = await prisma.heroSlide.findMany({
+    const customSlides = await prisma.heroSlide.findMany({
       where: { isActive: true },
       orderBy: { sortOrder: 'asc' },
       select: {
@@ -78,18 +78,19 @@ export async function GET() {
       },
     });
 
-    // If no custom slides exist, return default slides
-    if (slides.length === 0) {
-      return NextResponse.json({
-        status: 'success',
-        data: defaultSlides,
-        message: 'Showing default slides. Create custom slides to replace them.',
-      });
-    }
+    // Always return custom slides + default slides for consistency
+    // This ensures the admin UI always shows all available slides
+    const allSlides = [...customSlides, ...defaultSlides];
+
+    // Sort by sortOrder to maintain proper order
+    allSlides.sort((a, b) => a.sortOrder - b.sortOrder);
 
     return NextResponse.json({
       status: 'success',
-      data: slides,
+      data: allSlides,
+      message: customSlides.length > 0
+        ? `Showing ${customSlides.length} custom slides and ${defaultSlides.length} default slides.`
+        : `Showing ${defaultSlides.length} default slides. Create custom slides to add more content.`,
     });
   } catch (error) {
     console.error('Error fetching hero slides:', error);
