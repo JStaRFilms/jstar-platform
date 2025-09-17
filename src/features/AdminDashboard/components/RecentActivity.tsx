@@ -1,89 +1,107 @@
+'use client';
+
 import React from 'react';
 
 /**
  * Recent Activity Component
- * Displays recent system activities and events
+ * Displays recent administrative activities and system events
  */
 export const RecentActivity: React.FC = () => {
+  const activities = [
+    {
+      id: 1,
+      type: 'slide_created',
+      message: 'New hero slide "Creative Excellence" created',
+      timestamp: new Date(Date.now() - 1000 * 60 * 5), // 5 minutes ago
+      icon: '🎨',
+      color: 'text-blue-500'
+    },
+    {
+      id: 2,
+      type: 'slide_updated',
+      message: 'Hero slide "Elevate Your Story" updated',
+      timestamp: new Date(Date.now() - 1000 * 60 * 15), // 15 minutes ago
+      icon: '✏️',
+      color: 'text-green-500'
+    },
+    {
+      id: 3,
+      type: 'system_check',
+      message: 'System health check completed successfully',
+      timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
+      icon: '✅',
+      color: 'text-green-500'
+    },
+    {
+      id: 4,
+      type: 'api_call',
+      message: 'Hero slides API accessed 12 times',
+      timestamp: new Date(Date.now() - 1000 * 60 * 45), // 45 minutes ago
+      icon: '🔗',
+      color: 'text-purple-500'
+    },
+    {
+      id: 5,
+      type: 'user_login',
+      message: 'Admin user logged in',
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
+      icon: '👤',
+      color: 'text-gray-500'
+    }
+  ];
+
+  const formatTimeAgo = (date: Date) => {
+    const now = new Date();
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+
+    if (diffInMinutes < 1) return 'Just now';
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
+    return `${Math.floor(diffInMinutes / 1440)}d ago`;
+  };
+
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-      <div className="flex justify-between items-center mb-5">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Recent Activity</h2>
-        <a href="#" className="text-red-500 hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">View all</a>
+    <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+      <div className="flex items-center justify-between mb-4 sm:mb-6">
+        <div>
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
+            Recent Activity
+          </h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Latest administrative activities and system events
+          </p>
+        </div>
+        <div className="text-2xl">📋</div>
       </div>
+
       <div className="space-y-4">
-        <div className="activity-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
-          <div className="flex items-start">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-red-600 to-red-500 flex items-center justify-center mr-3">
-              <svg className="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-              </svg>
+        {activities.map((activity) => (
+          <div
+            key={activity.id}
+            className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+          >
+            <div className={`p-2 rounded-lg bg-gray-100 dark:bg-gray-700 ${activity.color}`}>
+              <span className="text-sm" role="img" aria-label={activity.type}>
+                {activity.icon}
+              </span>
             </div>
-            <div className="flex-1">
-              <p className="text-sm text-gray-700 dark:text-gray-300">
-                <span className="font-medium">New user registered</span> - Tier 2 subscription
+            <div className="flex-1 min-w-0">
+              <p className="text-sm text-gray-900 dark:text-white font-medium">
+                {activity.message}
               </p>
-              <div className="flex justify-between mt-1">
-                <span className="text-xs text-gray-500 dark:text-gray-400">5 minutes ago</span>
-                <span className="text-xs bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 px-2 py-1 rounded">Critical</span>
-              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                {formatTimeAgo(activity.timestamp)}
+              </p>
             </div>
           </div>
-        </div>
-        <div className="activity-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
-          <div className="flex items-start">
-            <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center mr-3">
-              <svg className="h-4 w-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-              </svg>
-            </div>
-            <div className="flex-1">
-              <p className="text-sm text-gray-700 dark:text-gray-300">
-                <span className="font-medium">New product created</span> - YouTube Virality Guide v2.1
-              </p>
-              <div className="flex justify-between mt-1">
-                <span className="text-xs text-gray-500 dark:text-gray-400">32 minutes ago</span>
-                <span className="text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 px-2 py-1 rounded">High</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="activity-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
-          <div className="flex items-start">
-            <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center mr-3">
-              <svg className="h-4 w-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.673M12 3v1m6.364-.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
-              </svg>
-            </div>
-            <div className="flex-1">
-              <p className="text-sm text-gray-700 dark:text-gray-300">
-                <span className="font-medium">System backup completed</span> - Database & Vault
-              </p>
-              <div className="flex justify-between mt-1">
-                <span className="text-xs text-gray-500 dark:text-gray-400">1 hour ago</span>
-                <span className="text-xs bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 px-2 py-1 rounded">Normal</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="activity-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
-          <div className="flex items-start">
-            <div className="w-8 h-8 rounded-full bg-yellow-200 dark:bg-yellow-900/30 flex items-center justify-center mr-3">
-              <svg className="h-4 w-4 text-yellow-700 dark:text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-            </div>
-            <div className="flex-1">
-              <p className="text-sm text-gray-700 dark:text-gray-300">
-                <span className="font-medium">Storage warning</span> - Vault approaching limit
-              </p>
-              <div className="flex justify-between mt-1">
-                <span className="text-xs text-gray-500 dark:text-gray-400">2 hours ago</span>
-                <span className="text-xs bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 px-2 py-1 rounded">Warning</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        ))}
+      </div>
+
+      {/* View All Link */}
+      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+        <button className="text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 font-medium transition-colors">
+          View all activity →
+        </button>
       </div>
     </div>
   );

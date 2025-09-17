@@ -1,50 +1,150 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 
 /**
  * Quick Actions Component
- * Provides quick access to common admin functions
+ * Provides quick access to frequently used admin functions
  */
 export const QuickActions: React.FC = () => {
+  const quickActions = [
+    {
+      title: 'Manage Hero Slides',
+      description: 'Create, edit, and organize homepage slides',
+      icon: '🎨',
+      href: '/admin/cms/hero-slides',
+      color: 'from-blue-500 to-purple-600',
+      bgColor: 'bg-blue-50 dark:bg-blue-900/20',
+      borderColor: 'border-blue-200 dark:border-blue-800'
+    },
+    {
+      title: 'View Website',
+      description: 'Preview your public website',
+      icon: '🌐',
+      href: '/',
+      color: 'from-green-500 to-teal-600',
+      bgColor: 'bg-green-50 dark:bg-green-900/20',
+      borderColor: 'border-green-200 dark:border-green-800',
+      external: true
+    },
+    {
+      title: 'System Diagnostics',
+      description: 'Check system health and performance',
+      icon: '🔧',
+      href: '/admin/system-diagnostic',
+      color: 'from-orange-500 to-red-600',
+      bgColor: 'bg-orange-50 dark:bg-orange-900/20',
+      borderColor: 'border-orange-200 dark:border-orange-800'
+    },
+    {
+      title: 'API Documentation',
+      description: 'View available API endpoints',
+      icon: '📚',
+      href: '/api',
+      color: 'from-purple-500 to-pink-600',
+      bgColor: 'bg-purple-50 dark:bg-purple-900/20',
+      borderColor: 'border-purple-200 dark:border-purple-800',
+      external: true
+    }
+  ];
+
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-      <div className="flex justify-between items-center mb-5">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Quick Actions</h2>
-        <Link href="#" className="text-red-500 hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">View all</Link>
+    <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+      <div className="flex items-center justify-between mb-4 sm:mb-6">
+        <div>
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
+            Quick Actions
+          </h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Frequently used administrative functions
+          </p>
+        </div>
+        <div className="text-2xl">⚡</div>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Link href="/admin/cms/products/new" className="quick-action flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-red-600 to-red-500 flex items-center justify-center mb-3">
-            <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-            </svg>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {quickActions.map((action, index) => (
+          <div
+            key={index}
+            className={`relative ${action.bgColor} ${action.borderColor} border rounded-lg p-4 hover:shadow-md transition-all duration-300 group`}
+          >
+            {action.external ? (
+              <a
+                href={action.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block"
+              >
+                <div className="flex items-start gap-3">
+                  <div className={`p-2 rounded-lg bg-gradient-to-r ${action.color} text-white shadow-sm`}>
+                    <span className="text-lg" role="img" aria-label={action.title}>
+                      {action.icon}
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors">
+                      {action.title}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      {action.description}
+                    </p>
+                  </div>
+                  <div className="text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                    </svg>
+                  </div>
+                </div>
+              </a>
+            ) : (
+              <Link href={action.href} className="block">
+                <div className="flex items-start gap-3">
+                  <div className={`p-2 rounded-lg bg-gradient-to-r ${action.color} text-white shadow-sm`}>
+                    <span className="text-lg" role="img" aria-label={action.title}>
+                      {action.icon}
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors">
+                      {action.title}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      {action.description}
+                    </p>
+                  </div>
+                  <div className="text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                  </div>
+                </div>
+              </Link>
+            )}
           </div>
-          <span className="text-sm text-center text-gray-700 dark:text-gray-300">New Product</span>
-        </Link>
-        <Link href="/admin/johngpt/system-prompt" className="quick-action flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-red-600 to-red-500 flex items-center justify-center mb-3">
-            <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-            </svg>
-          </div>
-          <span className="text-sm text-center text-gray-700 dark:text-gray-300">Edit Brand Voice</span>
-        </Link>
-        <Link href="/admin/cge/virality-os/config" className="quick-action flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-red-600 to-red-500 flex items-center justify-center mb-3">
-            <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-          </div>
-          <span className="text-sm text-center text-gray-700 dark:text-gray-300">Tune Virality OS</span>
-        </Link>
-        <Link href="/admin/users" className="quick-action flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-red-600 to-red-500 flex items-center justify-center mb-3">
-            <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-            </svg>
-          </div>
-          <span className="text-sm text-center text-gray-700 dark:text-gray-300">Manage Users</span>
-        </Link>
+        ))}
+      </div>
+
+      {/* Additional Actions */}
+      <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <button className="p-3 text-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors group">
+            <div className="text-lg mb-1">📊</div>
+            <div className="text-xs font-medium">Analytics</div>
+          </button>
+          <button className="p-3 text-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors group">
+            <div className="text-lg mb-1">👥</div>
+            <div className="text-xs font-medium">Users</div>
+          </button>
+          <button className="p-3 text-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors group">
+            <div className="text-lg mb-1">⚙️</div>
+            <div className="text-xs font-medium">Settings</div>
+          </button>
+          <button className="p-3 text-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors group">
+            <div className="text-lg mb-1">📧</div>
+            <div className="text-xs font-medium">Messages</div>
+          </button>
+        </div>
       </div>
     </div>
   );
