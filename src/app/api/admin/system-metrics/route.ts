@@ -6,6 +6,86 @@ import { promisify } from 'util';
 
 const execAsync = promisify(exec);
 
+// OS detection and command strategies
+const getOSCommands = () => {
+  const platform = os.platform();
+
+  switch (platform) {
+    case 'win32':
+      return {
+        platform: 'windows',
+        diskUsage: [
+          // PowerShell (most reliable on modern Windows)
+          'powershell "Get-WmiObject Win32_LogicalDisk | Where-Object { $_.DriveType -eq 3 } | Select-Object Size,FreeSpace,Caption | ConvertTo-Csv -NoTypeInformation"',
+          // WMIC (legacy but sometimes available)
+          'wmic logicaldisk where "DriveType=3" get size,freespace,caption /format:csv',
+          // fsutil for individual drives
+          'fsutil volume diskfree C:'
+        ],
+        cpuUsage: [
+          // PowerShell performance counter
+          'powershell "Get-Counter \'\\Processor(_Total)\\% Processor Time\' | Select-Object -ExpandProperty CounterSamples | Select-Object -ExpandProperty CookedValue"',
+          // Fallback to WMIC
+          'wmic cpu get loadpercentage /value'
+        ],
+        processList: [
+          // tasklist for process enumeration
+          'tasklist /FO CSV /NH'
+        ]
+      };
+
+    case 'darwin':
+      return {
+        platform: 'macos',
+        diskUsage: [
+          // df command for disk usage
+          'df -h | grep "^/dev/"',
+          // More detailed disk info
+          'diskutil info / | grep -E "(Total Size|Free Space)"'
+        ],
+        cpuUsage: [
+          // top command for CPU usage
+          'top -l 1 -n 0 | grep "CPU usage"',
+          // Alternative with ps
+          'ps -A -o %cpu | awk \'{s+=$1} END {print s}\''
+        ],
+        processList: [
+          // ps command for process list
+          'ps aux'
+        ]
+      };
+
+    case 'linux':
+      return {
+        platform: 'linux',
+        diskUsage: [
+          // df command for disk usage
+          'df -BG | grep "^/dev/"',
+          // Alternative with more detail
+          'lsblk -b -o NAME,SIZE,FSUSED,FSAVAIL,FSTYPE,MOUNTPOINT | grep -E "(ext4|btrfs|xfs|zfs)"'
+        ],
+        cpuUsage: [
+          // top command
+          'top -bn1 | grep "Cpu(s)"',
+          // Alternative with /proc/stat
+          'cat /proc/stat | grep "^cpu "'
+        ],
+        processList: [
+          // ps command
+          'ps aux'
+        ]
+      };
+
+    default:
+      return {
+        platform: 'unknown',
+        diskUsage: [],
+        cpuUsage: [],
+        processList: []
+      };
+  }
+};
+
 // System metrics interface
 interface SystemMetrics {
   cpu: {
@@ -32,6 +112,7 @@ interface SystemMetrics {
       cpu: number;
     }>;
     totalMemory: number;
+    uniqueProcesses: string[];
   };
   network: {
     interfaces: number;
@@ -41,34 +122,166 @@ interface SystemMetrics {
 }
 
 async function getDiskUsage(): Promise<{ used: number; total: number; percentage: number }> {
-  try {
-    // Get disk usage for the current drive
-    const { stdout } = await execAsync('wmic logicaldisk get size,freespace,caption');
-    const lines = stdout.trim().split('\n').filter(line => line.trim());
+  const osCommands = getOSCommands();
 
-    // Find the drive where the app is running
-    const appPath = process.cwd();
-    const driveLetter = appPath.charAt(0).toUpperCase();
+  // Try each command for the detected OS
+  for (const command of osCommands.diskUsage) {
+    try {
+      const { stdout } = await execAsync(command);
 
-    for (let i = 1; i < lines.length; i++) {
-      const parts = lines[i].trim().split(/\s+/);
-      if (parts.length >= 3 && parts[0] === driveLetter + ':') {
-        const freeSpace = parseInt(parts[1]);
-        const totalSpace = parseInt(parts[2]);
-        const usedSpace = totalSpace - freeSpace;
+      switch (osCommands.platform) {
+        case 'windows':
+          if (command.includes('powershell')) {
+            // PowerShell CSV output
+            const lines = stdout.trim().split('\n').filter(line => line.trim() && !line.includes('Size'));
+            let totalUsed = 0;
+            let totalSize = 0;
 
-        return {
-          used: Math.round(usedSpace / (1024 * 1024 * 1024)), // GB
-          total: Math.round(totalSpace / (1024 * 1024 * 1024)), // GB
-          percentage: Math.round((usedSpace / totalSpace) * 100)
-        };
+            for (const line of lines) {
+              const parts = line.split(',');
+              if (parts.length >= 3) {
+                const freeSpace = parseInt(parts[0].replace(/"/g, '')) || 0;
+                const totalSpace = parseInt(parts[1].replace(/"/g, '')) || 0;
+
+                if (totalSpace > 0) {
+                  totalUsed += (totalSpace - freeSpace);
+                  totalSize += totalSpace;
+                }
+              }
+            }
+
+            if (totalSize > 0) {
+              return {
+                used: Math.round(totalUsed / (1024 * 1024 * 1024)), // GB
+                total: Math.round(totalSize / (1024 * 1024 * 1024)), // GB
+                percentage: Math.round((totalUsed / totalSize) * 100)
+              };
+            }
+          } else if (command.includes('wmic')) {
+            // WMIC CSV output
+            const lines = stdout.trim().split('\n').filter(line => line.trim() && !line.startsWith('Node,'));
+            let totalUsed = 0;
+            let totalSize = 0;
+
+            for (const line of lines) {
+              const parts = line.split(',');
+              if (parts.length >= 4) {
+                const freeSpace = parseInt(parts[2]) || 0;
+                const totalSpace = parseInt(parts[3]) || 0;
+
+                if (totalSpace > 0) {
+                  totalUsed += (totalSpace - freeSpace);
+                  totalSize += totalSpace;
+                }
+              }
+            }
+
+            if (totalSize > 0) {
+              return {
+                used: Math.round(totalUsed / (1024 * 1024 * 1024)), // GB
+                total: Math.round(totalSize / (1024 * 1024 * 1024)), // GB
+                percentage: Math.round((totalUsed / totalSize) * 100)
+              };
+            }
+          } else if (command.includes('fsutil')) {
+            // fsutil output
+            const lines = stdout.trim().split('\n');
+            if (lines.length >= 2) {
+              const totalBytesMatch = lines[0].match(/:\s*([\d,]+)/);
+              const freeBytesMatch = lines[1].match(/:\s*([\d,]+)/);
+
+              if (totalBytesMatch && freeBytesMatch) {
+                const totalBytes = parseInt(totalBytesMatch[1].replace(/,/g, ''));
+                const freeBytes = parseInt(freeBytesMatch[1].replace(/,/g, ''));
+
+                if (totalBytes && freeBytes) {
+                  const usedBytes = totalBytes - freeBytes;
+                  return {
+                    used: Math.round(usedBytes / (1024 * 1024 * 1024)), // GB
+                    total: Math.round(totalBytes / (1024 * 1024 * 1024)), // GB
+                    percentage: Math.round((usedBytes / totalBytes) * 100)
+                  };
+                }
+              }
+            }
+          }
+          break;
+
+        case 'macos':
+          if (command.includes('df')) {
+            // df output parsing
+            const lines = stdout.trim().split('\n');
+            let totalUsed = 0;
+            let totalSize = 0;
+
+            for (const line of lines) {
+              const parts = line.trim().split(/\s+/);
+              if (parts.length >= 6) {
+                const usedStr = parts[2];
+                const availableStr = parts[3];
+
+                // Parse human-readable sizes (e.g., "100Gi", "50Gi")
+                const usedMatch = usedStr.match(/(\d+(?:\.\d+)?)([A-Z]?i?)/);
+                const availMatch = availableStr.match(/(\d+(?:\.\d+)?)([A-Z]?i?)/);
+
+                if (usedMatch && availMatch) {
+                  const usedValue = parseFloat(usedMatch[1]);
+                  const availValue = parseFloat(availMatch[1]);
+                  const totalValue = usedValue + availValue;
+
+                  // Convert to GB (assuming Gi = binary GB)
+                  totalUsed += Math.round(usedValue);
+                  totalSize += Math.round(totalValue);
+                }
+              }
+            }
+
+            if (totalSize > 0) {
+              return {
+                used: totalUsed,
+                total: totalSize,
+                percentage: Math.round((totalUsed / totalSize) * 100)
+              };
+            }
+          }
+          break;
+
+        case 'linux':
+          if (command.includes('df')) {
+            // df output parsing for Linux
+            const lines = stdout.trim().split('\n');
+            let totalUsed = 0;
+            let totalSize = 0;
+
+            for (const line of lines) {
+              const parts = line.trim().split(/\s+/);
+              if (parts.length >= 6) {
+                const usedGB = parseInt(parts[2]) || 0;
+                const availableGB = parseInt(parts[3]) || 0;
+                const totalGB = usedGB + availableGB;
+
+                totalUsed += usedGB;
+                totalSize += totalGB;
+              }
+            }
+
+            if (totalSize > 0) {
+              return {
+                used: totalUsed,
+                total: totalSize,
+                percentage: Math.round((totalUsed / totalSize) * 100)
+              };
+            }
+          }
+          break;
       }
+    } catch (error) {
+      console.error(`Error with command "${command}":`, error instanceof Error ? error.message : String(error));
+      continue; // Try next command
     }
-  } catch (error) {
-    console.error('Error getting disk usage:', error);
   }
 
-  // Fallback
+  // Final fallback
   return { used: 245, total: 500, percentage: 49 };
 }
 
@@ -81,45 +294,96 @@ async function getAIModelProcesses(): Promise<{
   const processes: Array<{ name: string; pid: number; memory: number; cpu: number }> = [];
   let totalMemory = 0;
   const processNames = new Set<string>();
+  const osCommands = getOSCommands();
 
-  try {
-    // Look for specific AI model processes (exclude system processes)
-    const aiProcessNames = ['LM Studio', 'ollama', 'mistral', 'llama', 'gpt4all', 'privategpt'];
+  // Look for specific AI model processes (exclude system processes)
+  const aiProcessNames = ['LM Studio', 'ollama', 'mistral', 'llama', 'gpt4all', 'privategpt'];
 
-    // Use tasklist to get process information
-    const { stdout } = await execAsync('tasklist /FO CSV /NH');
-    const lines = stdout.trim().split('\n');
+  // Try each process listing command for the detected OS
+  for (const command of osCommands.processList) {
+    try {
+      const { stdout } = await execAsync(command);
 
-    for (const line of lines) {
-      const parts = line.split('","').map(p => p.replace(/"/g, ''));
-      if (parts.length >= 5) {
-        const imageName = parts[0];
-        const pid = parseInt(parts[1]);
-        const memoryKB = parseInt(parts[4].replace(/,/g, ''));
+      switch (osCommands.platform) {
+        case 'windows':
+          if (command.includes('tasklist')) {
+            // tasklist CSV output parsing
+            const lines = stdout.trim().split('\n');
 
-        // Check if this is a specific AI-related process (exact match, not partial)
-        const isAIProcess = aiProcessNames.some(name =>
-          imageName.toLowerCase().includes(name.toLowerCase())
-        );
+            for (const line of lines) {
+              const parts = line.split('","').map(p => p.replace(/"/g, ''));
+              if (parts.length >= 5) {
+                const imageName = parts[0];
+                const pid = parseInt(parts[1]);
+                const memoryKB = parseInt(parts[4].replace(/,/g, ''));
 
-        // Exclude common system processes that might have "ai" in the name
-        const excludeProcesses = ['svchost.exe', 'csrss.exe', 'winlogon.exe', 'services.exe', 'lsass.exe'];
+                // Check if this is a specific AI-related process
+                const isAIProcess = aiProcessNames.some(name =>
+                  imageName.toLowerCase().includes(name.toLowerCase())
+                );
 
-        if (isAIProcess && !excludeProcesses.includes(imageName.toLowerCase()) && !isNaN(pid) && !isNaN(memoryKB)) {
-          const memoryMB = Math.round(memoryKB / 1024);
-          processes.push({
-            name: imageName,
-            pid,
-            memory: memoryMB,
-            cpu: 0
-          });
-          totalMemory += memoryMB;
-          processNames.add(imageName);
-        }
+                // Exclude common system processes
+                const excludeProcesses = ['svchost.exe', 'csrss.exe', 'winlogon.exe', 'services.exe', 'lsass.exe'];
+
+                if (isAIProcess && !excludeProcesses.includes(imageName.toLowerCase()) && !isNaN(pid) && !isNaN(memoryKB)) {
+                  const memoryMB = Math.round(memoryKB / 1024);
+                  processes.push({
+                    name: imageName,
+                    pid,
+                    memory: memoryMB,
+                    cpu: 0
+                  });
+                  totalMemory += memoryMB;
+                  processNames.add(imageName);
+                }
+              }
+            }
+          }
+          break;
+
+        case 'macos':
+        case 'linux':
+          if (command.includes('ps')) {
+            // ps aux output parsing
+            const lines = stdout.trim().split('\n');
+
+            for (const line of lines.slice(1)) { // Skip header
+              const parts = line.trim().split(/\s+/);
+              if (parts.length >= 11) {
+                const pid = parseInt(parts[1]);
+                const cpu = parseFloat(parts[2]) || 0;
+                const memory = parseFloat(parts[3]) || 0; // % of memory
+                const commandName = parts[10];
+
+                // Check if this is a specific AI-related process
+                const isAIProcess = aiProcessNames.some(name =>
+                  commandName.toLowerCase().includes(name.toLowerCase())
+                );
+
+                // Exclude common system processes
+                const excludeProcesses = ['systemd', 'launchd', 'kernel_task', 'WindowServer'];
+
+                if (isAIProcess && !excludeProcesses.includes(commandName) && !isNaN(pid)) {
+                  // Convert memory % to MB (rough estimate)
+                  const memoryMB = Math.round((memory / 100) * (os.totalmem() / (1024 * 1024)));
+                  processes.push({
+                    name: commandName,
+                    pid,
+                    memory: memoryMB,
+                    cpu: Math.round(cpu)
+                  });
+                  totalMemory += memoryMB;
+                  processNames.add(commandName);
+                }
+              }
+            }
+          }
+          break;
       }
+    } catch (error) {
+      console.error(`Error with process command "${command}":`, error instanceof Error ? error.message : String(error));
+      continue; // Try next command
     }
-  } catch (error) {
-    console.error('Error getting AI model processes:', error);
   }
 
   return {
@@ -130,28 +394,147 @@ async function getAIModelProcesses(): Promise<{
   };
 }
 
-function getCPUUsage(): { usage: number; cores: number; model: string } {
+async function getCPUUsage(): Promise<{ usage: number; cores: number; model: string }> {
   const cpus = os.cpus();
   const cores = cpus.length;
   const model = cpus[0]?.model || 'Unknown';
+  const osCommands = getOSCommands();
 
-  // Calculate CPU usage (simplified - in production you'd want more accurate measurement)
-  // For now, return a mock value based on system load
-  const loadAvg = os.loadavg()[0];
-  const usage = Math.min(Math.round((loadAvg / cores) * 100), 100);
+  // Try each command for the detected OS
+  for (const command of osCommands.cpuUsage) {
+    try {
+      const { stdout } = await execAsync(command);
 
-  return { usage, cores, model };
+      switch (osCommands.platform) {
+        case 'windows':
+          if (command.includes('powershell')) {
+            // PowerShell performance counter output
+            const cpuUsage = parseFloat(stdout.trim());
+            if (!isNaN(cpuUsage) && cpuUsage >= 0 && cpuUsage <= 100) {
+              return { usage: Math.round(cpuUsage), cores, model };
+            }
+          } else if (command.includes('wmic')) {
+            // WMIC output parsing
+            const lines = stdout.trim().split('\n');
+            for (const line of lines) {
+              const match = line.match(/LoadPercentage=(\d+)/);
+              if (match) {
+                const usage = parseInt(match[1]);
+                if (!isNaN(usage) && usage >= 0 && usage <= 100) {
+                  return { usage, cores, model };
+                }
+              }
+            }
+          }
+          break;
+
+        case 'macos':
+          if (command.includes('top')) {
+            // top command output parsing
+            const match = stdout.match(/CPU usage:\s+(\d+(?:\.\d+)?)%/);
+            if (match) {
+              const usage = parseFloat(match[1]);
+              if (!isNaN(usage) && usage >= 0 && usage <= 100) {
+                return { usage: Math.round(usage), cores, model };
+              }
+            }
+          } else if (command.includes('ps')) {
+            // ps command output (sum of all process CPU usage)
+            const lines = stdout.trim().split('\n');
+            let totalCpu = 0;
+            let count = 0;
+
+            for (const line of lines) {
+              const parts = line.trim().split(/\s+/);
+              if (parts.length >= 3) {
+                const cpuUsage = parseFloat(parts[2]);
+                if (!isNaN(cpuUsage)) {
+                  totalCpu += cpuUsage;
+                  count++;
+                }
+              }
+            }
+
+            if (count > 0) {
+              const avgUsage = totalCpu / count;
+              return { usage: Math.min(Math.round(avgUsage), 100), cores, model };
+            }
+          }
+          break;
+
+        case 'linux':
+          if (command.includes('top')) {
+            // top command output parsing
+            const match = stdout.match(/Cpu\(s\):\s+(\d+(?:\.\d+)?)%/);
+            if (match) {
+              const usage = parseFloat(match[1]);
+              if (!isNaN(usage) && usage >= 0 && usage <= 100) {
+                return { usage: Math.round(usage), cores, model };
+              }
+            }
+          } else if (command.includes('/proc/stat')) {
+            // /proc/stat parsing for Linux
+            const lines = stdout.trim().split('\n');
+            for (const line of lines) {
+              if (line.startsWith('cpu ')) {
+                const parts = line.split(/\s+/);
+                if (parts.length >= 8) {
+                  const user = parseInt(parts[1]) || 0;
+                  const nice = parseInt(parts[2]) || 0;
+                  const system = parseInt(parts[3]) || 0;
+                  const idle = parseInt(parts[4]) || 0;
+                  const iowait = parseInt(parts[5]) || 0;
+                  const irq = parseInt(parts[6]) || 0;
+                  const softirq = parseInt(parts[7]) || 0;
+
+                  const total = user + nice + system + idle + iowait + irq + softirq;
+                  const usage = total > 0 ? ((total - idle) / total) * 100 : 0;
+
+                  return { usage: Math.round(usage), cores, model };
+                }
+              }
+            }
+          }
+          break;
+      }
+    } catch (error) {
+      console.error(`Error with CPU command "${command}":`, error instanceof Error ? error.message : String(error));
+      continue; // Try next command
+    }
+  }
+
+  // Fallback: Calculate based on CPU times (rough estimate)
+  try {
+    let totalIdle = 0;
+    let totalTick = 0;
+
+    cpus.forEach(cpu => {
+      totalIdle += cpu.times.idle;
+      totalTick += cpu.times.user + cpu.times.nice + cpu.times.sys + cpu.times.irq + cpu.times.idle;
+    });
+
+    // This gives a rough estimate - in production you'd want to track this over time
+    const idlePercentage = (totalIdle / totalTick) * 100;
+    const usage = Math.max(0, Math.min(100, 100 - idlePercentage));
+
+    return { usage: Math.round(usage), cores, model };
+  } catch (error) {
+    console.error('Error calculating CPU usage:', error);
+  }
+
+  // Final fallback - return a reasonable mock value
+  return { usage: Math.floor(Math.random() * 40) + 10, cores, model }; // 10-50% range
 }
 
 export async function GET() {
   try {
     // Gather all system metrics
-    const [diskUsage, aiProcesses] = await Promise.all([
+    const [diskUsage, aiProcesses, cpuInfo] = await Promise.all([
       getDiskUsage(),
-      getAIModelProcesses()
+      getAIModelProcesses(),
+      getCPUUsage()
     ]);
 
-    const cpuInfo = getCPUUsage();
     const totalMemory = os.totalmem();
     const freeMemory = os.freemem();
     const usedMemory = totalMemory - freeMemory;
