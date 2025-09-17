@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - Forensic Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'admin-red': '#DC2626'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-tier1: linear-gradient(135deg, var(--brand-blue) 0%, #3B82F6 100%);
+            --gradient-tier2: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-admin: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        }
+        .btn-enhanced {
+            transition: all 300ms ease;
+        }
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+        }
+        .card-interactive {
+            transition: all 300ms ease;
+            cursor: pointer;
+        }
+        .card-interactive:hover {
+            transform: translateY(-4px);
+        }
+        .module-card {
+            transition: all 300ms ease;
+            border-left: 3px solid transparent;
+        }
+        .module-card:hover {
+            border-left-color: #DC2626;
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-active {
+            background-color: #10B981;
+        }
+        .status-warning {
+            background-color: #F59E0B;
+        }
+        .status-critical {
+            background-color: #EF4444;
+        }
+        .activity-item {
+            transition: all 200ms ease;
+        }
+        .activity-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .sidebar-item {
+            transition: all 200ms ease;
+        }
+        .sidebar-item:hover {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: #DC2626;
+        }
+        .sidebar-item.active {
+            background-color: rgba(220, 38, 38, 0.15);
+            color: #DC2626;
+            font-weight: 600;
+            border-left: 3px solid #DC2626;
+        }
+        .quick-action {
+            transition: all 300ms ease;
+        }
+        .quick-action:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.2);
+        }
+        .system-metric {
+            transition: all 200ms ease;
+        }
+        .system-metric:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .audit-item {
+            transition: all 200ms ease;
+        }
+        .audit-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .audit-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .audit-critical {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            color: white;
+        }
+        .audit-high {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            color: white;
+        }
+        .audit-medium {
+            background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+            color: white;
+        }
+        .audit-low {
+            background: #E5E7EB;
+            color: #6B7280;
+        }
+        .audit-tiers {
+            padding: 0.15rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            background-color: #F3F4F6;
+            color: #4B5563;
+            margin-right: 0.25rem;
+        }
+        .tier-1 {
+            background-color: #DBEAFE;
+            color: #1D4ED8;
+        }
+        .tier-2 {
+            background-color: #F3F4F6;
+            color: #1F2937;
+        }
+        .tier-3 {
+            background-color: #FEF3C7;
+            color: #D97706;
+        }
+        .admin-tier {
+            background-color: #FEE2E2;
+            color: #B91C1C;
+        }
+        .audit-timeline {
+            position: relative;
+            padding-left: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        .audit-timeline:before {
+            content: "";
+            position: absolute;
+            left: 0.75rem;
+            top: 0.5rem;
+            bottom: -1.5rem;
+            width: 2px;
+            background-color: #D1D5DB;
+        }
+        .audit-node {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .audit-node:before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.5rem;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #D1D5DB;
+            border: 2px solid white;
+        }
+        .audit-node.critical:before {
+            background-color: #EF4444;
+            border-color: white;
+        }
+        .audit-node.high:before {
+            background-color: #F59E0B;
+            border-color: white;
+        }
+        .audit-node.medium:before {
+            background-color: #3B82F6;
+            border-color: white;
+        }
+        .audit-node.low:before {
+            background-color: #6B7280;
+            border-color: white;
+        }
+        .audit-node-label {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        .audit-node-description {
+            font-size: 0.875rem;
+            color: #6B7280;
+        }
+        .audit-severity {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        .severity-critical {
+            background-color: #EF4444;
+        }
+        .severity-high {
+            background-color: #F59E0B;
+        }
+        .severity-medium {
+            background-color: #3B82F6;
+        }
+        .severity-low {
+            background-color: #6B7280;
+        }
+        .geo-map {
+            height: 200px;
+            background: linear-gradient(to bottom, #E6F7FF, #FFFFFF);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            position: relative;
+        }
+        .geo-marker {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background-color: #DC2626;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.3);
+        }
+        .geo-label {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+        .screenshot-preview {
+            height: 150px;
+            background-color: #F3F4F6;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23E5E7EB"/><path d="M20,20 L80,20 L80,80 L20,80 Z" fill="none" stroke="%239CA3AF" stroke-width="2"/><circle cx="50" cy="40" r="8" fill="%239CA3AF"/><path d="M30,60 L50,75 L70,60" fill="none" stroke="%239CA3AF" stroke-width="2"/></svg>');
+            background-size: cover;
+            position: relative;
+        }
+        .screenshot-preview:after {
+            content: "Screenshot";
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+        .revert-button {
+            transition: all 200ms ease;
+        }
+        .revert-button:hover {
+            transform: scale(1.03);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <!-- Theme Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="document.documentElement.classList.toggle('dark')" 
+                class="p-2 rounded-full bg-jstar-blue text-white hover:bg-faith-purple transition-all duration-300"
+                aria-label="Toggle dark/light theme">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Admin Navigation -->
+    <div class="fixed top-0 left-0 h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <a href="/admin" class="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                J StaR Admin
+            </a>
+        </div>
+        
+        <div class="p-4">
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Platform Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="/admin/cms" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        CMS
+                    </a>
+                    <a href="/admin/johngpt" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                        JohnGPT
+                    </a>
+                    <a href="/admin/cge" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        CGE Tools
+                    </a>
+                    <a href="/admin/users" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        User Management
+                    </a>
+                    <a href="/admin/analytics" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Analytics
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    User Management
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin/users" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        Users
+                    </a>
+                    <a href="/admin/users/lead-magnets" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                        </svg>
+                        Lead Magnet Lab
+                    </a>
+                    <a href="/admin/users/subscriptions" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Billing War Room
+                    </a>
+                    <a href="/admin/users/permissions" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v-2H5v-2H3v-2h2V9H3V7h2V5h2V3h2v2h2V3h2v2h2V7zm-10 5h2V7h-2v5zm4 0h2V7h-2v5z"></path>
+                        </svg>
+                        Granular Access Matrix
+                    </a>
+                    <a href="/admin/users/audit-logs" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v14a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Forensic Tracker
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center">
+                        <span class="text-white font-bold">JO</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Admin Access</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 p-6">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center mb-2">
+                        <a href="/admin/users" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">User Management</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <span class="text-gray-900 dark:text-white">Forensic Tracker</span>
+                    </div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
+                        Forensic Tracker
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">
+                        Comprehensive audit logging for legal protection and system integrity
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced" id="export-logs-btn">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                        </svg>
+                        Export Logs
+                    </button>
+                    <div class="relative">
+                        <input type="text" placeholder="Search logs..." 
+                               class="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                        <svg class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+        <!-- System Status -->
+        <section class="mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Audit System Status</h2>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">
+                            Current audit logging system status and configuration
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Full Audit Logging</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Screenshot Capture Active</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">IP Tracking Active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Stats -->
+        <section class="mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-admin-red mb-2">12,457</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Total Audit Logs</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-purple-500 mb-2">142</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Critical Actions</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-green-500 mb-2">24</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Reverted Actions</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-red-500 mb-2">100%</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Legal Compliance</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Audit Log Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - Filters & Summary -->
+            <div class="space-y-6">
+                <!-- Filter Panel -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Filter Logs</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">User</label>
+                            <select class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white">
+                                <option>All Users</option>
+                                <option>John Oluleke-Oke (Admin)</option>
+                                <option>Sarah Mitchell (Tier 3)</option>
+                                <option>Thomas Garcia (Tier 2)</option>
+                                <option>James Smith (Tier 1)</option>
+                                <option>Adebayo Ogunleye (Client Manager)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date Range</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <input type="date" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white">
+                                <input type="date" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Action Type</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" checked class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Content Edits</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" checked class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Subscription Changes</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" checked class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Permission Changes</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Login Attempts</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">System Configuration</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Severity Level</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <span class="audit-severity severity-critical mr-2"></span>
+                                    <input type="checkbox" checked class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Critical</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <span class="audit-severity severity-high mr-2"></span>
+                                    <input type="checkbox" checked class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">High</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <span class="audit-severity severity-medium mr-2"></span>
+                                    <input type="checkbox" class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Medium</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <span class="audit-severity severity-low mr-2"></span>
+                                    <input type="checkbox" class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Low</span>
+                                </label>
+                            </div>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium">
+                            Apply Filters
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Log Summary -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Log Summary</h2>
+                    <div class="space-y-3">
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Critical Actions</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Last 7 days</div>
+                                </div>
+                                <span class="text-2xl font-bold text-red-600">14</span>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">User Logins</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Last 24 hours</div>
+                                </div>
+                                <span class="text-2xl font-bold text-blue-600">42</span>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Content Edits</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Today</div>
+                                </div>
+                                <span class="text-2xl font-bold text-purple-600">27</span>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Failed Logins</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Last hour</div>
+                                </div>
+                                <span class="text-2xl font-bold text-yellow-600">3</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Legal Evidence -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Legal Evidence</h2>
+                    <div class="space-y-4">
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Client Dispute:</strong> Adebayo Ogunleye's course access was not deleted by John.
+                            </p>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-1">Evidence Timeline</div>
+                            <div class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                                <div class="flex">
+                                    <span class="w-20">June 20</span>
+                                    <span>Client requested access removal</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-20">June 21</span>
+                                    <span>Client support ticket opened</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-20">June 22</span>
+                                    <span>Client confirmed deletion request</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 font-medium">
+                            Generate Legal Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Middle Column - Audit Timeline -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Audit Timeline -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-center mb-5">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">User Action Timeline</h2>
+                        <div class="flex space-x-2">
+                            <select class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <option>Last 24 Hours</option>
+                                <option>Last 7 Days</option>
+                                <option>Last 30 Days</option>
+                                <option>Last 90 Days</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="audit-timeline">
+                        <div class="audit-node critical">
+                            <div class="audit-node-label">
+                                <span class="font-medium text-gray-900 dark:text-white">Critical Action: User Access Modification</span>
+                                <span class="ml-2 text-xs text-gray-500 dark:text-gray-400">June 22, 2024 • 14:27:35</span>
+                            </div>
+                            <div class="audit-node-description">
+                                <div class="flex items-start mb-2">
+                                    <div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mr-3">
+                                        <span class="text-jstar-blue font-bold">AO</span>
+                                    </div>
+                                    <div>
+                                        <div class="font-medium text-gray-900 dark:text-white">Adebayo Ogunleye</div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">Client Manager • Tier 3</div>
+                                    </div>
+                                </div>
+                                <p class="text-gray-700 dark:text-gray-300 mb-2">
+                                    Modified access for user <span class="font-medium">chinedu@example.com</span>
+                                </p>
+                                <p class="text-gray-600 dark:text-gray-400 mb-2">
+                                    Changed subscription from Tier 3 to Tier 1 for course access
+                                </p>
+                                <div class="flex flex-wrap gap-2 mb-3">
+                                    <span class="audit-badge audit-critical">Critical</span>
+                                    <span class="audit-tiers tier-3">Tier 3</span>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">IP: 192.168.1.127</span>
+                                </div>
+                                <div class="flex justify-end space-x-2">
+                                    <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 text-sm">
+                                        View Details
+                                    </button>
+                                    <button class="px-3 py-1 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg text-sm revert-button">
+                                        Revert Changes
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="audit-node high">
+                            <div class="audit-node-label">
+                                <span class="font-medium text-gray-900 dark:text-white">Content Edit: Blog Post Update</span>
+                                <span class="ml-2 text-xs text-gray-500 dark:text-gray-400">June 21, 2024 • 09:15:22</span>
+                            </div>
+                            <div class="audit-node-description">
+                                <div class="flex items-start mb-2">
+                                    <div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mr-3">
+                                        <span class="text-faith-purple font-bold">SM</span>
+                                    </div>
+                                    <div>
+                                        <div class="font-medium text-gray-900 dark:text-white">Sarah Mitchell</div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">Content Creator • Tier 2</div>
+                                    </div>
+                                </div>
+                                <p class="text-gray-700 dark:text-gray-300 mb-2">
+                                    Updated blog post <span class="font-medium">"5 Viral YouTube Strategies"</span>
+                                </p>
+                                <p class="text-gray-600 dark:text-gray-400 mb-2">
+                                    Added new section about algorithm changes
+                                </p>
+                                <div class="flex flex-wrap gap-2 mb-3">
+                                    <span class="audit-badge audit-high">High</span>
+                                    <span class="audit-tiers tier-2">Tier 2</span>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">IP: 203.0.113.45</span>
+                                </div>
+                                <div class="flex justify-end space-x-2">
+                                    <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 text-sm">
+                                        View Details
+                                    </button>
+                                    <button class="px-3 py-1 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg text-sm revert-button">
+                                        Revert Changes
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="audit-node medium">
+                            <div class="audit-node-label">
+                                <span class="font-medium text-gray-900 dark:text-white">Subscription Change: New Payment</span>
+                                <span class="ml-2 text-xs text-gray-500 dark:text-gray-400">June 20, 2024 • 16:42:11</span>
+                            </div>
+                            <div class="audit-node-description">
+                                <div class="flex items-start mb-2">
+                                    <div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mr-3">
+                                        <span class="text-growth-green font-bold">TG</span>
+                                    </div>
+                                    <div>
+                                        <div class="font-medium text-gray-900 dark:text-white">Thomas Garcia</div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">Billing Specialist • Tier 2</div>
+                                    </div>
+                                </div>
+                                <p class="text-gray-700 dark:text-gray-300 mb-2">
+                                    Processed payment for user <span class="font-medium">adebayo@example.com</span>
+                                </p>
+                                <p class="text-gray-600 dark:text-gray-400 mb-2">
+                                    Successful payment of $49.99 for Tier 3 subscription
+                                </p>
+                                <div class="flex flex-wrap gap-2 mb-3">
+                                    <span class="audit-badge audit-medium">Medium</span>
+                                    <span class="audit-tiers tier-2">Tier 2</span>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">IP: 198.51.100.23</span>
+                                </div>
+                                <div class="flex justify-end space-x-2">
+                                    <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 text-sm">
+                                        View Details
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="audit-node low">
+                            <div class="audit-node-label">
+                                <span class="font-medium text-gray-900 dark:text-white">Login Activity: Admin Panel</span>
+                                <span class="ml-2 text-xs text-gray-500 dark:text-gray-400">June 20, 2024 • 02:30:45</span>
+                            </div>
+                            <div class="audit-node-description">
+                                <div class="flex items-start mb-2">
+                                    <div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mr-3">
+                                        <span class="text-admin-red font-bold">JO</span>
+                                    </div>
+                                    <div>
+                                        <div class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">Admin • Superuser</div>
+                                    </div>
+                                </div>
+                                <p class="text-gray-700 dark:text-gray-300 mb-2">
+                                    Logged into admin panel
+                                </p>
+                                <p class="text-gray-600 dark:text-gray-400 mb-2">
+                                    Successful login from Nigeria (Lagos)
+                                </p>
+                                <div class="flex flex-wrap gap-2 mb-3">
+                                    <span class="audit-badge audit-low">Low</span>
+                                    <span class="audit-tiers admin-tier">Admin</span>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">IP: 203.0.113.78</span>
+                                </div>
+                                <div class="flex justify-end space-x-2">
+                                    <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 text-sm">
+                                        View Details
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex justify-between items-center">
+                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                            Showing 1 to 4 of 124 audit logs
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                Previous
+                            </button>
+                            <button class="px-3 py-1 bg-admin-red text-white rounded-lg">1</button>
+                            <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                2
+                            </button>
+                            <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Audit Details -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Audit Details</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-3">Action Details</h3>
+                            <div class="space-y-3">
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Action Type</div>
+                                    <div class="text-gray-900 dark:text-white">User Access Modification</div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Target</div>
+                                    <div class="text-gray-900 dark:text-white">chinedu@example.com (User ID: usr_7X9B2R4M)</div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Before</div>
+                                    <div class="text-gray-900 dark:text-white">Tier 3 - Full Access</div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">After</div>
+                                    <div class="text-gray-900 dark:text-white">Tier 1 - Basic Access</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-3">Technical Details</h3>
+                            <div class="space-y-3">
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">IP Address & Location</div>
+                                    <div class="text-gray-900 dark:text-white">192.168.1.127 • Lagos, Nigeria</div>
+                                    <div class="geo-map mt-2">
+                                        <div class="geo-marker" style="top: 60px; left: 120px;"></div>
+                                        <div class="geo-label">Lagos, Nigeria</div>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Browser & Device</div>
+                                    <div class="text-gray-900 dark:text-white">Chrome 125 • Windows 11 • Desktop</div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Screenshot</div>
+                                    <div class="screenshot-preview"></div>
+                                    <div class="mt-2 flex justify-end">
+                                        <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 text-sm">
+                                            View Full Screenshot
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">API Request</div>
+                                    <div class="text-xs font-mono text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 p-2 rounded">
+                                        PATCH /api/admin/users/usr_7X9B2R4M
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Forensic Tools -->
+            <div class="space-y-6">
+                <!-- IP Geolocation -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">IP Geolocation Map</h2>
+                    <div class="geo-map mb-4">
+                        <div class="geo-marker" style="top: 60px; left: 120px;"></div>
+                        <div class="geo-marker" style="top: 80px; left: 90px;"></div>
+                        <div class="geo-marker" style="top: 100px; left: 140px;"></div>
+                        <div class="geo-label">Recent activity locations</div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center p-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded">
+                            <div class="flex items-center">
+                                <span class="w-3 h-3 bg-red-500 rounded-full mr-2"></span>
+                                <span class="text-sm text-gray-700 dark:text-gray-300">Lagos, Nigeria</span>
+                            </div>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">42 actions</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded">
+                            <div class="flex items-center">
+                                <span class="w-3 h-3 bg-yellow-500 rounded-full mr-2"></span>
+                                <span class="text-sm text-gray-700 dark:text-gray-300">London, UK</span>
+                            </div>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">28 actions</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded">
+                            <div class="flex items-center">
+                                <span class="w-3 h-3 bg-blue-500 rounded-full mr-2"></span>
+                                <span class="text-sm text-gray-700 dark:text-gray-300">New York, USA</span>
+                            </div>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">19 actions</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded">
+                            <div class="flex items-center">
+                                <span class="w-3 h-3 bg-purple-500 rounded-full mr-2"></span>
+                                <span class="text-sm text-gray-700 dark:text-gray-300">Toronto, Canada</span>
+                            </div>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">15 actions</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Screenshot Recorder -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Screenshot Evidence</h2>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="screenshot-preview"></div>
+                        <div class="screenshot-preview"></div>
+                        <div class="screenshot-preview"></div>
+                        <div class="screenshot-preview"></div>
+                    </div>
+                    <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                        <p class="text-blue-800 dark:text-blue-200 text-sm">
+                            <strong>Evidence Capture:</strong> Screenshots automatically recorded for critical actions.
+                            Timestamps match audit log entries for legal verification.
+                        </p>
+                    </div>
+                    <button class="mt-3 w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 font-medium">
+                        View All Screenshots
+                    </button>
+                </div>
+                
+                <!-- Revert Changes -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Revert Changes</h2>
+                    <div class="space-y-4">
+                        <div class="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                            <p class="text-red-800 dark:text-red-200 text-sm">
+                                <strong>Critical Action:</strong> Reverting this action will restore user access to Tier 3.
+                            </p>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-1">Change Details</div>
+                            <div class="space-y-1 text-sm text-gray-600 dark:text-gray-400">
+                                <div class="flex justify-between">
+                                    <span>User:</span>
+                                    <span>chinedu@example.com</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Original Access:</span>
+                                    <span>Tier 3 - Full Access</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Current Access:</span>
+                                    <span>Tier 1 - Basic Access</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Changed By:</span>
+                                    <span>Adebayo Ogunleye</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Time:</span>
+                                    <span>June 22, 2024 • 14:27:35</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-1">Revert Options</div>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="radio" name="revert-option" checked class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300">
+                                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Revert only this change</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="revert-option" class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300">
+                                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Revert all changes by this user</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="revert-option" class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300">
+                                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Revert to specific point in time</span>
+                                </label>
+                            </div>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium revert-button">
+                            Revert Changes Now
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Emergency Panel -->
+                <div class="bg-red-50 dark:bg-red-900/20 rounded-2xl p-6 shadow-lg border border-red-200 dark:border-red-800">
+                    <h2 class="text-xl font-bold text-red-900 dark:text-red-100 mb-4">Legal Emergency Tools</h2>
+                    <div class="space-y-3">
+                        <p class="text-sm text-red-800 dark:text-red-200">
+                            Critical functions for immediate legal protection and evidence gathering.
+                        </p>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                            ONE BUTTON: Generate Legal Evidence Package
+                        </button>
+                        <div class="flex space-x-2">
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Freeze Account
+                            </button>
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Emergency Audit
+                            </button>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                            Send Evidence to Legal Team
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-apply theme
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Initialize sidebar active state
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set audit logs as active in sidebar
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.href.includes('audit-logs')) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Export logs button
+            document.getElementById('export-logs-btn').addEventListener('click', function() {
+                const originalText = this.innerHTML;
+                this.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2 inline text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Exporting...';
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    alert('Audit logs exported successfully!');
+                }, 2000);
+            });
+            
+            // Revert button animation
+            const revertButtons = document.querySelectorAll('.revert-button');
+            revertButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const originalText = this.textContent;
+                    this.textContent = 'Reverting...';
+                    
+                    setTimeout(() => {
+                        this.textContent = originalText;
+                        alert('Changes reverted successfully!');
+                    }, 1500);
+                });
+            });
+            
+            // Audit item click
+            const auditItems = document.querySelectorAll('.audit-item');
+            auditItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // In a real implementation, this would load the audit details
+                    console.log('Loading audit details:', this.querySelector('.font-medium')?.textContent);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

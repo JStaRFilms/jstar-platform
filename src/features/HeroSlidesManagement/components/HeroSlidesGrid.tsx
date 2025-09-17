@@ -5,6 +5,7 @@ import { HeroSlide } from '../hooks/useHeroSlides';
 import SlidesList from './SlidesList';
 import SlideshowConfig from './SlideshowConfig';
 import LivePreview from './LivePreview';
+import SlideOrderManager from './SlideOrderManager';
 
 /**
  * Props for HeroSlidesGrid component
@@ -42,6 +43,12 @@ export const HeroSlidesGrid: React.FC<HeroSlidesGridProps> = ({
 }) => {
   const [filter, setFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [selectedSlideForPreview, setSelectedSlideForPreview] = useState<HeroSlide | null>(null);
+  const [localSlides, setLocalSlides] = useState<HeroSlide[]>(slides);
+
+  // Update local slides when props change
+  React.useEffect(() => {
+    setLocalSlides(slides);
+  }, [slides]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -49,7 +56,7 @@ export const HeroSlidesGrid: React.FC<HeroSlidesGridProps> = ({
       <div className="lg:col-span-2 space-y-4 sm:space-y-6">
         {/* Slides List */}
         <SlidesList
-          slides={slides}
+          slides={localSlides}
           loading={loading}
           error={error}
           onSlideSelect={(slide) => {
@@ -61,48 +68,40 @@ export const HeroSlidesGrid: React.FC<HeroSlidesGridProps> = ({
           onSlideToggle={onSlideToggle}
         />
 
-        {/* Slide Reordering Placeholder */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-5">
-            Slide Order
-          </h2>
-          <div className="text-center py-8 sm:py-12 text-gray-500 dark:text-gray-400">
-            <svg
-              className="h-12 w-12 mx-auto mb-4 text-gray-300 dark:text-gray-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M4 8h16M4 16h16"
-              />
-            </svg>
-            <p className="text-sm sm:text-base font-medium mb-2">
-              Slide Reordering
-            </p>
-            <p className="text-xs sm:text-sm">
-              Drag and drop functionality will be implemented here
-            </p>
-          </div>
-        </div>
+        {/* Slide Order Manager */}
+        <SlideOrderManager
+          slides={localSlides}
+          loading={loading}
+          onReorder={(reorderedSlides: HeroSlide[]) => {
+            // Update local state immediately for instant UI feedback
+            setLocalSlides(reorderedSlides);
+
+            // Update selected slide if it was reordered
+            if (selectedSlideForPreview) {
+              const updatedSelectedSlide = reorderedSlides.find(s => s.id === selectedSlideForPreview.id);
+              if (updatedSelectedSlide) {
+                setSelectedSlideForPreview(updatedSelectedSlide);
+              }
+            }
+
+            // Notify parent component of the reordering
+            console.log('Slides reordered:', reorderedSlides);
+          }}
+        />
       </div>
 
       {/* Right Column - Configuration Panels */}
       <div className="space-y-4 sm:space-y-6">
-        {/* Slideshow Configuration - Functional */}
-        <SlideshowConfig />
-
         {/* Live Preview */}
         <LivePreview
           slide={selectedSlideForPreview}
           loading={loading}
-          allSlides={slides}
+          allSlides={localSlides}
           onSlideChange={setSelectedSlideForPreview}
         />
+
+        {/* Slideshow Configuration - Functional */}
+        <SlideshowConfig />
 
         {/* Quick Actions */}
         <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-200 dark:border-gray-700">

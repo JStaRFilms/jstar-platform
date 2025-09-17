@@ -360,6 +360,9 @@ describe('Live Preview E2E', () => {
 - [x] **Keyboard navigation (arrow keys)**
 - [x] **On-screen navigation arrows**
 - [x] **Interactive button animations**
+- [x] **Slide Order Manager with drag & drop**
+- [x] **API endpoint for slide reordering**
+- [x] **Real-time order persistence**
 
 ### User Experience
 - [x] Loading states and error handling
@@ -370,6 +373,9 @@ describe('Live Preview E2E', () => {
 - [x] **Click-to-enlarge functionality**
 - [x] **Smooth hover and scale effects**
 - [x] **Professional modal presentation**
+- [x] **Drag & drop slide reordering**
+- [x] **Visual feedback during dragging**
+- [x] **Auto-save order changes**
 
 ### Enhanced Features
 - [x] **Arrow key navigation (←/→)**
@@ -379,6 +385,9 @@ describe('Live Preview E2E', () => {
 - [x] **Backdrop blur effect**
 - [x] **Full-screen modal experience**
 - [x] **Touch-friendly interactions**
+- [x] **Drag handle indicators**
+- [x] **Order number badges**
+- [x] **Status indicators (Active/Inactive)**
 
 ### Performance & Accessibility
 - [x] Optimized image loading
@@ -388,6 +397,8 @@ describe('Live Preview E2E', () => {
 - [x] **Focus management**
 - [x] **Screen reader support**
 - [x] **High contrast design**
+- [x] **Drag operation performance**
+- [x] **API response optimization**
 
 ### Code Quality
 - [x] TypeScript interfaces and types
@@ -397,6 +408,7 @@ describe('Live Preview E2E', () => {
 - [x] **Enhanced props interface**
 - [x] **Event listener management**
 - [x] **State synchronization**
+- [x] **Drag & drop state management**
 
 ## 12. Usage Examples
 
