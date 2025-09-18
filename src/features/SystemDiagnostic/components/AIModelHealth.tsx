@@ -41,30 +41,37 @@ const AIModelHealth: React.FC = () => {
   const [aiData, setAIData] = useState<AIModelData | null>(null);
   const [aiHealth, setAiHealth] = useState<AIHealthData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchAIData = async () => {
+    try {
+      setRefreshing(true);
+      const response = await fetch('/api/admin/system-metrics');
+      const data = await response.json();
+
+      if (data.status === 'success' && data.data) {
+        setAIData(data.data.aiModels);
+        setAiHealth(data.data.aiHealth);
+      }
+    } catch (error) {
+      console.error('Error fetching AI model data:', error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchAIData = async () => {
-      try {
-        const response = await fetch('/api/admin/system-metrics');
-        const data = await response.json();
-
-        if (data.status === 'success' && data.data) {
-          setAIData(data.data.aiModels);
-          setAiHealth(data.data.aiHealth);
-        }
-      } catch (error) {
-        console.error('Error fetching AI model data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchAIData();
 
     // Refresh every 45 seconds for AI monitoring
     const interval = setInterval(fetchAIData, 45000);
     return () => clearInterval(interval);
   }, []);
+
+  const handleRefresh = () => {
+    fetchAIData();
+  };
 
   const getOllamaStatus = () => {
     if (!aiHealth) return { status: 'Not Detected', color: 'gray' };
@@ -142,8 +149,19 @@ const AIModelHealth: React.FC = () => {
       <div className="flex justify-between items-center mb-5">
         <h2 className="text-xl font-bold text-gray-900 dark:text-white">AI Model Health</h2>
         <div className="flex space-x-2">
-          <button className="text-sm border border-gray-300 dark:border-gray-600 px-3 py-1 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-            Refresh
+          <button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="text-sm border border-gray-300 dark:border-gray-600 px-3 py-1 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+          >
+            {refreshing ? (
+              <>
+                <RefreshCw className="h-3 w-3 animate-spin" />
+                Refreshing...
+              </>
+            ) : (
+              'Refresh'
+            )}
           </button>
           <button className="text-sm bg-red-50 dark:bg-red-900/20 text-admin-red px-3 py-1 rounded-lg">
             Optimize
