@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import AdminLayout from './components/AdminLayout';
+import { AdminSidebar } from '@/features/AdminDashboard/components/AdminSidebar';
 import SystemStatus from './components/SystemStatus';
 import HardwareProfiler from './components/HardwareProfiler';
 import AIModelHealth from './components/AIModelHealth';
@@ -298,109 +298,108 @@ const SystemDiagnostic: React.FC<SystemDiagnosticProps> = ({ className = '' }) =
     }
   };
   return (
-    <AdminLayout>
-      <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 ${className}`}>
+    <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 ${className}`}>
+      {/* Sidebar */}
+      <AdminSidebar activeSection={['dashboard', 'system-diagnostic']} />
+
+      {/* Main Content */}
+      <div className="ml-64 p-6">
         {/* Header */}
-        <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
-                        System Diagnostics
-                    </h1>
-                    <p className="text-gray-600 dark:text-gray-400 mt-2">
-                        Hardware profiling, AI model health, and performance diagnostics
-                    </p>
-                </div>
-                <div className="flex flex-wrap gap-3">
-                    <button
-                      onClick={runFullDiagnostics}
-                      disabled={runningDiagnostics}
-                      className="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                    >
-                      {runningDiagnostics ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border border-white border-t-transparent"></div>
-                          Running Diagnostics...
-                        </>
-                      ) : (
-                        <>
-                          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                          </svg>
-                          Run Full Diagnostic
-                        </>
-                      )}
-                    </button>
-                    <button
-                      onClick={exportReport}
-                      className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                    >
-                        Export Report
-                    </button>
-                </div>
+        <header className="mb-8">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
+                System Diagnostics
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400 mt-2">
+                Hardware profiling, AI model health, and performance diagnostics
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <button
+                onClick={runFullDiagnostics}
+                disabled={runningDiagnostics}
+                className="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {runningDiagnostics ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border border-white border-t-transparent"></div>
+                    Running Diagnostics...
+                  </>
+                ) : (
+                  <>
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    Run Full Diagnostic
+                  </>
+                )}
+              </button>
+              <button
+                onClick={exportReport}
+                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                Export Report
+              </button>
             </div>
           </div>
         </header>
 
-        {/* Main Content */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* System Status */}
-          <SystemStatus />
+        {/* System Status */}
+        <SystemStatus />
 
-          {/* Quick Stats */}
-          <section className="mb-8">
-            {isLoadingStats ? (
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                {[1, 2, 3, 4].map(i => (
-                  <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 animate-pulse">
-                    <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16 mb-2"></div>
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-                  <div className="text-2xl font-bold text-red-500 mb-2">{quickStats.vramUsage}%</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">VRAM Usage</div>
+        {/* Quick Stats */}
+        <section className="mb-8">
+          {isLoadingStats ? (
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 animate-pulse">
+                  <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16 mb-2"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
                 </div>
-                <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-                  <div className="text-2xl font-bold text-purple-500 mb-2">{quickStats.aiResponseTime}s</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">AI Response Time</div>
-                </div>
-                <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-                  <div className="text-2xl font-bold text-green-500 mb-2">{quickStats.storageUsed} GB</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Storage Used</div>
-                </div>
-                <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-                  <div className="text-2xl font-bold text-red-500 mb-2">{quickStats.performanceScore.toFixed(1)}/10</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Performance Score</div>
-                </div>
-              </div>
-            )}
-          </section>
-
-          {/* Main Diagnostic Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left Column - Primary Diagnostics */}
-            <div className="lg:col-span-2 space-y-6">
-              <HardwareProfiler onBenchmarkComplete={() => setDiagnosticRefreshTrigger(prev => prev + 1)} />
-              <AIModelHealth />
-              <DiagnosticHistory refreshTrigger={diagnosticRefreshTrigger} />
+              ))}
             </div>
-
-            {/* Right Column - Secondary Diagnostics */}
-            <div className="space-y-6">
-              <SystemMetrics />
-              <PerformanceBenchmarks />
-              <SystemRecommendations />
-              <EmergencyTools />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div className="text-2xl font-bold text-red-500 mb-2">{quickStats.vramUsage}%</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">VRAM Usage</div>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div className="text-2xl font-bold text-purple-500 mb-2">{quickStats.aiResponseTime}s</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">AI Response Time</div>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div className="text-2xl font-bold text-green-500 mb-2">{quickStats.storageUsed} GB</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Storage Used</div>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div className="text-2xl font-bold text-red-500 mb-2">{quickStats.performanceScore.toFixed(1)}/10</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Performance Score</div>
+              </div>
             </div>
+          )}
+        </section>
+
+        {/* Main Diagnostic Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column - Primary Diagnostics */}
+          <div className="lg:col-span-2 space-y-6">
+            <HardwareProfiler onBenchmarkComplete={() => setDiagnosticRefreshTrigger(prev => prev + 1)} />
+            <AIModelHealth />
+            <DiagnosticHistory refreshTrigger={diagnosticRefreshTrigger} />
           </div>
-        </main>
+
+          {/* Right Column - Secondary Diagnostics */}
+          <div className="space-y-6">
+            <SystemMetrics />
+            <PerformanceBenchmarks />
+            <SystemRecommendations />
+            <EmergencyTools />
+          </div>
+        </div>
       </div>
-    </AdminLayout>
+    </div>
   );
 };
 

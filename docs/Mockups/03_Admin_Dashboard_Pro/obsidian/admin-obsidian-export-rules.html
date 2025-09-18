@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - Markdown Alchemy Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'obsidian-gray': '#2D3748',
+                        'admin-red': '#DC2626'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-tier1: linear-gradient(135deg, var(--brand-blue) 0%, #3B82F6 100%);
+            --gradient-tier2: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-admin: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+            --obsidian-bg: #202020;
+            --obsidian-sidebar: #161618;
+            --obsidian-text: #dcddde;
+            --obsidian-text-muted: #888888;
+            --obsidian-accent: #7c3aed;
+            --obsidian-link: #8b5cf6;
+        }
+        .btn-enhanced {
+            transition: all 300ms ease;
+        }
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+        }
+        .card-interactive {
+            transition: all 300ms ease;
+            cursor: pointer;
+        }
+        .card-interactive:hover {
+            transform: translateY(-4px);
+        }
+        .security-card {
+            transition: all 300ms ease;
+            border-left: 3px solid transparent;
+        }
+        .security-card:hover {
+            border-left-color: #DC2626;
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-active {
+            background-color: #10B981;
+        }
+        .status-warning {
+            background-color: #F59E0B;
+        }
+        .status-critical {
+            background-color: #EF4444;
+        }
+        .activity-item {
+            transition: all 200ms ease;
+        }
+        .activity-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .sidebar-item {
+            transition: all 200ms ease;
+        }
+        .sidebar-item:hover {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: #DC2626;
+        }
+        .sidebar-item.active {
+            background-color: rgba(220, 38, 38, 0.15);
+            color: #DC2626;
+            font-weight: 600;
+            border-left: 3px solid #DC2626;
+        }
+        .quick-action {
+            transition: all 300ms ease;
+        }
+        .quick-action:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.2);
+        }
+        .system-metric {
+            transition: all 200ms ease;
+        }
+        .system-metric:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .security-item {
+            transition: all 200ms ease;
+        }
+        .security-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .security-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .security-active {
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+            color: white;
+        }
+        .security-draft {
+            background: #E5E7EB;
+            color: #6B7280;
+        }
+        .obsidian-vault {
+            background: var(--obsidian-bg);
+            color: var(--obsidian-text);
+            border: 1px solid var(--obsidian-sidebar);
+        }
+        .obsidian-note {
+            background: var(--obsidian-sidebar);
+            border-left: 3px solid var(--obsidian-accent);
+        }
+        .obsidian-link {
+            color: var(--obsidian-link);
+            text-decoration: underline;
+        }
+        .markdown-preview {
+            background: var(--obsidian-bg);
+            color: var(--obsidian-text);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+        .markdown-header {
+            background: var(--obsidian-sidebar);
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid var(--obsidian-sidebar);
+            color: var(--obsidian-text-muted);
+        }
+        .markdown-content {
+            padding: 1rem;
+            height: 300px;
+            overflow-y: auto;
+        }
+        .markdown-comment {
+            color: var(--obsidian-text-muted);
+        }
+        .markdown-yaml {
+            color: #64748b;
+        }
+        .markdown-tag {
+            color: var(--obsidian-link);
+        }
+        .markdown-link {
+            color: var(--obsidian-link);
+            text-decoration: underline;
+        }
+        .rule-item {
+            border-left: 3px solid transparent;
+            transition: all 200ms ease;
+        }
+        .rule-item:hover {
+            border-left-color: #DC2626;
+        }
+        .transform-item {
+            border-left: 3px solid transparent;
+            transition: all 200ms ease;
+        }
+        .transform-item:hover {
+            border-left-color: #DC2626;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <!-- Theme Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="document.documentElement.classList.toggle('dark')" 
+                class="p-2 rounded-full bg-jstar-blue text-white hover:bg-faith-purple transition-all duration-300"
+                aria-label="Toggle dark/light theme">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Admin Navigation -->
+    <div class="fixed top-0 left-0 h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <a href="/admin" class="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                J StaR Admin
+            </a>
+        </div>
+        
+        <div class="p-4">
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Platform Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="/admin/cms" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        CMS
+                    </a>
+                    <a href="/admin/johngpt" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                        JohnGPT
+                    </a>
+                    <a href="/admin/cge" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        CGE Tools
+                    </a>
+                    <a href="/admin/users" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        User Management
+                    </a>
+                    <a href="/admin/analytics" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Analytics
+                    </a>
+                    <a href="/admin/payments" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                        </svg>
+                        Payments
+                    </a>
+                    <a href="/admin/security" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                        Security
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Obsidian Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin/obsidian/vault-manager" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                        </svg>
+                        Vault Manager
+                    </a>
+                    <a href="/admin/obsidian/export-rules" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        Export Rules
+                    </a>
+                    <a href="/admin/obsidian/sync-monitor" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                        Sync Monitor
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center">
+                        <span class="text-white font-bold">JO</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Admin Access</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 p-6">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center mb-2">
+                        <a href="/admin" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Admin</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <a href="/admin/obsidian" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Obsidian</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <span class="text-gray-900 dark:text-white">Export Rules</span>
+                    </div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
+                        Markdown Alchemy Lab
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">
+                        Configure how content exports to Obsidian vaults
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced" id="refresh-rules-btn">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        Refresh Data
+                    </button>
+                    <div class="relative">
+                        <input type="text" placeholder="Search rules..." 
+                               class="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                        <svg class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+        <!-- System Status -->
+        <section class="mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Export Rules System Status</h2>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">
+                            Current markdown export configuration status
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">YAML Builder Active</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Link Sanitizer Active</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Rule Engine Active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Stats -->
+        <section class="mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-admin-red mb-2">12</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Export Rules</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-purple-500 mb-2">100%</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Link Sanitization</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-green-500 mb-2">37</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Tag Transformations</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-red-500 mb-2">0</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Broken Links</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Export Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - YAML Frontmatter -->
+            <div class="space-y-6">
+                <!-- Custom YAML Frontmatter Builder -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">YAML Frontmatter Builder</h2>
+                    <div class="space-y-5">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Active Frontmatter Rules</div>
+                            <div class="space-y-3">
+                                <div class="rule-item p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">Default Frontmatter</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">Applies to all exports</div>
+                                        </div>
+                                        <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                            Active
+                                        </span>
+                                    </div>
+                                    <div class="mt-2 flex items-center justify-between">
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Modified: 2 min ago</div>
+                                        <button class="text-xs bg-admin-red text-white px-2 py-1 rounded hover:bg-red-700">
+                                            Edit
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="rule-item p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">JohnGPT Frontmatter</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">Applies to JohnGPT exports</div>
+                                        </div>
+                                        <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                            Active
+                                        </span>
+                                    </div>
+                                    <div class="mt-2 flex items-center justify-between">
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Modified: 15 min ago</div>
+                                        <button class="text-xs bg-admin-red text-white px-2 py-1 rounded hover:bg-red-700">
+                                            Edit
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="rule-item p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">CGE Frontmatter</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">Applies to CGE exports</div>
+                                        </div>
+                                        <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                            Active
+                                        </span>
+                                    </div>
+                                    <div class="mt-2 flex items-center justify-between">
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Modified: 30 min ago</div>
+                                        <button class="text-xs bg-admin-red text-white px-2 py-1 rounded hover:bg-red-700">
+                                            Edit
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Current YAML Template</div>
+                            <div class="markdown-preview">
+                                <div class="markdown-header">Frontmatter Template Preview</div>
+                                <div class="markdown-content">
+                                    <span class="markdown-comment"># Auto-generated by J StaR Platform</span><br>
+                                    <span class="markdown-yaml">---</span><br>
+                                    <span class="markdown-yaml">title: "{{title}}"</span><br>
+                                    <span class="markdown-yaml">date: {{date}}</span><br>
+                                    <span class="markdown-yaml">author: "John Oluleke-Oke"</span><br>
+                                    <span class="markdown-yaml">category: "{{category}}"</span><br>
+                                    <span class="markdown-yaml">tags: ["{{tags}}", "#johngpt"]</span><br>
+                                    <span class="markdown-yaml">source: "J StaR Platform"</span><br>
+                                    <span class="markdown-yaml">platform: "{{platform}}"</span><br>
+                                    <span class="markdown-yaml">---</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Insight:</strong> YAML frontmatter ensures proper metadata for Obsidian plugins like Dataview. 
+                                Always include #johngpt tag for JohnGPT content.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Auto-Attachment Rules -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Auto-Attachment Rules</h2>
+                    <div class="space-y-5">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Active Attachment Rules</div>
+                            <div class="space-y-2">
+                                <div class="p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-600 dark:text-gray-400">Default Tags</span>
+                                        <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                            #johngpt
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-600 dark:text-gray-400">JohnGPT Tags</span>
+                                        <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                            #johngpt #content-strategy
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-600 dark:text-gray-400">CGE Tags</span>
+                                        <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                            #cge #framework
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-600 dark:text-gray-400">YouTube Tags</span>
+                                        <span class="text-xs bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-200 px-2 py-1 rounded">
+                                            #youtube #viral
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Rule Configuration</div>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div>
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">Add #johngpt to all exports</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Always include JohnGPT tag</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <label class="inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" class="sr-only peer" checked>
+                                            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-jstar-blue dark:peer-focus:ring-jstar-blue rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-jstar-blue"></div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div>
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">Add platform source tag</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Include source platform in tags</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <label class="inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" class="sr-only peer" checked>
+                                            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-jstar-blue dark:peer-focus:ring-jstar-blue rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-jstar-blue"></div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div>
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">Auto-categorize by content type</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Add category-specific tags</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <label class="inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" class="sr-only peer" checked>
+                                            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-jstar-blue dark:peer-focus:ring-jstar-blue rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-jstar-blue"></div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Insight:</strong> Auto-attachment rules ensure proper organization in Obsidian. 
+                                The #johngpt tag is critical for John's content discovery.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Middle Column - Link Sanitizer -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Link Sanitizer -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Link Sanitizer</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Link Transformation Rules</div>
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <div class="space-y-3">
+                                    <div class="transform-item p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <div class="font-medium text-gray-900 dark:text-white">Internal Links</div>
+                                            <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                                Active
+                                            </span>
+                                        </div>
+                                        <div class="text-sm text-gray-600 dark:text-gray-400">
+                                            Converts [[internal links]] to Obsidian-compatible format
+                                        </div>
+                                        <div class="mt-2 flex items-center justify-between">
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">Processed: 1,247 links</div>
+                                            <button class="text-xs bg-admin-red text-white px-2 py-1 rounded hover:bg-red-700">
+                                                Edit Rules
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="transform-item p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <div class="font-medium text-gray-900 dark:text-white">External Links</div>
+                                            <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                                Active
+                                            </span>
+                                        </div>
+                                        <div class="text-sm text-gray-600 dark:text-gray-400">
+                                            Converts external links to Obsidian markdown format
+                                        </div>
+                                        <div class="mt-2 flex items-center justify-between">
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">Processed: 874 links</div>
+                                            <button class="text-xs bg-admin-red text-white px-2 py-1 rounded hover:bg-red-700">
+                                                Edit Rules
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="transform-item p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <div class="font-medium text-gray-900 dark:text-white">Broken Links</div>
+                                        </span>
+                                        <span class="text-xs bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-200 px-2 py-1 rounded">
+                                            Review
+                                        </span>
+                                    </div>
+                                        <div class="text-sm text-gray-600 dark:text-gray-400">
+                                            Identifies and fixes broken internal links
+                                        </div>
+                                        <div class="mt-2 flex items-center justify-between">
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">Found: 0 broken links</div>
+                                            <button class="text-xs bg-admin-red text-white px-2 py-1 rounded hover:bg-red-700">
+                                                Review
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                    <strong>Insight:</strong> Link Sanitizer ensures all internal links work in Obsidian. 
+                                    No broken links detected in the last 30 days.
+                                </p>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Link Transformation Preview</div>
+                            <div class="markdown-preview">
+                                <div class="markdown-header">Before & After Transformation</div>
+                                <div class="markdown-content">
+                                    <span class="markdown-comment"># Before Export</span><br>
+                                    Check out our [[content strategy]] and [[video production]] services.<br><br>
+                                    <span class="markdown-comment"># After Sanitization</span><br>
+                                    Check out our <span class="markdown-link">[[content-strategy|content strategy]]</span> and <span class="markdown-link">[[video-production|video production]]</span> services.<br><br>
+                                    <span class="markdown-comment"># With Tags</span><br>
+                                    <span class="markdown-tag">#johngpt #content-strategy</span>
+                                </div>
+                            </div>
+                            <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                    <strong>Insight:</strong> Sanitized links follow Obsidian's format with display text. 
+                                    Always use [[note|display text]] format for better readability.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tag Transformation -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Tag Transformation Rules</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Current Tag Rules</div>
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <div class="space-y-3">
+                                    <div class="transform-item p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <div class="font-medium text-gray-900 dark:text-white">Category to Tag</div>
+                                            <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                                Active
+                                            </span>
+                                        </div>
+                                        <div class="text-sm text-gray-600 dark:text-gray-400">
+                                            Converts content categories to tags
+                                        </div>
+                                        <div class="mt-2 flex items-center justify-between">
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">Rules: 12</div>
+                                            <button class="text-xs bg-admin-red text-white px-2 py-1 rounded hover:bg-red-700">
+                                                Edit Rules
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="transform-item p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <div class="font-medium text-gray-900 dark:text-white">Platform to Tag</div>
+                                            <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                                Active
+                                            </span>
+                                        </div>
+                                        <div class="text-sm text-gray-600 dark:text-gray-400">
+                                            Converts platforms to tags (e.g., YouTube → #youtube)
+                                        </div>
+                                        <div class="mt-2 flex items-center justify-between">
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">Rules: 7</div>
+                                            <button class="text-xs bg-admin-red text-white px-2 py-1 rounded hover:bg-red-700">
+                                                Edit Rules
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="transform-item p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <div class="font-medium text-gray-900 dark:text-white">Custom Tag Rules</div>
+                                            <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                                Active
+                                            </span>
+                                        </div>
+                                        <div class="text-sm text-gray-600 dark:text-gray-400">
+                                            Custom tag transformation rules
+                                        </div>
+                                        <div class="mt-2 flex items-center justify-between">
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">Rules: 5</div>
+                                            <button class="text-xs bg-admin-red text-white px-2 py-1 rounded hover:bg-red-700">
+                                                Edit Rules
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Tag Transformation Examples</div>
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <div class="space-y-2">
+                                    <div class="p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                        <div class="flex justify-between">
+                                            <span class="text-sm text-gray-600 dark:text-gray-400">Category: Content Strategy</span>
+                                            <span class="text-xs bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+                                                #content-strategy
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                        <div class="flex justify-between">
+                                            <span class="text-sm text-gray-600 dark:text-gray-400">Category: Video Production</span>
+                                            <span class="text-xs bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+                                                #video-production
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                        <div class="flex justify-between">
+                                            <span class="text-sm text-gray-600 dark:text-gray-400">Category: Social Media</span>
+                                            <span class="text-xs bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+                                                #social-media
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                        <div class="flex justify-between">
+                                            <span class="text-sm text-gray-600 dark:text-gray-400">Platform: YouTube</span>
+                                            <span class="text-xs bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+                                                #youtube
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                        <div class="flex justify-between">
+                                            <span class="text-sm text-gray-600 dark:text-gray-400">Platform: TikTok</span>
+                                            <span class="text-xs bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+                                                #tiktok
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                    <strong>Insight:</strong> Tag transformations create consistent tagging system. 
+                                    Nigerian content creators benefit from #naija-content tag.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Priority Actions -->
+            <div class="space-y-6">
+                <!-- Priority Actions -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Priority Actions</h2>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">#1 Priority: Nigerian Content Tags</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                Add #naija-content tag for all Nigerian-focused content
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="flex-1 px-3 py-1 bg-admin-red text-white rounded text-xs hover:bg-red-700">
+                                    Add Tag Rule
+                                </button>
+                                <button class="flex-1 px-3 py-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded text-xs hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">#2 Priority: Link Sanitizer Optimization</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                Improve handling of special characters in links
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="flex-1 px-3 py-1 bg-admin-red text-white rounded text-xs hover:bg-red-700">
+                                    Optimize Rules
+                                </button>
+                                <button class="flex-1 px-3 py-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded text-xs hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">#3 Priority: YAML Frontmatter</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                Add Nigerian content metadata fields
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="flex-1 px-3 py-1 bg-admin-red text-white rounded text-xs hover:bg-red-700">
+                                    Update Template
+                                </button>
+                                <button class="flex-1 px-3 py-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded text-xs hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium">
+                            Generate Export Action Plan
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Nigerian Content Rules -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Nigerian Content Rules</h2>
+                    <div class="space-y-5">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Nigerian Content Detection</div>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div>
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">Keywords</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Nigeria, Naija, Lagos, etc.</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-bold text-gray-900 dark:text-white">17</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div>
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">Tags</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">#naija, #nigeria, #naijastory</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-bold text-gray-900 dark:text-white">12</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div>
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">Categories</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Nigerian Content, Naija Stories</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-bold text-gray-900 dark:text-white">5</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Nigerian Content Rules</div>
+                            <div class="space-y-2">
+                                <div class="p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-600 dark:text-gray-400">Add #naija-content tag</span>
+                                        <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                            Active
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-600 dark:text-gray-400">Add Nigerian metadata</span>
+                                        <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                            Active
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-600 dark:text-gray-400">Add Lagos location field</span>
+                                        <span class="text-xs bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-200 px-2 py-1 rounded">
+                                            Pending
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-600 dark:text-gray-400">Add Nigerian currency format</span>
+                                        <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                            Active
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Insight:</strong> Nigerian content creators need special tagging for local content. 
+                                #naija-content tag helps organize Nigerian-focused content.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Emergency Panel -->
+                <div class="bg-red-50 dark:bg-red-900/20 rounded-2xl p-6 shadow-lg border border-red-200 dark:border-red-800">
+                    <h2 class="text-xl font-bold text-red-900 dark:text-red-100 mb-4">Export Emergency Tools</h2>
+                    <div class="space-y-3">
+                        <p class="text-sm text-red-800 dark:text-red-200">
+                            Critical functions for immediate export management.
+                        </p>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                            ONE BUTTON: Fix All Export Issues
+                        </button>
+                        <div class="flex space-x-2">
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Sanitize All Links
+                            </button>
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Apply Tag Rules
+                            </button>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                            Send Report to IT Team
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-apply theme
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Initialize sidebar active state
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set export rules as active in sidebar
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.href.includes('obsidian/export-rules')) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Refresh rules button
+            document.getElementById('refresh-rules-btn').addEventListener('click', function() {
+                const originalText = this.innerHTML;
+                this.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2 inline text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Refreshing...';
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    alert('Export rules refreshed successfully!');
+                }, 2000);
+            });
+            
+            // Generate export action plan button
+            document.querySelector('[class*="Generate Export Action Plan"]').addEventListener('click', function() {
+                const originalText = this.textContent;
+                this.textContent = 'Generating plan...';
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    alert('Export action plan generated successfully! Focus on Nigerian content tags first.');
+                }, 2000);
+            });
+            
+            // Fix all export issues button
+            document.querySelector('[class*="ONE BUTTON: Fix All Export Issues"]').addEventListener('click', function() {
+                const originalText = this.textContent;
+                this.textContent = 'Fixing issues...';
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    alert('All export issues resolved! Links sanitized and tags applied correctly.');
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>

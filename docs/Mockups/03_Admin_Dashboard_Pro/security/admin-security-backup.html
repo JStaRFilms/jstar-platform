@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - Disaster Recovery Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'admin-red': '#DC2626'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-tier1: linear-gradient(135deg, var(--brand-blue) 0%, #3B82F6 100%);
+            --gradient-tier2: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-admin: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        }
+        .btn-enhanced {
+            transition: all 300ms ease;
+        }
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+        }
+        .card-interactive {
+            transition: all 300ms ease;
+            cursor: pointer;
+        }
+        .card-interactive:hover {
+            transform: translateY(-4px);
+        }
+        .security-card {
+            transition: all 300ms ease;
+            border-left: 3px solid transparent;
+        }
+        .security-card:hover {
+            border-left-color: #DC2626;
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-active {
+            background-color: #10B981;
+        }
+        .status-warning {
+            background-color: #F59E0B;
+        }
+        .status-critical {
+            background-color: #EF4444;
+        }
+        .activity-item {
+            transition: all 200ms ease;
+        }
+        .activity-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .sidebar-item {
+            transition: all 200ms ease;
+        }
+        .sidebar-item:hover {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: #DC2626;
+        }
+        .sidebar-item.active {
+            background-color: rgba(220, 38, 38, 0.15);
+            color: #DC2626;
+            font-weight: 600;
+            border-left: 3px solid #DC2626;
+        }
+        .quick-action {
+            transition: all 300ms ease;
+        }
+        .quick-action:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.2);
+        }
+        .system-metric {
+            transition: all 200ms ease;
+        }
+        .system-metric:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .security-item {
+            transition: all 200ms ease;
+        }
+        .security-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .security-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .security-active {
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+            color: white;
+        }
+        .security-draft {
+            background: #E5E7EB;
+            color: #6B7280;
+        }
+        .security-tiers {
+            padding: 0.15rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            background-color: #F3F4F6;
+            color: #4B5563;
+            margin-right: 0.25rem;
+        }
+        .tier-1 {
+            background-color: #DBEAFE;
+            color: #1D4ED8;
+        }
+        .tier-2 {
+            background-color: #F3F4F6;
+            color: #1F2937;
+        }
+        .tier-3 {
+            background-color: #FEF3C7;
+            color: #D97706;
+        }
+        .admin-tier {
+            background-color: #FEE2E2;
+            color: #B91C1C;
+        }
+        .backup-chart {
+            position: relative;
+            height: 200px;
+            width: 100%;
+        }
+        .backup-bar {
+            position: absolute;
+            bottom: 0;
+            width: 30px;
+            border-radius: 4px 4px 0 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding-bottom: 8px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.75rem;
+            transition: all 0.3s ease;
+        }
+        .backup-label {
+            position: absolute;
+            bottom: -25px;
+            width: 30px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #6B7280;
+            white-space: nowrap;
+        }
+        .compliance-meter {
+            position: relative;
+            width: 100%;
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            background-color: #E5E7EB;
+        }
+        .compliance-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            border-radius: 6px;
+        }
+        .compliance-low {
+            background-color: #EF4444;
+            width: 25%;
+        }
+        .compliance-medium {
+            background-color: #F59E0B;
+            width: 50%;
+        }
+        .compliance-high {
+            background-color: #10B981;
+            width: 95%;
+        }
+        .snapshot-item {
+            border-left: 3px solid transparent;
+            transition: all 200ms ease;
+        }
+        .snapshot-item:hover {
+            border-left-color: #DC2626;
+        }
+        .nigeria-flag {
+            display: inline-block;
+            width: 20px;
+            height: 15px;
+            background: linear-gradient(to bottom, #008751 33%, white 33%, white 66%, #CE1126 66%);
+            border: 1px solid #ccc;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+        .point-in-time-selector {
+            position: relative;
+            height: 40px;
+            width: 100%;
+            background: #F3F4F6;
+            border-radius: 20px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        .point-in-time-handle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #DC2626;
+            border: 3px solid white;
+            cursor: pointer;
+            z-index: 10;
+            box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3);
+        }
+        .point-in-time-timeline {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            height: 8px;
+            width: 100%;
+            background: #D1D5DB;
+            border-radius: 4px;
+        }
+        .point-in-time-fill {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            height: 8px;
+            width: 50%;
+            background: #DC2626;
+            border-radius: 4px;
+        }
+        .point-in-time-marker {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #9CA3AF;
+            cursor: pointer;
+        }
+        .point-in-time-label {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <!-- Theme Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="document.documentElement.classList.toggle('dark')" 
+                class="p-2 rounded-full bg-jstar-blue text-white hover:bg-faith-purple transition-all duration-300"
+                aria-label="Toggle dark/light theme">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Admin Navigation -->
+    <div class="fixed top-0 left-0 h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <a href="/admin" class="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                J StaR Admin
+            </a>
+        </div>
+        
+        <div class="p-4">
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Platform Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="/admin/cms" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        CMS
+                    </a>
+                    <a href="/admin/johngpt" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                        JohnGPT
+                    </a>
+                    <a href="/admin/cge" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        CGE Tools
+                    </a>
+                    <a href="/admin/users" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        User Management
+                    </a>
+                    <a href="/admin/analytics" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Analytics
+                    </a>
+                    <a href="/admin/payments" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                        </svg>
+                        Payments
+                    </a>
+                    <a href="/admin/security" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                        Security
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Security Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin/security/audit" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Security Audit
+                    </a>
+                    <a href="/admin/security/2fa" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                        2FA Management
+                    </a>
+                    <a href="/admin/security/encryption" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                        Data Encryption
+                    </a>
+                    <a href="/admin/security/backup" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        Backup Management
+                    </a>
+                    <a href="/admin/security/policies" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path>
+                        </svg>
+                        Security Policies
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center">
+                        <span class="text-white font-bold">JO</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Admin Access</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 p-6">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center mb-2">
+                        <a href="/admin/security" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Security</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <span class="text-gray-900 dark:text-white">Backup Management</span>
+                    </div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
+                        Disaster Recovery Hub
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">
+                        Protect against data loss with comprehensive backup solutions
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced" id="refresh-backup-btn">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        Refresh Data
+                    </button>
+                    <div class="relative">
+                        <input type="text" placeholder="Search backups..." 
+                               class="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                        <svg class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+        <!-- System Status -->
+        <section class="mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Backup System Status</h2>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">
+                            Current backup system status and data freshness
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Backups Active</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Offsite Sync Active</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Integrity Checks Active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Stats -->
+        <section class="mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-admin-red mb-2">100%</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Successful Backups</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-purple-500 mb-2">15 min</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">RPO (Recovery Point Objective)</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-green-500 mb-2">30 min</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">RTO (Recovery Time Objective)</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-red-500 mb-2">3</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Offsite Locations</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Backup Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - Backup Management -->
+            <div class="space-y-6">
+                <!-- One-Click Full System Snapshot -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">One-Click System Snapshot</h2>
+                    <div class="space-y-5">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Latest Snapshots</div>
+                            <div class="space-y-3">
+                                <div class="snapshot-item p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">Full System Backup</div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">Sep 15, 2023 - 14:30 UTC</div>
+                                        </div>
+                                        <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                            Verified
+                                        </span>
+                                    </div>
+                                    <div class="mt-2 flex items-center justify-between">
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Size: 2.4 GB</div>
+                                        <button class="text-xs bg-admin-red text-white px-2 py-1 rounded hover:bg-red-700">
+                                            Restore
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="snapshot-item p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">Database Snapshot</div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">Sep 15, 2023 - 14:15 UTC</div>
+                                        </div>
+                                        <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                            Verified
+                                        </span>
+                                    </div>
+                                    <div class="mt-2 flex items-center justify-between">
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Size: 1.8 GB</div>
+                                        <button class="text-xs bg-admin-red text-white px-2 py-1 rounded hover:bg-red-700">
+                                            Restore
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="snapshot-item p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">File Storage Backup</div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">Sep 15, 2023 - 14:00 UTC</div>
+                                        </div>
+                                        <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                            Verified
+                                        </span>
+                                    </div>
+                                    <div class="mt-2 flex items-center justify-between">
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Size: 0.6 GB</div>
+                                        <button class="text-xs bg-admin-red text-white px-2 py-1 rounded hover:bg-red-700">
+                                            Restore
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <button class="px-6 py-3 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-bold text-lg btn-enhanced" id="create-snapshot-btn">
+                                <svg class="h-5 w-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                                Create Full System Snapshot
+                            </button>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                                Last snapshot created 15 minutes ago
+                            </p>
+                        </div>
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Insight:</strong> Full system snapshots are created automatically every 15 minutes. 
+                                Manual snapshots can be created at any time.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Backup Integrity Checker -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Backup Integrity Checker</h2>
+                    <div class="space-y-5">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Integrity Check Results</div>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div>
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">Full System Backup</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Last checked: 5 min ago</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-bold text-green-600">✓ Valid</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div>
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">Database Snapshot</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Last checked: 10 min ago</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-bold text-green-600">✓ Valid</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div>
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">File Storage Backup</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Last checked: 15 min ago</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-bold text-green-600">✓ Valid</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div>
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">Media Assets</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Last checked: 20 min ago</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-bold text-green-600">✓ Valid</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Integrity Verification</div>
+                            <div class="space-y-2">
+                                <div class="flex items-center">
+                                    <div class="w-20 text-sm text-gray-600 dark:text-gray-400">Checksum</div>
+                                    <div class="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mx-2">
+                                        <div class="bg-admin-red h-2 rounded-full" style="width: 100%"></div>
+                                    </div>
+                                    <span class="text-sm font-medium">100%</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-20 text-sm text-gray-600 dark:text-gray-400">File Count</div>
+                                    <div class="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mx-2">
+                                        <div class="bg-admin-red h-2 rounded-full" style="width: 100%"></div>
+                                    </div>
+                                    <span class="text-sm font-medium">100%</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-20 text-sm text-gray-600 dark:text-gray-400">Database</div>
+                                    <div class="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mx-2">
+                                        <div class="bg-admin-red h-2 rounded-full" style="width: 100%"></div>
+                                    </div>
+                                    <span class="text-sm font-medium">100%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Insight:</strong> All backups are verified through checksum validation and file count verification. 
+                                Nigerian data regulations require daily integrity checks.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Middle Column - Point-in-Time Recovery -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Point-in-Time Recovery -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Restore to Point-in-Time</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Point-in-Time Selector</div>
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <div class="space-y-4">
+                                    <div class="point-in-time-selector">
+                                        <div class="point-in-time-timeline"></div>
+                                        <div class="point-in-time-fill" style="width: 50%"></div>
+                                        <div class="point-in-time-handle" style="left: 50%"></div>
+                                        
+                                        <!-- Timeline markers -->
+                                        <div class="point-in-time-marker" style="left: 0%">
+                                            <div class="point-in-time-label">00:00</div>
+                                        </div>
+                                        <div class="point-in-time-marker" style="left: 25%">
+                                            <div class="point-in-time-label">06:00</div>
+                                        </div>
+                                        <div class="point-in-time-marker" style="left: 50%">
+                                            <div class="point-in-time-label">12:00</div>
+                                        </div>
+                                        <div class="point-in-time-marker" style="left: 75%">
+                                            <div class="point-in-time-label">18:00</div>
+                                        </div>
+                                        <div class="point-in-time-marker" style="left: 100%">
+                                            <div class="point-in-time-label">24:00</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex justify-between">
+                                        <div class="text-sm text-gray-600 dark:text-gray-400">Selected: Sep 15, 2023 - 12:00 UTC</div>
+                                        <div class="text-sm text-gray-600 dark:text-gray-400">RPO: 15 min</div>
+                                    </div>
+                                    
+                                    <div class="space-y-2">
+                                        <div class="p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                            <div class="flex justify-between items-center">
+                                                <div class="font-medium text-gray-900 dark:text-white">Full System State</div>
+                                                <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                                    Valid
+                                                </span>
+                                            </div>
+                                            <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                                Database: 1.8 GB • Files: 0.6 GB • Configuration: Complete
+                                            </div>
+                                        </div>
+                                        <div class="p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                            <div class="flex justify-between items-center">
+                                                <div class="font-medium text-gray-900 dark:text-white">User Data</div>
+                                                <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                                    Complete
+                                                </span>
+                                            </div>
+                                            <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                                1,247 users • 340 projects • 87 payment records
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                    <strong>Insight:</strong> Point-in-time recovery allows restoring to any moment within the last 30 days. 
+                                    Nigerian data regulations require 30-day recovery capability.
+                                </p>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Point-in-Time Recovery History</div>
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <div class="flex justify-between items-center mb-3">
+                                    <div>
+                                        <div class="font-medium text-gray-900 dark:text-white">Recent Restores</div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">Last 30 days</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-bold text-2xl text-admin-red">12</div>
+                                    </div>
+                                </div>
+                                <div class="backup-chart relative" style="height: 150px;">
+                                    <!-- Point-in-Time Recovery History -->
+                                    <div class="backup-bar" style="left: 20px; height: 30px; background-color: #DC2626;">
+                                        <div class="font-bold">1</div>
+                                    </div>
+                                    <div class="backup-bar" style="left: 50px; height: 50px; background-color: #DC2626;">
+                                        <div class="font-bold">2</div>
+                                    </div>
+                                    <div class="backup-bar" style="left: 80px; height: 70px; background-color: #DC2626;">
+                                        <div class="font-bold">3</div>
+                                    </div>
+                                    <div class="backup-bar" style="left: 110px; height: 90px; background-color: #DC2626;">
+                                        <div class="font-bold">4</div>
+                                    </div>
+                                    <div class="backup-bar" style="left: 140px; height: 70px; background-color: #DC2626;">
+                                        <div class="font-bold">3</div>
+                                    </div>
+                                    <div class="backup-bar" style="left: 170px; height: 50px; background-color: #DC2626;">
+                                        <div class="font-bold">2</div>
+                                    </div>
+                                    <div class="backup-bar" style="left: 200px; height: 30px; background-color: #DC2626;">
+                                        <div class="font-bold">1</div>
+                                    </div>
+                                    
+                                    <div class="absolute bottom-0 left-20 text-xs text-gray-500 dark:text-gray-400">01</div>
+                                    <div class="absolute bottom-0 left-50 text-xs text-gray-500 dark:text-gray-400">05</div>
+                                    <div class="absolute bottom-0 left-80 text-xs text-gray-500 dark:text-gray-400">10</div>
+                                    <div class="absolute bottom-0 left-110 text-xs text-gray-500 dark:text-gray-400">15</div>
+                                    <div class="absolute bottom-0 left-140 text-xs text-gray-500 dark:text-gray-400">20</div>
+                                    <div class="absolute bottom-0 left-170 text-xs text-gray-500 dark:text-gray-400">25</div>
+                                    <div class="absolute bottom-0 left-200 text-xs text-gray-500 dark:text-gray-400">30</div>
+                                </div>
+                            </div>
+                            <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                    <strong>Insight:</strong> Most restores happen mid-month when payment processing peaks. 
+                                    Monitor for unusual restore patterns.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recovery Testing -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Recovery Testing</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Recovery Simulation</div>
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">Full System Restore</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">Complete platform recovery</div>
+                                        </div>
+                                        <button class="px-3 py-1 bg-admin-red text-white rounded hover:bg-red-700 text-xs">
+                                            Test Recovery
+                                        </button>
+                                    </div>
+                                    <div class="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">Database Recovery</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">Restore database only</div>
+                                        </div>
+                                        <button class="px-3 py-1 bg-admin-red text-white rounded hover:bg-red-700 text-xs">
+                                            Test Recovery
+                                        </button>
+                                    </div>
+                                    <div class="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">File Storage Recovery</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">Restore media files</div>
+                                        </div>
+                                        <button class="px-3 py-1 bg-admin-red text-white rounded hover:bg-red-700 text-xs">
+                                            Test Recovery
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                    <strong>Insight:</strong> Regular recovery testing ensures backup integrity. 
+                                    Nigerian data regulations require monthly recovery testing.
+                                </p>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Nigerian Disaster Recovery</div>
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <div class="flex justify-between items-center mb-3">
+                                    <div>
+                                        <div class="font-medium text-gray-900 dark:text-white">Lagos Airport Incident</div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">Laptop theft scenario</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-bold text-2xl text-green-600">✓</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Tested</div>
+                                    </div>
+                                </div>
+                                <div class="compliance-meter mt-2 mb-4">
+                                    <div class="compliance-fill compliance-high" style="width: 100%"></div>
+                                </div>
+                                <div class="space-y-2">
+                                    <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">Full System Recovery</div>
+                                        <span class="text-sm bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                            28 min
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">Data Integrity</div>
+                                        <span class="text-sm bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                            100%
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">Nigerian Data Compliance</div>
+                                        <span class="text-sm bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                            Compliant
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">Offsite Backup Access</div>
+                                        <span class="text-sm bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                            Immediate
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                    <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                        <strong>Insight:</strong> In case of laptop theft at Lagos airport, full system recovery takes less than 30 minutes. 
+                                        All data is securely stored in offsite locations.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Offsite Sync -->
+            <div class="space-y-6">
+                <!-- Offsite Sync Monitor -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Offsite Sync Monitor</h2>
+                    <div class="space-y-5">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Offsite Locations</div>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div>
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">AWS US-East (Virginia)</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Primary offsite</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-bold text-green-600">Synced</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Latency: 42ms</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div>
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">AWS EU-West (Ireland)</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Secondary offsite</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-bold text-green-600">Synced</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Latency: 142ms</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div>
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">Lagos Data Center</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Nigerian compliance</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-bold text-green-600">Synced</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Latency: 12ms</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div>
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">Abuja Government Data Center</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Government compliance</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-bold text-green-600">Synced</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Latency: 28ms</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Sync Performance</div>
+                            <div class="space-y-3">
+                                <div class="flex items-center">
+                                    <div class="w-20 text-sm text-gray-600 dark:text-gray-400">Upload Speed</div>
+                                    <div class="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mx-2">
+                                        <div class="bg-admin-red h-2 rounded-full" style="width: 85%"></div>
+                                    </div>
+                                    <span class="text-sm font-medium">85%</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-20 text-sm text-gray-600 dark:text-gray-400">Reliability</div>
+                                    <div class="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mx-2">
+                                        <div class="bg-admin-red h-2 rounded-full" style="width: 99.9%"></div>
+                                    </div>
+                                    <span class="text-sm font-medium">99.9%</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-20 text-sm text-gray-600 dark:text-gray-400">Data Integrity</div>
+                                    <div class="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mx-2">
+                                        <div class="bg-admin-red h-2 rounded-full" style="width: 100%"></div>
+                                    </div>
+                                    <span class="text-sm font-medium">100%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Insight:</strong> Nigerian data regulations require local data storage. 
+                                Lagos data center sync is critical for compliance.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Priority Actions -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Priority Actions</h2>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">#1 Priority: Lagos Data Center Sync</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                Verify Lagos data center sync is properly configured for Nigerian compliance
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="flex-1 px-3 py-1 bg-admin-red text-white rounded text-xs hover:bg-red-700">
+                                    Verify Sync
+                                </button>
+                                <button class="flex-1 px-3 py-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded text-xs hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">#2 Priority: Recovery Testing</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                Run monthly recovery test as required by Nigerian data regulations
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="flex-1 px-3 py-1 bg-admin-red text-white rounded text-xs hover:bg-red-700">
+                                    Run Test
+                                </button>
+                                <button class="flex-1 px-3 py-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded text-xs hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">#3 Priority: Offsite Backup</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                Add additional offsite location in Nigeria for redundancy
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="flex-1 px-3 py-1 bg-admin-red text-white rounded text-xs hover:bg-red-700">
+                                    Configure Location
+                                </button>
+                                <button class="flex-1 px-3 py-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded text-xs hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium">
+                            Generate Backup Action Plan
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Emergency Panel -->
+                <div class="bg-red-50 dark:bg-red-900/20 rounded-2xl p-6 shadow-lg border border-red-200 dark:border-red-800">
+                    <h2 class="text-xl font-bold text-red-900 dark:text-red-100 mb-4">Disaster Recovery Tools</h2>
+                    <div class="space-y-3">
+                        <p class="text-sm text-red-800 dark:text-red-200">
+                            Critical functions for immediate disaster recovery.
+                        </p>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                            ONE BUTTON: Restore Full System
+                        </button>
+                        <div class="flex space-x-2">
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Emergency Restore
+                            </button>
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Offsite Sync Check
+                            </button>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                            Send Report to IT Team
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-apply theme
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Initialize sidebar active state
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set backup as active in sidebar
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.href.includes('security/backup')) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Refresh backup button
+            document.getElementById('refresh-backup-btn').addEventListener('click', function() {
+                const originalText = this.innerHTML;
+                this.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2 inline text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Refreshing...';
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    alert('Backup data refreshed successfully!');
+                }, 2000);
+            });
+            
+            // Create snapshot button
+            document.getElementById('create-snapshot-btn').addEventListener('click', function() {
+                const originalText = this.textContent;
+                this.innerHTML = '<svg class="animate-spin h-5 w-5 mr-2 inline text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Creating Snapshot...';
+                
+                setTimeout(() => {
+                    this.innerHTML = '<svg class="h-5 w-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>Create Full System Snapshot';
+                    alert('Full system snapshot created successfully! Backup stored in all offsite locations.');
+                }, 3000);
+            });
+            
+            // Generate backup action plan button
+            document.querySelector('[class*="Generate Backup Action Plan"]').addEventListener('click', function() {
+                const originalText = this.textContent;
+                this.textContent = 'Generating plan...';
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    alert('Backup action plan generated successfully! Focus on Lagos data center sync first.');
+                }, 2000);
+            });
+            
+            // Restore full system button
+            document.querySelector('[class*="ONE BUTTON: Restore Full System"]').addEventListener('click', function() {
+                const originalText = this.textContent;
+                this.textContent = 'Restoring system...';
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    alert('Full system restored successfully! All data recovered from offsite backups. Nigerian compliance maintained.');
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>

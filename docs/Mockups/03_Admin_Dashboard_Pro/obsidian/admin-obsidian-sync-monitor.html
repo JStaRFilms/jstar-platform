@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - Sync Traffic Control</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'obsidian-gray': '#2D3748',
+                        'admin-red': '#DC2626'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-tier1: linear-gradient(135deg, var(--brand-blue) 0%, #3B82F6 100%);
+            --gradient-tier2: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-admin: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+            --obsidian-bg: #202020;
+            --obsidian-sidebar: #161618;
+            --obsidian-text: #dcddde;
+            --obsidian-text-muted: #888888;
+            --obsidian-accent: #7c3aed;
+            --obsidian-link: #8b5cf6;
+        }
+        .btn-enhanced {
+            transition: all 300ms ease;
+        }
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+        }
+        .card-interactive {
+            transition: all 300ms ease;
+            cursor: pointer;
+        }
+        .card-interactive:hover {
+            transform: translateY(-4px);
+        }
+        .security-card {
+            transition: all 300ms ease;
+            border-left: 3px solid transparent;
+        }
+        .security-card:hover {
+            border-left-color: #DC2626;
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-active {
+            background-color: #10B981;
+        }
+        .status-warning {
+            background-color: #F59E0B;
+        }
+        .status-critical {
+            background-color: #EF4444;
+        }
+        .activity-item {
+            transition: all 200ms ease;
+        }
+        .activity-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .sidebar-item {
+            transition: all 200ms ease;
+        }
+        .sidebar-item:hover {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: #DC2626;
+        }
+        .sidebar-item.active {
+            background-color: rgba(220, 38, 38, 0.15);
+            color: #DC2626;
+            font-weight: 600;
+            border-left: 3px solid #DC2626;
+        }
+        .quick-action {
+            transition: all 300ms ease;
+        }
+        .quick-action:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.2);
+        }
+        .system-metric {
+            transition: all 200ms ease;
+        }
+        .system-metric:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .security-item {
+            transition: all 200ms ease;
+        }
+        .security-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .sync-chart {
+            position: relative;
+            height: 200px;
+            width: 100%;
+        }
+        .sync-bar {
+            position: absolute;
+            bottom: 0;
+            width: 30px;
+            border-radius: 4px 4px 0 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding-bottom: 8px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.75rem;
+            transition: all 0.3s ease;
+        }
+        .sync-label {
+            position: absolute;
+            bottom: -25px;
+            width: 30px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #6B7280;
+            white-space: nowrap;
+        }
+        .conflict-item {
+            border-left: 3px solid transparent;
+            transition: all 200ms ease;
+        }
+        .conflict-item:hover {
+            border-left-color: #DC2626;
+        }
+        .battery-level {
+            position: relative;
+            height: 20px;
+            width: 100%;
+            background: #E5E7EB;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .battery-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            border-radius: 10px;
+        }
+        .battery-good {
+            background-color: #10B981;
+            width: 85%;
+        }
+        .battery-warning {
+            background-color: #F59E0B;
+            width: 40%;
+        }
+        .battery-critical {
+            background-color: #EF4444;
+            width: 15%;
+        }
+        .sync-speed-meter {
+            position: relative;
+            width: 100%;
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            background-color: #E5E7EB;
+        }
+        .sync-speed-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            border-radius: 6px;
+        }
+        .sync-speed-high {
+            background-color: #10B981;
+            width: 95%;
+        }
+        .sync-speed-medium {
+            background-color: #F59E0B;
+            width: 60%;
+        }
+        .sync-speed-low {
+            background-color: #EF4444;
+            width: 25%;
+        }
+        .sync-status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        .sync-active {
+            background-color: #10B981;
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: pulse 2s infinite;
+        }
+        .sync-paused {
+            background-color: #F59E0B;
+        }
+        .sync-error {
+            background-color: #EF4444;
+        }
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <!-- Theme Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="document.documentElement.classList.toggle('dark')" 
+                class="p-2 rounded-full bg-jstar-blue text-white hover:bg-faith-purple transition-all duration-300"
+                aria-label="Toggle dark/light theme">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Admin Navigation -->
+    <div class="fixed top-0 left-0 h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <a href="/admin" class="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                J StaR Admin
+            </a>
+        </div>
+        
+        <div class="p-4">
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Platform Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="/admin/cms" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        CMS
+                    </a>
+                    <a href="/admin/johngpt" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                        JohnGPT
+                    </a>
+                    <a href="/admin/cge" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        CGE Tools
+                    </a>
+                    <a href="/admin/users" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        User Management
+                    </a>
+                    <a href="/admin/analytics" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Analytics
+                    </a>
+                    <a href="/admin/payments" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                        </svg>
+                        Payments
+                    </a>
+                    <a href="/admin/security" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                        Security
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Obsidian Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin/obsidian/vault-manager" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                        </svg>
+                        Vault Manager
+                    </a>
+                    <a href="/admin/obsidian/export-rules" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        Export Rules
+                    </a>
+                    <a href="/admin/obsidian/sync-monitor" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                        Sync Monitor
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center">
+                        <span class="text-white font-bold">JO</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Admin Access</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 p-6">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center mb-2">
+                        <a href="/admin" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Admin</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <a href="/admin/obsidian" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Obsidian</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <span class="text-gray-900 dark:text-white">Sync Monitor</span>
+                    </div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
+                        Sync Traffic Control
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">
+                        Monitor and manage Obsidian vault synchronization
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced" id="refresh-sync-btn">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        Refresh Data
+                    </button>
+                    <div class="relative">
+                        <input type="text" placeholder="Search sync activity..." 
+                               class="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                        <svg class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+        <!-- System Status -->
+        <section class="mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Sync System Status</h2>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">
+                            Current Obsidian sync management system status
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="flex items-center">
+                            <span class="sync-status-indicator sync-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Sync Active</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Conflict Resolution Active</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Speed Monitoring Active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Stats -->
+        <section class="mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-admin-red mb-2">1.2 MB/s</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Current Sync Speed</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-purple-500 mb-2">3</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Conflicts Resolved</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-green-500 mb-2">12</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Vaults Synced</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-red-500 mb-2">0</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Active Conflicts</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Sync Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - Sync Dashboard -->
+            <div class="space-y-6">
+                <!-- Real-time Sync Speed Dashboard -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Real-time Sync Speed</h2>
+                    <div class="space-y-5">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Current Sync Metrics</div>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div>
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">Primary Vault</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">/Users/john/vaults/jstar</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-bold text-green-600">1.2 MB/s</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Active</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div>
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">Content Vault</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">/Users/john/vaults/content</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-bold text-yellow-600">0.3 MB/s</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Active</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div>
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">CGE Vault</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">/Users/john/vaults/cge</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-bold text-green-600">0.8 MB/s</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Active</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div>
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">Backup Vault</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">/Volumes/Backup/vaults/jstar</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-bold text-gray-600">Paused</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Manual pause</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Sync Speed History</div>
+                            <div class="sync-chart relative" style="height: 150px;">
+                                <!-- Sync Speed History -->
+                                <div class="sync-bar" style="left: 20px; height: 80px; background-color: #DC2626;">
+                                    <div class="font-bold">1.0</div>
+                                </div>
+                                <div class="sync-bar" style="left: 50px; height: 120px; background-color: #DC2626;">
+                                    <div class="font-bold">1.5</div>
+                                </div>
+                                <div class="sync-bar" style="left: 80px; height: 100px; background-color: #DC2626;">
+                                    <div class="font-bold">1.2</div>
+                                </div>
+                                <div class="sync-bar" style="left: 110px; height: 90px; background-color: #DC2626;">
+                                    <div class="font-bold">1.1</div>
+                                </div>
+                                <div class="sync-bar" style="left: 140px; height: 70px; background-color: #DC2626;">
+                                    <div class="font-bold">0.9</div>
+                                </div>
+                                <div class="sync-bar" style="left: 170px; height: 50px; background-color: #DC2626;">
+                                    <div class="font-bold">0.6</div>
+                                </div>
+                                <div class="sync-bar" style="left: 200px; height: 30px; background-color: #DC2626;">
+                                    <div class="font-bold">0.4</div>
+                                </div>
+                                
+                                <div class="absolute bottom-0 left-20 text-xs text-gray-500 dark:text-gray-400">00:00</div>
+                                <div class="absolute bottom-0 left-50 text-xs text-gray-500 dark:text-gray-400">04:00</div>
+                                <div class="absolute bottom-0 left-80 text-xs text-gray-500 dark:text-gray-400">08:00</div>
+                                <div class="absolute bottom-0 left-110 text-xs text-gray-500 dark:text-gray-400">12:00</div>
+                                <div class="absolute bottom-0 left-140 text-xs text-gray-500 dark:text-gray-400">16:00</div>
+                                <div class="absolute bottom-0 left-170 text-xs text-gray-500 dark:text-gray-400">20:00</div>
+                                <div class="absolute bottom-0 left-200 text-xs text-gray-500 dark:text-gray-400">24:00</div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Insight:</strong> Sync speed peaks during morning hours when John is most active. 
+                                Nigerian data center sync maintains consistent speed.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Device Battery Status -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Device Battery Status</h2>
+                    <div class="space-y-5">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Connected Devices</div>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div>
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">MacBook Pro</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Primary work device</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-bold text-green-600">85%</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Plugged in</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div>
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">iPhone 14 Pro</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Mobile device</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-bold text-yellow-600">35%</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Sync paused</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div>
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">iPad Pro</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Tablet device</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-bold text-red-600">15%</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Sync paused</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Battery Threshold Settings</div>
+                            <div class="space-y-3">
+                                <div class="flex items-center">
+                                    <div class="w-20 text-sm text-gray-600 dark:text-gray-400">Pause Sync</div>
+                                    <div class="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mx-2">
+                                        <div class="bg-admin-red h-2 rounded-full" style="width: 25%"></div>
+                                    </div>
+                                    <span class="text-sm font-medium">25%</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-20 text-sm text-gray-600 dark:text-gray-400">Critical Level</div>
+                                    <div class="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mx-2">
+                                        <div class="bg-admin-red h-2 rounded-full" style="width: 10%"></div>
+                                    </div>
+                                    <span class="text-sm font-medium">10%</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-20 text-sm text-gray-600 dark:text-gray-400">Resume Sync</div>
+                                    <div class="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mx-2">
+                                        <div class="bg-green-600 h-2 rounded-full" style="width: 35%"></div>
+                                    </div>
+                                    <span class="text-sm font-medium">35%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Insight:</strong> Sync automatically pauses at 25% battery to prevent data loss during emergencies. 
+                                Nigerian power outages make this feature critical.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Middle Column - Conflict Resolution -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Conflict Resolution History -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Conflict Resolution History</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Recent Conflicts</div>
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <div class="space-y-3">
+                                    <div class="conflict-item p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                        <div class="flex justify-between items-center">
+                                            <div>
+                                                <div class="font-medium text-gray-900 dark:text-white">YouTube Strategy.md</div>
+                                                <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">2 versions detected</div>
+                                            </div>
+                                            <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                                Resolved
+                                            </span>
+                                        </div>
+                                        <div class="mt-2 flex items-center justify-between">
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">Modified: 2 min ago</div>
+                                            <button class="text-xs bg-admin-red text-white px-2 py-1 rounded hover:bg-red-700">
+                                                View Details
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="conflict-item p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                        <div class="flex justify-between items-center">
+                                            <div>
+                                                <div class="font-medium text-gray-900 dark:text-white">Content Calendar.md</div>
+                                                <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">3 versions detected</div>
+                                            </div>
+                                            <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                                Resolved
+                                            </span>
+                                        </div>
+                                        <div class="mt-2 flex items-center justify-between">
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">Modified: 15 min ago</div>
+                                            <button class="text-xs bg-admin-red text-white px-2 py-1 rounded hover:bg-red-700">
+                                                View Details
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="conflict-item p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                        <div class="flex justify-between items-center">
+                                            <div>
+                                                <div class="font-medium text-gray-900 dark:text-white">CGE Framework.md</div>
+                                                <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">2 versions detected</div>
+                                            </div>
+                                            <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                                Resolved
+                                            </span>
+                                        </div>
+                                        <div class="mt-2 flex items-center justify-between">
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">Modified: 30 min ago</div>
+                                            <button class="text-xs bg-admin-red text-white px-2 py-1 rounded hover:bg-red-700">
+                                                View Details
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                    <strong>Insight:</strong> Conflicts are automatically resolved using timestamp-based priority. 
+                                    Manual review available for complex conflicts.
+                                </p>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Conflict Resolution Trends</div>
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <div class="flex justify-between items-center mb-3">
+                                    <div>
+                                        <div class="font-medium text-gray-900 dark:text-white">Conflict Resolution</div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">Last 30 days</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-bold text-2xl text-admin-red">12</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Total</div>
+                                    </div>
+                                </div>
+                                <div class="sync-speed-meter mt-2 mb-4">
+                                    <div class="sync-speed-fill sync-speed-high" style="width: 95%"></div>
+                                </div>
+                                <div class="space-y-2">
+                                    <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">Automatically Resolved</div>
+                                        <span class="text-sm bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                            9
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">Manually Resolved</div>
+                                        <span class="text-sm bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+                                            3
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">Pending Resolution</div>
+                                        <span class="text-sm bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-200 px-2 py-1 rounded">
+                                            0
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                    <strong>Insight:</strong> 95% of conflicts are resolved automatically. 
+                                    Manual resolution required for complex content edits.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Manual Conflict Resolver -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Manual Conflict Resolver</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Conflict Details</div>
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">Conflict Type</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">Multiple edits to same note</div>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="text-2xl font-bold text-yellow-600">!</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">Note</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">YouTube Strategy.md</div>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="text-sm text-gray-600 dark:text-gray-400">3 versions</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">Last Modified</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">2 minutes ago</div>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="text-sm text-gray-600 dark:text-gray-400">By: iPhone & MacBook</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                    <strong>Insight:</strong> Conflict detected between iPhone and MacBook edits. 
+                                    Select which version to keep or merge changes.
+                                </p>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Version Comparison</div>
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <div class="space-y-4">
+                                    <div class="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
+                                        <div class="bg-gray-200 dark:bg-gray-700 px-3 py-2 border-b border-gray-300 dark:border-gray-600">
+                                            <div class="flex justify-between items-center">
+                                                <div class="text-sm font-medium">Version A (iPhone)</div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-400">2 min ago</div>
+                                            </div>
+                                        </div>
+                                        <div class="p-3 bg-white dark:bg-gray-800 text-sm" style="min-height: 150px; max-height: 150px; overflow-y: auto;">
+                                            ## YouTube Strategy<br><br>
+                                            - **Hook**: Start with surprising fact<br>
+                                            - **Body**: 3 key points with examples<br>
+                                            - **CTA**: Subscribe + comment<br><br>
+                                            Focus on Lagos audience first
+                                        </div>
+                                    </div>
+                                    <div class="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
+                                        <div class="bg-gray-200 dark:bg-gray-700 px-3 py-2 border-b border-gray-300 dark:border-gray-600">
+                                            <div class="flex justify-between items-center">
+                                                <div class="text-sm font-medium">Version B (MacBook)</div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-400">3 min ago</div>
+                                            </div>
+                                        </div>
+                                        <div class="p-3 bg-white dark:bg-gray-800 text-sm" style="min-height: 150px; max-height: 150px; overflow-y: auto;">
+                                            ## YouTube Strategy<br><br>
+                                            - **Hook**: Start with surprising fact<br>
+                                            - **Body**: 3 key points with examples<br>
+                                            - **CTA**: Subscribe + comment<br><br>
+                                            Target Naija audience with local references
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex space-x-3">
+                                <button class="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600">
+                                    Keep iPhone Version
+                                </button>
+                                <button class="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600">
+                                    Keep MacBook Version
+                                </button>
+                                <button class="flex-1 px-4 py-2 bg-admin-red text-white rounded-lg hover:bg-red-700">
+                                    Merge Versions
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Priority Actions -->
+            <div class="space-y-6">
+                <!-- Priority Actions -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Priority Actions</h2>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">#1 Priority: Low Battery Sync Pause</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                Configure sync pause for all devices at 25% battery
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="flex-1 px-3 py-1 bg-admin-red text-white rounded text-xs hover:bg-red-700">
+                                    Configure Settings
+                                </button>
+                                <button class="flex-1 px-3 py-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded text-xs hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">#2 Priority: Nigerian Data Center Sync</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                Verify Lagos data center sync is properly configured
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="flex-1 px-3 py-1 bg-admin-red text-white rounded text-xs hover:bg-red-700">
+                                    Verify Sync
+                                </button>
+                                <button class="flex-1 px-3 py-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded text-xs hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">#3 Priority: Conflict Resolution</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                Review and resolve pending conflicts
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="flex-1 px-3 py-1 bg-admin-red text-white rounded text-xs hover:bg-red-700">
+                                    Resolve Conflicts
+                                </button>
+                                <button class="flex-1 px-3 py-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded text-xs hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium">
+                            Generate Sync Action Plan
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Emergency Sync Controls -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Emergency Sync Controls</h2>
+                    <div class="space-y-5">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Battery Status</div>
+                            <div class="space-y-3">
+                                <div class="flex items-center">
+                                    <div class="w-10 text-sm text-gray-600 dark:text-gray-400">Level</div>
+                                    <div class="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mx-2">
+                                        <div class="battery-fill battery-good" style="width: 85%"></div>
+                                    </div>
+                                    <span class="text-sm font-medium">85%</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-10 text-sm text-gray-600 dark:text-gray-400">Status</div>
+                                    <div class="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mx-2">
+                                        <div class="bg-green-600 h-2 rounded-full" style="width: 100%"></div>
+                                    </div>
+                                    <span class="text-sm font-medium">Charging</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Emergency Actions</div>
+                            <div class="space-y-3">
+                                <button class="w-full px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 font-medium">
+                                    Pause All Sync (Battery Saver)
+                                </button>
+                                <button class="w-full px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 font-medium">
+                                    Pause Nigerian Sync Only
+                                </button>
+                                <button class="w-full px-4 py-2 bg-admin-red text-white rounded-lg hover:bg-red-700 font-medium">
+                                    Force Sync Now
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Insight:</strong> Emergency sync controls prevent data loss during low battery situations. 
+                                Nigerian power outages make this feature critical.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Emergency Panel -->
+                <div class="bg-red-50 dark:bg-red-900/20 rounded-2xl p-6 shadow-lg border border-red-200 dark:border-red-800">
+                    <h2 class="text-xl font-bold text-red-900 dark:text-red-100 mb-4">Sync Emergency Tools</h2>
+                    <div class="space-y-3">
+                        <p class="text-sm text-red-800 dark:text-red-200">
+                            Critical functions for immediate sync management.
+                        </p>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced" id="emergency-sync-btn">
+                            ONE BUTTON: Pause Sync During Emergency
+                        </button>
+                        <div class="flex space-x-2">
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Emergency Pause
+                            </button>
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Force Sync
+                            </button>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                            Send Report to IT Team
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-apply theme
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Initialize sidebar active state
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set sync monitor as active in sidebar
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.href.includes('obsidian/sync-monitor')) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Refresh sync button
+            document.getElementById('refresh-sync-btn').addEventListener('click', function() {
+                const originalText = this.innerHTML;
+                this.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2 inline text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Refreshing...';
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    alert('Sync data refreshed successfully!');
+                }, 2000);
+            });
+            
+            // Generate sync action plan button
+            document.querySelector('[class*="Generate Sync Action Plan"]').addEventListener('click', function() {
+                const originalText = this.textContent;
+                this.textContent = 'Generating plan...';
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    alert('Sync action plan generated successfully! Focus on battery sync settings first.');
+                }, 2000);
+            });
+            
+            // Emergency sync button
+            document.getElementById('emergency-sync-btn').addEventListener('click', function() {
+                const originalText = this.textContent;
+                this.textContent = 'Pausing sync...';
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    alert('All sync operations paused! Battery saver mode activated. Nigerian data sync paused to prevent data loss during low-battery emergency.');
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>
