@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Zap } from 'lucide-react';
+import { Zap, Play, CheckCircle, AlertCircle } from 'lucide-react';
 
 interface HardwareData {
   cpu: {
@@ -25,26 +25,86 @@ interface HardwareData {
   };
 }
 
+interface BenchmarkData {
+  cpu: {
+    singleCoreScore: number;
+    multiCoreScore: number;
+    utilization: number;
+  };
+  gpu: {
+    available: boolean;
+    tokensPerSec?: number;
+    vramUsage?: string;
+    utilization?: number;
+  };
+  memory: {
+    totalGB: number;
+    usedGB: number;
+    bandwidthGBs: number;
+  };
+  storage: {
+    readMBs: number;
+    writeMBs: number;
+  };
+  network: {
+    latencyMs: number;
+    downloadMbps: number;
+    uploadMbps: number;
+  };
+  timestamp: string;
+  duration: string;
+}
+
 const HardwareProfiler: React.FC = () => {
   const [hardwareData, setHardwareData] = useState<HardwareData | null>(null);
+  const [benchmarkData, setBenchmarkData] = useState<BenchmarkData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [benchmarking, setBenchmarking] = useState(false);
+  const [benchmarkComplete, setBenchmarkComplete] = useState(false);
+
+  const fetchHardwareData = async () => {
+    try {
+      const response = await fetch('/api/admin/system-metrics');
+      const data = await response.json();
+
+      if (data.status === 'success' && data.data) {
+        setHardwareData(data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching hardware data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const runBenchmark = async () => {
+    try {
+      setBenchmarking(true);
+      setBenchmarkComplete(false);
+
+      const response = await fetch('/api/admin/system-metrics', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+
+      if (data.status === 'success' && data.data) {
+        setBenchmarkData(data.data);
+        setBenchmarkComplete(true);
+      } else {
+        console.error('Benchmark failed:', data.message);
+      }
+    } catch (error) {
+      console.error('Error running benchmark:', error);
+    } finally {
+      setBenchmarking(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchHardwareData = async () => {
-      try {
-        const response = await fetch('/api/admin/system-metrics');
-        const data = await response.json();
-
-        if (data.status === 'success' && data.data) {
-          setHardwareData(data.data);
-        }
-      } catch (error) {
-        console.error('Error fetching hardware data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchHardwareData();
 
     // Refresh every 15 seconds for hardware monitoring
@@ -55,12 +115,31 @@ const HardwareProfiler: React.FC = () => {
   if (loading || !hardwareData) {
     return (
       <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-        <div className="flex justify-between items-center mb-5">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white">Hardware Profiler</h2>
-          <button className="text-sm bg-red-50 dark:bg-red-900/20 text-admin-red px-3 py-1 rounded-lg">
-            Run Benchmark
-          </button>
-        </div>
+      <div className="flex justify-between items-center mb-5">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Hardware Profiler</h2>
+        <button
+          onClick={runBenchmark}
+          disabled={benchmarking}
+          className="text-sm bg-red-50 dark:bg-red-900/20 text-admin-red px-3 py-1 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+        >
+          {benchmarking ? (
+            <>
+              <div className="animate-spin rounded-full h-3 w-3 border border-admin-red border-t-transparent"></div>
+              Running...
+            </>
+          ) : benchmarkComplete ? (
+            <>
+              <CheckCircle className="h-3 w-3" />
+              Benchmark Complete
+            </>
+          ) : (
+            <>
+              <Play className="h-3 w-3" />
+              Run Benchmark
+            </>
+          )}
+        </button>
+      </div>
         <div className="space-y-6">
           <div className="animate-pulse">
             <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
@@ -81,8 +160,27 @@ const HardwareProfiler: React.FC = () => {
     <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
       <div className="flex justify-between items-center mb-5">
         <h2 className="text-xl font-bold text-gray-900 dark:text-white">Hardware Profiler</h2>
-        <button className="text-sm bg-red-50 dark:bg-red-900/20 text-admin-red px-3 py-1 rounded-lg">
-          Run Benchmark
+        <button
+          onClick={runBenchmark}
+          disabled={benchmarking}
+          className="text-sm bg-red-50 dark:bg-red-900/20 text-admin-red px-3 py-1 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+        >
+          {benchmarking ? (
+            <>
+              <div className="animate-spin rounded-full h-3 w-3 border border-admin-red border-t-transparent"></div>
+              Running...
+            </>
+          ) : benchmarkComplete ? (
+            <>
+              <CheckCircle className="h-3 w-3" />
+              Benchmark Complete
+            </>
+          ) : (
+            <>
+              <Play className="h-3 w-3" />
+              Run Benchmark
+            </>
+          )}
         </button>
       </div>
       <div className="space-y-6">
@@ -145,6 +243,132 @@ const HardwareProfiler: React.FC = () => {
             <span>{hardwareData.network.speed} speed</span>
           </div>
         </div>
+
+        {/* Benchmark Results */}
+        {benchmarkData && (
+          <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <CheckCircle className="h-5 w-5 text-green-500" />
+              Benchmark Results
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* CPU Benchmark */}
+              <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Zap className="h-4 w-4 text-blue-500" />
+                  <span className="font-medium text-gray-900 dark:text-white">CPU Performance</span>
+                </div>
+                <div className="space-y-1 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">Single Core:</span>
+                    <span className="font-medium text-gray-900 dark:text-white">{benchmarkData.cpu.singleCoreScore}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">Multi Core:</span>
+                    <span className="font-medium text-gray-900 dark:text-white">{benchmarkData.cpu.multiCoreScore}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">Utilization:</span>
+                    <span className="font-medium text-gray-900 dark:text-white">{benchmarkData.cpu.utilization}%</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* GPU Benchmark */}
+              <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Zap className="h-4 w-4 text-purple-500" />
+                  <span className="font-medium text-gray-900 dark:text-white">GPU Performance</span>
+                </div>
+                <div className="space-y-1 text-sm">
+                  {benchmarkData.gpu.available ? (
+                    <>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600 dark:text-gray-400">Tokens/sec:</span>
+                        <span className="font-medium text-gray-900 dark:text-white">{benchmarkData.gpu.tokensPerSec}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600 dark:text-gray-400">VRAM:</span>
+                        <span className="font-medium text-gray-900 dark:text-white">{benchmarkData.gpu.vramUsage}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600 dark:text-gray-400">Utilization:</span>
+                        <span className="font-medium text-gray-900 dark:text-white">{benchmarkData.gpu.utilization}%</span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-gray-500 dark:text-gray-400">No GPU detected</div>
+                  )}
+                </div>
+              </div>
+
+              {/* Memory Benchmark */}
+              <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <AlertCircle className="h-4 w-4 text-green-500" />
+                  <span className="font-medium text-gray-900 dark:text-white">Memory Performance</span>
+                </div>
+                <div className="space-y-1 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">Total RAM:</span>
+                    <span className="font-medium text-gray-900 dark:text-white">{benchmarkData.memory.totalGB} GB</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">Used:</span>
+                    <span className="font-medium text-gray-900 dark:text-white">{benchmarkData.memory.usedGB} GB</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">Bandwidth:</span>
+                    <span className="font-medium text-gray-900 dark:text-white">{benchmarkData.memory.bandwidthGBs} GB/s</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Storage Benchmark */}
+              <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <AlertCircle className="h-4 w-4 text-orange-500" />
+                  <span className="font-medium text-gray-900 dark:text-white">Storage Performance</span>
+                </div>
+                <div className="space-y-1 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">Read Speed:</span>
+                    <span className="font-medium text-gray-900 dark:text-white">{benchmarkData.storage.readMBs} MB/s</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">Write Speed:</span>
+                    <span className="font-medium text-gray-900 dark:text-white">{benchmarkData.storage.writeMBs} MB/s</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Network Benchmark */}
+              <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 md:col-span-2">
+                <div className="flex items-center gap-2 mb-2">
+                  <AlertCircle className="h-4 w-4 text-cyan-500" />
+                  <span className="font-medium text-gray-900 dark:text-white">Network Performance</span>
+                </div>
+                <div className="grid grid-cols-3 gap-4 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">Latency:</span>
+                    <span className="font-medium text-gray-900 dark:text-white">{benchmarkData.network.latencyMs} ms</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">Download:</span>
+                    <span className="font-medium text-gray-900 dark:text-white">{benchmarkData.network.downloadMbps} Mbps</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">Upload:</span>
+                    <span className="font-medium text-gray-900 dark:text-white">{benchmarkData.network.uploadMbps} Mbps</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 text-xs text-gray-500 dark:text-gray-400 text-center">
+              {benchmarkData.duration} • Completed at {new Date(benchmarkData.timestamp).toLocaleTimeString()}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - Message Factory</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'admin-red': '#DC2626'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-tier1: linear-gradient(135deg, var(--brand-blue) 0%, #3B82F6 100%);
+            --gradient-tier2: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-admin: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        }
+        .btn-enhanced {
+            transition: all 300ms ease;
+        }
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+        }
+        .card-interactive {
+            transition: all 300ms ease;
+            cursor: pointer;
+        }
+        .card-interactive:hover {
+            transform: translateY(-4px);
+        }
+        .module-card {
+            transition: all 300ms ease;
+            border-left: 3px solid transparent;
+        }
+        .module-card:hover {
+            border-left-color: #DC2626;
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-active {
+            background-color: #10B981;
+        }
+        .status-warning {
+            background-color: #F59E0B;
+        }
+        .status-critical {
+            background-color: #EF4444;
+        }
+        .activity-item {
+            transition: all 200ms ease;
+        }
+        .activity-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .sidebar-item {
+            transition: all 200ms ease;
+        }
+        .sidebar-item:hover {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: #DC2626;
+        }
+        .sidebar-item.active {
+            background-color: rgba(220, 38, 38, 0.15);
+            color: #DC2626;
+            font-weight: 600;
+            border-left: 3px solid #DC2626;
+        }
+        .quick-action {
+            transition: all 300ms ease;
+        }
+        .quick-action:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.2);
+        }
+        .system-metric {
+            transition: all 200ms ease;
+        }
+        .system-metric:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .template-item {
+            transition: all 200ms ease;
+        }
+        .template-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .template-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .template-active {
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+            color: white;
+        }
+        .template-inactive {
+            background: #E5E7EB;
+            color: #6B7280;
+        }
+        .template-tiers {
+            padding: 0.15rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            background-color: #F3F4F6;
+            color: #4B5563;
+            margin-right: 0.25rem;
+        }
+        .tier-1 {
+            background-color: #DBEAFE;
+            color: #1D4ED8;
+        }
+        .tier-2 {
+            background-color: #F3F4F6;
+            color: #1F2937;
+        }
+        .tier-3 {
+            background-color: #FEF3C7;
+            color: #D97706;
+        }
+        .admin-tier {
+            background-color: #FEE2E2;
+            color: #B91C1C;
+        }
+        .variable-badge {
+            padding: 0.15rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            background-color: #DBEAFE;
+            color: #1D4ED8;
+            margin: 0.1rem;
+            cursor: pointer;
+            transition: all 200ms ease;
+        }
+        .variable-badge:hover {
+            background-color: #BFDBFE;
+            transform: scale(1.05);
+        }
+        .spam-meter {
+            position: relative;
+            width: 100%;
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            background-color: #E5E7EB;
+        }
+        .spam-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            border-radius: 6px;
+        }
+        .spam-low {
+            background-color: #10B981;
+            width: 25%;
+        }
+        .spam-medium {
+            background-color: #F59E0B;
+            width: 50%;
+        }
+        .spam-high {
+            background-color: #EF4444;
+            width: 75%;
+        }
+        .preview-email {
+            border: 1px solid #E5E7EB;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .email-header {
+            background: linear-gradient(135deg, #2563EB 0%, #8B5CF6 100%);
+            padding: 1rem;
+            color: white;
+        }
+        .email-body {
+            padding: 1.5rem;
+            background-color: #F9FAFB;
+            min-height: 200px;
+        }
+        .email-footer {
+            padding: 1rem;
+            background-color: #F3F4F6;
+            border-top: 1px solid #E5E7EB;
+            font-size: 0.875rem;
+            color: #6B7280;
+        }
+        .language-switcher {
+            display: inline-flex;
+            border: 1px solid #E5E7EB;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        .language-switcher button {
+            padding: 0.5rem 1rem;
+            background-color: #F9FAFB;
+            border: none;
+            cursor: pointer;
+            transition: all 200ms ease;
+        }
+        .language-switcher button.active {
+            background-color: #DC2626;
+            color: white;
+        }
+        .variable-highlight {
+            background-color: #FEF3C7;
+            padding: 0.1rem 0.3rem;
+            border-radius: 0.25rem;
+            font-family: monospace;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <!-- Theme Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="document.documentElement.classList.toggle('dark')" 
+                class="p-2 rounded-full bg-jstar-blue text-white hover:bg-faith-purple transition-all duration-300"
+                aria-label="Toggle dark/light theme">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Admin Navigation -->
+    <div class="fixed top-0 left-0 h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <a href="/admin" class="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                J StaR Admin
+            </a>
+        </div>
+        
+        <div class="p-4">
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Platform Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="/admin/cms" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        CMS
+                    </a>
+                    <a href="/admin/johngpt" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                        JohnGPT
+                    </a>
+                    <a href="/admin/cge" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        CGE Tools
+                    </a>
+                    <a href="/admin/users" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        User Management
+                    </a>
+                    <a href="/admin/analytics" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Analytics
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Communication Tools
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin/notifications" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                        </svg>
+                        Notifications
+                    </a>
+                    <a href="/admin/notifications/templates" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.708.954 3.653.393 4.833-1.449 1.179-1.842 1.179-4.031 0-5.873a1.724 1.724 0 00-2.573-1.066c-1.708.954-3.653.393-4.833 1.449-1.179 1.842-1.179 4.031 0 5.873m-4.743-2.242A1.024 1.024 0 019 1.025v11a1.024 1.024 0 01-1.025 1.025H3.025A1.024 1.024 0 012 12.025V8.975c0-.565.46-1.025 1.025-1.025h3.95a1.024 1.024 0 011.025 1.025z"></path>
+                        </svg>
+                        Message Factory
+                    </a>
+                    <a href="/admin/notifications/campaigns" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Campaign Scheduler
+                    </a>
+                    <a href="/admin/notifications/analytics" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Analytics Dashboard
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center">
+                        <span class="text-white font-bold">JO</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Admin Access</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 p-6">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center mb-2">
+                        <a href="/admin/notifications" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Notifications</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <span class="text-gray-900 dark:text-white">Message Factory</span>
+                    </div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
+                        Message Factory
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">
+                        Create and manage automated email and SMS templates
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced" id="save-template-btn">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Save Template
+                    </button>
+                    <div class="relative">
+                        <input type="text" placeholder="Search templates..." 
+                               class="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                        <svg class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+        <!-- System Status -->
+        <section class="mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Message System Status</h2>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">
+                            Current notification system status and configuration
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Templates Active</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Spam Protection Active</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Localization Active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Stats -->
+        <section class="mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-admin-red mb-2">24</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Total Templates</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-purple-500 mb-2">18</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Email Templates</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-green-500 mb-2">6</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">SMS Templates</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-red-500 mb-2">100%</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Delivery Rate</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Template Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - Template Management -->
+            <div class="space-y-6">
+                <!-- Template Selection -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Template Selection</h2>
+                    <div class="space-y-3">
+                        <div class="template-item p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Welcome Email</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">New user onboarding</div>
+                                </div>
+                                <span class="template-badge template-active">Active</span>
+                            </div>
+                            <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                12 variables • 98% delivery rate
+                            </div>
+                        </div>
+                        <div class="template-item p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Purchase Confirmation</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Product/service purchase</div>
+                                </div>
+                                <span class="template-badge template-active">Active</span>
+                            </div>
+                            <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                15 variables • 99% delivery rate
+                            </div>
+                        </div>
+                        <div class="template-item p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Lead Magnet Delivery</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Free resource delivery</div>
+                                </div>
+                                <span class="template-badge template-active">Active</span>
+                            </div>
+                            <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                8 variables • 95% delivery rate
+                            </div>
+                        </div>
+                        <div class="template-item p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Course Reminder</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Course enrollment reminder</div>
+                                </div>
+                                <span class="template-badge template-active">Active</span>
+                            </div>
+                            <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                10 variables • 92% delivery rate
+                            </div>
+                        </div>
+                        <button class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 font-medium">
+                            Create New Template
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Dynamic Variables -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Dynamic Variables</h2>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">User Variables</div>
+                            <div class="flex flex-wrap">
+                                <span class="variable-badge" onclick="insertVariable('{{first_name}}')">first_name</span>
+                                <span class="variable-badge" onclick="insertVariable('{{last_name}}')">last_name</span>
+                                <span class="variable-badge" onclick="insertVariable('{{email}}')">email</span>
+                                <span class="variable-badge" onclick="insertVariable('{{user_tier}}')">user_tier</span>
+                                <span class="variable-badge" onclick="insertVariable('{{join_date}}')">join_date</span>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">Purchase Variables</div>
+                            <div class="flex flex-wrap">
+                                <span class="variable-badge" onclick="insertVariable('{{product_name}}')">product_name</span>
+                                <span class="variable-badge" onclick="insertVariable('{{purchase_date}}')">purchase_date</span>
+                                <span class="variable-badge" onclick="insertVariable('{{order_id}}')">order_id</span>
+                                <span class="variable-badge" onclick="insertVariable('{{amount}}')">amount</span>
+                                <span class="variable-badge" onclick="insertVariable('{{download_link}}')">download_link</span>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">Course Variables</div>
+                            <div class="flex flex-wrap">
+                                <span class="variable-badge" onclick="insertVariable('{{course_name}}')">course_name</span>
+                                <span class="variable-badge" onclick="insertVariable('{{course_url}}')">course_url</span>
+                                <span class="variable-badge" onclick="insertVariable('{{completion_percent}}')">completion_percent</span>
+                                <span class="variable-badge" onclick="insertVariable('{{next_lesson}}')">next_lesson</span>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">System Variables</div>
+                            <div class="flex flex-wrap">
+                                <span class="variable-badge" onclick="insertVariable('{{current_date}}')">current_date</span>
+                                <span class="variable-badge" onclick="insertVariable('{{platform_name}}')">platform_name</span>
+                                <span class="variable-badge" onclick="insertVariable('{{support_email}}')">support_email</span>
+                                <span class="variable-badge" onclick="insertVariable('{{unsubscribe_link}}')">unsubscribe_link</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Middle Column - Template Editor -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Template Editor -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-center mb-5">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Template Editor</h2>
+                        <div class="flex space-x-2">
+                            <select class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <option>Welcome Email</option>
+                                <option>Purchase Confirmation</option>
+                                <option>Lead Magnet Delivery</option>
+                                <option>Course Reminder</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="space-y-4">
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <div class="font-medium text-gray-900 dark:text-white mb-2">Template Metadata</div>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Template Name</label>
+                                        <input type="text" value="Welcome Email" 
+                                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Template Type</label>
+                                        <select class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white">
+                                            <option>Email</option>
+                                            <option>SMS</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Trigger Event</label>
+                                        <select class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white">
+                                            <option>User Registration</option>
+                                            <option>Purchase Completed</option>
+                                            <option>Course Enrollment</option>
+                                            <option>Course Reminder</option>
+                                            <option>Custom Event</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Delivery Delay</label>
+                                        <select class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white">
+                                            <option>Immediately</option>
+                                            <option>1 hour after event</option>
+                                            <option>24 hours after event</option>
+                                            <option>7 days after event</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <div class="font-medium text-gray-900 dark:text-white mb-2">Email Content</div>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Subject Line</label>
+                                        <input type="text" value="Welcome to J StaR Platform, {{first_name}}!" 
+                                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Preheader Text</label>
+                                        <input type="text" value="Your journey to creative excellence starts now" 
+                                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Body</label>
+                                        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden">
+                                            <div class="border-b border-gray-200 dark:border-gray-600 p-3 bg-gray-50 dark:bg-gray-700/50">
+                                                <div class="flex items-center justify-between">
+                                                    <div class="flex items-center space-x-2">
+                                                        <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                                        </svg>
+                                                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">email-body.html</span>
+                                                    </div>
+                                                    <div class="flex items-center space-x-2">
+                                                        <span class="text-xs text-gray-500 dark:text-gray-400">Modified: 2h ago</span>
+                                                        <button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="p-4 font-mono text-sm bg-gray-50 dark:bg-gray-700/50 h-64 overflow-y-auto">
+                                                <div class="container">
+                                                    <h1>Hello {{first_name}},</h1>
+                                                    <p>Welcome to J StaR Platform! We're excited to have you join our community of content creators.</p>
+                                                    <p>As a {{user_tier}} member, you have access to:</p>
+                                                    <ul>
+                                                        <li>Premium content templates</li>
+                                                        <li>JohnGPT AI assistant</li>
+                                                        <li>CGE tools for content growth</li>
+                                                    </ul>
+                                                    <p>Your journey to <strong>Creative Vision and Technical Excellence</strong> starts now!</p>
+                                                    <div class="cta-button">
+                                                        <a href="{{course_url}}">Get Started</a>
+                                                    </div>
+                                                    <p>Best regards,<br>
+                                                    John Oluleke-Oke<br>
+                                                    Founder, J StaR Platform</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <div class="font-medium text-gray-900 dark:text-white mb-2">Email Preview</div>
+                                <div class="preview-email">
+                                    <div class="email-header">
+                                        <div class="font-bold text-white">J StaR Platform</div>
+                                        <div class="text-sm opacity-90">Welcome to J StaR Platform, John!</div>
+                                    </div>
+                                    <div class="email-body">
+                                        <h1 class="text-2xl font-bold mb-4">Hello John,</h1>
+                                        <p class="mb-4">Welcome to J StaR Platform! We're excited to have you join our community of content creators.</p>
+                                        <p class="mb-4">As a <span class="variable-highlight">Tier 1</span> member, you have access to:</p>
+                                        <ul class="list-disc pl-6 mb-4">
+                                            <li>Premium content templates</li>
+                                            <li>JohnGPT AI assistant</li>
+                                            <li>CGE tools for content growth</li>
+                                        </ul>
+                                        <p class="mb-6">Your journey to <strong>Creative Vision and Technical Excellence</strong> starts now!</p>
+                                        <div class="bg-admin-red text-white px-6 py-3 rounded-lg inline-block font-bold">
+                                            Get Started
+                                        </div>
+                                        <p class="mt-6">Best regards,<br>
+                                        John Oluleke-Oke<br>
+                                        Founder, J StaR Platform</p>
+                                    </div>
+                                    <div class="email-footer">
+                                        <p>You're receiving this email because you signed up for J StaR Platform.</p>
+                                        <p><a href="#" class="text-admin-red hover:underline">Unsubscribe</a> | <a href="#" class="text-admin-red hover:underline">Update preferences</a></p>
+                                        <p>© 2024 J StaR Platform. All rights reserved.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex justify-end space-x-3">
+                                <button class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 font-medium">
+                                    Test Email
+                                </button>
+                                <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                                    Save Template
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Spam Score & Localization -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Spam Score -->
+                        <div>
+                            <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Spam Score Analysis</h2>
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <div class="font-medium text-gray-900 dark:text-white mb-2">Spam Score: 12/100</div>
+                                <div class="spam-meter mt-1">
+                                    <div class="spam-fill spam-low"></div>
+                                </div>
+                                <div class="mt-4 grid grid-cols-2 gap-4">
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900 dark:text-white mb-2">Issues Detected</div>
+                                        <ul class="space-y-1 text-sm text-gray-600 dark:text-gray-400">
+                                            <li>• No excessive exclamation points</li>
+                                            <li>• No spam trigger words detected</li>
+                                            <li>• Good text-to-image ratio</li>
+                                            <li>• Proper unsubscribe link included</li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900 dark:text-white mb-2">Recommendations</div>
+                                        <ul class="space-y-1 text-sm text-gray-600 dark:text-gray-400">
+                                            <li>• Add more personalization</li>
+                                            <li>• Consider adding a physical address</li>
+                                            <li>• Verify sender domain</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                    <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                        <strong>Spam Prevention Tip:</strong> Emails with scores under 20/100 have a 99% deliverability rate.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Localization -->
+                        <div>
+                            <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Localization Manager</h2>
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <div class="font-medium text-gray-900 dark:text-white mb-3">Language Versions</div>
+                                <div class="language-switcher mb-4">
+                                    <button class="active">English</button>
+                                    <button>Yoruba</button>
+                                </div>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Subject Line</label>
+                                        <input type="text" value="Welcome to J StaR Platform, {{first_name}}!" 
+                                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Body</label>
+                                        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden">
+                                            <div class="p-4 font-mono text-sm bg-gray-50 dark:bg-gray-700/50 h-48 overflow-y-auto">
+                                                <div class="container">
+                                                    <h1>Hello {{first_name}},</h1>
+                                                    <p>Welcome to J StaR Platform! We're excited to have you join our community of content creators.</p>
+                                                    <p>As a {{user_tier}} member, you have access to:</p>
+                                                    <ul>
+                                                        <li>Premium content templates</li>
+                                                        <li>JohnGPT AI assistant</li>
+                                                        <li>CGE tools for content growth</li>
+                                                    </ul>
+                                                    <p>Your journey to <strong>Creative Vision and Technical Excellence</strong> starts now!</p>
+                                                    <div class="cta-button">
+                                                        <a href="{{course_url}}">Get Started</a>
+                                                    </div>
+                                                    <p>Best regards,<br>
+                                                    John Oluleke-Oke<br>
+                                                    Founder, J StaR Platform</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-4 flex justify-between">
+                                    <button class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 font-medium">
+                                        Copy from English
+                                    </button>
+                                    <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                                        Save Localization
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Analytics & Emergency Tools -->
+            <div class="space-y-6">
+                <!-- Template Analytics -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Template Analytics</h2>
+                    <div class="space-y-5">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">Performance Metrics</div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <div class="text-2xl font-bold text-gray-900 dark:text-white">98.7%</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Delivery Rate</div>
+                                </div>
+                                <div>
+                                    <div class="text-2xl font-bold text-gray-900 dark:text-white">32.4%</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Open Rate</div>
+                                </div>
+                                <div>
+                                    <div class="text-2xl font-bold text-gray-900 dark:text-white">8.7%</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Click Rate</div>
+                                </div>
+                                <div>
+                                    <div class="text-2xl font-bold text-gray-900 dark:text-white">0.2%</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Spam Complaints</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Top Performing Elements</div>
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">Personalized greeting</span>
+                                    <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                        +23%
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">Clear CTA button</span>
+                                    <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                        +18%
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">Mobile-friendly layout</span>
+                                    <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                        +15%
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">Shorter subject lines</span>
+                                    <span class="text-xs bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-200 px-2 py-1 rounded">
+                                        +5%
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">A/B Test Results</div>
+                            <div class="space-y-3">
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm text-gray-600 dark:text-gray-400">Version A: Personalized CTA</span>
+                                        <span class="text-sm font-medium">32.4%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                        <div class="bg-admin-red h-2 rounded-full" style="width: 32.4%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm text-gray-600 dark:text-gray-400">Version B: General CTA</span>
+                                        <span class="text-sm font-medium">24.7%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                        <div class="bg-admin-red h-2 rounded-full" style="width: 24.7%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm text-gray-600 dark:text-gray-400">Version C: No CTA</span>
+                                        <span class="text-sm font-medium">18.2%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                        <div class="bg-admin-red h-2 rounded-full" style="width: 18.2%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium">
+                            Run A/B Test
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Emergency Panel -->
+                <div class="bg-red-50 dark:bg-red-900/20 rounded-2xl p-6 shadow-lg border border-red-200 dark:border-red-800">
+                    <h2 class="text-xl font-bold text-red-900 dark:text-red-100 mb-4">Message Emergency Tools</h2>
+                    <div class="space-y-3">
+                        <p class="text-sm text-red-800 dark:text-red-200">
+                            Critical functions for immediate message management.
+                        </p>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                            ONE BUTTON: Send to 500 Users
+                        </button>
+                        <div class="flex space-x-2">
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Pause Campaign
+                            </button>
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Emergency Test
+                            </button>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                            Send Report to Team
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-apply theme
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Initialize sidebar active state
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set message factory as active in sidebar
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.href.includes('notifications/templates')) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Save template button
+            document.getElementById('save-template-btn').addEventListener('click', function() {
+                const originalText = this.innerHTML;
+                this.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2 inline text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Saving...';
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    alert('Message template saved successfully!');
+                }, 2000);
+            });
+            
+            // Run A/B test button
+            document.querySelector('[class*="Run A/B Test"]').addEventListener('click', function() {
+                const originalText = this.textContent;
+                this.textContent = 'Running test...';
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    alert('A/B test started! Results will be available in 24 hours.');
+                }, 2000);
+            });
+            
+            // Send to 500 users button
+            document.querySelector('[class*="ONE BUTTON: Send to 500 Users"]').addEventListener('click', function() {
+                const originalText = this.textContent;
+                this.textContent = 'Sending messages...';
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    alert('500 messages successfully sent! No manual emailing required.');
+                }, 2000);
+            });
+        });
+        
+        function insertVariable(variable) {
+            const editor = document.querySelector('.p-4.font-mono');
+            const currentContent = editor.textContent;
+            
+            // In a real implementation, we would insert the variable at the cursor position
+            // For this mockup, we'll just add it to the end of the content
+            editor.textContent = currentContent + '\n' + variable;
+            
+            // Show a visual indicator
+            const notification = document.createElement('div');
+            notification.className = 'fixed bottom-4 right-4 bg-admin-red text-white px-4 py-2 rounded-lg shadow-lg';
+            notification.textContent = `Variable ${variable} inserted!`;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
