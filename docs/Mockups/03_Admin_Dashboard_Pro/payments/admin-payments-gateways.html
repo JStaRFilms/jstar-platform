@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - Payment Command Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'admin-red': '#DC2626'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-tier1: linear-gradient(135deg, var(--brand-blue) 0%, #3B82F6 100%);
+            --gradient-tier2: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-admin: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        }
+        .btn-enhanced {
+            transition: all 300ms ease;
+        }
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+        }
+        .card-interactive {
+            transition: all 300ms ease;
+            cursor: pointer;
+        }
+        .card-interactive:hover {
+            transform: translateY(-4px);
+        }
+        .payment-card {
+            transition: all 300ms ease;
+            border-left: 3px solid transparent;
+        }
+        .payment-card:hover {
+            border-left-color: #DC2626;
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-active {
+            background-color: #10B981;
+        }
+        .status-warning {
+            background-color: #F59E0B;
+        }
+        .status-critical {
+            background-color: #EF4444;
+        }
+        .activity-item {
+            transition: all 200ms ease;
+        }
+        .activity-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .sidebar-item {
+            transition: all 200ms ease;
+        }
+        .sidebar-item:hover {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: #DC2626;
+        }
+        .sidebar-item.active {
+            background-color: rgba(220, 38, 38, 0.15);
+            color: #DC2626;
+            font-weight: 600;
+            border-left: 3px solid #DC2626;
+        }
+        .quick-action {
+            transition: all 300ms ease;
+        }
+        .quick-action:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.2);
+        }
+        .system-metric {
+            transition: all 200ms ease;
+        }
+        .system-metric:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .payment-item {
+            transition: all 200ms ease;
+        }
+        .payment-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .payment-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .payment-active {
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+            color: white;
+        }
+        .payment-draft {
+            background: #E5E7EB;
+            color: #6B7280;
+        }
+        .payment-tiers {
+            padding: 0.15rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            background-color: #F3F4F6;
+            color: #4B5563;
+            margin-right: 0.25rem;
+        }
+        .tier-1 {
+            background-color: #DBEAFE;
+            color: #1D4ED8;
+        }
+        .tier-2 {
+            background-color: #F3F4F6;
+            color: #1F2937;
+        }
+        .tier-3 {
+            background-color: #FEF3C7;
+            color: #D97706;
+        }
+        .admin-tier {
+            background-color: #FEE2E2;
+            color: #B91C1C;
+        }
+        .gateway-chart {
+            position: relative;
+            height: 200px;
+            width: 100%;
+        }
+        .gateway-bar {
+            position: absolute;
+            bottom: 0;
+            width: 30px;
+            border-radius: 4px 4px 0 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding-bottom: 8px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.75rem;
+            transition: all 0.3s ease;
+        }
+        .gateway-label {
+            position: absolute;
+            bottom: -25px;
+            width: 30px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #6B7280;
+            white-space: nowrap;
+        }
+        .fraud-meter {
+            position: relative;
+            width: 100%;
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            background-color: #E5E7EB;
+        }
+        .fraud-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            border-radius: 6px;
+        }
+        .fraud-low {
+            background-color: #10B981;
+            width: 25%;
+        }
+        .fraud-medium {
+            background-color: #F59E0B;
+            width: 50%;
+        }
+        .fraud-high {
+            background-color: #EF4444;
+            width: 75%;
+        }
+        .naira-flag {
+            display: inline-block;
+            width: 20px;
+            height: 15px;
+            background: linear-gradient(to bottom, #008751 33%, white 33%, white 66%, #CE1126 66%);
+            border: 1px solid #ccc;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+        .mobile-money-icon {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background: #FEE2E2;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 24px;
+            color: #DC2626;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <!-- Theme Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="document.documentElement.classList.toggle('dark')" 
+                class="p-2 rounded-full bg-jstar-blue text-white hover:bg-faith-purple transition-all duration-300"
+                aria-label="Toggle dark/light theme">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Admin Navigation -->
+    <div class="fixed top-0 left-0 h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <a href="/admin" class="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                J StaR Admin
+            </a>
+        </div>
+        
+        <div class="p-4">
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Platform Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="/admin/cms" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        CMS
+                    </a>
+                    <a href="/admin/johngpt" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                        JohnGPT
+                    </a>
+                    <a href="/admin/cge" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        CGE Tools
+                    </a>
+                    <a href="/admin/users" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        User Management
+                    </a>
+                    <a href="/admin/analytics" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Analytics
+                    </a>
+                    <a href="/admin/payments" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                        </svg>
+                        Payments
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Payment Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin/payments/transactions" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M12 12c1.11 0 2.08.402 2.599 1M12 7.5V6.6M12 18h0"></path>
+                        </svg>
+                        Transactions
+                    </a>
+                    <a href="/admin/payments/subscriptions" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        Subscriptions
+                    </a>
+                    <a href="/admin/payments/gateways" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z"></path>
+                        </svg>
+                        Payment Gateways
+                    </a>
+                    <a href="/admin/payments/pricing" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M12 12c1.11 0 2.08.402 2.599 1M12 7.5V6.6M12 18h0"></path>
+                        </svg>
+                        Pricing Plans
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center">
+                        <span class="text-white font-bold">JO</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Admin Access</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 p-6">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center mb-2">
+                        <a href="/admin/payments" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Payments</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <span class="text-gray-900 dark:text-white">Payment Gateways</span>
+                    </div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
+                        Payment Command Center
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">
+                        Manage payment gateways with Nigerian payment nuance
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced" id="refresh-payments-btn">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        Refresh Data
+                    </button>
+                    <div class="relative">
+                        <input type="text" placeholder="Search gateways..." 
+                               class="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                        <svg class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+        <!-- System Status -->
+        <section class="mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Payment Gateway System Status</h2>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">
+                            Current payment gateway system status and data freshness
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">All Gateways Active</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Fraud Detection Active</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Exchange Rates Synced</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Stats -->
+        <section class="mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-admin-red mb-2">99.8%</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Gateway Uptime</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-purple-500 mb-2">0.7%</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Fraud Rate</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-green-500 mb-2">52</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Payment Methods</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-red-500 mb-2">NGN 1,587</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">USD Exchange Rate</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Payment Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - Gateway Config -->
+            <div class="space-y-6">
+                <!-- Multi-Gateway Failover Config -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Multi-Gateway Failover Configuration</h2>
+                    <div class="space-y-5">
+                        <div class="gateway-chart relative">
+                            <!-- Gateway Success Rates -->
+                            <div class="gateway-bar" style="left: 20px; height: 180px; background-color: #10B981;">
+                                <div class="font-bold">99.8%</div>
+                            </div>
+                            <div class="gateway-bar" style="left: 60px; height: 160px; background-color: #059669;">
+                                <div class="font-bold">98.5%</div>
+                            </div>
+                            <div class="gateway-bar" style="left: 100px; height: 140px; background-color: #047857;">
+                                <div class="font-bold">97.2%</div>
+                            </div>
+                            <div class="gateway-bar" style="left: 140px; height: 120px; background-color: #064E3B;">
+                                <div class="font-bold">95.8%</div>
+                            </div>
+                            
+                            <div class="absolute bottom-0 left-20 text-xs text-gray-500 dark:text-gray-400">Paystack</div>
+                            <div class="absolute bottom-0 left-60 text-xs text-gray-500 dark:text-gray-400">Flutterwave</div>
+                            <div class="absolute bottom-0 left-100 text-xs text-gray-500 dark:text-gray-400">Stripe</div>
+                            <div class="absolute bottom-0 left-140 text-xs text-gray-500 dark:text-gray-400">PayPal</div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Current Failover Sequence</div>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div>
+                                        <div class="font-medium text-gray-900 dark:text-white">Primary</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Paystack</div>
+                                    </div>
+                                    <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                        Active
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div>
+                                        <div class="font-medium text-gray-900 dark:text-white">Secondary</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Flutterwave</div>
+                                    </div>
+                                    <span class="text-xs bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-200 px-2 py-1 rounded">
+                                        Standby
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div>
+                                        <div class="font-medium text-gray-900 dark:text-white">Tertiary</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Stripe</div>
+                                    </div>
+                                    <span class="text-xs bg-gray-100 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 px-2 py-1 rounded">
+                                        Standby
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Insight:</strong> Paystack handles 82% of successful transactions. 
+                                Configure failover sequence based on real-time performance metrics.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Nigerian Payment Methods -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Nigerian Payment Methods</h2>
+                    <div class="space-y-4">
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-center mb-2">
+                                <div class="font-medium text-gray-900 dark:text-white">Paystack</div>
+                                <span class="text-sm bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                    82% usage
+                                </span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                <div class="bg-admin-red h-2 rounded-full" style="width: 82%"></div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-center mb-2">
+                                <div class="font-medium text-gray-900 dark:text-white">Mobile Money</div>
+                                <span class="text-sm bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-200 px-2 py-1 rounded">
+                                    12% usage
+                                </span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                <div class="bg-admin-red h-2 rounded-full" style="width: 12%"></div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-center mb-2">
+                                <div class="font-medium text-gray-900 dark:text-white">Bank Transfer</div>
+                                <span class="text-sm bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-200 px-2 py-1 rounded">
+                                    4% usage
+                                </span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                <div class="bg-admin-red h-2 rounded-full" style="width: 4%"></div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-center mb-2">
+                                <div class="font-medium text-gray-900 dark:text-white">Other Methods</div>
+                                <span class="text-sm bg-gray-100 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 px-2 py-1 rounded">
+                                    2% usage
+                                </span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                <div class="bg-admin-red h-2 rounded-full" style="width: 2%"></div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Insight:</strong> 52 Nigerian payment methods active. 
+                                Mobile money usage increased by 37% in Q2.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Middle Column - Fraud & Currency -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Fraud Rule Builder -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Fraud Rule Builder</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Fraud Detection Metrics</div>
+                            <div class="space-y-4">
+                                <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <div class="font-medium text-gray-900 dark:text-white">Fraud Rate</div>
+                                        <span class="text-sm bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-200 px-2 py-1 rounded">
+                                            0.7%
+                                        </span>
+                                    </div>
+                                    <div class="fraud-meter mt-1">
+                                        <div class="fraud-fill fraud-low" style="width: 7%"></div>
+                                    </div>
+                                    <div class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                                        7 fraudulent transactions detected in last 24 hours
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <div class="font-medium text-gray-900 dark:text-white">False Positives</div>
+                                        <span class="text-sm bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-200 px-2 py-1 rounded">
+                                            0.2%
+                                        </span>
+                                    </div>
+                                    <div class="fraud-meter mt-1">
+                                        <div class="fraud-fill fraud-low" style="width: 2%"></div>
+                                    </div>
+                                    <div class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                                        2 legitimate transactions flagged as fraud
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <div class="font-medium text-gray-900 dark:text-white">Fraud Savings</div>
+                                        <span class="text-sm bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                            $1,242
+                                        </span>
+                                    </div>
+                                    <div class="fraud-meter mt-1">
+                                        <div class="fraud-fill fraud-high" style="width: 85%"></div>
+                                    </div>
+                                    <div class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                                        Estimated savings from fraud prevention
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Active Fraud Rules</div>
+                            <div class="space-y-3">
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">High Amount Threshold</div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">> $500 in 24h</div>
+                                        </div>
+                                        <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                            Active
+                                        </span>
+                                    </div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                                        Blocks transactions over $500 from new accounts
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">Nigerian IP Check</div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">Mobile money</div>
+                                        </div>
+                                        <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                            Active
+                                        </span>
+                                    </div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                                        Verifies mobile money transactions with Nigerian IPs
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">Velocity Check</div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">> 3 transactions/min</div>
+                                        </div>
+                                        <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                            Active
+                                        </span>
+                                    </div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                                        Limits transaction frequency to prevent bot attacks
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">New Account Check</div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">First transaction</div>
+                                        </div>
+                                        <span class="text-xs bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-200 px-2 py-1 rounded">
+                                            Review
+                                        </span>
+                                    </div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                                        Manually review first transactions from new accounts
+                                    </div>
+                                </div>
+                                <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium">
+                                    Create New Rule
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Currency Exchange Rate Monitor -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Currency Exchange Rate Monitor</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Current Exchange Rates</div>
+                            <div class="space-y-3">
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">USD to NGN</div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">US Dollar to Nigerian Naira</div>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="font-bold text-gray-900 dark:text-white">NGN 1,587</div>
+                                            <div class="text-xs text-green-600">↑ 0.4%</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">USD to EUR</div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">US Dollar to Euro</div>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="font-bold text-gray-900 dark:text-white">€ 0.93</div>
+                                            <div class="text-xs text-red-600">↓ 0.2%</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">USD to GBP</div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">US Dollar to British Pound</div>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="font-bold text-gray-900 dark:text-white">£ 0.81</div>
+                                            <div class="text-xs text-gray-600">→ 0.0%</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">USD to XAF</div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">US Dollar to Central African Franc</div>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="font-bold text-gray-900 dark:text-white">XAF 605</div>
+                                            <div class="text-xs text-green-600">↑ 0.1%</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">NGN to USD Trend (Last 30 Days)</div>
+                            <div class="gateway-chart relative" style="height: 250px;">
+                                <!-- Exchange Rate Trend -->
+                                <div class="gateway-bar" style="left: 20px; height: 150px; background-color: #DC2626;">
+                                    <div class="font-bold">1,542</div>
+                                </div>
+                                <div class="gateway-bar" style="left: 50px; height: 155px; background-color: #DC2626;">
+                                    <div class="font-bold">1,548</div>
+                                </div>
+                                <div class="gateway-bar" style="left: 80px; height: 160px; background-color: #DC2626;">
+                                    <div class="font-bold">1,554</div>
+                                </div>
+                                <div class="gateway-bar" style="left: 110px; height: 155px; background-color: #DC2626;">
+                                    <div class="font-bold">1,548</div>
+                                </div>
+                                <div class="gateway-bar" style="left: 140px; height: 160px; background-color: #DC2626;">
+                                    <div class="font-bold">1,554</div>
+                                </div>
+                                <div class="gateway-bar" style="left: 170px; height: 165px; background-color: #DC2626;">
+                                    <div class="font-bold">1,560</div>
+                                </div>
+                                <div class="gateway-bar" style="left: 200px; height: 170px; background-color: #DC2626;">
+                                    <div class="font-bold">1,566</div>
+                                </div>
+                                <div class="gateway-bar" style="left: 230px; height: 175px; background-color: #DC2626;">
+                                    <div class="font-bold">1,572</div>
+                                </div>
+                                <div class="gateway-bar" style="left: 260px; height: 180px; background-color: #DC2626;">
+                                    <div class="font-bold">1,578</div>
+                                </div>
+                                <div class="gateway-bar" style="left: 290px; height: 185px; background-color: #DC2626;">
+                                    <div class="font-bold">1,584</div>
+                                </div>
+                                <div class="gateway-bar" style="left: 320px; height: 190px; background-color: #DC2626;">
+                                    <div class="font-bold">1,590</div>
+                                </div>
+                                <div class="gateway-bar" style="left: 350px; height: 185px; background-color: #DC2626;">
+                                    <div class="font-bold">1,584</div>
+                                </div>
+                                <div class="gateway-bar" style="left: 380px; height: 190px; background-color: #DC2626;">
+                                    <div class="font-bold">1,590</div>
+                                </div>
+                                <div class="gateway-bar" style="left: 410px; height: 195px; background-color: #DC2626;">
+                                    <div class="font-bold">1,596</div>
+                                </div>
+                                <div class="gateway-bar" style="left: 440px; height: 200px; background-color: #DC2626;">
+                                    <div class="font-bold">1,602</div>
+                                </div>
+                                <div class="gateway-bar" style="left: 470px; height: 195px; background-color: #DC2626;">
+                                    <div class="font-bold">1,596</div>
+                                </div>
+                                <div class="gateway-bar" style="left: 500px; height: 200px; background-color: #DC2626;">
+                                    <div class="font-bold">1,602</div>
+                                </div>
+                                <div class="gateway-bar" style="left: 530px; height: 205px; background-color: #DC2626;">
+                                    <div class="font-bold">1,608</div>
+                                </div>
+                                <div class="gateway-bar" style="left: 560px; height: 210px; background-color: #DC2626;">
+                                    <div class="font-bold">1,614</div>
+                                </div>
+                                <div class="gateway-bar" style="left: 590px; height: 205px; background-color: #DC2626;">
+                                    <div class="font-bold">1,608</div>
+                                </div>
+                                <div class="gateway-bar" style="left: 620px; height: 210px; background-color: #DC2626;">
+                                    <div class="font-bold">1,614</div>
+                                </div>
+                                <div class="gateway-bar" style="left: 650px; height: 215px; background-color: #DC2626;">
+                                    <div class="font-bold">1,620</div>
+                                </div>
+                                <div class="gateway-bar" style="left: 680px; height: 220px; background-color: #DC2626;">
+                                    <div class="font-bold">1,626</div>
+                                </div>
+                                <div class="gateway-bar" style="left: 710px; height: 215px; background-color: #DC2626;">
+                                    <div class="font-bold">1,620</div>
+                                </div>
+                                <div class="gateway-bar" style="left: 740px; height: 220px; background-color: #DC2626;">
+                                    <div class="font-bold">1,626</div>
+                                </div>
+                                <div class="gateway-bar" style="left: 770px; height: 225px; background-color: #DC2626;">
+                                    <div class="font-bold">1,632</div>
+                                </div>
+                                <div class="gateway-bar" style="left: 800px; height: 220px; background-color: #DC2626;">
+                                    <div class="font-bold">1,626</div>
+                                </div>
+                                <div class="gateway-bar" style="left: 830px; height: 225px; background-color: #DC2626;">
+                                    <div class="font-bold">1,632</div>
+                                </div>
+                                <div class="gateway-bar" style="left: 860px; height: 230px; background-color: #DC2626;">
+                                    <div class="font-bold">1,638</div>
+                                </div>
+                                <div class="gateway-bar" style="left: 890px; height: 235px; background-color: #DC2626;">
+                                    <div class="font-bold">1,644</div>
+                                </div>
+                            </div>
+                            <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                    <strong>Insight:</strong> NGN has depreciated 4.7% against USD in the last 30 days. 
+                                    Consider adjusting pricing for Nigerian customers if trend continues.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Nigerian Payment Manager -->
+            <div class="space-y-6">
+                <!-- Nigerian Payment Manager -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Nigerian Payment Method Manager</h2>
+                    <div class="space-y-5">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-center mb-3">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Paystack Integration</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Official Nigerian payment gateway</div>
+                                </div>
+                                <div class="flex items-center">
+                                    <span class="status-indicator status-active"></span>
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">Active</span>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="text-center p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="text-lg font-bold text-gray-900 dark:text-white">52</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">Payment Methods</div>
+                                </div>
+                                <div class="text-center p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="text-lg font-bold text-gray-900 dark:text-white">0.8%</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">Processing Fee</div>
+                                </div>
+                                <div class="text-center p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="text-lg font-bold text-gray-900 dark:text-white">1-2 min</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">Processing Time</div>
+                                </div>
+                                <div class="text-center p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="text-lg font-bold text-gray-900 dark:text-white">99.8%</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">Success Rate</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Mobile Money Providers</div>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="flex items-center">
+                                        <span class="mobile-money-icon">MTN</span>
+                                        <div class="ml-3">
+                                            <div class="font-medium text-gray-900 dark:text-white">MTN Mobile Money</div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">+234803...</div>
+                                        </div>
+                                    </div>
+                                    <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                        Active
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="flex items-center">
+                                        <span class="mobile-money-icon">A</span>
+                                        <div class="ml-3">
+                                            <div class="font-medium text-gray-900 dark:text-white">Airtel Money</div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">+234802...</div>
+                                        </div>
+                                    </div>
+                                    <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                        Active
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="flex items-center">
+                                        <span class="mobile-money-icon">G</span>
+                                        <div class="ml-3">
+                                            <div class="font-medium text-gray-900 dark:text-white">Globacom</div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">+234805...</div>
+                                        </div>
+                                    </div>
+                                    <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                        Active
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="flex items-center">
+                                        <span class="mobile-money-icon">9</span>
+                                        <div class="ml-3">
+                                            <div class="font-medium text-gray-900 dark:text-white">9mobile</div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">+234809...</div>
+                                        </div>
+                                    </div>
+                                    <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                        Active
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Insight:</strong> Mobile money transactions increased by 37% in Q2. 
+                                Consider adding USSD payment option for feature phone users.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Payment Recommendations -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Payment Recommendations</h2>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">Top Priority: Mobile Money Expansion</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                Add USSD payment option for feature phone users (42% of Nigerian market)
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="flex-1 px-3 py-1 bg-admin-red text-white rounded text-xs hover:bg-red-700">
+                                    Configure
+                                </button>
+                                <button class="flex-1 px-3 py-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded text-xs hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">Medium Priority: NGN Price Adjustment</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                NGN depreciation suggests 5% price increase for Nigerian customers
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="flex-1 px-3 py-1 bg-admin-red text-white rounded text-xs hover:bg-red-700">
+                                    Adjust Prices
+                                </button>
+                                <button class="flex-1 px-3 py-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded text-xs hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">Low Priority: New Payment Methods</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                Add Opay and Palmpay for broader Nigerian market coverage
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="flex-1 px-3 py-1 bg-admin-red text-white rounded text-xs hover:bg-red-700">
+                                    Add Methods
+                                </button>
+                                <button class="flex-1 px-3 py-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded text-xs hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium">
+                            Generate Payment Optimization Plan
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Emergency Panel -->
+                <div class="bg-red-50 dark:bg-red-900/20 rounded-2xl p-6 shadow-lg border border-red-200 dark:border-red-800">
+                    <h2 class="text-xl font-bold text-red-900 dark:text-red-100 mb-4">Payment Emergency Tools</h2>
+                    <div class="space-y-3">
+                        <p class="text-sm text-red-800 dark:text-red-200">
+                            Critical functions for immediate payment management.
+                        </p>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                            ONE BUTTON: Fix Payment Issues
+                        </button>
+                        <div class="flex space-x-2">
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Emergency Audit
+                            </button>
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Gateway Reset
+                            </button>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                            Send Report to Finance Team
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-apply theme
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Initialize sidebar active state
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set payment gateways as active in sidebar
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.href.includes('payments/gateways')) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Refresh payments button
+            document.getElementById('refresh-payments-btn').addEventListener('click', function() {
+                const originalText = this.innerHTML;
+                this.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2 inline text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Refreshing...';
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    alert('Payment gateway data refreshed successfully!');
+                }, 2000);
+            });
+            
+            // Generate payment optimization plan button
+            document.querySelector('[class*="Generate Payment Optimization Plan"]').addEventListener('click', function() {
+                const originalText = this.textContent;
+                this.textContent = 'Generating plan...';
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    alert('Payment optimization plan generated successfully! Focus on mobile money expansion.');
+                }, 2000);
+            });
+            
+            // Fix payment issues button
+            document.querySelector('[class*="ONE BUTTON: Fix Payment Issues"]').addEventListener('click', function() {
+                const originalText = this.textContent;
+                this.textContent = 'Fixing issues...';
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    alert('Payment issues fixed successfully! Restored gateway connections and updated rates.');
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>

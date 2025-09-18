@@ -164,55 +164,57 @@ const DiagnosticHistory: React.FC<DiagnosticHistoryProps> = ({ refreshTrigger })
           </div>
         </div>
 
-        <div className="space-y-4">
-          {filteredDiagnostics.length === 0 ? (
-            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-              No diagnostic records found matching your filters.
-            </div>
-          ) : (
-            filteredDiagnostics.map((diagnostic) => (
-              <div
-                key={diagnostic.id}
-                className="benchmark-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-              >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <div className="font-medium text-gray-900 dark:text-white">
-                      {getTypeDisplayName(diagnostic.type)}
+        <div className="max-h-96 overflow-y-auto">
+          <div className="space-y-4 pr-2">
+            {filteredDiagnostics.length === 0 ? (
+              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                No diagnostic records found matching your filters.
+              </div>
+            ) : (
+              filteredDiagnostics.map((diagnostic) => (
+                <div
+                  key={diagnostic.id}
+                  className="benchmark-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <div className="font-medium text-gray-900 dark:text-white">
+                        {getTypeDisplayName(diagnostic.type)}
+                      </div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        {formatTimestamp(diagnostic.timestamp)}
+                        {diagnostic.duration && (
+                          <span className="ml-2">• {Math.round(diagnostic.duration / 1000)}s</span>
+                        )}
+                      </div>
                     </div>
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(diagnostic.status)}`}>
+                      {diagnostic.status}
+                    </span>
+                  </div>
+                  <div className="mt-2 flex justify-between items-center">
                     <div className="text-sm text-gray-500 dark:text-gray-400">
-                      {formatTimestamp(diagnostic.timestamp)}
-                      {diagnostic.duration && (
-                        <span className="ml-2">• {Math.round(diagnostic.duration / 1000)}s</span>
+                      {diagnostic.summary}
+                      {(diagnostic.warnings > 0 || diagnostic.errors > 0) && (
+                        <span className="ml-2">
+                          {diagnostic.warnings > 0 && `${diagnostic.warnings} warning${diagnostic.warnings > 1 ? 's' : ''}`}
+                          {diagnostic.warnings > 0 && diagnostic.errors > 0 && ', '}
+                          {diagnostic.errors > 0 && `${diagnostic.errors} error${diagnostic.errors > 1 ? 's' : ''}`}
+                        </span>
                       )}
                     </div>
+                    <button
+                      onClick={() => setSelectedDiagnostic(diagnostic)}
+                      className="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium flex items-center gap-1"
+                    >
+                      <Eye className="h-3 w-3" />
+                      View Details
+                    </button>
                   </div>
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(diagnostic.status)}`}>
-                    {diagnostic.status}
-                  </span>
                 </div>
-                <div className="mt-2 flex justify-between items-center">
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
-                    {diagnostic.summary}
-                    {(diagnostic.warnings > 0 || diagnostic.errors > 0) && (
-                      <span className="ml-2">
-                        {diagnostic.warnings > 0 && `${diagnostic.warnings} warning${diagnostic.warnings > 1 ? 's' : ''}`}
-                        {diagnostic.warnings > 0 && diagnostic.errors > 0 && ', '}
-                        {diagnostic.errors > 0 && `${diagnostic.errors} error${diagnostic.errors > 1 ? 's' : ''}`}
-                      </span>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => setSelectedDiagnostic(diagnostic)}
-                    className="text-admin-red hover:text-red-700 dark:hover:text-red-400 text-sm font-medium flex items-center gap-1"
-                  >
-                    <Eye className="h-3 w-3" />
-                    View Details
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
+              ))
+            )}
+          </div>
         </div>
       </div>
 
