@@ -60,11 +60,14 @@ This is the primary container component for the system diagnostics feature.
 - `GET /api/admin/system-metrics` - Fetches current system metrics
 - `POST /api/admin/diagnostics` - Runs full system diagnostics
 - `GET /api/admin/diagnostics` - Fetches diagnostic history
+- `POST /api/admin/emergency` - Emergency system operations with cached data fetching
 
 ### Caching Strategy
-- Server-side caching with TTL (2 minutes for system metrics)
-- Client-side React Query caching with background refetching
-- Request deduplication to prevent duplicate API calls
+- **Server-side caching** with TTL (2 minutes for system metrics, 5 minutes for diagnostics)
+- **Client-side React Query** caching with background refetching
+- **Request deduplication** to prevent duplicate API calls
+- **Function-level caching** in emergency operations for optimal performance
+- **Global cache manager** with automatic cleanup and analytics
 
 ## 6. Performance Optimizations
 
