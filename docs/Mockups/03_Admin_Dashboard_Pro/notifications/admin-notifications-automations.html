@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - Behavior Trigger Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'admin-red': '#DC2626'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-tier1: linear-gradient(135deg, var(--brand-blue) 0%, #3B82F6 100%);
+            --gradient-tier2: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-admin: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        }
+        .btn-enhanced {
+            transition: all 300ms ease;
+        }
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+        }
+        .card-interactive {
+            transition: all 300ms ease;
+            cursor: pointer;
+        }
+        .card-interactive:hover {
+            transform: translateY(-4px);
+        }
+        .automation-card {
+            transition: all 300ms ease;
+            border-left: 3px solid transparent;
+        }
+        .automation-card:hover {
+            border-left-color: #DC2626;
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-active {
+            background-color: #10B981;
+        }
+        .status-warning {
+            background-color: #F59E0B;
+        }
+        .status-critical {
+            background-color: #EF4444;
+        }
+        .activity-item {
+            transition: all 200ms ease;
+        }
+        .activity-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .sidebar-item {
+            transition: all 200ms ease;
+        }
+        .sidebar-item:hover {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: #DC2626;
+        }
+        .sidebar-item.active {
+            background-color: rgba(220, 38, 38, 0.15);
+            color: #DC2626;
+            font-weight: 600;
+            border-left: 3px solid #DC2626;
+        }
+        .quick-action {
+            transition: all 300ms ease;
+        }
+        .quick-action:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.2);
+        }
+        .system-metric {
+            transition: all 200ms ease;
+        }
+        .system-metric:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .automation-item {
+            transition: all 200ms ease;
+        }
+        .automation-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .automation-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .automation-active {
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+            color: white;
+        }
+        .automation-draft {
+            background: #E5E7EB;
+            color: #6B7280;
+        }
+        .automation-tiers {
+            padding: 0.15rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            background-color: #F3F4F6;
+            color: #4B5563;
+            margin-right: 0.25rem;
+        }
+        .tier-1 {
+            background-color: #DBEAFE;
+            color: #1D4ED8;
+        }
+        .tier-2 {
+            background-color: #F3F4F6;
+            color: #1F2937;
+        }
+        .tier-3 {
+            background-color: #FEF3C7;
+            color: #D97706;
+        }
+        .admin-tier {
+            background-color: #FEE2E2;
+            color: #B91C1C;
+        }
+        .automation-flow {
+            position: relative;
+            height: 300px;
+            border: 1px solid #E5E7EB;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        .automation-step {
+            position: absolute;
+            width: 120px;
+            height: 80px;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 0.875rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 200ms ease;
+        }
+        .automation-step:hover {
+            transform: scale(1.05);
+            z-index: 10;
+        }
+        .trigger-step {
+            background: linear-gradient(135deg, #2563EB 0%, #8B5CF6 100%);
+            color: white;
+        }
+        .action-step {
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+            color: white;
+        }
+        .condition-step {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            color: white;
+        }
+        .arrow {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-color: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+        }
+        .conversion-meter {
+            position: relative;
+            width: 100%;
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            background-color: #E5E7EB;
+        }
+        .conversion-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            border-radius: 6px;
+        }
+        .conversion-low {
+            background-color: #EF4444;
+            width: 25%;
+        }
+        .conversion-medium {
+            background-color: #F59E0B;
+            width: 50%;
+        }
+        .conversion-high {
+            background-color: #10B981;
+            width: 75%;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <!-- Theme Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="document.documentElement.classList.toggle('dark')" 
+                class="p-2 rounded-full bg-jstar-blue text-white hover:bg-faith-purple transition-all duration-300"
+                aria-label="Toggle dark/light theme">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Admin Navigation -->
+    <div class="fixed top-0 left-0 h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <a href="/admin" class="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                J StaR Admin
+            </a>
+        </div>
+        
+        <div class="p-4">
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Platform Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="/admin/cms" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        CMS
+                    </a>
+                    <a href="/admin/johngpt" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                        JohnGPT
+                    </a>
+                    <a href="/admin/cge" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        CGE Tools
+                    </a>
+                    <a href="/admin/users" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        User Management
+                    </a>
+                    <a href="/admin/analytics" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Analytics
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Communication Tools
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin/notifications" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                        </svg>
+                        Notifications
+                    </a>
+                    <a href="/admin/notifications/templates" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.708.954 3.653.393 4.833-1.449 1.179-1.842 1.179-4.031 0-5.873a1.724 1.724 0 00-2.573-1.066c-1.708.954-3.653.393-4.833 1.449-1.179 1.842-1.179 4.031 0 5.873m-4.743-2.242A1.024 1.024 0 019 1.025v11a1.024 1.024 0 01-1.025 1.025H3.025A1.024 1.024 0 012 12.025V8.975c0-.565.46-1.025 1.025-1.025h3.95a1.024 1.024 0 011.025 1.025z"></path>
+                        </svg>
+                        Message Factory
+                    </a>
+                    <a href="/admin/notifications/scheduler" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Comms Calendar
+                    </a>
+                    <a href="/admin/notifications/logs" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Delivery Forensics
+                    </a>
+                    <a href="/admin/notifications/automations" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.708.954 3.653.393 4.833-1.449 1.179-1.842 1.179-4.031 0-5.873a1.724 1.724 0 00-2.573-1.066c-1.708.954-3.653.393-4.833 1.449-1.179 1.842-1.179 4.031 0 5.873m-4.743-2.242A1.024 1.024 0 019 1.025v11a1.024 1.024 0 01-1.025 1.025H3.025A1.024 1.024 0 012 12.025V8.975c0-.565.46-1.025 1.025-1.025h3.95a1.024 1.024 0 011.025 1.025z"></path>
+                        </svg>
+                        Behavior Trigger Studio
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center">
+                        <span class="text-white font-bold">JO</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Admin Access</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 p-6">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center mb-2">
+                        <a href="/admin/notifications" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Notifications</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <span class="text-gray-900 dark:text-white">Behavior Trigger Studio</span>
+                    </div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
+                        Behavior Trigger Studio
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">
+                        Create automated behavior-based messaging to turn passive users into paying customers
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced" id="create-automation-btn">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        Create Automation
+                    </button>
+                    <div class="relative">
+                        <input type="text" placeholder="Search automations..." 
+                               class="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                        <svg class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+        <!-- System Status -->
+        <section class="mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Automation System Status</h2>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">
+                            Current behavior trigger system status and configuration
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Automations Active</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Event Tracking Active</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Conversion Tracking Active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Stats -->
+        <section class="mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-admin-red mb-2">12</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Active Automations</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-purple-500 mb-2">34%</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Avg. Conversion Rate</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-green-500 mb-2">247</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Users Recovered</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-red-500 mb-2">+$1,842</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Revenue Generated</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Automation Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - Automation Library -->
+            <div class="space-y-6">
+                <!-- Automation Library -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Automation Library</h2>
+                    <div class="space-y-3">
+                        <div class="automation-item p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Abandoned Cart Saver</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Recover lost sales</div>
+                                </div>
+                                <span class="automation-badge automation-active">Active</span>
+                            </div>
+                            <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                3 steps • 28% conversion rate
+                            </div>
+                        </div>
+                        <div class="automation-item p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Welcome Series</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">New user onboarding</div>
+                                </div>
+                                <span class="automation-badge automation-active">Active</span>
+                            </div>
+                            <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                5 steps • 42% completion rate
+                            </div>
+                        </div>
+                        <div class="automation-item p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Course Completion</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Encourage course finish</div>
+                                </div>
+                                <span class="automation-badge automation-active">Active</span>
+                            </div>
+                            <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                3 steps • 37% conversion rate
+                            </div>
+                        </div>
+                        <div class="automation-item p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Win-Back Sequence</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Re-engage churned users</div>
+                                </div>
+                                <span class="automation-badge automation-active">Active</span>
+                            </div>
+                            <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                4 steps • 22% conversion rate
+                            </div>
+                        </div>
+                        <div class="automation-item p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">LUT Pack Delivery</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Post-purchase workflow</div>
+                                </div>
+                                <span class="automation-badge automation-active">Active</span>
+                            </div>
+                            <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                1 step • 89% delivery rate
+                            </div>
+                        </div>
+                        <button class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 font-medium">
+                            Create Custom Automation
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Event Library -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Event Library</h2>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">User Events</div>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded text-xs cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-900/50">
+                                    User Registered
+                                </span>
+                                <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded text-xs cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-900/50">
+                                    User Upgraded
+                                </span>
+                                <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded text-xs cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-900/50">
+                                    User Churned
+                                </span>
+                                <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded text-xs cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-900/50">
+                                    User Inactive
+                                </span>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">Purchase Events</div>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 rounded text-xs cursor-pointer hover:bg-purple-200 dark:hover:bg-purple-900/50">
+                                    Course Purchased
+                                </span>
+                                <span class="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 rounded text-xs cursor-pointer hover:bg-purple-200 dark:hover:bg-purple-900/50">
+                                    Cart Abandoned
+                                </span>
+                                <span class="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 rounded text-xs cursor-pointer hover:bg-purple-200 dark:hover:bg-purple-900/50">
+                                    Product Viewed
+                                </span>
+                                <span class="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 rounded text-xs cursor-pointer hover:bg-purple-200 dark:hover:bg-purple-900/50">
+                                    Checkout Started
+                                </span>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">Content Events</div>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded text-xs cursor-pointer hover:bg-green-200 dark:hover:bg-green-900/50">
+                                    Video Watched
+                                </span>
+                                <span class="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded text-xs cursor-pointer hover:bg-green-200 dark:hover:bg-green-900/50">
+                                    Course Started
+                                </span>
+                                <span class="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded text-xs cursor-pointer hover:bg-green-200 dark:hover:bg-green-900/50">
+                                    Course Completed
+                                </span>
+                                <span class="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded text-xs cursor-pointer hover:bg-green-200 dark:hover:bg-green-900/50">
+                                    Content Shared
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Middle Column - Automation Builder -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Automation Builder -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-center mb-5">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Automation Builder</h2>
+                        <div class="flex space-x-2">
+                            <select class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <option>Abandoned Cart Saver</option>
+                                <option>Welcome Series</option>
+                                <option>Course Completion</option>
+                                <option>Win-Back Sequence</option>
+                                <option>LUT Pack Delivery</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="space-y-4">
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <div class="font-medium text-gray-900 dark:text-white mb-2">Automation Settings</div>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Automation Name</label>
+                                        <input type="text" value="Abandoned Cart Saver" 
+                                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Trigger Event</label>
+                                        <select class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white">
+                                            <option>Cart Abandoned (30 minutes)</option>
+                                            <option>User Registered</option>
+                                            <option>Course Purchased</option>
+                                            <option>User Churned</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Target Audience</label>
+                                        <select class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white">
+                                            <option>All Users</option>
+                                            <option>Tier 1+ Members</option>
+                                            <option>Tier 2+ Members</option>
+                                            <option>Tier 3 Members</option>
+                                            <option>Cart Value > $50</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="active-toggle" checked class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                        <label for="active-toggle" class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                            Active
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <div class="font-medium text-gray-900 dark:text-white mb-2">Automation Flow</div>
+                                <div class="automation-flow relative">
+                                    <!-- Trigger Step -->
+                                    <div class="automation-step trigger-step" style="top: 100px; left: 20px;">
+                                        <div class="text-xs mb-1">TRIGGER</div>
+                                        <div class="font-medium">Cart Abandoned</div>
+                                        <div class="text-xs mt-1">30 minutes</div>
+                                    </div>
+                                    
+                                    <!-- First Arrow -->
+                                    <div class="arrow" style="top: 130px; left: 150px;">→</div>
+                                    
+                                    <!-- Action Step 1 -->
+                                    <div class="automation-step action-step" style="top: 70px; left: 200px;">
+                                        <div class="text-xs mb-1">ACTION</div>
+                                        <div class="font-medium">Email Reminder</div>
+                                        <div class="text-xs mt-1">Discount: 10%</div>
+                                    </div>
+                                    
+                                    <!-- Second Arrow -->
+                                    <div class="arrow" style="top: 100px; left: 330px;">→</div>
+                                    
+                                    <!-- Action Step 2 -->
+                                    <div class="automation-step action-step" style="top: 130px; left: 380px;">
+                                        <div class="text-xs mb-1">ACTION</div>
+                                        <div class="font-medium">Email Reminder</div>
+                                        <div class="text-xs mt-1">Discount: 15%</div>
+                                    </div>
+                                    
+                                    <!-- Third Arrow -->
+                                    <div class="arrow" style="top: 160px; left: 510px;">→</div>
+                                    
+                                    <!-- Action Step 3 -->
+                                    <div class="automation-step action-step" style="top: 190px; left: 560px;">
+                                        <div class="text-xs mb-1">ACTION</div>
+                                        <div class="font-medium">Email Reminder</div>
+                                        <div class="text-xs mt-1">Discount: 20%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <div class="font-medium text-gray-900 dark:text-white mb-2">Step Configuration</div>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Step Name</label>
+                                        <input type="text" value="Email Reminder #1" 
+                                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Delay After Trigger</label>
+                                        <select class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white">
+                                            <option>30 minutes</option>
+                                            <option>1 hour</option>
+                                            <option>2 hours</option>
+                                            <option>6 hours</option>
+                                            <option>12 hours</option>
+                                            <option>24 hours</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Message Template</label>
+                                        <select class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white">
+                                            <option>Cart Abandoned - 10% Discount</option>
+                                            <option>Cart Abandoned - General Reminder</option>
+                                            <option>Cart Abandoned - Social Proof</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Exit Conditions</label>
+                                        <select class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white">
+                                            <option>Purchase Completed</option>
+                                            <option>User Churned</option>
+                                            <option>Cart Value < $20</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <div class="font-medium text-gray-900 dark:text-white mb-2">Conversion Metrics</div>
+                                <div class="space-y-4">
+                                    <div>
+                                        <div class="flex justify-between mb-1">
+                                            <span class="text-sm text-gray-600 dark:text-gray-400">Current Conversion Rate</span>
+                                            <span class="text-sm font-medium">28.4%</span>
+                                        </div>
+                                        <div class="conversion-meter mt-1">
+                                            <div class="conversion-fill conversion-high"></div>
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-2">
+                                        <div class="text-center p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                            <div class="text-lg font-bold text-gray-900 dark:text-white">327</div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">Users Reached</div>
+                                        </div>
+                                        <div class="text-center p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                            <div class="text-lg font-bold text-gray-900 dark:text-white">93</div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">Conversions</div>
+                                        </div>
+                                        <div class="text-center p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                            <div class="text-lg font-bold text-gray-900 dark:text-white">$1,248</div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">Revenue</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex justify-end space-x-3">
+                        <button class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 font-medium">
+                            Preview
+                        </button>
+                        <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                            Save Automation
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- A/B Testing -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">A/B Testing</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Test Configuration</div>
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Test Name</label>
+                                        <input type="text" value="Abandoned Cart Discount Test" 
+                                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Test Split</label>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Version A</label>
+                                                <input type="number" value="50" 
+                                                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Version B</label>
+                                                <input type="number" value="50" 
+                                                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Test Duration</label>
+                                        <select class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white">
+                                            <option>7 days</option>
+                                            <option>14 days</option>
+                                            <option>21 days</option>
+                                            <option>30 days</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Primary Goal</label>
+                                        <select class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white">
+                                            <option>Conversion Rate</option>
+                                            <option>Revenue Generated</option>
+                                            <option>Click Rate</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Test Results</div>
+                            <div class="space-y-3">
+                                <div class="p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <div class="font-medium text-gray-900 dark:text-white">Version A: 10% Discount</div>
+                                        <span class="text-sm bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+                                            25.3%
+                                        </span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                        <div class="bg-admin-red h-2 rounded-full" style="width: 25.3%"></div>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <div class="font-medium text-gray-900 dark:text-white">Version B: 15% Discount</div>
+                                        <span class="text-sm bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+                                            32.1%
+                                        </span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                        <div class="bg-admin-red h-2 rounded-full" style="width: 32.1%"></div>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <div class="font-medium text-gray-900 dark:text-white">Version C: Free Shipping</div>
+                                        <span class="text-sm bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+                                            28.7%
+                                        </span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                        <div class="bg-admin-red h-2 rounded-full" style="width: 28.7%"></div>
+                                    </div>
+                                </div>
+                                <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium">
+                                    Launch A/B Test
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Performance Analytics -->
+            <div class="space-y-6">
+                <!-- Performance Metrics -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Automation Performance</h2>
+                    <div class="space-y-5">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">Revenue Impact</div>
+                            <div class="text-2xl font-bold text-gray-900 dark:text-white mb-2">$1,842</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400 mb-3">Generated in the last 30 days</div>
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">Abandoned Cart Saver</span>
+                                    <span class="text-sm font-medium">$1,248</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">Win-Back Sequence</span>
+                                    <span class="text-sm font-medium">$482</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">Course Completion</span>
+                                    <span class="text-sm font-medium">$112</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">User Impact</div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="text-center p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="text-lg font-bold text-gray-900 dark:text-white">247</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Users Recovered</div>
+                                </div>
+                                <div class="text-center p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="text-lg font-bold text-gray-900 dark:text-white">38</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Churned Users</div>
+                                </div>
+                            </div>
+                            <div class="mt-4 space-y-2">
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">Recovered Churn Rate</span>
+                                    <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                        -12%
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">Cart Recovery Rate</span>
+                                    <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                        +28%
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">Course Completion</span>
+                                    <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                        +15%
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Recommendation:</strong> The Abandoned Cart Saver automation is your highest performing campaign. 
+                                Consider increasing the budget allocation to this automation.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Win-Back Campaign -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Win-Back Campaign Designer</h2>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">Churn Criteria</div>
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">Inactivity Period</span>
+                                    <select class="text-xs border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-gray-700 dark:text-gray-300 dark:bg-gray-700">
+                                        <option>30 days</option>
+                                        <option>60 days</option>
+                                        <option>90 days</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">Previous Tier</span>
+                                    <select class="text-xs border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-gray-700 dark:text-gray-300 dark:bg-gray-700">
+                                        <option>Tier 1+</option>
+                                        <option>Tier 2+</option>
+                                        <option>Tier 3</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">Purchase History</span>
+                                    <select class="text-xs border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-gray-700 dark:text-gray-300 dark:bg-gray-700">
+                                        <option>Any Purchase</option>
+                                        <option>Course Purchases Only</option>
+                                        <option>High Value Only</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">Win-Back Offer</div>
+                            <div class="space-y-2">
+                                <div class="flex items-center space-x-2">
+                                    <input type="radio" id="discount" name="offer-type" checked class="text-admin-red focus:ring-admin-red">
+                                    <label for="discount" class="text-sm text-gray-700 dark:text-gray-300">
+                                        Discount (20% off)
+                                    </label>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <input type="radio" id="free" name="offer-type" class="text-admin-red focus:ring-admin-red">
+                                    <label for="free" class="text-sm text-gray-700 dark:text-gray-300">
+                                        Free Resource
+                                    </label>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <input type="radio" id="trial" name="offer-type" class="text-admin-red focus:ring-admin-red">
+                                    <label for="trial" class="text-sm text-gray-700 dark:text-gray-300">
+                                        7-day Trial
+                                    </label>
+                                </div>
+                                <div class="mt-2">
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Custom Message</label>
+                                    <textarea rows="3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white">We miss you! Come back and get 20% off your next course with code WELCOMEBACK.</textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium">
+                            Preview & Launch
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Emergency Panel -->
+                <div class="bg-red-50 dark:bg-red-900/20 rounded-2xl p-6 shadow-lg border border-red-200 dark:border-red-800">
+                    <h2 class="text-xl font-bold text-red-900 dark:text-red-100 mb-4">Automation Emergency Tools</h2>
+                    <div class="space-y-3">
+                        <p class="text-sm text-red-800 dark:text-red-200">
+                            Critical functions for immediate automation management.
+                        </p>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                            ONE BUTTON: Pause All Automations
+                        </button>
+                        <div class="flex space-x-2">
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Emergency Test
+                            </button>
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Emergency Message
+                            </button>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                            Send Report to Team
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-apply theme
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Initialize sidebar active state
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set behavior trigger studio as active in sidebar
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.href.includes('notifications/automations')) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Create automation button
+            document.getElementById('create-automation-btn').addEventListener('click', function() {
+                const originalText = this.innerHTML;
+                this.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2 inline text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Creating...';
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    alert('New automation created successfully!');
+                }, 2000);
+            });
+            
+            // Launch A/B test button
+            document.querySelector('[class*="Launch A/B Test"]').addEventListener('click', function() {
+                const originalText = this.textContent;
+                this.textContent = 'Launching test...';
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    alert('A/B test launched successfully! Results will be available in 7 days.');
+                }, 2000);
+            });
+            
+            // Pause all automations button
+            document.querySelector('[class*="ONE BUTTON: Pause All Automations"]').addEventListener('click', function() {
+                const originalText = this.textContent;
+                this.textContent = 'Pausing automations...';
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    alert('All automations successfully paused! No messages will be sent until resumed.');
+                }, 2000);
+            });
+        });
+        
+        // Simulate drag and drop functionality for the automation flow
+        document.addEventListener('DOMContentLoaded', function() {
+            const steps = document.querySelectorAll('.automation-step');
+            steps.forEach(step => {
+                step.addEventListener('mousedown', function(e) {
+                    const originalX = e.clientX;
+                    const originalY = e.clientY;
+                    const stepRect = step.getBoundingClientRect();
+                    const offsetX = originalX - stepRect.left;
+                    const offsetY = originalY - stepRect.top;
+                    
+                    const moveHandler = (e) => {
+                        const newX = e.clientX - offsetX;
+                        const newY = e.clientY - offsetY;
+                        step.style.left = `${newX}px`;
+                        step.style.top = `${newY}px`;
+                    };
+                    
+                    const upHandler = () => {
+                        document.removeEventListener('mousemove', moveHandler);
+                        document.removeEventListener('mouseup', upHandler);
+                    };
+                    
+                    document.addEventListener('mousemove', moveHandler);
+                    document.addEventListener('mouseup', upHandler);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

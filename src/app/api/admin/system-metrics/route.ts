@@ -3,8 +3,10 @@ import * as os from 'os';
 import * as fs from 'fs';
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import { PrismaClient } from '@prisma/client';
 
 const execAsync = promisify(exec);
+const prisma = new PrismaClient();
 
 // OS detection and command strategies
 const getOSCommands = () => {
@@ -1130,6 +1132,8 @@ export async function GET() {
 
 // Benchmark endpoint
 export async function POST() {
+  const startTime = Date.now();
+
   try {
     console.log('Starting system benchmark...');
 
@@ -1151,6 +1155,26 @@ export async function POST() {
       timestamp: new Date().toISOString(),
       duration: 'Completed in <30 seconds'
     };
+
+    // Save benchmark results to diagnostic history
+    try {
+      await prisma.diagnosticHistory.create({
+        data: {
+          type: 'HARDWARE_BENCHMARK',
+          status: 'PASSED', // Benchmarks always pass unless there's an error
+          duration: Date.now() - startTime,
+          title: 'Hardware Benchmark',
+          summary: `CPU: ${cpuBench.singleCoreScore}/${cpuBench.multiCoreScore} • Storage: ${storageBench.readMBs} MB/s read`,
+          results: benchmarkResults,
+          warnings: 0,
+          errors: 0,
+        }
+      });
+      console.log('Benchmark results saved to diagnostic history');
+    } catch (saveError) {
+      console.error('Error saving benchmark to history:', saveError);
+      // Don't fail the benchmark if saving fails
+    }
 
     console.log('Benchmark completed successfully');
     return NextResponse.json({

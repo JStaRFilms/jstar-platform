@@ -55,7 +55,11 @@ interface BenchmarkData {
   duration: string;
 }
 
-const HardwareProfiler: React.FC = () => {
+interface HardwareProfilerProps {
+  onBenchmarkComplete?: () => void; // Callback when benchmark completes
+}
+
+const HardwareProfiler: React.FC<HardwareProfilerProps> = ({ onBenchmarkComplete }) => {
   const [hardwareData, setHardwareData] = useState<HardwareData | null>(null);
   const [benchmarkData, setBenchmarkData] = useState<BenchmarkData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -94,6 +98,10 @@ const HardwareProfiler: React.FC = () => {
       if (data.status === 'success' && data.data) {
         setBenchmarkData(data.data);
         setBenchmarkComplete(true);
+        // Notify parent component that benchmark completed
+        if (onBenchmarkComplete) {
+          onBenchmarkComplete();
+        }
       } else {
         console.error('Benchmark failed:', data.message);
       }

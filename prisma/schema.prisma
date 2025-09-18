@@ -392,6 +392,93 @@ enum ConflictResolution {
 // Add relations to existing User model
 // Note: Relations will be added when User model is implemented
 
+// System Diagnostics History - Tracks all diagnostic runs and benchmarks
+model DiagnosticHistory {
+  id          String   @id @default(cuid())
+  type        DiagnosticType
+  status      DiagnosticStatus
+  timestamp   DateTime @default(now())
+  duration    Int? // milliseconds
+
+  // Quick display data
+  title       String
+  summary     String
+
+  // Full detailed results (JSON)
+  results     Json
+
+  // Issue tracking
+  warnings    Int @default(0)
+  errors      Int @default(0)
+
+  @@map("diagnostic_history")
+}
+
+// Diagnostic configuration and scheduling
+model DiagnosticConfig {
+  id              String   @id @default(cuid())
+
+  // Automation settings
+  autoEnabled     Boolean  @default(true)
+  autoInterval    Int      @default(3600000) // 1 hour in milliseconds
+  lastRun         DateTime?
+
+  // Types to run automatically
+  runFullSystem   Boolean  @default(true)
+  runAIBenchmark  Boolean  @default(true)
+  runStorageScan  Boolean  @default(true)
+  runNetworkTest  Boolean  @default(false) // Network tests can be slow
+
+  // Admin management
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("diagnostic_config")
+}
+
+// Scheduled diagnostic runs
+model DiagnosticSchedule {
+  id          String   @id @default(cuid())
+  type        DiagnosticType
+  scheduledAt DateTime
+  isRecurring Boolean  @default(false)
+  interval    Int? // For recurring schedules (milliseconds)
+
+  // Status
+  status      ScheduleStatus @default(PENDING)
+  executedAt  DateTime?
+  resultId    String? // Link to DiagnosticHistory record
+
+  // Admin management
+  createdAt   DateTime @default(now())
+  createdBy   String? // Future: link to admin user
+
+  @@map("diagnostic_schedule")
+}
+
+// Enums for diagnostics system
+enum DiagnosticType {
+  FULL_SYSTEM
+  AI_BENCHMARK
+  HARDWARE_BENCHMARK
+  STORAGE_SCAN
+  NETWORK_TEST
+}
+
+enum DiagnosticStatus {
+  PASSED
+  WARNINGS
+  FAILED
+}
+
+enum ScheduleStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
 // Indexes for performance
 // Note: SQLite doesn't support all index types, but these are defined for future PostgreSQL migration
 // @@index([email])
@@ -405,3 +492,6 @@ enum ConflictResolution {
 // @@index([path])
 // @@index([storageProvider])
 // @@index([createdAt])
+// @@index([timestamp])
+// @@index([type])
+// @@index([status])

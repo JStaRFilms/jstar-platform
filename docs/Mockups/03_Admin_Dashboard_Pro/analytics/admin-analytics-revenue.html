@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - Money Flow Map</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'admin-red': '#DC2626'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-tier1: linear-gradient(135deg, var(--brand-blue) 0%, #3B82F6 100%);
+            --gradient-tier2: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-admin: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        }
+        .btn-enhanced {
+            transition: all 300ms ease;
+        }
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+        }
+        .card-interactive {
+            transition: all 300ms ease;
+            cursor: pointer;
+        }
+        .card-interactive:hover {
+            transform: translateY(-4px);
+        }
+        .revenue-card {
+            transition: all 300ms ease;
+            border-left: 3px solid transparent;
+        }
+        .revenue-card:hover {
+            border-left-color: #DC2626;
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-active {
+            background-color: #10B981;
+        }
+        .status-warning {
+            background-color: #F59E0B;
+        }
+        .status-critical {
+            background-color: #EF4444;
+        }
+        .activity-item {
+            transition: all 200ms ease;
+        }
+        .activity-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .sidebar-item {
+            transition: all 200ms ease;
+        }
+        .sidebar-item:hover {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: #DC2626;
+        }
+        .sidebar-item.active {
+            background-color: rgba(220, 38, 38, 0.15);
+            color: #DC2626;
+            font-weight: 600;
+            border-left: 3px solid #DC2626;
+        }
+        .quick-action {
+            transition: all 300ms ease;
+        }
+        .quick-action:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.2);
+        }
+        .system-metric {
+            transition: all 200ms ease;
+        }
+        .system-metric:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .revenue-item {
+            transition: all 200ms ease;
+        }
+        .revenue-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .revenue-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .revenue-active {
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+            color: white;
+        }
+        .revenue-draft {
+            background: #E5E7EB;
+            color: #6B7280;
+        }
+        .revenue-tiers {
+            padding: 0.15rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            background-color: #F3F4F6;
+            color: #4B5563;
+            margin-right: 0.25rem;
+        }
+        .tier-1 {
+            background-color: #DBEAFE;
+            color: #1D4ED8;
+        }
+        .tier-2 {
+            background-color: #F3F4F6;
+            color: #1F2937;
+        }
+        .tier-3 {
+            background-color: #FEF3C7;
+            color: #D97706;
+        }
+        .admin-tier {
+            background-color: #FEE2E2;
+            color: #B91C1C;
+        }
+        .waterfall-chart {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        .waterfall-bar {
+            position: absolute;
+            bottom: 0;
+            width: 60px;
+            border-radius: 4px 4px 0 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding-bottom: 8px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.75rem;
+            transition: all 0.3s ease;
+        }
+        .waterfall-label {
+            position: absolute;
+            bottom: -25px;
+            width: 60px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #6B7280;
+            white-space: nowrap;
+        }
+        .ltv-cac-chart {
+            position: relative;
+            height: 200px;
+            width: 100%;
+            background: linear-gradient(to top, #FEE2E2 0%, #FEE2E2 30%, #FDF2F2 100%);
+        }
+        .ltv-line {
+            position: absolute;
+            height: 4px;
+            background-color: #059669;
+            border-radius: 2px;
+            bottom: 0;
+            transition: width 0.5s ease;
+        }
+        .cac-line {
+            position: absolute;
+            height: 4px;
+            background-color: #DC2626;
+            border-radius: 2px;
+            bottom: 0;
+            transition: width 0.5s ease;
+        }
+        .profit-per-user {
+            position: relative;
+            height: 150px;
+            background: linear-gradient(to top, #FEE2E2 0%, #FDF2F2 100%);
+        }
+        .profit-bar {
+            position: absolute;
+            bottom: 0;
+            width: 40px;
+            border-radius: 4px 4px 0 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding-bottom: 8px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.75rem;
+            transition: all 0.3s ease;
+        }
+        .tax-meter {
+            position: relative;
+            width: 100%;
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            background-color: #E5E7EB;
+        }
+        .tax-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            border-radius: 6px;
+        }
+        .tax-low {
+            background-color: #10B981;
+            width: 25%;
+        }
+        .tax-medium {
+            background-color: #F59E0B;
+            width: 50%;
+        }
+        .tax-high {
+            background-color: #EF4444;
+            width: 75%;
+        }
+        .coffee-meter {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #A88056 0%, #6B4423 100%);
+        }
+        .coffee-fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.875rem;
+            transition: height 0.5s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <!-- Theme Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="document.documentElement.classList.toggle('dark')" 
+                class="p-2 rounded-full bg-jstar-blue text-white hover:bg-faith-purple transition-all duration-300"
+                aria-label="Toggle dark/light theme">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Admin Navigation -->
+    <div class="fixed top-0 left-0 h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <a href="/admin" class="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                J StaR Admin
+            </a>
+        </div>
+        
+        <div class="p-4">
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Platform Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="/admin/cms" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        CMS
+                    </a>
+                    <a href="/admin/johngpt" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                        JohnGPT
+                    </a>
+                    <a href="/admin/cge" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        CGE Tools
+                    </a>
+                    <a href="/admin/users" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        User Management
+                    </a>
+                    <a href="/admin/analytics" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Analytics
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Analytics Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin/analytics/revenue" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M12 12c1.11 0 2.08.402 2.599 1M12 7.5V6.6M12 18h0"></path>
+                        </svg>
+                        Revenue Analytics
+                    </a>
+                    <a href="/admin/analytics/user" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        User Analytics
+                    </a>
+                    <a href="/admin/analytics/content" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Content Analytics
+                    </a>
+                    <a href="/admin/analytics/engagement" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7 7l5 5"></path>
+                        </svg>
+                        Engagement Analytics
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center">
+                        <span class="text-white font-bold">JO</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Admin Access</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 p-6">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center mb-2">
+                        <a href="/admin/analytics" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Analytics</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <span class="text-gray-900 dark:text-white">Revenue Analytics</span>
+                    </div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
+                        Money Flow Map
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">
+                        Track revenue streams, profitability, and tax implications across your business
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced" id="refresh-revenue-btn">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        Refresh Data
+                    </button>
+                    <div class="relative">
+                        <input type="text" placeholder="Search revenue streams..." 
+                               class="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                        <svg class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+        <!-- System Status -->
+        <section class="mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Revenue Analytics System Status</h2>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">
+                            Current revenue tracking system status and data freshness
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Data Synced</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Calculations Active</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Tax Data Updated</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Stats -->
+        <section class="mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-admin-red mb-2">$12,482</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Monthly Revenue</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-purple-500 mb-2">3.2:1</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">LTV:CAC Ratio</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-green-500 mb-2">$48.72</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Profit Per User</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-red-500 mb-2">$2,184</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Tax Liability</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Revenue Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - Revenue Streams -->
+            <div class="space-y-6">
+                <!-- Revenue Stream Waterfall -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Revenue Stream Waterfall</h2>
+                    <div class="space-y-5">
+                        <div class="waterfall-chart relative">
+                            <!-- Starting point -->
+                            <div class="waterfall-bar" style="left: 20px; height: 60px; background-color: #DC2626;">
+                                <div class="font-bold">$24,832</div>
+                            </div>
+                            <div class="waterfall-label" style="left: 20px;">Total Revenue</div>
+                            
+                            <!-- Course Sales -->
+                            <div class="waterfall-bar" style="left: 90px; height: 50px; background-color: #3B82F6;">
+                                <div class="font-bold">-$8,422</div>
+                            </div>
+                            <div class="waterfall-label" style="left: 90px;">Course Sales</div>
+                            
+                            <!-- Tier Subscriptions -->
+                            <div class="waterfall-bar" style="left: 160px; height: 70px; background-color: #8B5CF6;">
+                                <div class="font-bold">-$7,128</div>
+                            </div>
+                            <div class="waterfall-label" style="left: 160px;">Tier Subs</div>
+                            
+                            <!-- Consulting -->
+                            <div class="waterfall-bar" style="left: 230px; height: 45px; background-color: #059669;">
+                                <div class="font-bold">-$3,214</div>
+                            </div>
+                            <div class="waterfall-label" style="left: 230px;">Consulting</div>
+                            
+                            <!-- Digital Products -->
+                            <div class="waterfall-bar" style="left: 300px; height: 35px; background-color: #F59E0B;">
+                                <div class="font-bold">-$1,586</div>
+                            </div>
+                            <div class="waterfall-label" style="left: 300px;">Digital Products</div>
+                            
+                            <!-- Coffee Habit -->
+                            <div class="waterfall-bar" style="left: 370px; height: 100px; background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);">
+                                <div class="font-bold">$4,482</div>
+                            </div>
+                            <div class="waterfall-label" style="left: 370px;">Net Profit</div>
+                        </div>
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Insight:</strong> Digital products have the highest profit margin (72%), 
+                                while consulting has the lowest (38%) due to time investment.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Revenue Streams List -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Revenue Streams</h2>
+                    <div class="space-y-3">
+                        <div class="revenue-item p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">YouTube Mastery Course</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Tier 2+ Exclusive</div>
+                                </div>
+                                <span class="font-bold text-gray-900 dark:text-white">$3,842</span>
+                            </div>
+                            <div class="mt-2 flex items-center">
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                    <div class="bg-admin-red h-2 rounded-full" style="width: 45%"></div>
+                                </div>
+                                <span class="ml-2 text-xs text-gray-500 dark:text-gray-400">45%</span>
+                            </div>
+                        </div>
+                        <div class="revenue-item p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Tier 2 Subscription</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Monthly recurring</div>
+                                </div>
+                                <span class="font-bold text-gray-900 dark:text-white">$2,987</span>
+                            </div>
+                            <div class="mt-2 flex items-center">
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                    <div class="bg-admin-red h-2 rounded-full" style="width: 35%"></div>
+                                </div>
+                                <span class="ml-2 text-xs text-gray-500 dark:text-gray-400">35%</span>
+                            </div>
+                        </div>
+                        <div class="revenue-item p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">LUT Pack Sales</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Digital product</div>
+                                </div>
+                                <span class="font-bold text-gray-900 dark:text-white">$1,586</span>
+                            </div>
+                            <div class="mt-2 flex items-center">
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                    <div class="bg-admin-red h-2 rounded-full" style="width: 19%"></div>
+                                </div>
+                                <span class="ml-2 text-xs text-gray-500 dark:text-gray-400">19%</span>
+                            </div>
+                        </div>
+                        <div class="revenue-item p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">1-on-1 Consulting</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">High-touch service</div>
+                                </div>
+                                <span class="font-bold text-gray-900 dark:text-white">$1,243</span>
+                            </div>
+                            <div class="mt-2 flex items-center">
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                    <div class="bg-admin-red h-2 rounded-full" style="width: 15%"></div>
+                                </div>
+                                <span class="ml-2 text-xs text-gray-500 dark:text-gray-400">15%</span>
+                            </div>
+                        </div>
+                        <div class="revenue-item p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Tier 3 Subscription</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Premium access</div>
+                                </div>
+                                <span class="font-bold text-gray-900 dark:text-white">$984</span>
+                            </div>
+                            <div class="mt-2 flex items-center">
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                    <div class="bg-admin-red h-2 rounded-full" style="width: 12%"></div>
+                                </div>
+                                <span class="ml-2 text-xs text-gray-500 dark:text-gray-400">12%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Middle Column - LTV/CAC & Profit -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- LTV/CAC Calculator -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">LTV/CAC Analysis</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">LTV/CAC Ratio</div>
+                            <div class="ltv-cac-chart relative">
+                                <div class="ltv-line" style="width: 65%; left: 50px;"></div>
+                                <div class="cac-line" style="width: 20%; left: 50px;"></div>
+                                <div class="absolute bottom-0 left-50" style="left: 50px;">
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">CAC: $152</div>
+                                </div>
+                                <div class="absolute bottom-0 right-0">
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">LTV: $487</div>
+                                </div>
+                                <div class="absolute bottom-12 right-0 text-2xl font-bold" style="color: #059669;">
+                                    3.2:1
+                                </div>
+                            </div>
+                            <div class="mt-4 grid grid-cols-3 gap-4">
+                                <div class="text-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="text-lg font-bold text-gray-900 dark:text-white">$487</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">LTV</div>
+                                </div>
+                                <div class="text-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="text-lg font-bold text-gray-900 dark:text-white">$152</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">CAC</div>
+                                </div>
+                                <div class="text-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="text-lg font-bold text-gray-900 dark:text-white">2.8 yrs</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Retention</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">LTV/CAC Breakdown by Tier</div>
+                            <div class="space-y-3">
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <div class="font-medium text-gray-900 dark:text-white">Tier 1</div>
+                                        <span class="text-sm bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+                                            2.1:1
+                                        </span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                        <div class="bg-admin-red h-2 rounded-full" style="width: 42%"></div>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <div class="font-medium text-gray-900 dark:text-white">Tier 2</div>
+                                        <span class="text-sm bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-200 px-2 py-1 rounded">
+                                            4.3:1
+                                        </span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                        <div class="bg-admin-red h-2 rounded-full" style="width: 86%"></div>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <div class="font-medium text-gray-900 dark:text-white">Tier 3</div>
+                                        <span class="text-sm bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                            5.8:1
+                                        </span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                        <div class="bg-admin-red h-2 rounded-full" style="width: 92%"></div>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                    <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                        <strong>Insight:</strong> Tier 3 has the highest LTV:CAC ratio, 
+                                        indicating strong profitability for premium users.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Profit Per User & Coffee Habit -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Profit Per User & Coffee Habit</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Profit Per User by Month</div>
+                            <div class="profit-per-user relative">
+                                <div class="profit-bar" style="left: 20px; height: 80px; background-color: #DC2626;">
+                                    <div class="font-bold">$42.18</div>
+                                </div>
+                                <div class="profit-bar" style="left: 80px; height: 90px; background-color: #DC2626;">
+                                    <div class="font-bold">$45.32</div>
+                                </div>
+                                <div class="profit-bar" style="left: 140px; height: 100px; background-color: #DC2626;">
+                                    <div class="font-bold">$48.72</div>
+                                </div>
+                                <div class="profit-bar" style="left: 200px; height: 85px; background-color: #DC2626;">
+                                    <div class="font-bold">$43.87</div>
+                                </div>
+                                <div class="profit-bar" style="left: 260px; height: 95px; background-color: #DC2626;">
+                                    <div class="font-bold">$47.21</div>
+                                </div>
+                                
+                                <div class="absolute bottom-0 left-20 text-xs text-gray-500 dark:text-gray-400">Jan</div>
+                                <div class="absolute bottom-0 left-80 text-xs text-gray-500 dark:text-gray-400">Feb</div>
+                                <div class="absolute bottom-0 left-140 text-xs text-gray-500 dark:text-gray-400">Mar</div>
+                                <div class="absolute bottom-0 left-200 text-xs text-gray-500 dark:text-gray-400">Apr</div>
+                                <div class="absolute bottom-0 left-260 text-xs text-gray-500 dark:text-gray-400">May</div>
+                            </div>
+                            <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                    <strong>Insight:</strong> Profit per user increased 15% in Q1 due to 
+                                    higher Tier 2+ conversions and reduced marketing costs.
+                                </p>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Coffee Habit Funding</div>
+                            <div class="text-center mb-4">
+                                <div class="text-sm text-gray-500 dark:text-gray-400">How revenue streams fund your coffee habit</div>
+                                <div class="text-2xl font-bold text-gray-900 dark:text-white mt-1">$4,482 monthly profit</div>
+                            </div>
+                            <div class="coffee-meter">
+                                <div class="coffee-fill" style="height: 70%; background: linear-gradient(to bottom, #A88056 0%, #6B4423 70%, #4A2A13 100%);">
+                                    <div class="text-sm font-bold">70% of profit</div>
+                                    <div class="text-xs">$3,137 / $4,482</div>
+                                </div>
+                                <div class="absolute bottom-4 left-4 text-white text-sm font-medium">
+                                    Coffee Habit: $15/day × 30 days = $450
+                                </div>
+                            </div>
+                            <div class="mt-4 space-y-3">
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">YouTube Mastery Course</span>
+                                    <span class="text-sm font-medium text-green-600">+$2,148</span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">Tier 2 Subscription</span>
+                                    <span class="text-sm font-medium text-green-600">+$1,587</span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">LUT Pack Sales</span>
+                                    <span class="text-sm font-medium text-green-600">+$684</span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">1-on-1 Consulting</span>
+                                    <span class="text-sm font-medium text-red-600">-$1,282</span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">Tier 3 Subscription</span>
+                                    <span class="text-sm font-medium text-green-600">+$450</span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-green-100 dark:bg-green-900/30 rounded border border-green-200 dark:border-green-800 font-medium">
+                                    <span class="text-sm">Total Profit for Coffee</span>
+                                    <span class="text-sm">$3,137</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Tax & Coffee -->
+            <div class="space-y-6">
+                <!-- Tax Liability Estimator -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Tax Liability Estimator</h2>
+                    <div class="space-y-5">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">Current Tax Rate</div>
+                            <div class="text-2xl font-bold text-gray-900 dark:text-white mb-2">24.5%</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400 mb-3">Federal + State</div>
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">Federal</span>
+                                    <span class="text-sm font-medium">22%</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">State</span>
+                                    <span class="text-sm font-medium">2.5%</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">Self-Employment</span>
+                                    <span class="text-sm font-medium">15.3%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">Tax Liability</div>
+                            <div class="text-2xl font-bold text-gray-900 dark:text-white mb-2">$2,184</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400 mb-3">Based on $8,912 monthly profit</div>
+                            <div class="tax-meter mt-1">
+                                <div class="tax-fill tax-medium"></div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">Quarterly Estimate</div>
+                            <div class="text-2xl font-bold text-gray-900 dark:text-white mb-2">$6,552</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400 mb-3">Due on June 15th</div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="text-center p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="text-sm font-medium text-gray-900 dark:text-white">Q2</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">Apr-Jun</div>
+                                </div>
+                                <div class="text-center p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="text-sm font-medium text-gray-900 dark:text-white">$6,552</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">Estimated</div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium">
+                            Update Tax Settings
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Coffee Habit Tracker -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Coffee Habit Tracker</h2>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">Current Coffee Budget</div>
+                            <div class="text-2xl font-bold text-gray-900 dark:text-white mb-2">$450 / month</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400 mb-3">Based on $15/day × 30 days</div>
+                            <div class="flex items-center space-x-2 mb-3">
+                                <input type="range" min="10" max="50" value="15" 
+                                       class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+                                <span class="text-sm text-gray-600 dark:text-gray-400">$15/day</span>
+                            </div>
+                            <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                                <span>$10</span>
+                                <span>$25</span>
+                                <span>$50</span>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Coffee Funding Sources</div>
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">YouTube Mastery Course</span>
+                                    <span class="text-sm font-medium">41%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                    <div class="bg-admin-red h-2 rounded-full" style="width: 41%"></div>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">Tier 2 Subscription</span>
+                                    <span class="text-sm font-medium">30%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                    <div class="bg-admin-red h-2 rounded-full" style="width: 30%"></div>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">LUT Pack Sales</span>
+                                    <span class="text-sm font-medium">13%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                    <div class="bg-admin-red h-2 rounded-full" style="width: 13%"></div>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">Tier 3 Subscription</span>
+                                    <span class="text-sm font-medium">8.5%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                    <div class="bg-admin-red h-2 rounded-full" style="width: 8.5%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Insight:</strong> Your coffee habit is fully funded by the YouTube 
+                                Mastery Course and Tier 2 subscriptions. You could increase your coffee budget 
+                                by 50% before needing to adjust other spending.
+                            </p>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium">
+                            Optimize Revenue Streams
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Emergency Panel -->
+                <div class="bg-red-50 dark:bg-red-900/20 rounded-2xl p-6 shadow-lg border border-red-200 dark:border-red-800">
+                    <h2 class="text-xl font-bold text-red-900 dark:text-red-100 mb-4">Financial Emergency Tools</h2>
+                    <div class="space-y-3">
+                        <p class="text-sm text-red-800 dark:text-red-200">
+                            Critical functions for immediate financial management.
+                        </p>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                            ONE BUTTON: Adjust Pricing
+                        </button>
+                        <div class="flex space-x-2">
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Emergency Forecast
+                            </button>
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Cash Flow Analysis
+                            </button>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                            Send Report to Accountant
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-apply theme
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Initialize sidebar active state
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set revenue analytics as active in sidebar
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.href.includes('analytics/revenue')) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Refresh revenue button
+            document.getElementById('refresh-revenue-btn').addEventListener('click', function() {
+                const originalText = this.innerHTML;
+                this.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2 inline text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Refreshing...';
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    alert('Revenue data refreshed successfully!');
+                }, 2000);
+            });
+            
+            // Optimize revenue streams button
+            document.querySelector('[class*="Optimize Revenue Streams"]').addEventListener('click', function() {
+                const originalText = this.textContent;
+                this.textContent = 'Optimizing...';
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    alert('Revenue optimization complete! Projected 12% increase in profit margin.');
+                }, 2000);
+            });
+            
+            // Adjust pricing button
+            document.querySelector('[class*="ONE BUTTON: Adjust Pricing"]').addEventListener('click', function() {
+                const originalText = this.textContent;
+                this.textContent = 'Adjusting pricing...';
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    alert('Pricing adjusted successfully! Tier 2 subscription increased by 10%.');
+                }, 2000);
+            });
+            
+            // Update tax settings button
+            document.querySelector('[class*="Update Tax Settings"]').addEventListener('click', function() {
+                const originalText = this.textContent;
+                this.textContent = 'Updating...';
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    alert('Tax settings updated successfully!');
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>

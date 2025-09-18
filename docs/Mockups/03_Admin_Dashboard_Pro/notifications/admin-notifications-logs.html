@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - Delivery Forensics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'admin-red': '#DC2626'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-tier1: linear-gradient(135deg, var(--brand-blue) 0%, #3B82F6 100%);
+            --gradient-tier2: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-admin: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        }
+        .btn-enhanced {
+            transition: all 300ms ease;
+        }
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+        }
+        .card-interactive {
+            transition: all 300ms ease;
+            cursor: pointer;
+        }
+        .card-interactive:hover {
+            transform: translateY(-4px);
+        }
+        .log-card {
+            transition: all 300ms ease;
+            border-left: 3px solid transparent;
+        }
+        .log-card:hover {
+            border-left-color: #DC2626;
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-active {
+            background-color: #10B981;
+        }
+        .status-warning {
+            background-color: #F59E0B;
+        }
+        .status-critical {
+            background-color: #EF4444;
+        }
+        .activity-item {
+            transition: all 200ms ease;
+        }
+        .activity-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .sidebar-item {
+            transition: all 200ms ease;
+        }
+        .sidebar-item:hover {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: #DC2626;
+        }
+        .sidebar-item.active {
+            background-color: rgba(220, 38, 38, 0.15);
+            color: #DC2626;
+            font-weight: 600;
+            border-left: 3px solid #DC2626;
+        }
+        .quick-action {
+            transition: all 300ms ease;
+        }
+        .quick-action:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.2);
+        }
+        .system-metric {
+            transition: all 200ms ease;
+        }
+        .system-metric:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .log-item {
+            transition: all 200ms ease;
+        }
+        .log-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .log-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .log-success {
+            background: #DCFCE7;
+            color: #166534;
+        }
+        .log-warning {
+            background: #FEF3C7;
+            color: #D97706;
+        }
+        .log-critical {
+            background: #FEE2E2;
+            color: #B91C1C;
+        }
+        .heatmap {
+            position: relative;
+            height: 200px;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        .heatmap-cell {
+            position: absolute;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 200ms ease;
+        }
+        .heatmap-cell:hover {
+            transform: scale(1.1);
+            z-index: 10;
+        }
+        .heatmap-level-1 { background-color: rgba(255, 255, 255, 0.1); }
+        .heatmap-level-2 { background-color: rgba(255, 255, 255, 0.3); }
+        .heatmap-level-3 { background-color: rgba(255, 255, 255, 0.5); }
+        .heatmap-level-4 { background-color: rgba(255, 255, 255, 0.7); }
+        .heatmap-level-5 { background-color: rgba(255, 255, 255, 0.9); }
+        .heatmap-level-1-dark { background-color: rgba(0, 0, 0, 0.1); }
+        .heatmap-level-2-dark { background-color: rgba(0, 0, 0, 0.3); }
+        .heatmap-level-3-dark { background-color: rgba(0, 0, 0, 0.5); }
+        .heatmap-level-4-dark { background-color: rgba(0, 0, 0, 0.7); }
+        .heatmap-level-5-dark { background-color: rgba(0, 0, 0, 0.9); }
+        .sentiment-meter {
+            position: relative;
+            width: 100%;
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            background-color: #E5E7EB;
+        }
+        .sentiment-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            border-radius: 6px;
+        }
+        .sentiment-positive {
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+            width: 75%;
+        }
+        .sentiment-neutral {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            width: 50%;
+        }
+        .sentiment-negative {
+            background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+            width: 25%;
+        }
+        .spam-meter {
+            position: relative;
+            width: 100%;
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            background-color: #E5E7EB;
+        }
+        .spam-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            border-radius: 6px;
+        }
+        .spam-low {
+            background-color: #10B981;
+            width: 25%;
+        }
+        .spam-medium {
+            background-color: #F59E0B;
+            width: 50%;
+        }
+        .spam-high {
+            background-color: #EF4444;
+            width: 75%;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <!-- Theme Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="document.documentElement.classList.toggle('dark')" 
+                class="p-2 rounded-full bg-jstar-blue text-white hover:bg-faith-purple transition-all duration-300"
+                aria-label="Toggle dark/light theme">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Admin Navigation -->
+    <div class="fixed top-0 left-0 h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <a href="/admin" class="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                J StaR Admin
+            </a>
+        </div>
+        
+        <div class="p-4">
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Platform Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="/admin/cms" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        CMS
+                    </a>
+                    <a href="/admin/johngpt" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                        JohnGPT
+                    </a>
+                    <a href="/admin/cge" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        CGE Tools
+                    </a>
+                    <a href="/admin/users" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        User Management
+                    </a>
+                    <a href="/admin/analytics" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Analytics
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Communication Tools
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin/notifications" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                        </svg>
+                        Notifications
+                    </a>
+                    <a href="/admin/notifications/templates" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.708.954 3.653.393 4.833-1.449 1.179-1.842 1.179-4.031 0-5.873a1.724 1.724 0 00-2.573-1.066c-1.708.954-3.653.393-4.833 1.449-1.179 1.842-1.179 4.031 0 5.873m-4.743-2.242A1.024 1.024 0 019 1.025v11a1.024 1.024 0 01-1.025 1.025H3.025A1.024 1.024 0 012 12.025V8.975c0-.565.46-1.025 1.025-1.025h3.95a1.024 1.024 0 011.025 1.025z"></path>
+                        </svg>
+                        Message Factory
+                    </a>
+                    <a href="/admin/notifications/scheduler" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Comms Calendar
+                    </a>
+                    <a href="/admin/notifications/logs" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Delivery Forensics
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center">
+                        <span class="text-white font-bold">JO</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Admin Access</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 p-6">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center mb-2">
+                        <a href="/admin/notifications" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Notifications</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <span class="text-gray-900 dark:text-white">Delivery Forensics</span>
+                    </div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
+                        Delivery Forensics
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">
+                        Monitor message delivery health and catch issues before they escalate
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced" id="refresh-logs-btn">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        Refresh Logs
+                    </button>
+                    <div class="relative">
+                        <input type="text" placeholder="Search logs..." 
+                               class="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                        <svg class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+        <!-- System Status -->
+        <section class="mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Delivery System Status</h2>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">
+                            Current notification delivery status and health metrics
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Email Service Active</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">WhatsApp API Active</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Spam Monitoring Active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Stats -->
+        <section class="mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-admin-red mb-2">98.7%</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Email Delivery Rate</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-purple-500 mb-2">92.3%</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">WhatsApp Delivery Rate</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-green-500 mb-2">0.2%</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Spam Complaint Rate</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-red-500 mb-2">100%</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Blacklist Free</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Analytics Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - Email Analytics -->
+            <div class="space-y-6">
+                <!-- Email Open/Click Heatmaps -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Email Engagement Heatmaps</h2>
+                    <div class="space-y-5">
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">Open Rate by Time of Day</div>
+                            <div class="heatmap relative">
+                                <!-- Heatmap will be generated via JS -->
+                                <div class="heatmap-cell" style="top: 0; left: 0; width: 14.2%; height: 25%; background-color: rgba(0, 0, 0, 0.1);"></div>
+                                <div class="heatmap-cell" style="top: 0; left: 14.2%; width: 14.2%; height: 25%; background-color: rgba(0, 0, 0, 0.3);"></div>
+                                <div class="heatmap-cell" style="top: 0; left: 28.4%; width: 14.2%; height: 25%; background-color: rgba(0, 0, 0, 0.5);"></div>
+                                <div class="heatmap-cell" style="top: 0; left: 42.6%; width: 14.2%; height: 25%; background-color: rgba(0, 0, 0, 0.7);"></div>
+                                <div class="heatmap-cell" style="top: 0; left: 56.8%; width: 14.2%; height: 25%; background-color: rgba(0, 0, 0, 0.9);"></div>
+                                <div class="heatmap-cell" style="top: 0; left: 71%; width: 14.2%; height: 25%; background-color: rgba(0, 0, 0, 0.5);"></div>
+                                <div class="heatmap-cell" style="top: 0; left: 85.2%; width: 14.2%; height: 25%; background-color: rgba(0, 0, 0, 0.3);"></div>
+                                
+                                <div class="heatmap-cell" style="top: 25%; left: 0; width: 14.2%; height: 25%; background-color: rgba(0, 0, 0, 0.3);"></div>
+                                <div class="heatmap-cell" style="top: 25%; left: 14.2%; width: 14.2%; height: 25%; background-color: rgba(0, 0, 0, 0.5);"></div>
+                                <div class="heatmap-cell" style="top: 25%; left: 28.4%; width: 14.2%; height: 25%; background-color: rgba(0, 0, 0, 0.7);"></div>
+                                <div class="heatmap-cell" style="top: 25%; left: 42.6%; width: 14.2%; height: 25%; background-color: rgba(0, 0, 0, 0.9);"></div>
+                                <div class="heatmap-cell" style="top: 25%; left: 56.8%; width: 14.2%; height: 25%; background-color: rgba(0, 0, 0, 0.7);"></div>
+                                <div class="heatmap-cell" style="top: 25%; left: 71%; width: 14.2%; height: 25%; background-color: rgba(0, 0, 0, 0.5);"></div>
+                                <div class="heatmap-cell" style="top: 25%; left: 85.2%; width: 14.2%; height: 25%; background-color: rgba(0, 0, 0, 0.3);"></div>
+                                
+                                <div class="heatmap-cell" style="top: 50%; left: 0; width: 14.2%; height: 25%; background-color: rgba(0, 0, 0, 0.5);"></div>
+                                <div class="heatmap-cell" style="top: 50%; left: 14.2%; width: 14.2%; height: 25%; background-color: rgba(0, 0, 0, 0.7);"></div>
+                                <div class="heatmap-cell" style="top: 50%; left: 28.4%; width: 14.2%; height: 25%; background-color: rgba(0, 0, 0, 0.9);"></div>
+                                <div class="heatmap-cell" style="top: 50%; left: 42.6%; width: 14.2%; height: 25%; background-color: rgba(0, 0, 0, 0.7);"></div>
+                                <div class="heatmap-cell" style="top: 50%; left: 56.8%; width: 14.2%; height: 25%; background-color: rgba(0, 0, 0, 0.5);"></div>
+                                <div class="heatmap-cell" style="top: 50%; left: 71%; width: 14.2%; height: 25%; background-color: rgba(0, 0, 0, 0.3);"></div>
+                                <div class="heatmap-cell" style="top: 50%; left: 85.2%; width: 14.2%; height: 25%; background-color: rgba(0, 0, 0, 0.1);"></div>
+                                
+                                <div class="heatmap-cell" style="top: 75%; left: 0; width: 14.2%; height: 25%; background-color: rgba(0, 0, 0, 0.3);"></div>
+                                <div class="heatmap-cell" style="top: 75%; left: 14.2%; width: 14.2%; height: 25%; background-color: rgba(0, 0, 0, 0.5);"></div>
+                                <div class="heatmap-cell" style="top: 75%; left: 28.4%; width: 14.2%; height: 25%; background-color: rgba(0, 0, 0, 0.7);"></div>
+                                <div class="heatmap-cell" style="top: 75%; left: 42.6%; width: 14.2%; height: 25%; background-color: rgba(0, 0, 0, 0.9);"></div>
+                                <div class="heatmap-cell" style="top: 75%; left: 56.8%; width: 14.2%; height: 25%; background-color: rgba(0, 0, 0, 0.7);"></div>
+                                <div class="heatmap-cell" style="top: 75%; left: 71%; width: 14.2%; height: 25%; background-color: rgba(0, 0, 0, 0.5);"></div>
+                                <div class="heatmap-cell" style="top: 75%; left: 85.2%; width: 14.2%; height: 25%; background-color: rgba(0, 0, 0, 0.3);"></div>
+                                
+                                <!-- Time labels -->
+                                <div class="absolute bottom-1 left-0 text-xs text-gray-500">12 AM</div>
+                                <div class="absolute bottom-1 left-14.2%" style="left: 14.2%;">4 AM</div>
+                                <div class="absolute bottom-1 left-28.4%" style="left: 28.4%;">8 AM</div>
+                                <div class="absolute bottom-1 left-42.6%" style="left: 42.6%;">12 PM</div>
+                                <div class="absolute bottom-1 left-56.8%" style="left: 56.8%;">4 PM</div>
+                                <div class="absolute bottom-1 left-71%" style="left: 71%;">8 PM</div>
+                                <div class="absolute bottom-1 left-85.2%" style="left: 85.2%;">12 AM</div>
+                                
+                                <!-- Day labels -->
+                                <div class="absolute top-0 left-1 text-xs text-gray-500">Mon</div>
+                                <div class="absolute top-25% left-1 text-xs text-gray-500">Wed</div>
+                                <div class="absolute top-50% left-1 text-xs text-gray-500">Fri</div>
+                                <div class="absolute top-75% left-1 text-xs text-gray-500">Sun</div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Insight:</strong> Highest engagement between 9 AM - 2 PM on weekdays. 
+                                Avoid sending emails on Sundays after 6 PM.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Email Delivery Logs -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Recent Email Logs</h2>
+                    <div class="space-y-3">
+                        <div class="log-item p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Welcome Email</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">12:30 PM • 247 opens</div>
+                                </div>
+                                <span class="log-badge log-success">99.7% delivered</span>
+                            </div>
+                        </div>
+                        <div class="log-item p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Course Reminder</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">10:15 AM • 183 opens</div>
+                                </div>
+                                <span class="log-badge log-success">98.2% delivered</span>
+                            </div>
+                        </div>
+                        <div class="log-item p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Lead Magnet</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">8:45 AM • 156 opens</div>
+                                </div>
+                                <span class="log-badge log-warning">95.8% delivered</span>
+                            </div>
+                        </div>
+                        <div class="log-item p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Faith Inspiration</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">7:30 PM • 87 opens</div>
+                                </div>
+                                <span class="log-badge log-critical">87.3% delivered</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Middle Column - WhatsApp & Spam -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- WhatsApp Delivery Status -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">WhatsApp Delivery Status</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Delivery Success Rate</div>
+                            <div class="grid grid-cols-3 gap-4 mb-6">
+                                <div class="text-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="text-2xl font-bold text-gray-900 dark:text-white">92.3%</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Overall</div>
+                                </div>
+                                <div class="text-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="text-2xl font-bold text-gray-900 dark:text-white">94.7%</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Template</div>
+                                </div>
+                                <div class="text-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="text-2xl font-bold text-gray-900 dark:text-white">89.2%</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Session</div>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm text-gray-600 dark:text-gray-400">Delivered</span>
+                                        <span class="text-sm font-medium">92.3%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                        <div class="bg-admin-red h-2 rounded-full" style="width: 92.3%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm text-gray-600 dark:text-gray-400">Read</span>
+                                        <span class="text-sm font-medium">76.8%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                        <div class="bg-admin-red h-2 rounded-full" style="width: 76.8%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm text-gray-600 dark:text-gray-400">Failed</span>
+                                        <span class="text-sm font-medium">7.7%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                        <div class="bg-gray-400 h-2 rounded-full" style="width: 7.7%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Failed Delivery Reasons</div>
+                            <div class="space-y-3">
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <div class="font-medium text-gray-900 dark:text-white">Phone Number Invalid</div>
+                                        <span class="text-xs bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-200 px-2 py-1 rounded">
+                                            42%
+                                        </span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                        <div class="bg-admin-red h-2 rounded-full" style="width: 42%"></div>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <div class="font-medium text-gray-900 dark:text-white">Opted Out</div>
+                                        <span class="text-xs bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-200 px-2 py-1 rounded">
+                                            31%
+                                        </span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                        <div class="bg-admin-red h-2 rounded-full" style="width: 31%"></div>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <div class="font-medium text-gray-900 dark:text-white">Template Rejected</div>
+                                        <span class="text-xs bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-200 px-2 py-1 rounded">
+                                            18%
+                                        </span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                        <div class="bg-admin-red h-2 rounded-full" style="width: 18%"></div>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <div class="font-medium text-gray-900 dark:text-white">Other</div>
+                                        <span class="text-xs bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-200 px-2 py-1 rounded">
+                                            9%
+                                        </span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                        <div class="bg-admin-red h-2 rounded-full" style="width: 9%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Spam Complaint Tracker -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Spam Complaint Tracker</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">Spam Complaint Rate</div>
+                            <div class="text-2xl font-bold text-gray-900 dark:text-white mb-2">0.2%</div>
+                            <div class="spam-meter mt-1">
+                                <div class="spam-fill spam-low"></div>
+                            </div>
+                            <div class="mt-4 grid grid-cols-2 gap-4">
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900 dark:text-white mb-1">Industry Avg</div>
+                                    <div class="text-2xl font-bold text-gray-900 dark:text-white">0.1%</div>
+                                </div>
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900 dark:text-white mb-1">Your Best</div>
+                                    <div class="text-2xl font-bold text-gray-900 dark:text-white">0.15%</div>
+                                </div>
+                            </div>
+                            <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                    <strong>Alert:</strong> Rate is slightly above industry average. 
+                                    Monitor for any sudden increases.
+                                </p>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Recent Complaints</div>
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">user12345@example.com</span>
+                                    <span class="text-xs bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-200 px-2 py-1 rounded">
+                                        2h ago
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">j.smith@example.com</span>
+                                    <span class="text-xs bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-200 px-2 py-1 rounded">
+                                        6h ago
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">s.mitchell@example.com</span>
+                                    <span class="text-xs bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-200 px-2 py-1 rounded">
+                                        12h ago
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">k.jones@example.com</span>
+                                    <span class="text-xs bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-200 px-2 py-1 rounded">
+                                        18h ago
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Sentiment & Emergency -->
+            <div class="space-y-6">
+                <!-- Message Sentiment Analyzer -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Message Sentiment Analysis</h2>
+                    <div class="space-y-5">
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">Overall Message Sentiment</div>
+                            <div class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Positive</div>
+                            <div class="sentiment-meter mt-1">
+                                <div class="sentiment-fill sentiment-positive"></div>
+                            </div>
+                            <div class="mt-4 grid grid-cols-3 gap-2">
+                                <div class="text-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="text-lg font-bold text-green-600">68%</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">Positive</div>
+                                </div>
+                                <div class="text-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="text-lg font-bold text-yellow-600">25%</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">Neutral</div>
+                                </div>
+                                <div class="text-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="text-lg font-bold text-red-600">7%</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">Negative</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Negative Feedback Themes</div>
+                            <div class="space-y-3">
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm text-gray-600 dark:text-gray-400">Too frequent</span>
+                                        <span class="text-sm font-medium">42%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                        <div class="bg-admin-red h-2 rounded-full" style="width: 42%"></div>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm text-gray-600 dark:text-gray-400">Not relevant</span>
+                                        <span class="text-sm font-medium">35%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                        <div class="bg-admin-red h-2 rounded-full" style="width: 35%"></div>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm text-gray-600 dark:text-gray-400">Too religious</span>
+                                        <span class="text-sm font-medium">15%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                        <div class="bg-admin-red h-2 rounded-full" style="width: 15%"></div>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm text-gray-600 dark:text-gray-400">Other</span>
+                                        <span class="text-sm font-medium">8%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                        <div class="bg-admin-red h-2 rounded-full" style="width: 8%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Recommendation:</strong> Reduce frequency for users who opened 
+                                less than 25% of messages in the last 30 days.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Blacklist Monitoring -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Blacklist Monitoring</h2>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">Current Blacklist Status</div>
+                            <div class="flex items-center space-x-2 mb-3">
+                                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                                <span class="text-sm text-gray-700 dark:text-gray-300">Not blacklisted on any major providers</span>
+                            </div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">
+                                Last checked: 15 minutes ago
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">Monitored Providers</div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">Gmail</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">Yahoo</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">Outlook</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">Apple Mail</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">Risk Factors</div>
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">Spam complaints</span>
+                                    <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                        Low
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">Bounce rate</span>
+                                    <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                        Low
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">Engagement rate</span>
+                                    <span class="text-xs bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-200 px-2 py-1 rounded">
+                                        Medium
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">Content quality</span>
+                                    <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                        High
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium">
+                            Run Full Blacklist Check
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Emergency Panel -->
+                <div class="bg-red-50 dark:bg-red-900/20 rounded-2xl p-6 shadow-lg border border-red-200 dark:border-red-800">
+                    <h2 class="text-xl font-bold text-red-900 dark:text-red-100 mb-4">Delivery Emergency Tools</h2>
+                    <div class="space-y-3">
+                        <p class="text-sm text-red-800 dark:text-red-200">
+                            Critical functions for immediate delivery issue resolution.
+                        </p>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                            ONE BUTTON: Pause All Campaigns
+                        </button>
+                        <div class="flex space-x-2">
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Emergency Review
+                            </button>
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Block Sender
+                            </button>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                            Send Report to Team
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-apply theme
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Initialize sidebar active state
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set delivery forensics as active in sidebar
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.href.includes('notifications/logs')) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Refresh logs button
+            document.getElementById('refresh-logs-btn').addEventListener('click', function() {
+                const originalText = this.innerHTML;
+                this.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2 inline text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Refreshing...';
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    alert('Delivery logs refreshed successfully!');
+                }, 2000);
+            });
+            
+            // Run full blacklist check button
+            document.querySelector('[class*="Run Full Blacklist Check"]').addEventListener('click', function() {
+                const originalText = this.textContent;
+                this.textContent = 'Checking...';
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    alert('Blacklist check completed! No issues detected.');
+                }, 2000);
+            });
+            
+            // Pause all campaigns button
+            document.querySelector('[class*="ONE BUTTON: Pause All Campaigns"]').addEventListener('click', function() {
+                const originalText = this.textContent;
+                this.textContent = 'Pausing campaigns...';
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    alert('All campaigns successfully paused! No messages will be sent until resumed.');
+                }, 2000);
+            });
+            
+            // Set up heatmap interactions
+            const heatmapCells = document.querySelectorAll('.heatmap-cell');
+            heatmapCells.forEach(cell => {
+                cell.addEventListener('mouseenter', function() {
+                    const rect = this.getBoundingClientRect();
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'fixed bg-gray-800 text-white text-xs px-2 py-1 rounded shadow-lg z-50';
+                    tooltip.style.left = `${rect.left + rect.width/2}px`;
+                    tooltip.style.top = `${rect.top - 30}px`;
+                    tooltip.style.transform = 'translateX(-50%)';
+                    tooltip.textContent = '42% open rate';
+                    document.body.appendChild(tooltip);
+                    
+                    this.tooltip = tooltip;
+                });
+                
+                cell.addEventListener('mouseleave', function() {
+                    if (this.tooltip) {
+                        document.body.removeChild(this.tooltip);
+                        this.tooltip = null;
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
