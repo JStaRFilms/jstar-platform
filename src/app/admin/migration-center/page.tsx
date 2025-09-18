@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { AdminSidebar } from '@/features/AdminDashboard/components/AdminSidebar';
 import { MigrationHeader } from '@/features/MigrationCenter/components/MigrationHeader';
 import { DatabaseStatus } from '@/features/MigrationCenter/components/DatabaseStatus';
 import { QuickStats } from '@/features/MigrationCenter/components/QuickStats';
@@ -17,54 +16,46 @@ import { EmergencyPanel } from '@/features/MigrationCenter/components/EmergencyP
  * Migration Center Page
  * Comprehensive database migration management interface
  * Allows running Prisma commands, switching databases, and managing migrations
+ * Now integrated with the new navigation pattern
  */
 export default function MigrationCenterPage() {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Sidebar */}
-      <AdminSidebar activeSection={['dashboard', 'migration-center']} />
+    <>
+      {/* Database Status */}
+      <DatabaseStatus />
 
-      {/* Main Content */}
-      <div className="ml-64 p-6">
-        {/* Header */}
-        <MigrationHeader />
+      {/* Quick Stats */}
+      <QuickStats />
 
-        {/* Database Status */}
-        <DatabaseStatus />
+      {/* Main Migration Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column - Migration Workflow */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Migration Workflow */}
+          <MigrationWorkflow />
 
-        {/* Quick Stats */}
-        <QuickStats />
+          {/* Schema Comparison */}
+          <SchemaComparison />
 
-        {/* Main Migration Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Migration Workflow */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Migration Workflow */}
-            <MigrationWorkflow />
+          {/* Migration History */}
+          <MigrationHistory />
+        </div>
 
-            {/* Schema Comparison */}
-            <SchemaComparison />
+        {/* Right Column - Configuration Panels */}
+        <div className="space-y-6">
+          {/* Current Configuration */}
+          <CurrentConfiguration />
 
-            {/* Migration History */}
-            <MigrationHistory />
-          </div>
+          {/* Target Configuration */}
+          <TargetConfiguration />
 
-          {/* Right Column - Configuration Panels */}
-          <div className="space-y-6">
-            {/* Current Configuration */}
-            <CurrentConfiguration />
+          {/* Hybrid Mode Configuration */}
+          <HybridModeConfig />
 
-            {/* Target Configuration */}
-            <TargetConfiguration />
-
-            {/* Hybrid Mode Configuration */}
-            <HybridModeConfig />
-
-            {/* Emergency Panel */}
-            <EmergencyPanel />
-          </div>
+          {/* Emergency Panel */}
+          <EmergencyPanel />
         </div>
       </div>
-    </div>
+    </>
   );
 }
