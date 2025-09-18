@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - Tax Compliance Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'admin-red': '#DC2626'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-tier1: linear-gradient(135deg, var(--brand-blue) 0%, #3B82F6 100%);
+            --gradient-tier2: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-admin: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        }
+        .btn-enhanced {
+            transition: all 300ms ease;
+        }
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+        }
+        .card-interactive {
+            transition: all 300ms ease;
+            cursor: pointer;
+        }
+        .card-interactive:hover {
+            transform: translateY(-4px);
+        }
+        .tax-card {
+            transition: all 300ms ease;
+            border-left: 3px solid transparent;
+        }
+        .tax-card:hover {
+            border-left-color: #DC2626;
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-active {
+            background-color: #10B981;
+        }
+        .status-warning {
+            background-color: #F59E0B;
+        }
+        .status-critical {
+            background-color: #EF4444;
+        }
+        .activity-item {
+            transition: all 200ms ease;
+        }
+        .activity-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .sidebar-item {
+            transition: all 200ms ease;
+        }
+        .sidebar-item:hover {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: #DC2626;
+        }
+        .sidebar-item.active {
+            background-color: rgba(220, 38, 38, 0.15);
+            color: #DC2626;
+            font-weight: 600;
+            border-left: 3px solid #DC2626;
+        }
+        .quick-action {
+            transition: all 300ms ease;
+        }
+        .quick-action:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.2);
+        }
+        .system-metric {
+            transition: all 200ms ease;
+        }
+        .system-metric:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .tax-item {
+            transition: all 200ms ease;
+        }
+        .tax-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .tax-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .tax-active {
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+            color: white;
+        }
+        .tax-draft {
+            background: #E5E7EB;
+            color: #6B7280;
+        }
+        .tax-tiers {
+            padding: 0.15rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            background-color: #F3F4F6;
+            color: #4B5563;
+            margin-right: 0.25rem;
+        }
+        .tier-1 {
+            background-color: #DBEAFE;
+            color: #1D4ED8;
+        }
+        .tier-2 {
+            background-color: #F3F4F6;
+            color: #1F2937;
+        }
+        .tier-3 {
+            background-color: #FEF3C7;
+            color: #D97706;
+        }
+        .admin-tier {
+            background-color: #FEE2E2;
+            color: #B91C1C;
+        }
+        .naira-flag {
+            display: inline-block;
+            width: 20px;
+            height: 15px;
+            background: linear-gradient(to bottom, #008751 33%, white 33%, white 66%, #CE1126 66%);
+            border: 1px solid #ccc;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+        .tax-chart {
+            position: relative;
+            height: 200px;
+            width: 100%;
+        }
+        .tax-bar {
+            position: absolute;
+            bottom: 0;
+            width: 30px;
+            border-radius: 4px 4px 0 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding-bottom: 8px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.75rem;
+            transition: all 0.3s ease;
+        }
+        .tax-label {
+            position: absolute;
+            bottom: -25px;
+            width: 30px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #6B7280;
+            white-space: nowrap;
+        }
+        .compliance-meter {
+            position: relative;
+            width: 100%;
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            background-color: #E5E7EB;
+        }
+        .compliance-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            border-radius: 6px;
+        }
+        .compliance-low {
+            background-color: #EF4444;
+            width: 25%;
+        }
+        .compliance-medium {
+            background-color: #F59E0B;
+            width: 50%;
+        }
+        .compliance-high {
+            background-color: #10B981;
+            width: 95%;
+        }
+        .region-marker {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #DC2626;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            transition: all 200ms ease;
+        }
+        .region-marker:hover {
+            transform: translate(-50%, -50%) scale(1.5);
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.3);
+        }
+        .region-tooltip {
+            position: absolute;
+            background-color: #1F2937;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 200ms ease;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .region-marker:hover + .region-tooltip {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <!-- Theme Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="document.documentElement.classList.toggle('dark')" 
+                class="p-2 rounded-full bg-jstar-blue text-white hover:bg-faith-purple transition-all duration-300"
+                aria-label="Toggle dark/light theme">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Admin Navigation -->
+    <div class="fixed top-0 left-0 h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <a href="/admin" class="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                J StaR Admin
+            </a>
+        </div>
+        
+        <div class="p-4">
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Platform Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="/admin/cms" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        CMS
+                    </a>
+                    <a href="/admin/johngpt" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                        JohnGPT
+                    </a>
+                    <a href="/admin/cge" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        CGE Tools
+                    </a>
+                    <a href="/admin/users" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        User Management
+                    </a>
+                    <a href="/admin/analytics" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Analytics
+                    </a>
+                    <a href="/admin/payments" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                        </svg>
+                        Payments
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Payment Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin/payments/transactions" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M12 12c1.11 0 2.08.402 2.599 1M12 7.5V6.6M12 18h0"></path>
+                        </svg>
+                        Transactions
+                    </a>
+                    <a href="/admin/payments/subscriptions" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        Subscriptions
+                    </a>
+                    <a href="/admin/payments/gateways" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z"></path>
+                        </svg>
+                        Payment Gateways
+                    </a>
+                    <a href="/admin/payments/disputes" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        Dispute Management
+                    </a>
+                    <a href="/admin/payments/pricing" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M12 12c1.11 0 2.08.402 2.599 1M12 7.5V6.6M12 18h0"></path>
+                        </svg>
+                        Pricing Plans
+                    </a>
+                    <a href="/admin/payments/taxes" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M12 12c1.11 0 2.08.402 2.599 1M12 7.5V6.6M12 18h0"></path>
+                        </svg>
+                        Tax Compliance
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center">
+                        <span class="text-white font-bold">JO</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Admin Access</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 p-6">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center mb-2">
+                        <a href="/admin/payments" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Payments</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <span class="text-gray-900 dark:text-white">Tax Compliance</span>
+                    </div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
+                        Tax Compliance Engine
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">
+                        Avoid accidental violation of Lagos tax laws with automated compliance
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced" id="refresh-taxes-btn">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        Refresh Data
+                    </button>
+                    <div class="relative">
+                        <input type="text" placeholder="Search tax rules..." 
+                               class="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                        <svg class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+        <!-- System Status -->
+        <section class="mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Tax Compliance System Status</h2>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">
+                            Current tax compliance system status and data freshness
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Tax Rules Updated</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Nigerian Laws Synced</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Receipt Generator Active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Stats -->
+        <section class="mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-admin-red mb-2">99.8%</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Compliance Rate</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-purple-500 mb-2">NGN 1,242,422</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Tax Collected (YTD)</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-green-500 mb-2">42</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Nigerian Regions</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-red-500 mb-2">0</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Tax Violations</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Tax Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - VAT/GST Calculator -->
+            <div class="space-y-6">
+                <!-- Automated VAT/GST Calculator -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Automated VAT/GST Calculator</h2>
+                    <div class="space-y-5">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Tax Calculation</div>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">Base Amount</span>
+                                    <span class="text-sm font-medium">NGN 49,999</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">VAT Rate (Lagos)</span>
+                                    <span class="text-sm font-medium">7.5%</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">VAT Amount</span>
+                                    <span class="text-sm font-medium">NGN 3,749.93</span>
+                                </div>
+                                <div class="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-600">
+                                    <span class="text-sm font-medium text-gray-900 dark:text-white">Total Amount</span>
+                                    <span class="text-lg font-bold text-admin-red">NGN 53,748.93</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Tax Rate Distribution</div>
+                            <div class="space-y-2">
+                                <div class="flex items-center">
+                                    <div class="w-20 text-sm text-gray-600 dark:text-gray-400">Lagos</div>
+                                    <div class="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mx-2">
+                                        <div class="bg-admin-red h-2 rounded-full" style="width: 7.5%"></div>
+                                    </div>
+                                    <span class="text-sm font-medium">7.5%</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-20 text-sm text-gray-600 dark:text-gray-400">Federal</div>
+                                    <div class="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mx-2">
+                                        <div class="bg-admin-red h-2 rounded-full" style="width: 5%"></div>
+                                    </div>
+                                    <span class="text-sm font-medium">5.0%</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-20 text-sm text-gray-600 dark:text-gray-400">Other States</div>
+                                    <div class="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mx-2">
+                                        <div class="bg-admin-red h-2 rounded-full" style="width: 6.5%"></div>
+                                    </div>
+                                    <span class="text-sm font-medium">6.5%</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-20 text-sm text-gray-600 dark:text-gray-400">Export</div>
+                                    <div class="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mx-2">
+                                        <div class="bg-admin-red h-2 rounded-full" style="width: 0%"></div>
+                                    </div>
+                                    <span class="text-sm font-medium">0.0%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Insight:</strong> Lagos state VAT rate is 7.5% (5% federal + 2.5% state). 
+                                Export transactions are VAT exempt.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Nigerian Tax Law Updater -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">"Nigerian Tax Law" Updater</h2>
+                    <div class="space-y-4">
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-center mb-2">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">VAT Act Amendment</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">Effective: July 1, 2023</div>
+                                </div>
+                                <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                    Active
+                                </span>
+                            </div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">
+                                Updated VAT rate for digital services to 7.5% (5% federal + 2.5% state)
+                            </div>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-center mb-2">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Income Tax Update</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">Effective: January 1, 2023</div>
+                                </div>
+                                <span class="text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                    Active
+                                </span>
+                            </div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">
+                                Updated personal income tax rates for digital service providers
+                            </div>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-center mb-2">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Lagos State Update</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">Effective: March 15, 2023</div>
+                                </div>
+                                <span class="text-xs bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-200 px-2 py-1 rounded">
+                                    Review
+                                </span>
+                            </div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">
+                                New regulation for digital service tax collection (7.5% rate)
+                            </div>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-center mb-2">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Federal Inland Revenue Service</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">Effective: September 1, 2023</div>
+                                </div>
+                                <span class="text-xs bg-gray-100 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 px-2 py-1 rounded">
+                                    Draft
+                                </span>
+                            </div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">
+                                Proposed amendment to VAT Act for e-commerce transactions
+                            </div>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium">
+                            Check for Updates
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Middle Column - Tax Jurisdiction Mapper -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Tax Jurisdiction Mapper -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Tax Jurisdiction Mapper</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Nigeria Tax Map</div>
+                            <div class="relative" style="height: 300px; background: #F0F9FF; border-radius: 12px; overflow: hidden;">
+                                <!-- Nigeria map outline -->
+                                <svg class="absolute inset-0 w-full h-full" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid meet">
+                                    <!-- Main Nigeria shape -->
+                                    <path d="M300,100 L500,100 L500,300 L300,300 Z" fill="#DBEAFE" stroke="#3B82F6" stroke-width="1" />
+                                    <!-- Lagos region -->
+                                    <path d="M450,250 L480,250 L480,280 L450,280 Z" fill="#BFDBFE" stroke="#1D4ED8" stroke-width="1" />
+                                    <!-- Abuja region -->
+                                    <path d="M350,150 L380,150 L380,180 L350,180 Z" fill="#BFDBFE" stroke="#1D4ED8" stroke-width="1" />
+                                    <!-- Rivers region -->
+                                    <path d="M420,270 L450,270 L450,300 L420,300 Z" fill="#BFDBFE" stroke="#1D4ED8" stroke-width="1" />
+                                    
+                                    <!-- State markers -->
+                                    <circle class="region-marker" cx="465" cy="265" r="6" fill="#DC2626" />
+                                    <div class="region-tooltip" style="left: 470px; top: 255px;">Lagos (7.5%)</div>
+                                    
+                                    <circle class="region-marker" cx="365" cy="165" r="6" fill="#DC2626" />
+                                    <div class="region-tooltip" style="left: 370px; top: 155px;">Abuja (7.5%)</div>
+                                    
+                                    <circle class="region-marker" cx="435" cy="285" r="6" fill="#DC2626" />
+                                    <div class="region-tooltip" style="left: 440px; top: 275px;">Rivers (7.5%)</div>
+                                    
+                                    <circle class="region-marker" cx="330" cy="220" r="6" fill="#DC2626" />
+                                    <div class="region-tooltip" style="left: 335px; top: 210px;">Oyo (7.5%)</div>
+                                    
+                                    <circle class="region-marker" cx="400" cy="200" r="6" fill="#DC2626" />
+                                    <div class="region-tooltip" style="left: 405px; top: 190px;">Kano (7.5%)</div>
+                                </svg>
+                                <!-- Map controls -->
+                                <div class="absolute top-4 right-4 bg-white dark:bg-gray-800 rounded-lg shadow p-2">
+                                    <div class="flex space-x-2">
+                                        <button class="p-1.5 rounded text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                                            </svg>
+                                        </button>
+                                        <button class="p-1.5 rounded text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 grid grid-cols-2 gap-3">
+                                <div class="text-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="text-lg font-bold text-gray-900 dark:text-white">7.5%</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Avg. VAT Rate</div>
+                                </div>
+                                <div class="text-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="text-lg font-bold text-gray-900 dark:text-white">42</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Regions Covered</div>
+                                </div>
+                                <div class="text-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="text-lg font-bold text-gray-900 dark:text-white">100%</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Nigeria Coverage</div>
+                                </div>
+                                <div class="text-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="text-lg font-bold text-gray-900 dark:text-white">0</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Compliance Issues</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Lagos State Tax Regulations</div>
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <div class="flex justify-between items-center mb-3">
+                                    <div>
+                                        <div class="font-medium text-gray-900 dark:text-white">Current VAT Rate</div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">Effective: July 1, 2023</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-bold text-gray-900 dark:text-white">7.5%</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">5% federal + 2.5% state</div>
+                                    </div>
+                                </div>
+                                <div class="space-y-2 mb-4">
+                                    <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">Digital Services</div>
+                                        <span class="text-sm bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                            Taxable
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">Export Transactions</div>
+                                        <span class="text-sm bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-200 px-2 py-1 rounded">
+                                            Exempt
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">Threshold Amount</div>
+                                        <span class="text-sm font-medium">NGN 25,000</span>
+                                    </div>
+                                </div>
+                                <div class="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                    <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                        <strong>Important:</strong> All digital services with Nigerian customers must collect VAT at 7.5% if transaction value exceeds NGN 25,000.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                    <strong>Insight:</strong> Lagos State Revenue Service updated VAT regulations for digital services on July 1, 2023. 
+                                    Ensure all transactions with Nigerian customers are properly taxed.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tax Compliance Overview -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Tax Compliance Overview</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Compliance Metrics</div>
+                            <div class="space-y-4">
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <div class="font-medium text-gray-900 dark:text-white">Compliance Rate</div>
+                                        <span class="text-sm bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                            99.8%
+                                        </span>
+                                    </div>
+                                    <div class="compliance-meter mt-1">
+                                        <div class="compliance-fill compliance-high" style="width: 99.8%"></div>
+                                    </div>
+                                    <div class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                                        0 tax violations detected in the last 90 days
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <div class="font-medium text-gray-900 dark:text-white">Tax Filing Status</div>
+                                        <span class="text-sm bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                            On Time
+                                        </span>
+                                    </div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                                        Next filing due: October 15, 2023
+                                    </div>
+                                    <div class="mt-2 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                        <div class="bg-admin-red h-2 rounded-full" style="width: 75%"></div>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <div class="font-medium text-gray-900 dark:text-white">Tax Payment Status</div>
+                                        <span class="text-sm bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                            Paid
+                                        </span>
+                                    </div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                                        Last payment: September 10, 2023 (NGN 124,242)
+                                    </div>
+                                    <div class="mt-2 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                        <div class="bg-admin-red h-2 rounded-full" style="width: 100%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Tax Revenue Breakdown</div>
+                            <div class="tax-chart relative">
+                                <!-- Tax Revenue Breakdown -->
+                                <div class="tax-bar" style="left: 20px; height: 150px; background-color: #DC2626;">
+                                    <div class="font-bold">NGN 742K</div>
+                                </div>
+                                <div class="tax-bar" style="left: 60px; height: 100px; background-color: #DC2626;">
+                                    <div class="font-bold">NGN 324K</div>
+                                </div>
+                                <div class="tax-bar" style="left: 100px; height: 180px; background-color: #DC2626;">
+                                    <div class="font-bold">NGN 176K</div>
+                                </div>
+                                <div class="tax-bar" style="left: 140px; height: 120px; background-color: #DC2626;">
+                                    <div class="font-bold">NGN 98K</div>
+                                </div>
+                                
+                                <div class="absolute bottom-0 left-20 text-xs text-gray-500 dark:text-gray-400">Q1</div>
+                                <div class="absolute bottom-0 left-60 text-xs text-gray-500 dark:text-gray-400">Q2</div>
+                                <div class="absolute bottom-0 left-100 text-xs text-gray-500 dark:text-gray-400">Q3</div>
+                                <div class="absolute bottom-0 left-140 text-xs text-gray-500 dark:text-gray-400">Q4</div>
+                            </div>
+                            <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                    <strong>Insight:</strong> Q3 revenue is lower due to seasonal subscription patterns. 
+                                    Consider timing marketing campaigns to boost Q4 revenue.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Receipt Generator -->
+            <div class="space-y-6">
+                <!-- Receipt Generator -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Receipt Generator</h2>
+                    <div class="space-y-5">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Receipt Preview</div>
+                            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-4">
+                                <div class="flex justify-between items-start mb-4">
+                                    <div>
+                                        <div class="font-bold text-gray-900 dark:text-white">J StaR Films</div>
+                                        <div class="text-sm text-gray-600 dark:text-gray-400">Tax ID: NG-LIRS-123456789</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-bold text-gray-900 dark:text-white">Receipt #2023-08-15-001</div>
+                                        <div class="text-sm text-gray-600 dark:text-gray-400">Aug 15, 2023</div>
+                                    </div>
+                                </div>
+                                <div class="border-t border-b py-3 my-3">
+                                    <div class="flex justify-between mb-2">
+                                        <span class="text-gray-600 dark:text-gray-400">JohnGPT Tier 2</span>
+                                        <span>NGN 29,999.00</span>
+                                    </div>
+                                    <div class="flex justify-between mb-2">
+                                        <span class="text-gray-600 dark:text-gray-400">VAT (7.5%)</span>
+                                        <span>NGN 2,249.93</span>
+                                    </div>
+                                    <div class="flex justify-between font-bold mt-2 pt-2 border-t">
+                                        <span>Total</span>
+                                        <span>NGN 32,248.93</span>
+                                    </div>
+                                </div>
+                                <div class="text-sm text-gray-600 dark:text-gray-400">
+                                    Lagos State VAT ID: NG-LIRS-123456789<br>
+                                    This receipt complies with Lagos State Revenue Service regulations
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Receipt Settings</div>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900 dark:text-white">Include VAT ID</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Required for Lagos transactions</div>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" checked class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900 dark:text-white">Lagos Compliance</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Required for Nigerian customers</div>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" checked class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900 dark:text-white">Auto-Generate</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">For all completed transactions</div>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" checked class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Insight:</strong> All receipts for Nigerian customers must include Lagos State VAT ID and comply with LIRS regulations.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Priority Actions -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Priority Actions</h2>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">#1 Priority: Lagos Tax Compliance</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                Verify all Nigerian transactions are properly taxed at 7.5%
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="flex-1 px-3 py-1 bg-admin-red text-white rounded text-xs hover:bg-red-700">
+                                    Verify Transactions
+                                </button>
+                                <button class="flex-1 px-3 py-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded text-xs hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">#2 Priority: Tax Filing</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                Prepare quarterly tax filing for Lagos State Revenue Service
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="flex-1 px-3 py-1 bg-admin-red text-white rounded text-xs hover:bg-red-700">
+                                    Generate Report
+                                </button>
+                                <button class="flex-1 px-3 py-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded text-xs hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">#3 Priority: Tax Law Update</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                Review proposed VAT Act amendment for e-commerce transactions
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="flex-1 px-3 py-1 bg-admin-red text-white rounded text-xs hover:bg-red-700">
+                                    Review Update
+                                </button>
+                                <button class="flex-1 px-3 py-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded text-xs hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium">
+                            Generate Tax Compliance Report
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Emergency Panel -->
+                <div class="bg-red-50 dark:bg-red-900/20 rounded-2xl p-6 shadow-lg border border-red-200 dark:border-red-800">
+                    <h2 class="text-xl font-bold text-red-900 dark:text-red-100 mb-4">Tax Emergency Tools</h2>
+                    <div class="space-y-3">
+                        <p class="text-sm text-red-800 dark:text-red-200">
+                            Critical functions for immediate tax compliance management.
+                        </p>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+                            ONE BUTTON: Avoid Lagos Tax Violation
+                        </button>
+                        <div class="flex space-x-2">
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Emergency Audit
+                            </button>
+                            <button class="flex-1 px-4 py-2 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                                Compliance Check
+                            </button>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg font-medium">
+                            Send Report to Tax Advisor
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-apply theme
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Initialize sidebar active state
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set tax compliance as active in sidebar
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.href.includes('payments/taxes')) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Refresh taxes button
+            document.getElementById('refresh-taxes-btn').addEventListener('click', function() {
+                const originalText = this.innerHTML;
+                this.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2 inline text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Refreshing...';
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    alert('Tax compliance data refreshed successfully!');
+                }, 2000);
+            });
+            
+            // Generate tax compliance report button
+            document.querySelector('[class*="Generate Tax Compliance Report"]').addEventListener('click', function() {
+                const originalText = this.textContent;
+                this.textContent = 'Generating report...';
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    alert('Tax compliance report generated successfully! No violations detected.');
+                }, 2000);
+            });
+            
+            // Avoid Lagos tax violation button
+            document.querySelector('[class*="ONE BUTTON: Avoid Lagos Tax Violation"]').addEventListener('click', function() {
+                const originalText = this.textContent;
+                this.textContent = 'Fixing compliance...';
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    alert('Tax compliance verified! All Nigerian transactions properly taxed at 7.5% for Lagos.');
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>

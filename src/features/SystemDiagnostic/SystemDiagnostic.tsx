@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import AdminLayout from './components/AdminLayout';
 import SystemStatus from './components/SystemStatus';
 import HardwareProfiler from './components/HardwareProfiler';
@@ -11,23 +11,76 @@ import PerformanceBenchmarks from './components/PerformanceBenchmarks';
 import SystemRecommendations from './components/SystemRecommendations';
 import EmergencyTools from './components/EmergencyTools';
 
+// Cache configuration for diagnostics
+const DIAGNOSTICS_CACHE_KEY = 'system-diagnostics-cache';
+const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
+const REFRESH_INTERVAL = 60 * 1000; // 1 minute background refresh
+
+interface QuickStatsCache {
+  vramUsage: number;
+  aiResponseTime: number;
+  storageUsed: number;
+  performanceScore: number;
+  timestamp: number;
+}
+
 interface SystemDiagnosticProps {
   className?: string;
 }
 
 const SystemDiagnostic: React.FC<SystemDiagnosticProps> = ({ className = '' }) => {
-  const [runningDiagnostics, setRunningDiagnostics] = useState(false);
-  const [diagnosticRefreshTrigger, setDiagnosticRefreshTrigger] = useState(0);
-  const [quickStats, setQuickStats] = useState({
+  const [runningDiagnostics, setRunningDiagnostics] = useState<boolean>(false);
+  const [diagnosticRefreshTrigger, setDiagnosticRefreshTrigger] = useState<number>(0);
+  const [isLoadingStats, setIsLoadingStats] = useState<boolean>(true);
+  
+  // Initialize QuickStats with proper type
+  const [quickStats, setQuickStats] = useState<{
+    vramUsage: number;
+    aiResponseTime: number;
+    storageUsed: number;
+    performanceScore: number;
+  }>({
     vramUsage: 85,
     aiResponseTime: 1.2,
     storageUsed: 45.2,
     performanceScore: 4.8
   });
 
-  // Fetch quick stats data
-  const fetchQuickStats = async () => {
+  // Cache management functions
+  const saveStatsToCache = useCallback((stats: QuickStatsCache): void => {
     try {
+      localStorage.setItem(DIAGNOSTICS_CACHE_KEY, JSON.stringify(stats));
+    } catch (error: any) {
+      console.warn('Failed to save diagnostics cache:', error);
+    }
+  }, []);
+
+  const loadStatsFromCache = useCallback((): QuickStatsCache | null => {
+    try {
+      const cached = localStorage.getItem(DIAGNOSTICS_CACHE_KEY);
+      if (cached) {
+        const data: QuickStatsCache = JSON.parse(cached);
+        const now = Date.now();
+        // Check if cache is still valid
+        if (now - data.timestamp < CACHE_DURATION) {
+          return data;
+        } else {
+          // Cache expired, remove it
+          localStorage.removeItem(DIAGNOSTICS_CACHE_KEY);
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to load diagnostics cache:', error);
+      localStorage.removeItem(DIAGNOSTICS_CACHE_KEY); // Clean up corrupted cache
+    }
+    return null;
+  }, []);
+
+  // Fetch quick stats data with caching
+  const fetchQuickStats = useCallback(async (showLoading: boolean = true): Promise<boolean> => {
+    try {
+      if (showLoading) setIsLoadingStats(true);
+
       const response = await fetch('/api/admin/system-metrics');
       const data = await response.json();
 
@@ -50,26 +103,81 @@ const SystemDiagnostic: React.FC<SystemDiagnosticProps> = ({ className = '' }) =
         // Get storage used
         const storageUsed = metrics.disk.used;
 
-        setQuickStats({
+        const newStats = {
           vramUsage: Math.round(vramUsage),
           aiResponseTime,
           storageUsed,
           performanceScore: Math.max(0, Math.min(10, performanceScore))
-        });
+        };
+
+        setQuickStats(newStats);
+
+        // Cache the fresh data
+        const cacheData: QuickStatsCache = {
+          ...newStats,
+          timestamp: Date.now()
+        };
+        saveStatsToCache(cacheData);
+
+        return true;
       }
     } catch (error) {
       console.error('Error fetching quick stats:', error);
+    } finally {
+      if (showLoading) setIsLoadingStats(false);
     }
-  };
+    return false;
+  }, [saveStatsToCache]);
 
   useEffect(() => {
-    fetchQuickStats();
-    // Refresh quick stats every 30 seconds
-    const interval = setInterval(fetchQuickStats, 30000);
-    return () => clearInterval(interval);
-  }, []);
+    // Load from cache first (stale-while-revalidate)
+    const cachedStats = loadStatsFromCache();
 
-  const exportReport = async () => {
+    if (cachedStats) {
+      // Show cached data immediately
+      setQuickStats({
+        vramUsage: cachedStats.vramUsage,
+        aiResponseTime: cachedStats.aiResponseTime,
+        storageUsed: cachedStats.storageUsed,
+        performanceScore: cachedStats.performanceScore
+      });
+      setIsLoadingStats(false);
+
+      // Check cache age to determine refresh strategy
+      const cacheAge = Date.now() - cachedStats.timestamp;
+
+      if (cacheAge < 60000) { // < 1 minute - very fresh
+        // Schedule background refresh in 1 minute
+        const backgroundRefreshTimer = setTimeout(() => {
+          fetchQuickStats(false); // Background refresh, no loading state
+        }, REFRESH_INTERVAL);
+
+        return () => clearTimeout(backgroundRefreshTimer);
+      } else { // 1-30 minutes - stale but still valid
+        // Show cache immediately, refresh in background right now
+        fetchQuickStats(false); // Background refresh without loading state
+      }
+
+      // Set up ongoing background refresh interval
+      const interval = setInterval(() => {
+        fetchQuickStats(false); // Background refresh
+      }, REFRESH_INTERVAL);
+
+      return () => clearInterval(interval);
+    }
+
+    // No cache available - fetch fresh data
+    fetchQuickStats(true);
+
+    // Set up background refresh interval
+    const interval = setInterval(() => {
+      fetchQuickStats(false); // Background refresh
+    }, REFRESH_INTERVAL);
+
+    return () => clearInterval(interval);
+  }, [loadStatsFromCache, fetchQuickStats]);
+
+  const exportReport = async (): Promise<void> => {
     try {
       // Fetch current system metrics
       const metricsResponse = await fetch('/api/admin/system-metrics');
@@ -159,7 +267,7 @@ const SystemDiagnostic: React.FC<SystemDiagnosticProps> = ({ className = '' }) =
     }
   };
 
-  const runFullDiagnostics = async () => {
+  const runFullDiagnostics = async (): Promise<void> => {
     try {
       setRunningDiagnostics(true);
       const response = await fetch('/api/admin/diagnostics', {
@@ -242,24 +350,35 @@ const SystemDiagnostic: React.FC<SystemDiagnosticProps> = ({ className = '' }) =
 
           {/* Quick Stats */}
           <section className="mb-8">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-                <div className="text-2xl font-bold text-red-500 mb-2">{quickStats.vramUsage}%</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">VRAM Usage</div>
+            {isLoadingStats ? (
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                {[1, 2, 3, 4].map(i => (
+                  <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 animate-pulse">
+                    <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16 mb-2"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+                  </div>
+                ))}
               </div>
-              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-                <div className="text-2xl font-bold text-purple-500 mb-2">{quickStats.aiResponseTime}s</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">AI Response Time</div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                  <div className="text-2xl font-bold text-red-500 mb-2">{quickStats.vramUsage}%</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">VRAM Usage</div>
+                </div>
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                  <div className="text-2xl font-bold text-purple-500 mb-2">{quickStats.aiResponseTime}s</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">AI Response Time</div>
+                </div>
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                  <div className="text-2xl font-bold text-green-500 mb-2">{quickStats.storageUsed} GB</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Storage Used</div>
+                </div>
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                  <div className="text-2xl font-bold text-red-500 mb-2">{quickStats.performanceScore.toFixed(1)}/10</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Performance Score</div>
+                </div>
               </div>
-              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-                <div className="text-2xl font-bold text-green-500 mb-2">{quickStats.storageUsed} GB</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Storage Used</div>
-              </div>
-              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-                <div className="text-2xl font-bold text-red-500 mb-2">{quickStats.performanceScore.toFixed(1)}/10</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Performance Score</div>
-              </div>
-            </div>
+            )}
           </section>
 
           {/* Main Diagnostic Grid */}
