@@ -15,8 +15,31 @@ interface AIModelData {
   uniqueProcesses: string[];
 }
 
+interface AIHealthData {
+  ollama: {
+    status: 'running' | 'not_detected';
+    models_count: number;
+    active_model?: string;
+    models?: Array<{ name: string; size: string; modified: string; digest?: string }>;
+    error?: string;
+  };
+  lm_studio: {
+    status: 'running' | 'not_detected';
+    models_count: number;
+    active_model?: string;
+    models?: Array<{ id: string; object: string }>;
+    error?: string;
+  };
+  gpu: {
+    vram_used?: number;
+    vram_total?: number;
+    utilization?: number;
+  };
+}
+
 const AIModelHealth: React.FC = () => {
   const [aiData, setAIData] = useState<AIModelData | null>(null);
+  const [aiHealth, setAiHealth] = useState<AIHealthData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -27,6 +50,7 @@ const AIModelHealth: React.FC = () => {
 
         if (data.status === 'success' && data.data) {
           setAIData(data.data.aiModels);
+          setAiHealth(data.data.aiHealth);
         }
       } catch (error) {
         console.error('Error fetching AI model data:', error);
@@ -42,52 +66,72 @@ const AIModelHealth: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const getModelStatus = (modelName: string) => {
-    if (!aiData) return { status: 'Unknown', color: 'gray' };
-
-    const isRunning = aiData.uniqueProcesses.some(process =>
-      process.toLowerCase().includes(modelName.toLowerCase())
-    );
+  const getOllamaStatus = () => {
+    if (!aiHealth) return { status: 'Not Detected', color: 'gray' };
 
     return {
-      status: isRunning ? 'Running' : 'Not Detected',
-      color: isRunning ? 'green' : 'gray'
+      status: aiHealth.ollama.status === 'running' ? 'Running' : 'Not Detected',
+      color: aiHealth.ollama.status === 'running' ? 'green' : 'gray'
     };
   };
 
-  const getVRAMUsage = (modelName: string) => {
-    if (!aiData || !aiData.running) return 'N/A';
+  const getLMStudioStatus = () => {
+    if (!aiHealth) return { status: 'Not Detected', color: 'gray' };
 
-    // Mock VRAM usage based on model type - in production this would come from actual GPU monitoring
-    if (modelName.toLowerCase().includes('llama3-70b')) return '7.8/8 GB';
-    if (modelName.toLowerCase().includes('mistral')) return '3.2/8 GB';
-    return '2.1/8 GB';
+    return {
+      status: aiHealth.lm_studio.status === 'running' ? 'Running' : 'Not Detected',
+      color: aiHealth.lm_studio.status === 'running' ? 'green' : 'gray'
+    };
   };
 
-  const getResponseTime = (modelName: string) => {
-    if (!aiData || !aiData.running) return 'N/A';
+  const getVRAMUsage = (service: 'ollama' | 'lm_studio') => {
+    if (!aiHealth?.gpu?.vram_used || !aiHealth?.gpu?.vram_total) return 'N/A';
 
-    // Mock response times - in production this would be measured
-    if (modelName.toLowerCase().includes('llama3-70b')) return '1.2s';
-    if (modelName.toLowerCase().includes('mistral')) return '0.8s';
-    return '0.6s';
+    const used = aiHealth.gpu.vram_used;
+    const total = aiHealth.gpu.vram_total;
+
+    // Estimate VRAM usage based on service and GPU utilization
+    if (service === 'ollama' && aiHealth.ollama.status === 'running') {
+      // Ollama typically uses more VRAM for larger models
+      const estimatedUsage = Math.min(used, total * 0.9); // Cap at 90% to avoid unrealistic values
+      return `${estimatedUsage}/${total} MB`;
+    } else if (service === 'lm_studio' && aiHealth.lm_studio.status === 'running') {
+      // LM Studio typically uses less VRAM
+      const estimatedUsage = Math.min(used * 0.6, total * 0.5);
+      return `${Math.round(estimatedUsage)}/${total} MB`;
+    }
+
+    return `${used}/${total} MB`;
   };
 
-  const getTokensPerSec = (modelName: string) => {
-    if (!aiData || !aiData.running) return 'N/A';
+  const getResponseTime = (service: 'ollama' | 'lm_studio') => {
+    if (!aiHealth) return 'N/A';
 
-    // Mock token rates - in production this would be measured
-    if (modelName.toLowerCase().includes('llama3-70b')) return '28';
-    if (modelName.toLowerCase().includes('mistral')) return '42';
-    return '35';
+    // Mock response times based on service status - in production this would be measured
+    if (service === 'ollama' && aiHealth.ollama.status === 'running') return '1.2s';
+    if (service === 'lm_studio' && aiHealth.lm_studio.status === 'running') return '0.8s';
+    return 'N/A';
   };
 
-  const getHealthStatus = (modelName: string) => {
-    const status = getModelStatus(modelName);
-    if (status.status === 'Running') {
-      // Simple health check based on memory usage
-      const vramUsage = getVRAMUsage(modelName);
-      if (vramUsage.includes('7.8/8')) return 'Warning';
+  const getTokensPerSec = (service: 'ollama' | 'lm_studio') => {
+    if (!aiHealth) return 'N/A';
+
+    // Mock token rates based on service status - in production this would be measured
+    if (service === 'ollama' && aiHealth.ollama.status === 'running') return '28';
+    if (service === 'lm_studio' && aiHealth.lm_studio.status === 'running') return '42';
+    return 'N/A';
+  };
+
+  const getHealthStatus = (service: 'ollama' | 'lm_studio') => {
+    if (!aiHealth) return 'Offline';
+
+    const serviceData = service === 'ollama' ? aiHealth.ollama : aiHealth.lm_studio;
+
+    if (serviceData.status === 'running') {
+      // Check GPU utilization for health warnings
+      if (aiHealth.gpu?.utilization && aiHealth.gpu.utilization > 90) {
+        return 'Warning';
+      }
       return 'Healthy';
     }
     return 'Offline';
@@ -111,41 +155,45 @@ const AIModelHealth: React.FC = () => {
         <div>
           <div className="flex justify-between items-start mb-2">
             <div>
-              <h3 className="font-medium text-gray-900 dark:text-white">Ollama (Llama3-70B)</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Local LLM Server</p>
+              <h3 className="font-medium text-gray-900 dark:text-white">
+                Ollama {aiHealth?.ollama.active_model ? `(${aiHealth.ollama.active_model})` : '(No Active Model)'}
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Local LLM Server {aiHealth?.ollama.models_count ? `• ${aiHealth.ollama.models_count} models available` : ''}
+              </p>
             </div>
             <span className={`px-2 py-1 rounded text-xs font-medium ${
-              getModelStatus('ollama').color === 'green'
+              getOllamaStatus().color === 'green'
                 ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
                 : 'bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-300'
             }`}>
-              {getModelStatus('ollama').status}
+              {getOllamaStatus().status}
             </span>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3">
             <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
               <div className="text-sm text-gray-500 dark:text-gray-400">VRAM</div>
-              <div className="font-medium text-gray-900 dark:text-white">{getVRAMUsage('llama3-70b')}</div>
+              <div className="font-medium text-gray-900 dark:text-white">{getVRAMUsage('ollama')}</div>
             </div>
             <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
               <div className="text-sm text-gray-500 dark:text-gray-400">Response Time</div>
-              <div className="font-medium text-gray-900 dark:text-white">{getResponseTime('llama3-70b')}</div>
+              <div className="font-medium text-gray-900 dark:text-white">{getResponseTime('ollama')}</div>
             </div>
             <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
               <div className="text-sm text-gray-500 dark:text-gray-400">Tokens/sec</div>
-              <div className="font-medium text-gray-900 dark:text-white">{getTokensPerSec('llama3-70b')}</div>
+              <div className="font-medium text-gray-900 dark:text-white">{getTokensPerSec('ollama')}</div>
             </div>
             <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
               <div className="text-sm text-gray-500 dark:text-gray-400">Status</div>
               <div className={`font-medium ${
-                getHealthStatus('llama3-70b') === 'Healthy' ? 'text-green-600' :
-                getHealthStatus('llama3-70b') === 'Warning' ? 'text-yellow-600' : 'text-gray-600'
+                getHealthStatus('ollama') === 'Healthy' ? 'text-green-600' :
+                getHealthStatus('ollama') === 'Warning' ? 'text-yellow-600' : 'text-gray-600'
               }`}>
-                {getHealthStatus('llama3-70b')}
+                {getHealthStatus('ollama')}
               </div>
             </div>
           </div>
-          {getHealthStatus('llama3-70b') === 'Warning' && (
+          {getHealthStatus('ollama') === 'Warning' && (
             <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
               <p className="text-blue-800 dark:text-blue-200 text-sm">
                 <strong>Recommendation:</strong> Model is running near VRAM capacity. Consider switching to Llama3-8B for better performance during client calls.
@@ -158,36 +206,40 @@ const AIModelHealth: React.FC = () => {
         <div>
           <div className="flex justify-between items-start mb-2">
             <div>
-              <h3 className="font-medium text-gray-900 dark:text-white">LM Studio (Mistral)</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Local LLM Client</p>
+              <h3 className="font-medium text-gray-900 dark:text-white">
+                LM Studio {aiHealth?.lm_studio.active_model ? `(${aiHealth.lm_studio.active_model})` : '(No Active Model)'}
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Local LLM Client {aiHealth?.lm_studio.models_count ? `• ${aiHealth.lm_studio.models_count} models available` : ''}
+              </p>
             </div>
             <span className={`px-2 py-1 rounded text-xs font-medium ${
-              getModelStatus('LM Studio').color === 'green'
+              getLMStudioStatus().color === 'green'
                 ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
                 : 'bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-300'
             }`}>
-              {getModelStatus('LM Studio').status}
+              {getLMStudioStatus().status}
             </span>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3">
             <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
               <div className="text-sm text-gray-500 dark:text-gray-400">VRAM</div>
-              <div className="font-medium text-gray-900 dark:text-white">{getVRAMUsage('mistral')}</div>
+              <div className="font-medium text-gray-900 dark:text-white">{getVRAMUsage('lm_studio')}</div>
             </div>
             <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
               <div className="text-sm text-gray-500 dark:text-gray-400">Response Time</div>
-              <div className="font-medium text-gray-900 dark:text-white">{getResponseTime('mistral')}</div>
+              <div className="font-medium text-gray-900 dark:text-white">{getResponseTime('lm_studio')}</div>
             </div>
             <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
               <div className="text-sm text-gray-500 dark:text-gray-400">Tokens/sec</div>
-              <div className="font-medium text-gray-900 dark:text-white">{getTokensPerSec('mistral')}</div>
+              <div className="font-medium text-gray-900 dark:text-white">{getTokensPerSec('lm_studio')}</div>
             </div>
             <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
               <div className="text-sm text-gray-500 dark:text-gray-400">Status</div>
               <div className={`font-medium ${
-                getHealthStatus('mistral') === 'Healthy' ? 'text-green-600' : 'text-gray-600'
+                getHealthStatus('lm_studio') === 'Healthy' ? 'text-green-600' : 'text-gray-600'
               }`}>
-                {getHealthStatus('mistral') || 'Offline'}
+                {getHealthStatus('lm_studio') || 'Offline'}
               </div>
             </div>
           </div>

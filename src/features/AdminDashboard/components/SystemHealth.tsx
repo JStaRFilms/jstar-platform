@@ -100,8 +100,8 @@ export const SystemHealth: React.FC = () => {
 
     fetchSystemMetrics();
 
-    // Refresh every 30 seconds
-    const interval = setInterval(fetchSystemMetrics, 30000);
+    // Refresh every 15 seconds
+    const interval = setInterval(fetchSystemMetrics, 15000);
     return () => clearInterval(interval);
   }, []);
 

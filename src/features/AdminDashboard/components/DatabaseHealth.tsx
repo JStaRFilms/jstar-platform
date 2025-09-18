@@ -22,7 +22,7 @@ export const DatabaseHealth: React.FC = () => {
       setTimeout(() => {
         setDbStatus({
           connection: 'healthy',
-          lastQuery: Date.now() - 30000, // 30 seconds ago
+          lastQuery: Date.now() - 15000, // 15 seconds ago
           totalQueries: 1247,
           avgResponseTime: 45, // ms
           errorCount: 0
@@ -31,7 +31,7 @@ export const DatabaseHealth: React.FC = () => {
     };
 
     checkDatabaseHealth();
-    const interval = setInterval(checkDatabaseHealth, 30000); // Check every 30 seconds
+    const interval = setInterval(checkDatabaseHealth, 15000); // Check every 15 seconds
     return () => clearInterval(interval);
   }, []);
 

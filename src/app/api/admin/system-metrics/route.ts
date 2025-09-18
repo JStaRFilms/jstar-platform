@@ -114,6 +114,27 @@ interface SystemMetrics {
     totalMemory: number;
     uniqueProcesses: string[];
   };
+  aiHealth: {
+    ollama: {
+      status: 'running' | 'not_detected';
+      models_count: number;
+      active_model?: string;
+      models?: Array<{ name: string; size: string; modified: string; digest?: string }>;
+      error?: string;
+    };
+    lm_studio: {
+      status: 'running' | 'not_detected';
+      models_count: number;
+      active_model?: string;
+      models?: Array<{ id: string; object: string }>;
+      error?: string;
+    };
+    gpu: {
+      vram_used?: number;
+      vram_total?: number;
+      utilization?: number;
+    };
+  };
   network: {
     interfaces: number;
     speed: string;
@@ -394,6 +415,216 @@ async function getAIModelProcesses(): Promise<{
   };
 }
 
+// AI Model Health Monitoring Functions
+async function checkOllamaStatus(): Promise<{
+  status: 'running' | 'not_detected';
+  models?: Array<{ name: string; size: string; modified: string; digest?: string }>;
+  active_model?: string;
+  error?: string;
+}> {
+  try {
+    // Try to connect to Ollama API
+    const response = await fetch('http://localhost:11434/api/tags', {
+      method: 'GET',
+      signal: AbortSignal.timeout(5000) // 5 second timeout
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      const models = data.models || [];
+
+      // Try to get the currently loaded/running model
+      let activeModel = '';
+      try {
+        const runningResponse = await fetch('http://localhost:11434/api/ps', {
+          method: 'GET',
+          signal: AbortSignal.timeout(2000)
+        });
+        if (runningResponse.ok) {
+          const runningData = await runningResponse.json();
+          if (runningData.models && runningData.models.length > 0) {
+            activeModel = runningData.models[0].name || runningData.models[0].model || '';
+          }
+        }
+      } catch (psError) {
+        // If we can't get running models, use the first available model as fallback
+        if (models.length > 0) {
+          activeModel = models[0].name;
+        }
+      }
+
+      return {
+        status: 'running',
+        models: models,
+        active_model: activeModel
+      };
+    } else {
+      return { status: 'not_detected', error: `HTTP ${response.status}` };
+    }
+  } catch (error) {
+    return {
+      status: 'not_detected',
+      error: error instanceof Error ? error.message : 'Connection failed'
+    };
+  }
+}
+
+async function checkLMStudioStatus(): Promise<{
+  status: 'running' | 'not_detected';
+  models?: Array<{ id: string; object: string }>;
+  error?: string;
+}> {
+  try {
+    // Try to connect to LM Studio API (OpenAI-compatible)
+    const response = await fetch('http://localhost:1234/v1/models', {
+      method: 'GET',
+      signal: AbortSignal.timeout(5000) // 5 second timeout
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      return {
+        status: 'running',
+        models: data.data || []
+      };
+    } else {
+      return { status: 'not_detected', error: `HTTP ${response.status}` };
+    }
+  } catch (error) {
+    return {
+      status: 'not_detected',
+      error: error instanceof Error ? error.message : 'Connection failed'
+    };
+  }
+}
+
+async function getGPUInfo(): Promise<{
+  vram_used?: number;
+  vram_total?: number;
+  utilization?: number;
+}> {
+  const osCommands = getOSCommands();
+
+  // Try to get GPU information using system commands
+  if (osCommands.platform === 'windows') {
+    try {
+      // Try NVIDIA SMI first
+      const { stdout } = await execAsync('nvidia-smi --query-gpu=memory.used,memory.total,utilization.gpu --format=csv,noheader,nounits');
+      const lines = stdout.trim().split('\n');
+
+      if (lines.length > 0) {
+        const parts = lines[0].split(', ');
+        if (parts.length >= 3) {
+          return {
+            vram_used: parseInt(parts[0]),
+            vram_total: parseInt(parts[1]),
+            utilization: parseInt(parts[2])
+          };
+        }
+      }
+    } catch (error) {
+      // Try AMD ROCm
+      try {
+        const { stdout } = await execAsync('rocm-smi --showmeminfo vram --json');
+        // Parse JSON output for AMD GPUs
+        const data = JSON.parse(stdout);
+        if (data && data.length > 0) {
+          const gpu = data[0];
+          return {
+            vram_used: Math.round(gpu['vram_used'] / (1024 * 1024)), // Convert to MB
+            vram_total: Math.round(gpu['vram_total'] / (1024 * 1024)),
+            utilization: gpu['gpu_usage'] || 0
+          };
+        }
+      } catch (amdError) {
+        // No GPU monitoring available
+      }
+    }
+  } else if (osCommands.platform === 'linux') {
+    try {
+      // Try NVIDIA SMI on Linux
+      const { stdout } = await execAsync('nvidia-smi --query-gpu=memory.used,memory.total,utilization.gpu --format=csv,noheader,nounits');
+      const lines = stdout.trim().split('\n');
+
+      if (lines.length > 0) {
+        const parts = lines[0].split(', ');
+        if (parts.length >= 3) {
+          return {
+            vram_used: parseInt(parts[0]),
+            vram_total: parseInt(parts[1]),
+            utilization: parseInt(parts[2])
+          };
+        }
+      }
+    } catch (error) {
+      // Try AMD ROCm on Linux
+      try {
+        const { stdout } = await execAsync('rocm-smi --showmeminfo vram --json');
+        const data = JSON.parse(stdout);
+        if (data && data.length > 0) {
+          const gpu = data[0];
+          return {
+            vram_used: Math.round(gpu['vram_used'] / (1024 * 1024)), // Convert to MB
+            vram_total: Math.round(gpu['vram_total'] / (1024 * 1024)),
+            utilization: gpu['gpu_usage'] || 0
+          };
+        }
+      } catch (amdError) {
+        // No GPU monitoring available
+      }
+    }
+  }
+
+  // Return undefined if no GPU info available
+  return {};
+}
+
+async function getAIHealthMetrics(): Promise<{
+  ollama: {
+    status: 'running' | 'not_detected';
+    models_count: number;
+    active_model?: string;
+    models?: Array<{ name: string; size: string; modified: string; digest?: string }>;
+    error?: string;
+  };
+  lm_studio: {
+    status: 'running' | 'not_detected';
+    models_count: number;
+    active_model?: string;
+    models?: Array<{ id: string; object: string }>;
+    error?: string;
+  };
+  gpu: {
+    vram_used?: number;
+    vram_total?: number;
+    utilization?: number;
+  };
+}> {
+  const [ollamaStatus, lmStudioStatus, gpuInfo] = await Promise.all([
+    checkOllamaStatus(),
+    checkLMStudioStatus(),
+    getGPUInfo()
+  ]);
+
+  return {
+    ollama: {
+      status: ollamaStatus.status,
+      models_count: ollamaStatus.models?.length || 0,
+      active_model: ollamaStatus.active_model,
+      models: ollamaStatus.models,
+      error: ollamaStatus.error
+    },
+    lm_studio: {
+      status: lmStudioStatus.status,
+      models_count: lmStudioStatus.models?.length || 0,
+      active_model: lmStudioStatus.models && lmStudioStatus.models.length > 0 ? lmStudioStatus.models[0].id : undefined,
+      models: lmStudioStatus.models,
+      error: lmStudioStatus.error
+    },
+    gpu: gpuInfo
+  };
+}
+
 async function getCPUUsage(): Promise<{ usage: number; cores: number; model: string }> {
   const cpus = os.cpus();
   const cores = cpus.length;
@@ -529,10 +760,11 @@ async function getCPUUsage(): Promise<{ usage: number; cores: number; model: str
 export async function GET() {
   try {
     // Gather all system metrics
-    const [diskUsage, aiProcesses, cpuInfo] = await Promise.all([
+    const [diskUsage, aiProcesses, cpuInfo, aiHealth] = await Promise.all([
       getDiskUsage(),
       getAIModelProcesses(),
-      getCPUUsage()
+      getCPUUsage(),
+      getAIHealthMetrics()
     ]);
 
     const totalMemory = os.totalmem();
@@ -548,6 +780,7 @@ export async function GET() {
       },
       disk: diskUsage,
       aiModels: aiProcesses,
+      aiHealth: aiHealth,
       network: {
         interfaces: Object.keys(os.networkInterfaces()).length,
         speed: '1Gbps' // Would need more complex detection for actual speed
@@ -574,7 +807,21 @@ export async function GET() {
         aiModels: {
           running: false,
           processes: [],
-          totalMemory: 0
+          totalMemory: 0,
+          uniqueProcesses: []
+        },
+        aiHealth: {
+          ollama: {
+            status: 'not_detected' as const,
+            models_count: 0,
+            error: 'API unavailable'
+          },
+          lm_studio: {
+            status: 'not_detected' as const,
+            models_count: 0,
+            error: 'API unavailable'
+          },
+          gpu: {}
         },
         network: { interfaces: 3, speed: '1Gbps' },
         uptime: 24

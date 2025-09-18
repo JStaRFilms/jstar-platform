@@ -47,8 +47,8 @@ const HardwareProfiler: React.FC = () => {
 
     fetchHardwareData();
 
-    // Refresh every 30 seconds for hardware monitoring
-    const interval = setInterval(fetchHardwareData, 30000);
+    // Refresh every 15 seconds for hardware monitoring
+    const interval = setInterval(fetchHardwareData, 15000);
     return () => clearInterval(interval);
   }, []);
 
