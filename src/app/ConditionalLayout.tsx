@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation';
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import Providers from "@/lib/providers";
 
 interface ConditionalLayoutProps {
   children: React.ReactNode;
@@ -15,10 +16,10 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
   const isAdminPage = pathname?.startsWith('/admin');
 
   return (
-    <>
+    <Providers>
       {!isAdminPage && <Header />}
       <main>{children}</main>
       {!isAdminPage && <Footer />}
-    </>
+    </Providers>
   );
 }

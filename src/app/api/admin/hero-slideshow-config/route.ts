@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { withCache, generateCacheKey, CACHE_TTL } from '@/lib/api-cache';
 
 const prisma = new PrismaClient();
 
@@ -17,26 +18,43 @@ const defaultConfig = {
  * Get the current slideshow configuration
  */
 export async function GET() {
-  try {
-    // Get the first (and only) configuration record
-    const config = await prisma.heroSlideshowConfig.findFirst();
+  const cacheKey = generateCacheKey('/api/admin/hero-slideshow-config');
 
-    if (!config) {
-      // If no config exists, create default config
-      const newConfig = await prisma.heroSlideshowConfig.create({
-        data: defaultConfig,
-      });
-      return NextResponse.json({
+  try {
+    // Use caching with deduplication for slideshow configuration
+    const result = await withCache(cacheKey, async () => {
+      console.log('Fetching fresh slideshow configuration...');
+
+      // Get the first (and only) configuration record
+      const config = await prisma.heroSlideshowConfig.findFirst();
+
+      if (!config) {
+        // If no config exists, create default config
+        const newConfig = await prisma.heroSlideshowConfig.create({
+          data: defaultConfig,
+        });
+        return {
+          status: 'success',
+          data: newConfig,
+          message: 'Default slideshow configuration created',
+          cached: false
+        };
+      }
+
+      return {
         status: 'success',
-        data: newConfig,
-        message: 'Default slideshow configuration created',
-      });
+        data: config,
+        cached: false
+      };
+    }, { ttl: CACHE_TTL.DIAGNOSTICS }); // 5-minute TTL for configuration data
+
+    // Mark as cached if it came from cache
+    if (result.cached !== false) {
+      result.cached = true;
     }
 
-    return NextResponse.json({
-      status: 'success',
-      data: config,
-    });
+    return NextResponse.json(result);
+
   } catch (error) {
     console.error('Error fetching slideshow config:', error);
     return NextResponse.json(
@@ -44,6 +62,7 @@ export async function GET() {
         status: 'success',
         data: defaultConfig,
         message: 'Using default configuration due to database error',
+        cached: false
       },
       { status: 200 }
     );

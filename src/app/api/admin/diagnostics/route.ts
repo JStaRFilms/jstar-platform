@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { withCache, generateCacheKey, CACHE_TTL } from '@/lib/api-cache';
 
 const prisma = new PrismaClient();
 
@@ -8,22 +9,26 @@ async function runFullSystemDiagnostics() {
   const startTime = Date.now();
 
   try {
-    // Gather all system metrics
-    const systemResponse = await fetch('http://localhost:3000/api/admin/system-metrics', {
-      method: 'GET',
-    });
+    // Use cached system metrics to avoid duplicate calls
+    const cacheKey = generateCacheKey('/api/admin/system-metrics');
+    const systemData = await withCache(cacheKey, async () => {
+      // If not cached, fetch fresh data
+      const response = await fetch('http://localhost:3000/api/admin/system-metrics', {
+        method: 'GET',
+      });
 
-    if (!systemResponse.ok) {
-      throw new Error('Failed to fetch system metrics');
-    }
+      if (!response.ok) {
+        throw new Error('Failed to fetch system metrics');
+      }
 
-    const systemData = await systemResponse.json();
+      return await response.json();
+    }, { ttl: CACHE_TTL.SYSTEM_METRICS });
 
     if (systemData.status !== 'success') {
       throw new Error('System metrics API returned error');
     }
 
-    // Run comprehensive benchmarks
+    // Run comprehensive benchmarks (separate call to avoid caching benchmarks)
     const benchmarkResponse = await fetch('http://localhost:3000/api/admin/system-metrics', {
       method: 'POST',
       headers: {
@@ -177,33 +182,50 @@ function calculatePerformanceScore(systemData: any, benchmarkData: any): number 
 
 // GET /api/admin/diagnostics - Fetch diagnostic history
 export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const type = searchParams.get('type');
+  const status = searchParams.get('status');
+  const limit = parseInt(searchParams.get('limit') || '50');
+
+  // Generate cache key based on query parameters
+  const cacheKey = generateCacheKey('/api/admin/diagnostics', { type, status, limit });
+
   try {
-    const { searchParams } = new URL(request.url);
-    const type = searchParams.get('type');
-    const status = searchParams.get('status');
-    const limit = parseInt(searchParams.get('limit') || '50');
+    // Use caching with deduplication for diagnostic history
+    const result = await withCache(cacheKey, async () => {
+      console.log('Fetching fresh diagnostic history...');
 
-    // Build where clause
-    const where: any = {};
-    if (type) where.type = type;
-    if (status) where.status = status;
+      // Build where clause
+      const where: any = {};
+      if (type) where.type = type;
+      if (status) where.status = status;
 
-    const diagnostics = await prisma.diagnosticHistory.findMany({
-      where,
-      orderBy: { timestamp: 'desc' },
-      take: limit,
-    });
+      const diagnostics = await prisma.diagnosticHistory.findMany({
+        where,
+        orderBy: { timestamp: 'desc' },
+        take: limit,
+      });
 
-    return NextResponse.json({
-      status: 'success',
-      data: diagnostics
-    });
+      return {
+        status: 'success',
+        data: diagnostics,
+        cached: false
+      };
+    }, { ttl: CACHE_TTL.DIAGNOSTICS }); // 5-minute TTL for diagnostic history
+
+    // Mark as cached if it came from cache
+    if (result.cached !== false) {
+      result.cached = true;
+    }
+
+    return NextResponse.json(result);
 
   } catch (error) {
     console.error('Error fetching diagnostic history:', error);
     return NextResponse.json({
       status: 'error',
-      message: 'Failed to fetch diagnostic history'
+      message: 'Failed to fetch diagnostic history',
+      cached: false
     }, { status: 500 });
   }
 }

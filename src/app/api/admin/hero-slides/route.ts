@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { withCache, generateCacheKey, CACHE_TTL } from '@/lib/api-cache';
 
 const prisma = new PrismaClient();
 
@@ -53,59 +54,75 @@ const defaultSlides = [
  * Always returns custom slides + default slides for consistency
  */
 export async function GET() {
+  const cacheKey = generateCacheKey('/api/admin/hero-slides');
+
   try {
-    // Get ALL custom slides (both active and inactive) for admin management
-    const customSlides = await prisma.heroSlide.findMany({
-      orderBy: { sortOrder: 'asc' },
-      select: {
-        id: true,
-        titleLine1: true,
-        titleLine2: true,
-        tagline: true,
-        description: true,
-        imageUrl: true,
-        gradient: true,
-        buttonGradient: true,
-        buttonBorder: true,
-        buttonText: true,
-        buttonHover: true,
-        isActive: true,
-        altText: true,
-        projectTitle: true,
-        projectDesc: true,
-        sortOrder: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
+    // Use caching with deduplication for hero slides data
+    const result = await withCache(cacheKey, async () => {
+      console.log('Fetching fresh hero slides data...');
 
-    // Check which default slides are not already in the database
-    const defaultSlideIds = defaultSlides.map(slide => slide.id);
-    const existingDefaultIds = customSlides
-      .filter(slide => defaultSlideIds.includes(slide.id))
-      .map(slide => slide.id);
+      // Get ALL custom slides (both active and inactive) for admin management
+      const customSlides = await prisma.heroSlide.findMany({
+        orderBy: { sortOrder: 'asc' },
+        select: {
+          id: true,
+          titleLine1: true,
+          titleLine2: true,
+          tagline: true,
+          description: true,
+          imageUrl: true,
+          gradient: true,
+          buttonGradient: true,
+          buttonBorder: true,
+          buttonText: true,
+          buttonHover: true,
+          isActive: true,
+          altText: true,
+          projectTitle: true,
+          projectDesc: true,
+          sortOrder: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
 
-    // Only include default slides that don't exist in the database
-    const missingDefaultSlides = defaultSlides.filter(
-      slide => !existingDefaultIds.includes(slide.id)
-    );
+      // Check which default slides are not already in the database
+      const defaultSlideIds = defaultSlides.map(slide => slide.id);
+      const existingDefaultIds = customSlides
+        .filter(slide => defaultSlideIds.includes(slide.id))
+        .map(slide => slide.id);
 
-    // Combine custom slides with missing default slides
-    const allSlides = [...customSlides, ...missingDefaultSlides];
+      // Only include default slides that don't exist in the database
+      const missingDefaultSlides = defaultSlides.filter(
+        slide => !existingDefaultIds.includes(slide.id)
+      );
 
-    // Sort by sortOrder to maintain proper order
-    allSlides.sort((a, b) => a.sortOrder - b.sortOrder);
+      // Combine custom slides with missing default slides
+      const allSlides = [...customSlides, ...missingDefaultSlides];
 
-    const activeSlides = customSlides.filter(slide => slide.isActive);
-    const inactiveSlides = customSlides.filter(slide => !slide.isActive);
+      // Sort by sortOrder to maintain proper order
+      allSlides.sort((a, b) => a.sortOrder - b.sortOrder);
 
-    return NextResponse.json({
-      status: 'success',
-      data: allSlides,
-      message: customSlides.length > 0
-        ? `Showing ${activeSlides.length} active, ${inactiveSlides.length} inactive custom slides and ${defaultSlides.length} default slides.`
-        : `Showing ${defaultSlides.length} default slides. Create custom slides to add more content.`,
-    });
+      const activeSlides = customSlides.filter(slide => slide.isActive);
+      const inactiveSlides = customSlides.filter(slide => !slide.isActive);
+
+      return {
+        status: 'success',
+        data: allSlides,
+        message: customSlides.length > 0
+          ? `Showing ${activeSlides.length} active, ${inactiveSlides.length} inactive custom slides and ${defaultSlides.length} default slides.`
+          : `Showing ${defaultSlides.length} default slides. Create custom slides to add more content.`,
+        cached: false
+      };
+    }, { ttl: CACHE_TTL.SYSTEM_METRICS }); // Use 2-minute TTL for hero slides
+
+    // Mark as cached if it came from cache
+    if (result.cached !== false) {
+      result.cached = true;
+    }
+
+    return NextResponse.json(result);
+
   } catch (error) {
     console.error('Error fetching hero slides:', error);
     // Return default slides on error
@@ -113,6 +130,7 @@ export async function GET() {
       status: 'success',
       data: defaultSlides,
       message: 'Showing default slides due to database error.',
+      cached: false
     });
   }
 }

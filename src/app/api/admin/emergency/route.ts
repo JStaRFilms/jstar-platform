@@ -3,6 +3,7 @@ import * as os from 'os';
 import * as fs from 'fs';
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import { withCache, generateCacheKey, CACHE_TTL } from '@/lib/api-cache';
 
 const execAsync = promisify(exec);
 
@@ -134,18 +135,21 @@ export async function POST(request: Request) {
 
 async function generateEmergencyReport() {
   try {
-    // Fetch current system metrics
-    const metricsResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/admin/system-metrics`, {
-      headers: {
-        // If you have auth headers, add them here
+    // Fetch current system metrics with caching
+    const cacheKey = generateCacheKey('/api/admin/system-metrics');
+    const metricsData = await withCache(cacheKey, async () => {
+      const response = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/admin/system-metrics`, {
+        headers: {
+          // If you have auth headers, add them here
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch system metrics');
       }
-    });
 
-    if (!metricsResponse.ok) {
-      throw new Error('Failed to fetch system metrics');
-    }
-
-    const metricsData = await metricsResponse.json();
+      return await response.json();
+    }, { ttl: CACHE_TTL.SYSTEM_METRICS });
 
     if (metricsData.status !== 'success') {
       throw new Error('System metrics fetch failed');
@@ -153,19 +157,25 @@ async function generateEmergencyReport() {
 
     const metrics = metricsData.data;
 
-    // Fetch diagnostic history
-    const historyResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/admin/diagnostics`, {
-      headers: {
-        // If you have auth headers, add them here
+    // Fetch diagnostic history with caching
+    const diagnosticsCacheKey = generateCacheKey('/api/admin/diagnostics');
+    const historyData = await withCache(diagnosticsCacheKey, async () => {
+      const response = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/admin/diagnostics`, {
+        headers: {
+          // If you have auth headers, add them here
+        }
+      });
+
+      if (!response.ok) {
+        return { status: 'error', data: [] };
       }
-    });
+
+      return await response.json();
+    }, { ttl: CACHE_TTL.DIAGNOSTICS });
 
     let history = [];
-    if (historyResponse.ok) {
-      const historyData = await historyResponse.json();
-      if (historyData.status === 'success') {
-        history = historyData.data || [];
-      }
+    if (historyData.status === 'success') {
+      history = historyData.data || [];
     }
 
     // Create emergency CSV content
@@ -685,25 +695,30 @@ async function optimizeForLowResources() {
     console.log('Step 4: Checking AI model optimization...');
 
     try {
-      // Check current system load
-      const metricsResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/admin/system-metrics`);
-      if (metricsResponse.ok) {
-        const metricsData = await metricsResponse.json();
-        if (metricsData.status === 'success') {
-          const metrics = metricsData.data;
+      // Check current system load with caching
+      const metricsCacheKey = generateCacheKey('/api/admin/system-metrics');
+      const metricsData = await withCache(metricsCacheKey, async () => {
+        const response = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/admin/system-metrics`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch system metrics');
+        }
+        return await response.json();
+      }, { ttl: CACHE_TTL.SYSTEM_METRICS });
 
-          // If system is under heavy load, suggest lighter models
-          if (metrics.cpu.usage > 80 || (metrics.memory.percentage > 80) ||
-              (metrics.aiHealth.gpu?.utilization && metrics.aiHealth.gpu.utilization > 85)) {
+      if (metricsData.status === 'success') {
+        const metrics = metricsData.data;
 
-            optimizationResults.warnings.push('System under heavy load - consider using lighter AI models');
+        // If system is under heavy load, suggest lighter models
+        if (metrics.cpu.usage > 80 || (metrics.memory.percentage > 80) ||
+            (metrics.aiHealth.gpu?.utilization && metrics.aiHealth.gpu.utilization > 85)) {
 
-            // Try to switch Ollama to a smaller model if it's running a large one
-            if (metrics.aiHealth.ollama.status === 'running' && metrics.aiHealth.ollama.active_model) {
-              const currentModel = metrics.aiHealth.ollama.active_model.toLowerCase();
-              if (currentModel.includes('70b') || currentModel.includes('65b')) {
-                optimizationResults.warnings.push('Large AI model detected - consider switching to llama3:8b for better performance');
-              }
+          optimizationResults.warnings.push('System under heavy load - consider using lighter AI models');
+
+          // Try to switch Ollama to a smaller model if it's running a large one
+          if (metrics.aiHealth.ollama.status === 'running' && metrics.aiHealth.ollama.active_model) {
+            const currentModel = metrics.aiHealth.ollama.active_model.toLowerCase();
+            if (currentModel.includes('70b') || currentModel.includes('65b')) {
+              optimizationResults.warnings.push('Large AI model detected - consider switching to llama3:8b for better performance');
             }
           }
         }

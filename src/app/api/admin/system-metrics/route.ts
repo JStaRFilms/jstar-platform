@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import { PrismaClient } from '@prisma/client';
+import { withCache, generateCacheKey, CACHE_TTL } from '@/lib/api-cache';
 
 const execAsync = promisify(exec);
 const prisma = new PrismaClient();
@@ -1055,42 +1056,58 @@ async function runNetworkBenchmark(): Promise<{
   }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const cacheKey = generateCacheKey('/api/admin/system-metrics');
+
   try {
-    // Gather all system metrics
-    const [diskUsage, aiProcesses, cpuInfo, aiHealth] = await Promise.all([
-      getDiskUsage(),
-      getAIModelProcesses(),
-      getCPUUsage(),
-      getAIHealthMetrics()
-    ]);
+    // Use caching with deduplication
+    const result = await withCache(cacheKey, async () => {
+      console.log('Fetching fresh system metrics...');
 
-    const totalMemory = os.totalmem();
-    const freeMemory = os.freemem();
-    const usedMemory = totalMemory - freeMemory;
+      // Gather all system metrics in parallel for maximum speed
+      const [diskUsage, aiProcesses, cpuInfo, aiHealth] = await Promise.all([
+        getDiskUsage(),
+        getAIModelProcesses(),
+        getCPUUsage(),
+        getAIHealthMetrics()
+      ]);
 
-    const metrics: SystemMetrics = {
-      cpu: cpuInfo,
-      memory: {
-        used: Math.round(usedMemory / (1024 * 1024 * 1024) * 10) / 10, // GB with 1 decimal
-        total: Math.round(totalMemory / (1024 * 1024 * 1024) * 10) / 10, // GB with 1 decimal
-        percentage: Math.round((usedMemory / totalMemory) * 100)
-      },
-      disk: diskUsage,
-      aiModels: aiProcesses,
-      aiHealth: aiHealth,
-      network: {
-        interfaces: Object.keys(os.networkInterfaces()).length,
-        speed: '1Gbps' // Would need more complex detection for actual speed
-      },
-      uptime: Math.round(os.uptime() / 3600) // Hours
-    };
+      // Calculate memory metrics (fast operation)
+      const totalMemory = os.totalmem();
+      const freeMemory = os.freemem();
+      const usedMemory = totalMemory - freeMemory;
 
-    return NextResponse.json({
-      status: 'success',
-      data: metrics,
-      timestamp: new Date().toISOString()
-    });
+      const metrics: SystemMetrics = {
+        cpu: cpuInfo,
+        memory: {
+          used: Math.round(usedMemory / (1024 * 1024 * 1024) * 10) / 10, // GB with 1 decimal
+          total: Math.round(totalMemory / (1024 * 1024 * 1024) * 10) / 10, // GB with 1 decimal
+          percentage: Math.round((usedMemory / totalMemory) * 100)
+        },
+        disk: diskUsage,
+        aiModels: aiProcesses,
+        aiHealth: aiHealth,
+        network: {
+          interfaces: Object.keys(os.networkInterfaces()).length,
+          speed: '1Gbps' // Would need more complex detection for actual speed
+        },
+        uptime: Math.round(os.uptime() / 3600) // Hours
+      };
+
+      return {
+        status: 'success',
+        data: metrics,
+        timestamp: new Date().toISOString(),
+        cached: false
+      };
+    }, { ttl: CACHE_TTL.SYSTEM_METRICS });
+
+    // Mark as cached if it came from cache
+    if (result.cached !== false) {
+      result.cached = true;
+    }
+
+    return NextResponse.json(result);
 
   } catch (error) {
     console.error('Error fetching system metrics:', error);
@@ -1125,7 +1142,8 @@ export async function GET() {
         uptime: 24
       },
       timestamp: new Date().toISOString(),
-      error: 'Using fallback data'
+      error: 'Using fallback data',
+      cached: false
     });
   }
 }
