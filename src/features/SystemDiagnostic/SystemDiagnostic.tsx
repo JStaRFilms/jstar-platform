@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { AdminSidebar } from '@/features/AdminDashboard/components/AdminSidebar';
 import { useSystemMetrics } from './hooks/useSystemMetrics';
 import { useDiagnostics } from './hooks/useDiagnostics';
 import DiagnosticHeader from './components/DiagnosticHeader';
@@ -160,43 +159,37 @@ const SystemDiagnostic: React.FC<SystemDiagnosticProps> = ({ className = '' }) =
   };
 
   return (
-    <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 ${className}`}>
-      {/* Sidebar */}
-      <AdminSidebar />
+    <div className={`space-y-6 ${className}`}>
+      {/* Header */}
+      <DiagnosticHeader
+        isRunningDiagnostics={runDiagnosticsMutation.isPending}
+        onRunDiagnostics={runFullDiagnostics}
+        onExportReport={exportReport}
+      />
 
-      {/* Main Content */}
-      <div className="ml-64 p-6">
-        {/* Header */}
-        <DiagnosticHeader
-          isRunningDiagnostics={runDiagnosticsMutation.isPending}
-          onRunDiagnostics={runFullDiagnostics}
-          onExportReport={exportReport}
-        />
+      {/* System Status */}
+      <SystemStatus />
 
-        {/* System Status */}
-        <SystemStatus />
+      {/* Quick Stats */}
+      <section className="mb-8">
+        <QuickStats data={quickStats} isLoading={isLoadingMetrics} />
+      </section>
 
-        {/* Quick Stats */}
-        <section className="mb-8">
-          <QuickStats data={quickStats} isLoading={isLoadingMetrics} />
-        </section>
+      {/* Main Diagnostic Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column - Primary Diagnostics */}
+        <div className="lg:col-span-2 space-y-6">
+          <HardwareProfiler onBenchmarkComplete={() => setDiagnosticRefreshTrigger(prev => prev + 1)} />
+          <AIModelHealth />
+          <DiagnosticHistory refreshTrigger={diagnosticRefreshTrigger} />
+        </div>
 
-        {/* Main Diagnostic Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Primary Diagnostics */}
-          <div className="lg:col-span-2 space-y-6">
-            <HardwareProfiler onBenchmarkComplete={() => setDiagnosticRefreshTrigger(prev => prev + 1)} />
-            <AIModelHealth />
-            <DiagnosticHistory refreshTrigger={diagnosticRefreshTrigger} />
-          </div>
-
-          {/* Right Column - Secondary Diagnostics */}
-          <div className="space-y-6">
-            <SystemMetrics />
-            <PerformanceBenchmarks />
-            <SystemRecommendations />
-            <EmergencyTools />
-          </div>
+        {/* Right Column - Secondary Diagnostics */}
+        <div className="space-y-6">
+          <SystemMetrics />
+          <PerformanceBenchmarks />
+          <SystemRecommendations />
+          <EmergencyTools />
         </div>
       </div>
     </div>

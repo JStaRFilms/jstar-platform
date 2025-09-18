@@ -90,7 +90,7 @@ export const SchemaComparison: React.FC = () => {
           <select
             value={selectedComparison}
             onChange={(e) => setSelectedComparison(e.target.value)}
-            className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white"
+            className="px-3 py-2 sm:px-4 sm:py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm sm:text-base focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-700 dark:text-white min-h-[44px] w-full sm:w-auto"
           >
             <option>SQLite (Local) → Supabase</option>
             <option>SQLite (Local) → PostgreSQL</option>

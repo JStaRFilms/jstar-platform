@@ -142,7 +142,7 @@ export default function AdminLayout({
         </div>
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar - Always rendered, controlled by CSS for mobile overlay */}
       <AdminSidebar
         activeCategory={activeCategory}
         onCategoryChange={handleCategoryChange}
@@ -151,8 +151,8 @@ export default function AdminLayout({
         isMobile={isMobile}
       />
 
-      {/* Main Content Area */}
-      <div className={`transition-all duration-300 ${sidebarCollapsed ? 'ml-0' : 'ml-64'}`}>
+      {/* Main Content Area - Always full width, sidebar overlays on mobile */}
+      <div className="transition-all duration-300 lg:ml-64">
         {/* Sub-Navigation */}
         <AdminSubNavigation
           category={activeCategory}
@@ -172,7 +172,7 @@ export default function AdminLayout({
       {/* Mobile Overlay */}
       {isMobile && !sidebarCollapsed && (
         <div
-          className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
           onClick={() => setSidebarCollapsed(true)}
         />
       )}

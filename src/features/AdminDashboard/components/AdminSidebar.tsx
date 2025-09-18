@@ -73,51 +73,49 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 
   return (
     <>
-      {/* Sidebar - Only render if not collapsed */}
-      {!collapsed && (
-        <div className={`fixed top-0 left-0 h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40 transition-transform duration-300 ${isMobile ? 'transform' : ''}`}>
-          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-            <Link href="/admin" className="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
-              <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-              </svg>
-              J StaR Admin
-            </Link>
-          </div>
+      {/* Sidebar - Always rendered, controlled by CSS transform */}
+      <div className={`fixed top-0 left-0 h-screen ${isMobile ? 'w-[75vw]' : 'w-64'} bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-50 transition-transform duration-300 ease-in-out ${collapsed ? '-translate-x-full' : 'translate-x-0'}`}>
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+          <Link href="/admin" className="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
+            <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+            </svg>
+            J StaR Admin
+          </Link>
+        </div>
 
-          <div className="p-4 overflow-y-auto h-full pb-20">
-            <nav className="space-y-1">
-              {categories.map((category) => (
-                <button
-                  key={category.id}
-                  onClick={() => handleCategoryClick(category.id)}
-                  className={`w-full flex items-center p-2 rounded-lg transition-all duration-200 ${getActiveClass(category.id)}`}
-                >
-                  <svg className="h-5 w-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={category.icon} />
-                  </svg>
-                  <span className="text-sm font-medium truncate">{category.label}</span>
-                </button>
-              ))}
-            </nav>
+        <div className="p-4 overflow-y-auto h-full pb-20">
+          <nav className="space-y-1">
+            {categories.map((category) => (
+              <button
+                key={category.id}
+                onClick={() => handleCategoryClick(category.id)}
+                className={`w-full flex items-center p-2 rounded-lg transition-all duration-200 ${getActiveClass(category.id)}`}
+              >
+                <svg className="h-5 w-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={category.icon} />
+                </svg>
+                <span className="text-sm font-medium truncate">{category.label}</span>
+              </button>
+            ))}
+          </nav>
 
-            <div className="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
-              <div className="flex items-center">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center">
-                  <span className="text-white font-bold">JO</span>
-                </div>
-                <div className="ml-3">
-                  <p className="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
-                  <div className="flex items-center">
-                    <span className="status-indicator status-active"></span>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">Admin Access</span>
-                  </div>
+          <div className="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex items-center">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center">
+                <span className="text-white font-bold">JO</span>
+              </div>
+              <div className="ml-3">
+                <p className="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                <div className="flex items-center">
+                  <span className="status-indicator status-active"></span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Admin Access</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      )}
+      </div>
     </>
   );
-};
+}
