@@ -165,7 +165,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
         <div className="absolute top-1/3 right-1/3 w-64 h-64 bg-secondary/10 rounded-full filter blur-3xl animate-pulse animation-delay-1000"></div>
       </div>
 
-      <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20">
+      <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 lg:pt-80 pb-20">
         <div className="relative w-full h-full">
           {activeSlides.map((slide, index) => {
             // Dynamic transition classes and styles based on configuration
