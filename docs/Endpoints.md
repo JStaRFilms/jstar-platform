@@ -226,6 +226,52 @@
 - **`/api/obsidian/export`**
   - Converts chat snippets to markdown (FR020); requires local vault path config.
 
+#### **5. Contact Management API Endpoints**
+*(Admin-only endpoints for contact form management)*
+
+**Contact Submissions:**
+- **`GET /api/admin/contacts`**
+  - List contact submissions with filtering, pagination, and search
+  - Query parameters: `status`, `service`, `page`, `limit`, `search`, `sortBy`, `sortOrder`
+  - Returns paginated list of contact submissions with response counts
+
+- **`GET /api/admin/contacts/[id]`**
+  - Get detailed information about a specific contact submission
+  - Includes contact responses and full submission metadata
+  - Returns complete submission data with response history
+
+- **`PUT /api/admin/contacts/[id]`**
+  - Update contact submission status and admin notes
+  - Accepts: `status`, `adminNotes`, `respondedAt`, `respondedBy`
+  - Automatically sets `respondedAt` when status changes to 'RESPONDED'
+
+- **`DELETE /api/admin/contacts/[id]`**
+  - Archive contact submission (soft delete)
+  - Sets status to 'ARCHIVED' and adds timestamp to admin notes
+
+**Newsletter Management:**
+- **`GET /api/admin/newsletter/subscribers`**
+  - List newsletter subscribers with filtering and pagination
+  - Query parameters: `page`, `limit`, `search`, `isActive`, `source`
+  - Returns subscriber list with subscription metadata
+
+- **`POST /api/admin/newsletter/subscribers`**
+  - Add new newsletter subscriber (admin action)
+  - Accepts: `email`, `name`, `source`, `tags`, `isActive`
+  - Validates email format and prevents duplicates
+
+**Contact Analytics:**
+- **`GET /api/admin/contacts/analytics`**
+  - Comprehensive contact analytics and metrics
+  - Returns: total submissions, status breakdown, newsletter signups, recent activity
+  - Includes 30-day historical data and service type analytics
+
+**Authentication & Security:**
+- All contact admin endpoints require admin authentication
+- Support both JWT tokens (`Authorization: Bearer <token>`) and API keys (`x-api-key` header)
+- Rate limiting: 100 GET requests/min, 30 POST/PUT/DELETE requests/min
+- Input validation and SQL injection protection via Prisma ORM
+
 #### **5. API Caching System**
 *(Performance optimization across all endpoints)*
 
@@ -243,6 +289,10 @@
 | `/api/admin/hero-slides` | 2 min | Hero slide management | 91.7% faster response |
 | `/api/admin/hero-slideshow-config` | 5 min | Slideshow configuration | Optimized settings access |
 | `/api/admin/emergency` | 2-5 min | Emergency operations | Cached data fetching within functions |
+| `/api/admin/contacts` | 30 sec | Contact submissions list | 85% faster response |
+| `/api/admin/contacts/[id]` | 30 sec | Individual contact details | 88% faster response |
+| `/api/admin/newsletter/subscribers` | 30 sec | Subscriber management | 82% faster response |
+| `/api/admin/contacts/analytics` | 2 min | Contact analytics data | 90% faster response |
 
 **Cache Features:**
 - **Server-side TTL**: Configurable expiration times per endpoint

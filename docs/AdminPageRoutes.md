@@ -6,9 +6,11 @@ This document outlines the REST API endpoints available for admin functionality 
 
 **✅ IMPLEMENTATION STATUS: FULLY IMPLEMENTED AND PRODUCTION-READY**
 - **Hero Slides API**: Complete CRUD operations with default slides support
+- **Contact Management API**: Complete contact form management with analytics
+- **Newsletter Management API**: Subscriber management and analytics
 - **Database**: SQLite with Prisma ORM
-- **Authentication**: Admin-only access controls
-- **Features**: Default slides, reset functionality, error handling
+- **Authentication**: Admin-only access controls with JWT/API key support
+- **Features**: Caching, pagination, search, filtering, comprehensive error handling
 
 ## Base URL
 ```
@@ -356,3 +358,402 @@ Consider implementing caching for GET requests to improve performance, especiall
 - **Sorting**: Custom sort orders and drag-and-drop reordering
 - **Analytics**: Track slide performance metrics
 - **Backup/Restore**: Export/import slide configurations
+
+---
+
+## Contact Management API
+
+### GET `/api/admin/contacts`
+List all contact form submissions with filtering, pagination, and search capabilities.
+
+**Method**: `GET`  
+**Authentication**: Required (Admin)  
+**Query Parameters**:
+- `status` (optional): Filter by status (PENDING, PROCESSED, RESPONDED, ARCHIVED)
+- `service` (optional): Filter by service type
+- `page` (optional): Page number (default: 1)
+- `limit` (optional): Items per page (default: 20, max: 100)
+- `search` (optional): Search in name, email, subject, message
+- `sortBy` (optional): Sort field (default: submittedAt)
+- `sortOrder` (optional): Sort order (default: desc)
+
+**Success Response (200)**:
+```json
+{
+  "status": "success",
+  "data": {
+    "submissions": [
+      {
+        "id": "contact-123",
+        "name": "John Doe",
+        "email": "john@example.com",
+        "subject": "Wedding Video Inquiry",
+        "service": "wedding",
+        "message": "Looking for wedding videography services...",
+        "newsletter": true,
+        "status": "PENDING",
+        "submittedAt": "2025-01-15T10:30:00.000Z",
+        "adminNotes": null,
+        "respondedAt": null,
+        "respondedBy": null,
+        "responseCount": 0
+      }
+    ],
+    "total": 150,
+    "page": 1,
+    "limit": 20,
+    "totalPages": 8
+  },
+  "message": "Found 150 contact submissions"
+}
+```
+
+### GET `/api/admin/contacts/[id]`
+Get detailed information about a specific contact submission.
+
+**Method**: `GET`  
+**Authentication**: Required (Admin)  
+**Parameters**: `id` (string) - Contact submission ID
+
+**Success Response (200)**:
+```json
+{
+  "status": "success",
+  "data": {
+    "id": "contact-123",
+    "name": "John Doe",
+    "email": "john@example.com",
+    "subject": "Wedding Video Inquiry",
+    "service": "wedding",
+    "message": "Looking for wedding videography services...",
+    "newsletter": true,
+    "status": "PENDING",
+    "submittedAt": "2025-01-15T10:30:00.000Z",
+    "ipAddress": "192.168.1.100",
+    "userAgent": "Mozilla/5.0...",
+    "adminNotes": null,
+    "respondedAt": null,
+    "respondedBy": null,
+    "responses": []
+  },
+  "message": "Contact submission retrieved successfully"
+}
+```
+
+### PUT `/api/admin/contacts/[id]`
+Update contact submission status and admin notes.
+
+**Method**: `PUT`  
+**Authentication**: Required (Admin)  
+**Content-Type**: `application/json`  
+**Parameters**: `id` (string) - Contact submission ID
+
+**Request Body**:
+```json
+{
+  "status": "PROCESSED",
+  "adminNotes": "Reviewed and ready for response",
+  "respondedAt": "2025-01-15T11:00:00.000Z",
+  "respondedBy": "admin@jstarfilms.com"
+}
+```
+
+**Success Response (200)**:
+```json
+{
+  "status": "success",
+  "data": {
+    "id": "contact-123",
+    "status": "PROCESSED",
+    "adminNotes": "Reviewed and ready for response",
+    "respondedAt": "2025-01-15T11:00:00.000Z",
+    "respondedBy": "admin@jstarfilms.com"
+  },
+  "message": "Contact submission updated successfully"
+}
+```
+
+### DELETE `/api/admin/contacts/[id]`
+Archive a contact submission (soft delete).
+
+**Method**: `DELETE`  
+**Authentication**: Required (Admin)  
+**Parameters**: `id` (string) - Contact submission ID
+
+**Success Response (200)**:
+```json
+{
+  "status": "success",
+  "data": {
+    "id": "contact-123",
+    "status": "ARCHIVED"
+  },
+  "message": "Contact submission archived successfully"
+}
+```
+
+---
+
+## Newsletter Management API
+
+### GET `/api/admin/newsletter/subscribers`
+List newsletter subscribers with filtering and pagination.
+
+**Method**: `GET`  
+**Authentication**: Required (Admin)  
+**Query Parameters**:
+- `page` (optional): Page number (default: 1)
+- `limit` (optional): Items per page (default: 20, max: 100)
+- `search` (optional): Search in email, name, tags
+- `isActive` (optional): Filter by active status
+- `source` (optional): Filter by subscription source
+
+**Success Response (200)**:
+```json
+{
+  "status": "success",
+  "data": {
+    "subscribers": [
+      {
+        "id": "subscriber-123",
+        "email": "john@example.com",
+        "name": "John Doe",
+        "subscribedAt": "2025-01-15T10:30:00.000Z",
+        "unsubscribedAt": null,
+        "isActive": true,
+        "source": "contact_form",
+        "tags": "wedding,corporate"
+      }
+    ],
+    "total": 500,
+    "page": 1,
+    "limit": 20,
+    "totalPages": 25
+  },
+  "message": "Found 500 newsletter subscribers"
+}
+```
+
+### POST `/api/admin/newsletter/subscribers`
+Add a new newsletter subscriber (admin action).
+
+**Method**: `POST`  
+**Authentication**: Required (Admin)  
+**Content-Type**: `application/json`
+
+**Request Body**:
+```json
+{
+  "email": "new@example.com",
+  "name": "New Subscriber",
+  "source": "admin_added",
+  "tags": "marketing,events",
+  "isActive": true
+}
+```
+
+**Success Response (201)**:
+```json
+{
+  "status": "success",
+  "data": {
+    "id": "subscriber-456",
+    "email": "new@example.com",
+    "name": "New Subscriber",
+    "source": "admin_added",
+    "tags": "marketing,events",
+    "isActive": true,
+    "subscribedAt": "2025-01-15T12:00:00.000Z"
+  },
+  "message": "Newsletter subscriber added successfully"
+}
+```
+
+---
+
+## Contact Analytics API
+
+### GET `/api/admin/contacts/analytics`
+Get comprehensive contact analytics and metrics.
+
+**Method**: `GET`  
+**Authentication**: Required (Admin)
+
+**Success Response (200)**:
+```json
+{
+  "status": "success",
+  "data": {
+    "totalSubmissions": 150,
+    "pendingCount": 45,
+    "processedCount": 32,
+    "respondedCount": 58,
+    "archivedCount": 15,
+    "newsletterSignups": 500,
+    "recentSubmissions": 12,
+    "recentSignups": 8,
+    "serviceBreakdown": {
+      "wedding": 45,
+      "corporate": 38,
+      "app": 25,
+      "ai": 18,
+      "consulting": 15,
+      "other": 9
+    },
+    "dailyStats": [
+      {
+        "date": "2025-01-15",
+        "submissions": 5,
+        "signups": 3
+      }
+    ]
+  },
+  "message": "Contact analytics retrieved successfully"
+}
+```
+
+---
+
+## Contact Management Usage Examples
+
+### JavaScript/TypeScript
+
+```javascript
+// Fetch contact submissions with filtering
+const response = await fetch('/api/admin/contacts?status=PENDING&page=1&limit=10');
+const data = await response.json();
+
+// Update contact status
+const updateResponse = await fetch('/api/admin/contacts/contact-123', {
+  method: 'PUT',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    status: 'PROCESSED',
+    adminNotes: 'Reviewed and scheduled for response'
+  })
+});
+
+// Get analytics
+const analyticsResponse = await fetch('/api/admin/contacts/analytics');
+const analytics = await analyticsResponse.json();
+
+// Add newsletter subscriber
+const subscriberResponse = await fetch('/api/admin/newsletter/subscribers', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    email: 'new@example.com',
+    name: 'New Subscriber',
+    source: 'admin_added'
+  })
+});
+```
+
+### cURL Examples
+
+```bash
+# Get pending contacts
+curl -X GET "http://localhost:3000/api/admin/contacts?status=PENDING&page=1&limit=10"
+
+# Update contact status
+curl -X PUT "http://localhost:3000/api/admin/contacts/contact-123" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "status": "PROCESSED",
+    "adminNotes": "Reviewed and ready for response"
+  }'
+
+# Get analytics
+curl -X GET "http://localhost:3000/api/admin/contacts/analytics"
+
+# Add subscriber
+curl -X POST "http://localhost:3000/api/admin/newsletter/subscribers" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "new@example.com",
+    "name": "New Subscriber",
+    "source": "admin_added"
+  }'
+```
+
+---
+
+## Contact Database Schema
+
+### ContactSubmission Table
+```sql
+CREATE TABLE contact_submissions (
+  id          TEXT PRIMARY KEY,
+  name        TEXT NOT NULL,
+  email       TEXT NOT NULL,
+  subject     TEXT NOT NULL,
+  service     TEXT NOT NULL,
+  message     TEXT NOT NULL,
+  newsletter  BOOLEAN DEFAULT FALSE,
+  status      TEXT DEFAULT 'PENDING',
+  submittedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  ipAddress   TEXT,
+  userAgent   TEXT,
+  adminNotes  TEXT,
+  respondedAt DATETIME,
+  respondedBy TEXT
+);
+```
+
+### NewsletterSubscriber Table
+```sql
+CREATE TABLE newsletter_subscribers (
+  id            TEXT PRIMARY KEY,
+  email         TEXT UNIQUE NOT NULL,
+  name          TEXT,
+  subscribedAt  DATETIME DEFAULT CURRENT_TIMESTAMP,
+  unsubscribedAt DATETIME,
+  isActive      BOOLEAN DEFAULT TRUE,
+  source        TEXT,
+  tags          TEXT
+);
+```
+
+### ContactAnalytics Table
+```sql
+CREATE TABLE contact_analytics (
+  id              TEXT PRIMARY KEY,
+  date            DATETIME NOT NULL,
+  submissions     INTEGER DEFAULT 0,
+  newsletterSignups INTEGER DEFAULT 0,
+  serviceBreakdown JSON,
+  UNIQUE(date)
+);
+```
+
+---
+
+## Contact Management Features
+
+### Advanced Filtering
+- **Status Filtering**: PENDING, PROCESSED, RESPONDED, ARCHIVED
+- **Service Filtering**: wedding, corporate, app, ai, consulting, other
+- **Date Range Filtering**: Recent submissions and signups
+- **Text Search**: Full-text search across name, email, subject, message
+
+### Analytics & Reporting
+- **Real-time Metrics**: Current counts and statistics
+- **Trend Analysis**: Daily submission and signup trends
+- **Service Breakdown**: Distribution by service type
+- **Response Tracking**: Admin response times and completion rates
+
+### Data Management
+- **Soft Deletes**: Archive rather than permanently delete
+- **Audit Trail**: Track admin actions and timestamps
+- **Data Export**: JSON format for external processing
+- **Bulk Operations**: Future enhancement for mass updates
+
+### Security & Performance
+- **Rate Limiting**: Prevent API abuse
+- **Input Validation**: Comprehensive data validation
+- **Caching**: Intelligent caching for improved performance
+- **Error Handling**: Detailed error messages and logging
