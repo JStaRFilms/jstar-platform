@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - Pre-Built Workflow Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'obsidian-gray': '#2D3748',
+                        'admin-red': '#DC2626'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-tier1: linear-gradient(135deg, var(--brand-blue) 0%, #3B82F6 100%);
+            --gradient-tier2: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-admin: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+            --obsidian-bg: #202020;
+            --obsidian-sidebar: #161618;
+            --obsidian-text: #dcddde;
+            --obsidian-text-muted: #888888;
+            --obsidian-accent: #7c3aed;
+            --obsidian-link: #8b5cf6;
+        }
+        .btn-enhanced {
+            transition: all 300ms ease;
+        }
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+        }
+        .card-interactive {
+            transition: all 300ms ease;
+            cursor: pointer;
+        }
+        .card-interactive:hover {
+            transform: translateY(-4px);
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-active {
+            background-color: #10B981;
+        }
+        .status-warning {
+            background-color: #F59E0B;
+        }
+        .status-critical {
+            background-color: #EF4444;
+        }
+        .workflow-step {
+            position: relative;
+            padding-left: 40px;
+            min-height: 80px;
+        }
+        .workflow-step::before {
+            content: "";
+            position: absolute;
+            left: 10px;
+            top: 20px;
+            bottom: -20px;
+            width: 2px;
+            background-color: #E5E7EB;
+        }
+        .workflow-step:first-child::before {
+            top: 20px;
+        }
+        .workflow-step:last-child::before {
+            bottom: 20px;
+        }
+        .step-number {
+            position: absolute;
+            left: 0;
+            top: 20px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #DC2626;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+        .template-item {
+            border-left: 3px solid transparent;
+            transition: all 200ms ease;
+        }
+        .template-item:hover {
+            border-left-color: #DC2626;
+        }
+        .workflow-preview {
+            position: relative;
+            height: 120px;
+            background: linear-gradient(135deg, #F9FAFB 0%, #E5E7EB 100%);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #E5E7EB;
+        }
+        .workflow-connector {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: #DC2626;
+            z-index: 1;
+        }
+        .workflow-node {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 120px;
+            height: 80px;
+            border-radius: 12px;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 8px;
+            font-size: 0.75rem;
+        }
+        .workflow-node.trigger {
+            left: 20px;
+            border-top: 4px solid #3B82F6;
+        }
+        .workflow-node.action {
+            right: 20px;
+            border-top: 4px solid #10B981;
+        }
+        .workflow-node.error {
+            right: 160px;
+            border-top: 4px solid #EF4444;
+        }
+        .category-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .category-marketing {
+            background: #DBEAFE;
+            color: #1E40AF;
+        }
+        .category-productivity {
+            background: #D1FAE5;
+            color: #047857;
+        }
+        .category-crm {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+        .category-obsidian {
+            background: #F0F9FF;
+            color: #0C4A6E;
+        }
+        .featured-tag {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #DC2626;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            transform: rotate(15deg);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .user-rating {
+            display: inline-flex;
+            align-items: center;
+            background: #F9FAFB;
+            border-radius: 9999px;
+            padding: 2px 8px;
+        }
+        .user-rating svg {
+            color: #F59E0B;
+            width: 14px;
+            height: 14px;
+        }
+        .user-rating span {
+            margin-left: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <!-- Theme Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="document.documentElement.classList.toggle('dark')" 
+                class="p-2 rounded-full bg-jstar-blue text-white hover:bg-faith-purple transition-all duration-300"
+                aria-label="Toggle dark/light theme">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Admin Navigation -->
+    <div class="fixed top-0 left-0 h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <a href="/admin" class="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                J StaR Admin
+            </a>
+        </div>
+        
+        <div class="p-4">
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Platform Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="/admin/cms" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        CMS
+                    </a>
+                    <a href="/admin/johngpt" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                        JohnGPT
+                    </a>
+                    <a href="/admin/cge" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        CGE Tools
+                    </a>
+                    <a href="/admin/users" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        User Management
+                    </a>
+                    <a href="/admin/analytics" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Analytics
+                    </a>
+                    <a href="/admin/payments" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                        </svg>
+                        Payments
+                    </a>
+                    <a href="/admin/security" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                        Security
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Automation Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin/automations/trigger-builder" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0V5m-4 0h4"></path>
+                        </svg>
+                        Trigger Builder
+                    </a>
+                    <a href="/admin/automations/zap-library" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path>
+                        </svg>
+                        Zap Library
+                    </a>
+                    <a href="/admin/automations/automation-logs" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v14a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Automation Logs
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center">
+                        <span class="text-white font-bold">JO</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Admin Access</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 p-6">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center mb-2">
+                        <a href="/admin" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Admin</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <a href="/admin/automations" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Automations</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <span class="text-gray-900 dark:text-white">Zap Library</span>
+                    </div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
+                        Pre-Built Workflow Hub
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">
+                        Ready-to-use automation templates for J StaR Platform
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced" id="import-workflow-btn">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                        </svg>
+                        Import Template
+                    </button>
+                    <div class="relative">
+                        <input type="text" placeholder="Search templates..." 
+                               class="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                        <svg class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+        <!-- System Status -->
+        <section class="mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Workflow Library Status</h2>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">
+                            Current pre-built template library status
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">52 Templates Available</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">12 Nigerian-Specific</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Community Marketplace Active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Stats -->
+        <section class="mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-admin-red mb-2">52</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Total Templates</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-purple-500 mb-2">12</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Nigerian Templates</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-green-500 mb-2">247</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Community Templates</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-red-500 mb-2">98%</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">User Satisfaction</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Template Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - Featured Templates -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Featured Templates -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center justify-between mb-5">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Featured Templates</h2>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
+                                All Templates
+                            </button>
+                            <button class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
+                                Popular
+                            </button>
+                            <button class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
+                                New
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Template 1 -->
+                        <div class="template-item relative bg-gray-50 dark:bg-gray-700/50 rounded-lg p-5 border border-gray-200 dark:border-gray-600">
+                            <div class="featured-tag">HOT</div>
+                            <div class="workflow-preview mb-4">
+                                <div class="workflow-connector"></div>
+                                <div class="workflow-node trigger">
+                                    <div class="text-xs font-medium text-blue-600 dark:text-blue-400 mb-1">TRIGGER</div>
+                                    <div class="font-medium text-gray-900 dark:text-white">YouTube Upload</div>
+                                </div>
+                                <div class="workflow-node action">
+                                    <div class="text-xs font-medium text-green-600 dark:text-green-400 mb-1">ACTION</div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Blog Post</div>
+                                </div>
+                            </div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-1">YouTube Upload → Blog Post</div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">Auto-create blog posts from YouTube uploads</p>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <div class="category-badge category-marketing">Marketing</div>
+                                    <div class="user-rating">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                        </svg>
+                                        <span>4.8</span>
+                                    </div>
+                                </div>
+                                <button class="px-3 py-1 bg-admin-red text-white rounded-lg hover:bg-red-700 text-sm">
+                                    Use Template
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Template 2 -->
+                        <div class="template-item relative bg-gray-50 dark:bg-gray-700/50 rounded-lg p-5 border border-gray-200 dark:border-gray-600">
+                            <div class="featured-tag">NEW</div>
+                            <div class="workflow-preview mb-4">
+                                <div class="workflow-connector"></div>
+                                <div class="workflow-node trigger">
+                                    <div class="text-xs font-medium text-blue-600 dark:text-blue-400 mb-1">TRIGGER</div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Client Payment</div>
+                                </div>
+                                <div class="workflow-node action">
+                                    <div class="text-xs font-medium text-green-600 dark:text-green-400 mb-1">ACTION</div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Notion DB</div>
+                                </div>
+                            </div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-1">Client Payment → Notion DB</div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">Sync client payments to Notion database</p>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <div class="category-badge category-crm">CRM</div>
+                                    <div class="user-rating">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                        </svg>
+                                        <span>4.7</span>
+                                    </div>
+                                </div>
+                                <button class="px-3 py-1 bg-admin-red text-white rounded-lg hover:bg-red-700 text-sm">
+                                    Use Template
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Template 3 -->
+                        <div class="template-item bg-gray-50 dark:bg-gray-700/50 rounded-lg p-5 border border-gray-200 dark:border-gray-600">
+                            <div class="workflow-preview mb-4">
+                                <div class="workflow-connector"></div>
+                                <div class="workflow-node trigger">
+                                    <div class="text-xs font-medium text-blue-600 dark:text-blue-400 mb-1">TRIGGER</div>
+                                    <div class="font-medium text-gray-900 dark:text-white">JohnGPT Insight</div>
+                                </div>
+                                <div class="workflow-node action">
+                                    <div class="text-xs font-medium text-green-600 dark:text-green-400 mb-1">ACTION</div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Vault Auto-Export</div>
+                                </div>
+                            </div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-1">JohnGPT Insight → Vault</div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">Auto-export JohnGPT insights to Obsidian vault</p>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <div class="category-badge category-obsidian">Obsidian</div>
+                                    <div class="user-rating">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                        </svg>
+                                        <span>4.9</span>
+                                    </div>
+                                </div>
+                                <button class="px-3 py-1 bg-admin-red text-white rounded-lg hover:bg-red-700 text-sm">
+                                    Use Template
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Template 4 -->
+                        <div class="template-item bg-gray-50 dark:bg-gray-700/50 rounded-lg p-5 border border-gray-200 dark:border-gray-600">
+                            <div class="workflow-preview mb-4">
+                                <div class="workflow-connector"></div>
+                                <div class="workflow-node trigger">
+                                    <div class="text-xs font-medium text-blue-600 dark:text-blue-400 mb-1">TRIGGER</div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Blog Comment</div>
+                                </div>
+                                <div class="workflow-node action">
+                                    <div class="text-xs font-medium text-green-600 dark:text-green-400 mb-1">ACTION</div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Lead Capture</div>
+                                </div>
+                            </div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-1">Blog Comment → Lead Capture</div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">Capture leads from blog comments automatically</p>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <div class="category-badge category-marketing">Marketing</div>
+                                    <div class="user-rating">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                        </svg>
+                                        <span>4.6</span>
+                                    </div>
+                                </div>
+                                <button class="px-3 py-1 bg-admin-red text-white rounded-lg hover:bg-red-700 text-sm">
+                                    Use Template
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Template 5 -->
+                        <div class="template-item bg-gray-50 dark:bg-gray-700/50 rounded-lg p-5 border border-gray-200 dark:border-gray-600">
+                            <div class="workflow-preview mb-4">
+                                <div class="workflow-connector"></div>
+                                <div class="workflow-node trigger">
+                                    <div class="text-xs font-medium text-blue-600 dark:text-blue-400 mb-1">TRIGGER</div>
+                                    <div class="font-medium text-gray-900 dark:text-white">New Content</div>
+                                </div>
+                                <div class="workflow-node action">
+                                    <div class="text-xs font-medium text-green-600 dark:text-green-400 mb-1">ACTION</div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Social Media</div>
+                                </div>
+                            </div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-1">New Content → Social Media</div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">Auto-post new content to social media platforms</p>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <div class="category-badge category-marketing">Marketing</div>
+                                    <div class="user-rating">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                        </svg>
+                                        <span>4.5</span>
+                                    </div>
+                                </div>
+                                <button class="px-3 py-1 bg-admin-red text-white rounded-lg hover:bg-red-700 text-sm">
+                                    Use Template
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Template 6 -->
+                        <div class="template-item bg-gray-50 dark:bg-gray-700/50 rounded-lg p-5 border border-gray-200 dark:border-gray-600">
+                            <div class="workflow-preview mb-4">
+                                <div class="workflow-connector"></div>
+                                <div class="workflow-node trigger">
+                                    <div class="text-xs font-medium text-blue-600 dark:text-blue-400 mb-1">TRIGGER</div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Nigerian Holiday</div>
+                                </div>
+                                <div class="workflow-node action">
+                                    <div class="text-xs font-medium text-green-600 dark:text-green-400 mb-1">ACTION</div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Content Calendar</div>
+                                </div>
+                            </div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-1">Nigerian Holiday → Content Calendar</div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">Auto-add Nigerian holidays to content calendar</p>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <div class="category-badge category-productivity">Productivity</div>
+                                    <div class="user-rating">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                        </svg>
+                                        <span>4.8</span>
+                                    </div>
+                                </div>
+                                <button class="px-3 py-1 bg-admin-red text-white rounded-lg hover:bg-red-700 text-sm">
+                                    Use Template
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Template Categories -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Template Categories</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 text-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-all cursor-pointer">
+                            <div class="text-3xl mb-2">🎥</div>
+                            <div class="font-medium text-gray-900 dark:text-white">YouTube</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">12 templates</div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 text-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-all cursor-pointer">
+                            <div class="text-3xl mb-2">📝</div>
+                            <div class="font-medium text-gray-900 dark:text-white">Blog</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">8 templates</div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 text-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-all cursor-pointer">
+                            <div class="text-3xl mb-2">📱</div>
+                            <div class="font-medium text-gray-900 dark:text-white">Social Media</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">10 templates</div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 text-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-all cursor-pointer">
+                            <div class="text-3xl mb-2">💼</div>
+                            <div class="font-medium text-gray-900 dark:text-white">CRM</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">7 templates</div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 text-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-all cursor-pointer">
+                            <div class="text-3xl mb-2">📊</div>
+                            <div class="font-medium text-gray-900 dark:text-white">Analytics</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">5 templates</div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 text-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-all cursor-pointer">
+                            <div class="text-3xl mb-2">📧</div>
+                            <div class="font-medium text-gray-900 dark:text-white">Email</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">9 templates</div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 text-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-all cursor-pointer">
+                            <div class="text-3xl mb-2">📱</div>
+                            <div class="font-medium text-gray-900 dark:text-white">Mobile</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">4 templates</div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 text-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-all cursor-pointer">
+                            <div class="text-3xl mb-2">🇳🇬</div>
+                            <div class="font-medium text-gray-900 dark:text-white">Nigerian</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">12 templates</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Template Management -->
+            <div class="space-y-6">
+                <!-- Template Details -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Template Details</h2>
+                    <div class="space-y-5">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">YouTube Upload → Blog Post</div>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300">Category</div>
+                                    <span class="text-sm bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+                                        Marketing
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300">Complexity</div>
+                                    <span class="text-sm bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                        Medium
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300">Setup Time</div>
+                                    <span class="text-sm bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 px-2 py-1 rounded">
+                                        5 minutes
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300">Last Updated</div>
+                                    <span class="text-sm bg-gray-100 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 px-2 py-1 rounded">
+                                        2 days ago
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Workflow Steps</div>
+                            <div class="space-y-3">
+                                <div class="p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-600 dark:text-gray-400">Trigger</span>
+                                        <span class="text-sm font-medium text-gray-900 dark:text-white">YouTube Upload</span>
+                                    </div>
+                                </div>
+                                <div class="p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-600 dark:text-gray-400">Action</span>
+                                        <span class="text-sm font-medium text-gray-900 dark:text-white">Create Blog Post</span>
+                                    </div>
+                                </div>
+                                <div class="p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-600 dark:text-gray-400">Action</span>
+                                        <span class="text-sm font-medium text-gray-900 dark:text-white">Add to Newsletter</span>
+                                    </div>
+                                </div>
+                                <div class="p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-600 dark:text-gray-400">Action</span>
+                                        <span class="text-sm font-medium text-gray-900 dark:text-white">Social Media Post</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Insight:</strong> This template saves 3 hours per week by automating blog content creation from YouTube videos.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Nigerian Content Templates -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Nigerian Content Templates</h2>
+                    <div class="space-y-4">
+                        <div class="template-item p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Nigerian Holiday Calendar</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">Auto-add Nigerian holidays to content calendar</div>
+                                </div>
+                                <button class="px-3 py-1 bg-admin-red text-white rounded-lg hover:bg-red-700 text-sm">
+                                    Use
+                                </button>
+                            </div>
+                        </div>
+                        <div class="template-item p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Naija Content Strategy</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">Create Nigeria-focused content automatically</div>
+                                </div>
+                                <button class="px-3 py-1 bg-admin-red text-white rounded-lg hover:bg-red-700 text-sm">
+                                    Use
+                                </button>
+                            </div>
+                        </div>
+                        <div class="template-item p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Nigerian Payment Gateway</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">Sync with Nigerian payment processors</div>
+                                </div>
+                                <button class="px-3 py-1 bg-admin-red text-white rounded-lg hover:bg-red-700 text-sm">
+                                    Use
+                                </button>
+                            </div>
+                        </div>
+                        <div class="template-item p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Lagos Content Localization</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">Localize content for Lagos audience</div>
+                                </div>
+                                <button class="px-3 py-1 bg-admin-red text-white rounded-lg hover:bg-red-700 text-sm">
+                                    Use
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Insight:</strong> Nigerian-specific templates account for 23% of all template usage. 
+                                They're optimized for Nigerian internet reliability and content preferences.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Community Marketplace -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Community Marketplace</h2>
+                    <div class="space-y-5">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Top Community Templates</div>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900 dark:text-white">YouTube Shorts Strategy</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">by ContentCreatorPro</div>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-yellow-500">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                        </svg>
+                                        <span class="ml-1 text-xs">4.9</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900 dark:text-white">Viral Content Engine</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">by ViralGuru</div>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-yellow-500">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                        </svg>
+                                        <span class="ml-1 text-xs">4.8</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900 dark:text-white">Nigerian Creator Pack</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">by NaijaCreator</div>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-yellow-500">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                        </svg>
+                                        <span class="ml-1 text-xs">4.7</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Submit Your Template</div>
+                            <div class="space-y-3">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                                        <svg class="h-5 w-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900 dark:text-white">Create Template</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Build your own workflow</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                                        <svg class="h-5 w-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900 dark:text-white">Submit Template</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Share with the community</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                                        <svg class="h-5 w-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900 dark:text-white">Earn Rewards</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Get platform credits</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Insight:</strong> Community templates grow the ecosystem and save time for all creators. 
+                                Nigerian creators are most active in the marketplace.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-apply theme
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Initialize sidebar active state
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set zap library as active in sidebar
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.href.includes('automations/zap-library')) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Import workflow button
+            document.getElementById('import-workflow-btn').addEventListener('click', function() {
+                const originalText = this.innerHTML;
+                this.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2 inline text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Importing...';
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    alert('Workflow template imported successfully! Configure it in the Trigger Builder.');
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>

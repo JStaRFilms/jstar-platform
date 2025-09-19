@@ -1,7 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ShieldCheckIcon, CheckIcon } from './IconComponents';
+import { ShieldCheckIcon, CheckIcon } from '../../../components/icons/static-icons';
 import ClientLogoPlaceholder from '../../../components/ui/ClientLogoPlaceholder';
 
 const teamMembers = [

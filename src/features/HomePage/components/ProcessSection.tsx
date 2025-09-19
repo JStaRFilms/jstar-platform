@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { LightBulbIcon, PenFancyIcon, CameraIcon, CommentsIcon, RocketIcon } from './IconComponents';
+import { LightBulbIcon, PenFancyIcon, CameraIcon, CommentsIcon, RocketIcon } from '../../../components/icons/static-icons';
 
 const processSteps = [
   { 

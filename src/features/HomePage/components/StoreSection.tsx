@@ -5,7 +5,7 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useProductCarousel } from '../hooks/useProductCarousel';
-import { ChevronLeftIcon, ChevronRightIcon, CheckIcon, ArrowRightIcon } from './IconComponents';
+import { ChevronLeftIcon, ChevronRightIcon, CheckIcon, ArrowRightIcon } from '../../../components/icons/static-icons';
 
 const products = [
     {

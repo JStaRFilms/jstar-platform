@@ -4,7 +4,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { useTestimonialCarousel } from '../hooks/useTestimonialCarousel';
-import { StarIcon, ChevronLeftIcon, ChevronRightIcon } from './IconComponents';
+import { StarIcon, ChevronLeftIcon, ChevronRightIcon } from '../../../components/icons/static-icons';
 
 type Testimonial = {
   name: string;

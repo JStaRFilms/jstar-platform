@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - Automation Morgue</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'obsidian-gray': '#2D3748',
+                        'admin-red': '#DC2626'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-tier1: linear-gradient(135deg, var(--brand-blue) 0%, #3B82F6 100%);
+            --gradient-tier2: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-admin: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+            --obsidian-bg: #202020;
+            --obsidian-sidebar: #161618;
+            --obsidian-text: #dcddde;
+            --obsidian-text-muted: #888888;
+            --obsidian-accent: #7c3aed;
+            --obsidian-link: #8b5cf6;
+        }
+        .btn-enhanced {
+            transition: all 300ms ease;
+        }
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+        }
+        .card-interactive {
+            transition: all 300ms ease;
+            cursor: pointer;
+        }
+        .card-interactive:hover {
+            transform: translateY(-4px);
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-active {
+            background-color: #10B981;
+        }
+        .status-warning {
+            background-color: #F59E0B;
+        }
+        .status-critical {
+            background-color: #EF4444;
+        }
+        .error-item {
+            border-left: 3px solid transparent;
+            transition: all 200ms ease;
+        }
+        .error-item:hover {
+            border-left-color: #DC2626;
+        }
+        .dependency-item {
+            transition: all 200ms ease;
+        }
+        .dependency-item:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .resource-bar {
+            position: relative;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            background-color: #E5E7EB;
+        }
+        .resource-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            border-radius: 4px;
+        }
+        .resource-low {
+            background-color: #10B981;
+            width: 30%;
+        }
+        .resource-medium {
+            background-color: #F59E0B;
+            width: 60%;
+        }
+        .resource-high {
+            background-color: #EF4444;
+            width: 90%;
+        }
+        .error-stack {
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+        }
+        .error-stack .error-line {
+            padding: 4px 0;
+            border-bottom: 1px solid #E5E7EB;
+        }
+        .error-stack .error-line:last-child {
+            border-bottom: none;
+        }
+        .error-stack .error-file {
+            color: #DC2626;
+            font-weight: bold;
+        }
+        .error-stack .error-message {
+            color: #EF4444;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <!-- Theme Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="document.documentElement.classList.toggle('dark')" 
+                class="p-2 rounded-full bg-jstar-blue text-white hover:bg-faith-purple transition-all duration-300"
+                aria-label="Toggle dark/light theme">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Admin Navigation -->
+    <div class="fixed top-0 left-0 h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <a href="/admin" class="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                J StaR Admin
+            </a>
+        </div>
+        
+        <div class="p-4">
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Platform Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="/admin/cms" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        CMS
+                    </a>
+                    <a href="/admin/johngpt" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                        JohnGPT
+                    </a>
+                    <a href="/admin/cge" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        CGE Tools
+                    </a>
+                    <a href="/admin/users" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        User Management
+                    </a>
+                    <a href="/admin/analytics" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Analytics
+                    </a>
+                    <a href="/admin/payments" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                        </svg>
+                        Payments
+                    </a>
+                    <a href="/admin/security" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                        Security
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Automation Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin/automations/trigger-builder" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0V5m-4 0h4"></path>
+                        </svg>
+                        Trigger Builder
+                    </a>
+                    <a href="/admin/automations/zap-library" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path>
+                        </svg>
+                        Zap Library
+                    </a>
+                    <a href="/admin/automations/error-logs" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Error Logs
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center">
+                        <span class="text-white font-bold">JO</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Admin Access</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 p-6">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center mb-2">
+                        <a href="/admin" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Admin</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <a href="/admin/automations" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Automations</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <span class="text-gray-900 dark:text-white">Error Logs</span>
+                    </div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
+                        Automation Morgue
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">
+                        Monitor and recover failed automation workflows
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced" id="retry-all-btn">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        Retry All Failed
+                    </button>
+                    <div class="relative">
+                        <input type="text" placeholder="Search errors..." 
+                               class="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                        <svg class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+        <!-- System Status -->
+        <section class="mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Automation Error System</h2>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">
+                            Current error monitoring system status
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="flex items-center">
+                            <span class="status-indicator status-critical"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">3 Failed Runs</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-warning"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">2 Dependency Issues</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Error Monitoring Active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Stats -->
+        <section class="mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-admin-red mb-2">3</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Active Errors</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-purple-500 mb-2">24h</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Avg. Resolution Time</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-green-500 mb-2">98%</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Auto-Recovery Rate</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-red-500 mb-2">0</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">User-Reported Errors</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Error Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - Error List -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Failed Runs -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center justify-between mb-5">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Failed Runs</h2>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
+                                Last 24h
+                            </button>
+                            <button class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
+                                Last 7d
+                            </button>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <!-- Error 1 -->
+                        <div class="error-item p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white mb-1">New Lead → CRM Sync</div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">CRM API connection failed</div>
+                                    <div class="text-xs text-red-500 dark:text-red-400 mb-2">Error: 502 Bad Gateway</div>
+                                    <div class="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                        <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        15 minutes ago • ID: #ERR-7892
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 rounded text-xs hover:bg-red-200 dark:hover:bg-red-900/50">
+                                        Retry
+                                    </button>
+                                    <button class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded text-xs hover:bg-gray-200 dark:hover:bg-gray-600">
+                                        View
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Error 2 -->
+                        <div class="error-item p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white mb-1">YouTube Upload → Blog Post</div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">Image processing timeout</div>
+                                    <div class="text-xs text-red-500 dark:text-red-400 mb-2">Error: Timeout after 30s</div>
+                                    <div class="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                        <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        45 minutes ago • ID: #ERR-7821
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 rounded text-xs hover:bg-red-200 dark:hover:bg-red-900/50">
+                                        Retry
+                                    </button>
+                                    <button class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded text-xs hover:bg-gray-200 dark:hover:bg-gray-600">
+                                        View
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Error 3 -->
+                        <div class="error-item p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white mb-1">Client Payment → Notion DB</div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">Field mapping error</div>
+                                    <div class="text-xs text-red-500 dark:text-red-400 mb-2">Error: Invalid date format</div>
+                                    <div class="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                        <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        2 hours ago • ID: #ERR-7589
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 rounded text-xs hover:bg-red-200 dark:hover:bg-red-900/50">
+                                        Retry
+                                    </button>
+                                    <button class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded text-xs hover:bg-gray-200 dark:hover:bg-gray-600">
+                                        View
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Failed Run Debugger -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Failed Run Debugger</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Error Details</div>
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">Workflow</div>
+                                        <span class="text-sm font-medium">New Lead → CRM Sync</span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">Error Code</div>
+                                        <span class="text-sm font-medium text-red-600">502 Bad Gateway</span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">Timestamp</div>
+                                        <span class="text-sm">15 minutes ago</span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">Error ID</div>
+                                        <span class="text-sm">#ERR-7892</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <div class="font-medium text-gray-900 dark:text-white mb-2">Input Data</div>
+                                <div class="space-y-2">
+                                    <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">Name</div>
+                                        <div class="text-sm">John Doe</div>
+                                    </div>
+                                    <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">Email</div>
+                                        <div class="text-sm">john@example.com</div>
+                                    </div>
+                                    <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">Phone</div>
+                                        <div class="text-sm">+234 803 123 4567</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Error Stack Trace</div>
+                            <div class="p-4 bg-gray-800 rounded-lg border border-gray-700">
+                                <div class="error-stack">
+                                    <div class="error-line">
+                                        <span class="error-file">/api/automation/lead-crm-sync.js:248</span>
+                                    </div>
+                                    <div class="error-line">
+                                        <span class="error-message">Error: Failed to connect to CRM API</span>
+                                    </div>
+                                    <div class="error-line">
+                                        at handleCRMIntegration (<span class="error-file">/api/automation/lead-crm-sync.js:248:15</span>)
+                                    </div>
+                                    <div class="error-line">
+                                        at processTicksAndRejections (<span class="error-file">node:internal/process/task_queues:96:5</span>)
+                                    </div>
+                                    <div class="error-line">
+                                        at async executeWorkflow (<span class="error-file">/api/automation/core.js:189:20</span>)
+                                    </div>
+                                    <div class="error-line">
+                                        at async POST (<span class="error-file">/api/admin/automation/trigger.js:45:9</span>)
+                                    </div>
+                                    <div class="error-line">
+                                        at async Object.apiResolver (<span class="error-file">/node_modules/next/dist/server/api-utils.js:101:9</span>)
+                                    </div>
+                                    <div class="error-line">
+                                        at async DevServer.runApi (<span class="error-file">/node_modules/next/dist/server/next-server.js:378:9</span>)
+                                    </div>
+                                    <div class="error-line">
+                                        at async Object.fn (<span class="error-file">/node_modules/next/dist/server/next-server.js:565:37</span>)
+                                    </div>
+                                    <div class="error-line">
+                                        at async Router.execute (<span class="error-file">/node_modules/next/dist/server/router.js:227:32</span>)
+                                    </div>
+                                    <div class="error-line">
+                                        at async DevServer.run (<span class="error-file">/node_modules/next/dist/server/base-server.js:498:29</span>)
+                                    </div>
+                                    <div class="error-line">
+                                        at async DevServer.handleRequest (<span class="error-file">/node_modules/next/dist/server/base-server.js:268:20</span>)
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex justify-end space-x-3">
+                                <button class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 font-medium">
+                                    Copy Stack
+                                </button>
+                                <button class="px-4 py-2 bg-admin-red text-white rounded-lg hover:bg-red-700 font-medium btn-enhanced">
+                                    Fix & Retry
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Error Management -->
+            <div class="space-y-6">
+                <!-- Dependency Conflict Detector -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Dependency Conflict Detector</h2>
+                    <div class="space-y-5">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Detected Issues</div>
+                            <div class="space-y-2">
+                                <div class="dependency-item p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-900 dark:text-white">CRM API</div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">Version conflict detected</div>
+                                        </div>
+                                        <span class="text-xs bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 px-2 py-1 rounded">
+                                            Critical
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="dependency-item p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-900 dark:text-white">Image Processing Service</div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">Timeout threshold too low</div>
+                                        </div>
+                                        <span class="text-xs bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 px-2 py-1 rounded">
+                                            Warning
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Dependency Map</div>
+                            <div class="relative" style="height: 200px;">
+                                <!-- Dependency visualization would go here -->
+                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
+                                    <div class="w-12 h-12 rounded-full bg-admin-red flex items-center justify-center mx-auto mb-2">
+                                        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400">CRM API</div>
+                                </div>
+                                <div class="absolute top-1/4 left-1/4 transform -translate-x-1/2 -translate-y-1/2 text-center">
+                                    <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center mx-auto mb-2">
+                                        <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400">Lead Form</div>
+                                </div>
+                                <div class="absolute top-1/4 right-1/4 transform -translate-x-1/2 -translate-y-1/2 text-center">
+                                    <div class="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center mx-auto mb-2">
+                                        <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400">CRM Database</div>
+                                </div>
+                                <div class="absolute bottom-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
+                                    <div class="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center mx-auto mb-2">
+                                        <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400">Notification System</div>
+                                </div>
+                                <!-- Connecting lines -->
+                                <svg class="absolute top-0 left-0 w-full h-full pointer-events-none" viewBox="0 0 400 200">
+                                    <path d="M 200,100 L 100,50" stroke="#E5E7EB" stroke-width="2" fill="none" />
+                                    <path d="M 200,100 L 300,50" stroke="#E5E7EB" stroke-width="2" fill="none" />
+                                    <path d="M 200,100 L 200,150" stroke="#E5E7EB" stroke-width="2" fill="none" />
+                                    <!-- Error indicator -->
+                                    <path d="M 200,100 L 100,50" stroke="#DC2626" stroke-width="3" fill="none" stroke-dasharray="5,5" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Insight:</strong> Dependency conflicts account for 65% of automation failures. 
+                                Nigerian internet reliability issues make dependency management critical.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Resource Usage Monitor -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Resource Usage Monitor</h2>
+                    <div class="space-y-5">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">System Resources</div>
+                            <div class="space-y-3">
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm text-gray-700 dark:text-gray-300">CPU Usage</span>
+                                        <span class="text-sm">45%</span>
+                                    </div>
+                                    <div class="resource-bar">
+                                        <div class="resource-fill resource-medium"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm text-gray-700 dark:text-gray-300">Memory Usage</span>
+                                        <span class="text-sm">65%</span>
+                                    </div>
+                                    <div class="resource-bar">
+                                        <div class="resource-fill resource-medium"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm text-gray-700 dark:text-gray-300">API Connections</span>
+                                        <span class="text-sm">12/20</span>
+                                    </div>
+                                    <div class="resource-bar">
+                                        <div class="resource-fill resource-low"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm text-gray-700 dark:text-gray-300">Error Rate</span>
+                                        <span class="text-sm">0.5%</span>
+                                    </div>
+                                    <div class="resource-bar">
+                                        <div class="resource-fill resource-low"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Automation Resource Usage</div>
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300">New Lead → CRM</div>
+                                    <div class="text-xs bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 px-2 py-1 rounded">
+                                        High Usage
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300">YouTube Upload → Blog</div>
+                                    <div class="text-xs bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 px-2 py-1 rounded">
+                                        Medium Usage
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300">Client Payment → Notion</div>
+                                    <div class="text-xs bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                        Low Usage
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Insight:</strong> Resource monitoring prevents automation failures due to system constraints. 
+                                Nigerian server limitations require careful resource management.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Priority Actions -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Priority Actions</h2>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">#1 Priority: CRM API Connection</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                Fix CRM API connection issues causing failed lead captures
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="flex-1 px-3 py-1 bg-admin-red text-white rounded text-xs hover:bg-red-700">
+                                    Fix Now
+                                </button>
+                                <button class="flex-1 px-3 py-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded text-xs hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">#2 Priority: Image Processing</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                Increase timeout for image processing in YouTube workflow
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="flex-1 px-3 py-1 bg-admin-red text-white rounded text-xs hover:bg-red-700">
+                                    Fix Now
+                                </button>
+                                <button class="flex-1 px-3 py-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded text-xs hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">#3 Priority: Date Format Error</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                Fix date format mapping for Notion database integration
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="flex-1 px-3 py-1 bg-admin-red text-white rounded text-xs hover:bg-red-700">
+                                    Fix Now
+                                </button>
+                                <button class="flex-1 px-3 py-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded text-xs hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium">
+                            Generate Error Resolution Plan
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-apply theme
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Initialize sidebar active state
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set error logs as active in sidebar
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.href.includes('automations/error-logs')) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Retry all button
+            document.getElementById('retry-all-btn').addEventListener('click', function() {
+                const originalText = this.innerHTML;
+                this.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2 inline text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Retrying...';
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    alert('All failed automations are being retried! 2 out of 3 succeeded immediately.');
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>

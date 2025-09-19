@@ -5,7 +5,7 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePortfolioFilter } from '../hooks/usePortfolioFilter';
-import { PlayCircleIcon, ArrowRightIcon } from './IconComponents';
+import { PlayCircleIcon, ArrowRightIcon } from '../../../components/icons/static-icons';
 
 const portfolioItems = [
   {

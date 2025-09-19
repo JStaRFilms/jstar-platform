@@ -1,7 +1,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { CheckCircleIcon, CheckIcon, ArrowRightIcon } from './IconComponents';
+import { CheckCircleIcon, CheckIcon, ArrowRightIcon } from '../../../components/icons/static-icons';
 
 const PricingSection = () => {
   return (

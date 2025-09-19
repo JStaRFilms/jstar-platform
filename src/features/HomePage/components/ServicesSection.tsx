@@ -2,7 +2,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { VideoCameraIcon, CodeIcon, ShieldCheckIcon, CameraIcon, FilmIcon, MegaphoneIcon, DeviceMobileIcon, CheckIcon } from './IconComponents';
+import { VideoCameraIcon, CodeIcon, ShieldCheckIcon, CameraIcon, FilmIcon, MegaphoneIcon, DeviceMobileIcon, CheckIcon } from '../../../components/icons/static-icons';
 
 const ServicesSection = () => {
   return (

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { EnvelopeIcon, PhoneIcon, MapPinIcon, ClockIcon } from './IconComponents';
+import { EnvelopeIcon, PhoneIcon, MapPinIcon, ClockIcon } from '../../../components/icons/static-icons';
 
 // TypeScript interfaces for contact system
 interface ContactFormData {

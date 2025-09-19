@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - Scheduled Task Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'obsidian-gray': '#2D3748',
+                        'admin-red': '#DC2626'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-tier1: linear-gradient(135deg, var(--brand-blue) 0%, #3B82F6 100%);
+            --gradient-tier2: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-admin: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+            --obsidian-bg: #202020;
+            --obsidian-sidebar: #161618;
+            --obsidian-text: #dcddde;
+            --obsidian-text-muted: #888888;
+            --obsidian-accent: #7c3aed;
+            --obsidian-link: #8b5cf6;
+        }
+        .btn-enhanced {
+            transition: all 300ms ease;
+        }
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+        }
+        .card-interactive {
+            transition: all 300ms ease;
+            cursor: pointer;
+        }
+        .card-interactive:hover {
+            transform: translateY(-4px);
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-active {
+            background-color: #10B981;
+        }
+        .status-warning {
+            background-color: #F59E0B;
+        }
+        .status-critical {
+            background-color: #EF4444;
+        }
+        .cron-item {
+            border-left: 3px solid transparent;
+            transition: all 200ms ease;
+        }
+        .cron-item:hover {
+            border-left-color: #DC2626;
+        }
+        .cron-schedule {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #F9FAFB;
+            dark:bg-gray-800;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+        .cron-log {
+            max-height: 250px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+        }
+        .cron-log .log-entry {
+            padding: 4px 0;
+            border-bottom: 1px solid #E5E7EB;
+        }
+        .cron-log .log-entry:last-child {
+            border-bottom: none;
+        }
+        .cron-log .log-time {
+            color: #6B7280;
+            margin-right: 8px;
+        }
+        .cron-log .log-success {
+            color: #10B981;
+        }
+        .cron-log .log-error {
+            color: #EF4444;
+        }
+        .cron-log .log-warning {
+            color: #F59E0B;
+        }
+        .timeline {
+            position: relative;
+            height: 120px;
+            background: linear-gradient(to right, #F9FAFB 0%, #E5E7EB 100%);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #E5E7EB;
+        }
+        .timeline::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 2px;
+            background-color: #DC2626;
+        }
+        .timeline-event {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 140px;
+            height: 80px;
+            border-radius: 12px;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 8px;
+            font-size: 0.75rem;
+        }
+        .timeline-event.backup {
+            left: 20px;
+            border-top: 4px solid #3B82F6;
+        }
+        .timeline-event.trend {
+            right: 20px;
+            border-top: 4px solid #10B981;
+        }
+        .timeline-event.email {
+            left: 180px;
+            border-top: 4px solid #8B5CF6;
+        }
+        .timeline-event.logs {
+            right: 180px;
+            border-top: 4px solid #EF4444;
+        }
+        .progress-bar {
+            position: relative;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            background-color: #E5E7EB;
+        }
+        .progress-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            border-radius: 4px;
+        }
+        .progress-success {
+            background-color: #10B981;
+            width: 100%;
+        }
+        .progress-warning {
+            background-color: #F59E0B;
+            width: 75%;
+        }
+        .progress-error {
+            background-color: #EF4444;
+            width: 25%;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <!-- Theme Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="document.documentElement.classList.toggle('dark')" 
+                class="p-2 rounded-full bg-jstar-blue text-white hover:bg-faith-purple transition-all duration-300"
+                aria-label="Toggle dark/light theme">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Admin Navigation -->
+    <div class="fixed top-0 left-0 h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <a href="/admin" class="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                J StaR Admin
+            </a>
+        </div>
+        
+        <div class="p-4">
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Platform Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="/admin/cms" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        CMS
+                    </a>
+                    <a href="/admin/johngpt" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                        JohnGPT
+                    </a>
+                    <a href="/admin/cge" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        CGE Tools
+                    </a>
+                    <a href="/admin/users" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        User Management
+                    </a>
+                    <a href="/admin/analytics" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Analytics
+                    </a>
+                    <a href="/admin/payments" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                        </svg>
+                        Payments
+                    </a>
+                    <a href="/admin/security" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                        Security
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Operations Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin/operations/cron-jobs" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Cron Jobs
+                    </a>
+                    <a href="/admin/operations/server-status" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                        Server Status
+                    </a>
+                    <a href="/admin/operations/backups" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                        </svg>
+                        Backups
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center">
+                        <span class="text-white font-bold">JO</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Admin Access</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 p-6">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center mb-2">
+                        <a href="/admin" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Admin</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <a href="/admin/operations" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Operations</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <span class="text-gray-900 dark:text-white">Cron Jobs</span>
+                    </div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
+                        Scheduled Task Manager
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">
+                        Configure and monitor background processes for J StaR Platform
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced" id="run-all-btn">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Run All Tasks
+                    </button>
+                    <div class="relative">
+                        <input type="text" placeholder="Search tasks..." 
+                               class="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                        <svg class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+        <!-- System Status -->
+        <section class="mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Cron System Status</h2>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">
+                            Current scheduled task management system status
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Cron Engine Active</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Time Sync Active</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Task Monitoring Active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Stats -->
+        <section class="mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-admin-red mb-2">8</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Active Tasks</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-purple-500 mb-2">99.9%</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Uptime</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-green-500 mb-2">24/7</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Automatic Execution</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-red-500 mb-2">0</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Manual Interventions</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Task Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - Task List -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Scheduled Tasks -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center justify-between mb-5">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Scheduled Tasks</h2>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
+                                Daily
+                            </button>
+                            <button class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
+                                Weekly
+                            </button>
+                            <button class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
+                                Monthly
+                            </button>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <!-- Task 1 -->
+                        <div class="cron-item p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white mb-1">Daily Backup</div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">Database and file system backup</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                                        Schedule: <span class="cron-schedule">0 2 * * *</span> (Daily at 2:00 AM)
+                                    </div>
+                                    <div class="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                        <span class="status-indicator status-active"></span>
+                                        Last run: 2 hours ago • Success
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded text-xs hover:bg-blue-200 dark:hover:bg-blue-900/50">
+                                        Edit
+                                    </button>
+                                    <button class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded text-xs hover:bg-gray-200 dark:hover:bg-gray-600">
+                                        Run Now
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Task 2 -->
+                        <div class="cron-item p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white mb-1">Viral Trend Scraper</div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">Monitor YouTube trends for content ideas</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                                        Schedule: <span class="cron-schedule">0 */6 * * *</span> (Every 6 hours)
+                                    </div>
+                                    <div class="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                        <span class="status-indicator status-active"></span>
+                                        Last run: 5 hours ago • Success
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded text-xs hover:bg-blue-200 dark:hover:bg-blue-900/50">
+                                        Edit
+                                    </button>
+                                    <button class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded text-xs hover:bg-gray-200 dark:hover:bg-gray-600">
+                                        Run Now
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Task 3 -->
+                        <div class="cron-item p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white mb-1">Email Digest</div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">Send weekly content summary to subscribers</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                                        Schedule: <span class="cron-schedule">0 9 * * 1</span> (Mondays at 9:00 AM)
+                                    </div>
+                                    <div class="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                        <span class="status-indicator status-active"></span>
+                                        Last run: 3 days ago • Success
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded text-xs hover:bg-blue-200 dark:hover:bg-blue-900/50">
+                                        Edit
+                                    </button>
+                                    <button class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded text-xs hover:bg-gray-200 dark:hover:bg-gray-600">
+                                        Run Now
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Task 4 -->
+                        <div class="cron-item p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white mb-1">Clear Old Logs</div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">Purge logs older than 30 days</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                                        Schedule: <span class="cron-schedule">0 0 1 * *</span> (1st of month at midnight)
+                                    </div>
+                                    <div class="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                        <span class="status-indicator status-active"></span>
+                                        Last run: 26 days ago • Success
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded text-xs hover:bg-blue-200 dark:hover:bg-blue-900/50">
+                                        Edit
+                                    </button>
+                                    <button class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded text-xs hover:bg-gray-200 dark:hover:bg-gray-600">
+                                        Run Now
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Task 5 -->
+                        <div class="cron-item p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white mb-1">Content Calendar Update</div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">Sync content calendar with YouTube schedule</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                                        Schedule: <span class="cron-schedule">0 */4 * * *</span> (Every 4 hours)
+                                    </div>
+                                    <div class="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                        <span class="status-indicator status-active"></span>
+                                        Last run: 3 hours ago • Success
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded text-xs hover:bg-blue-200 dark:hover:bg-blue-900/50">
+                                        Edit
+                                    </button>
+                                    <button class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded text-xs hover:bg-gray-200 dark:hover:bg-gray-600">
+                                        Run Now
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Task 6 -->
+                        <div class="cron-item p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white mb-1">Nigerian Holiday Check</div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">Check for Nigerian holidays and update calendar</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                                        Schedule: <span class="cron-schedule">0 8 * * *</span> (Daily at 8:00 AM)
+                                    </div>
+                                    <div class="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                        <span class="status-indicator status-active"></span>
+                                        Last run: 2 hours ago • Success
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded text-xs hover:bg-blue-200 dark:hover:bg-blue-900/50">
+                                        Edit
+                                    </button>
+                                    <button class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded text-xs hover:bg-gray-200 dark:hover:bg-gray-600">
+                                        Run Now
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Task Timeline -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Task Execution Timeline</h2>
+                    <div class="timeline mb-4">
+                        <div class="timeline-event backup">
+                            <div class="text-xs font-medium text-blue-600 dark:text-blue-400 mb-1">DAILY</div>
+                            <div class="font-medium text-gray-900 dark:text-white">Backup</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">2:00 AM</div>
+                        </div>
+                        <div class="timeline-event email">
+                            <div class="text-xs font-medium text-purple-600 dark:text-purple-400 mb-1">WEEKLY</div>
+                            <div class="font-medium text-gray-900 dark:text-white">Email Digest</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">Mon 9:00 AM</div>
+                        </div>
+                        <div class="timeline-event trend">
+                            <div class="text-xs font-medium text-green-600 dark:text-green-400 mb-1">HOURLY</div>
+                            <div class="font-medium text-gray-900 dark:text-white">Trend Scraper</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">Every 6h</div>
+                        </div>
+                        <div class="timeline-event logs">
+                            <div class="text-xs font-medium text-red-600 dark:text-red-400 mb-1">MONTHLY</div>
+                            <div class="font-medium text-gray-900 dark:text-white">Clear Logs</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">1st at 00:00</div>
+                        </div>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 font-medium">
+                            Edit Timeline
+                        </button>
+                        <button class="px-4 py-2 bg-admin-red text-white rounded-lg hover:bg-red-700 font-medium btn-enhanced">
+                            Optimize Schedule
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Task Management -->
+            <div class="space-y-6">
+                <!-- Task Details -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Task Details</h2>
+                    <div class="space-y-5">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Daily Backup Configuration</div>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300">Schedule</div>
+                                    <span class="cron-schedule">0 2 * * *</span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300">Next Run</div>
+                                    <span class="text-sm">Tomorrow at 2:00 AM</span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300">Last Duration</div>
+                                    <span class="text-sm">12m 34s</span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300">Storage Location</div>
+                                    <span class="text-sm">Nigerian Data Center</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Backup Status</div>
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300">Last Backup</div>
+                                    <span class="text-sm">2 hours ago</span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300">Status</div>
+                                    <span class="text-sm bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                        Success
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300">Size</div>
+                                    <span class="text-sm">2.4 GB</span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300">Retention</div>
+                                    <span class="text-sm">7 days</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Insight:</strong> Daily backups ensure content safety. Nigerian data center provides fast recovery.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Task Execution Log -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Execution Log</h2>
+                    <div class="p-4 bg-gray-800 rounded-lg border border-gray-700">
+                        <div class="cron-log">
+                            <div class="log-entry">
+                                <span class="log-time">[2023-10-15 02:00:00]</span> Starting daily backup process...
+                            </div>
+                            <div class="log-entry">
+                                <span class="log-time">[2023-10-15 02:00:05]</span> Connecting to database...
+                            </div>
+                            <div class="log-entry log-success">
+                                <span class="log-time">[2023-10-15 02:00:08]</span> Database connection established
+                            </div>
+                            <div class="log-entry">
+                                <span class="log-time">[2023-10-15 02:00:12]</span> Starting database dump...
+                            </div>
+                            <div class="log-entry log-success">
+                                <span class="log-time">[2023-10-15 02:08:23]</span> Database dump completed (1.8 GB)
+                            </div>
+                            <div class="log-entry">
+                                <span class="log-time">[2023-10-15 02:08:28]</span> Starting file system backup...
+                            </div>
+                            <div class="log-entry">
+                                <span class="log-time">[2023-10-15 02:10:15]</span> Processing media files...
+                            </div>
+                            <div class="log-entry log-success">
+                                <span class="log-time">[2023-10-15 02:12:34]</span> File system backup completed (600 MB)
+                            </div>
+                            <div class="log-entry">
+                                <span class="log-time">[2023-10-15 02:12:39]</span> Uploading to Nigerian data center...
+                            </div>
+                            <div class="log-entry log-success">
+                                <span class="log-time">[2023-10-15 02:18:52]</span> Backup successfully uploaded to storage
+                            </div>
+                            <div class="log-entry log-success">
+                                <span class="log-time">[2023-10-15 02:18:55]</span> Daily backup completed successfully (12m 55s)
+                            </div>
+                            <div class="log-entry">
+                                <span class="log-time">[2023-10-15 02:19:00]</span> Verifying backup integrity...
+                            </div>
+                            <div class="log-entry log-success">
+                                <span class="log-time">[2023-10-15 02:19:32]</span> Backup verification successful
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex justify-end space-x-3">
+                        <button class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 font-medium">
+                            Clear Log
+                        </button>
+                        <button class="px-4 py-2 bg-admin-red text-white rounded-lg hover:bg-red-700 font-medium btn-enhanced">
+                            Download Log
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Task Performance -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Task Performance</h2>
+                    <div class="space-y-5">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Execution History (Last 7 Days)</div>
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300">Sun, Oct 14</div>
+                                    <div class="flex items-center">
+                                        <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                                        <span class="text-sm">12m 28s</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300">Sat, Oct 13</div>
+                                    <div class="flex items-center">
+                                        <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                                        <span class="text-sm">11m 45s</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300">Fri, Oct 12</div>
+                                    <div class="flex items-center">
+                                        <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                                        <span class="text-sm">13m 02s</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300">Thu, Oct 11</div>
+                                    <div class="flex items-center">
+                                        <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                                        <span class="text-sm">12m 17s</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300">Wed, Oct 10</div>
+                                    <div class="flex items-center">
+                                        <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                                        <span class="text-sm">12m 51s</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Resource Usage</div>
+                            <div class="space-y-3">
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm text-gray-700 dark:text-gray-300">CPU Usage</span>
+                                        <span class="text-sm">35%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill progress-success"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm text-gray-700 dark:text-gray-300">Memory Usage</span>
+                                        <span class="text-sm">45%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill progress-success"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm text-gray-700 dark:text-gray-300">Network Usage</span>
+                                        <span class="text-sm">2.4 GB</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill progress-success"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Insight:</strong> Task performance is consistent. Nigerian internet reliability affects upload speeds.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-apply theme
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Initialize sidebar active state
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set cron jobs as active in sidebar
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.href.includes('operations/cron-jobs')) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Run all button
+            document.getElementById('run-all-btn').addEventListener('click', function() {
+                const originalText = this.innerHTML;
+                this.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2 inline text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Running...';
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    alert('All scheduled tasks initiated! 8 tasks started successfully.');
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>

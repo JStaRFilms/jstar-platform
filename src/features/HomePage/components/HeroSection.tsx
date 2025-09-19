@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { useSlideshow } from '../hooks/useSlideshow';
 import { useHeroSlides } from '../hooks/useHeroSlides';
 import { useSlideshowConfig } from '../hooks/useSlideshowConfig';
-import { PlayCircleIcon } from './IconComponents';
+import { PlayCircleIcon } from '../../../components/icons/static-icons';
 
 /**
  * Interface defining the structure of a hero slide
