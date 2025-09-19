@@ -15,10 +15,16 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
   // Don't show header/footer on admin pages
   const isAdminPage = pathname?.startsWith('/admin');
 
+  // Don't add padding to homepage since it has its own padding
+  const isHomePage = pathname === '/';
+  const shouldAddPadding = !isAdminPage && !isHomePage;
+
   return (
     <Providers>
       {!isAdminPage && <Header />}
-      <main>{children}</main>
+      <main className={shouldAddPadding ? "pt-12" : ""}>
+        {children}
+      </main>
       {!isAdminPage && <Footer />}
     </Providers>
   );

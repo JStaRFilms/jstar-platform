@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - Performance Tuner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'obsidian-gray': '#2D3748',
+                        'admin-red': '#DC2626'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-tier1: linear-gradient(135deg, var(--brand-blue) 0%, #3B82F6 100%);
+            --gradient-tier2: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-admin: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+            --obsidian-bg: #202020;
+            --obsidian-sidebar: #161618;
+            --obsidian-text: #dcddde;
+            --obsidian-text-muted: #888888;
+            --obsidian-accent: #7c3aed;
+            --obsidian-link: #8b5cf6;
+        }
+        .btn-enhanced {
+            transition: all 300ms ease;
+        }
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+        }
+        .card-interactive {
+            transition: all 300ms ease;
+            cursor: pointer;
+        }
+        .card-interactive:hover {
+            transform: translateY(-4px);
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-active {
+            background-color: #10B981;
+        }
+        .status-warning {
+            background-color: #F59E0B;
+        }
+        .status-critical {
+            background-color: #EF4444;
+        }
+        .cache-item {
+            border-left: 3px solid transparent;
+            transition: all 200ms ease;
+        }
+        .cache-item:hover {
+            border-left-color: #DC2626;
+        }
+        .cache-bar {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #E5E7EB;
+            overflow: hidden;
+        }
+        .cache-fill {
+            height: 100%;
+            border-radius: 4px;
+        }
+        .cache-hit {
+            background-color: #10B981;
+        }
+        .cache-miss {
+            background-color: #EF4444;
+        }
+        .cache-rule {
+            transition: all 200ms ease;
+        }
+        .cache-rule:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        .performance-metric {
+            transition: all 300ms ease;
+        }
+        .performance-metric:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .cdn-node {
+            transition: all 200ms ease;
+        }
+        .cdn-node:hover {
+            transform: scale(1.05);
+        }
+        .latency-bar {
+            height: 16px;
+            border-radius: 8px;
+            background-color: #F3F4F6;
+            overflow: hidden;
+        }
+        .latency-fill {
+            height: 100%;
+            border-radius: 8px;
+        }
+        .latency-low {
+            background-color: #10B981;
+        }
+        .latency-medium {
+            background-color: #F59E0B;
+        }
+        .latency-high {
+            background-color: #EF4444;
+        }
+        .cache-timeline {
+            position: relative;
+            height: 100px;
+            background: linear-gradient(to bottom, #F9FAFB 0%, #E5E7EB 100%);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #E5E7EB;
+        }
+        .cache-event {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 140px;
+            height: 80px;
+            border-radius: 12px;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 8px;
+            font-size: 0.75rem;
+        }
+        .cache-event.hit {
+            left: 20px;
+            border-top: 4px solid #10B981;
+        }
+        .cache-event.miss {
+            right: 20px;
+            border-top: 4px solid #EF4444;
+        }
+        .cache-event.purge {
+            left: 180px;
+            border-top: 4px solid #DC2626;
+        }
+        .cache-event.cdn {
+            right: 180px;
+            border-top: 4px solid #8B5CF6;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <!-- Theme Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="document.documentElement.classList.toggle('dark')" 
+                class="p-2 rounded-full bg-jstar-blue text-white hover:bg-faith-purple transition-all duration-300"
+                aria-label="Toggle dark/light theme">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Admin Navigation -->
+    <div class="fixed top-0 left-0 h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <a href="/admin" class="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                J StaR Admin
+            </a>
+        </div>
+        
+        <div class="p-4">
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Platform Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="/admin/cms" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        CMS
+                    </a>
+                    <a href="/admin/johngpt" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                        JohnGPT
+                    </a>
+                    <a href="/admin/cge" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        CGE Tools
+                    </a>
+                    <a href="/admin/users" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        User Management
+                    </a>
+                    <a href="/admin/analytics" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Analytics
+                    </a>
+                    <a href="/admin/payments" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                        </svg>
+                        Payments
+                    </a>
+                    <a href="/admin/security" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                        Security
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Operations Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin/operations/cron-jobs" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Cron Jobs
+                    </a>
+                    <a href="/admin/operations/logs" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v14a2 2 0 01-2 2z"></path>
+                        </svg>
+                        System Logs
+                    </a>
+                    <a href="/admin/operations/cache" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        Cache Management
+                    </a>
+                    <a href="/admin/operations/server-status" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                        Server Status
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center">
+                        <span class="text-white font-bold">JO</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Admin Access</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 p-6">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center mb-2">
+                        <a href="/admin" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Admin</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <a href="/admin/operations" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Operations</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <span class="text-gray-900 dark:text-white">Cache Management</span>
+                    </div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
+                        Performance Tuner
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">
+                        Optimize platform performance with advanced caching controls
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced" id="purge-all-btn">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        Purge All
+                    </button>
+                    <div class="relative">
+                        <input type="text" placeholder="Search cache..." 
+                               class="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                        <svg class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+        <!-- System Status -->
+        <section class="mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Cache System Status</h2>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">
+                            Current caching system performance metrics
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Cache System Active</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">CDN Active</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Cache Monitoring Active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Stats -->
+        <section class="mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-admin-red mb-2">98.2%</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Cache Hit Rate</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-purple-500 mb-2">1.2s</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Avg. Response Time</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-green-500 mb-2">45%</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Traffic Handled by CDN</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-red-500 mb-2">0.1s</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Cache Purge Time</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Cache Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - Cache Overview -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Cache Hit/Miss Dashboard -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center justify-between mb-5">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Cache Performance Dashboard</h2>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
+                                Last 24h
+                            </button>
+                            <button class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
+                                Last 7d
+                            </button>
+                            <button class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
+                                Last 30d
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Cache Hit/Miss Ratio</div>
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm text-gray-700 dark:text-gray-300">Cache Hit Rate</span>
+                                        <span class="text-sm font-medium text-green-600">98.2%</span>
+                                    </div>
+                                    <div class="cache-bar">
+                                        <div class="cache-fill cache-hit" style="width: 98.2%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm text-gray-700 dark:text-gray-300">Cache Miss Rate</span>
+                                        <span class="text-sm font-medium text-red-600">1.8%</span>
+                                    </div>
+                                    <div class="cache-bar">
+                                        <div class="cache-fill cache-miss" style="width: 1.8%"></div>
+                                    </div>
+                                </div>
+                                <div class="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                    <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                        <strong>Insight:</strong> Exceptional cache performance. Nigerian traffic peaks slightly increase miss rate.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Performance Impact</div>
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+                                        <div class="text-2xl font-bold text-gray-900 dark:text-white mb-1">3.4x</div>
+                                        <div class="text-sm text-gray-600 dark:text-gray-400">Faster for cached requests</div>
+                                    </div>
+                                    <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+                                        <div class="text-2xl font-bold text-gray-900 dark:text-white mb-1">72%</div>
+                                        <div class="text-sm text-gray-600 dark:text-gray-400">Bandwidth saved</div>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+                                        <div class="text-2xl font-bold text-gray-900 dark:text-white mb-1">1.2s</div>
+                                        <div class="text-sm text-gray-600 dark:text-gray-400">Avg. response time</div>
+                                    </div>
+                                    <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+                                        <div class="text-2xl font-bold text-gray-900 dark:text-white mb-1">0.3s</div>
+                                        <div class="text-sm text-gray-600 dark:text-gray-400">Cached response time</div>
+                                    </div>
+                                </div>
+                                <div class="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                    <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                        <strong>Insight:</strong> Cache reduces response time by 75% during traffic spikes.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Cache Timeline -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Cache Activity Timeline</h2>
+                    <div class="cache-timeline mb-4">
+                        <div class="cache-event hit">
+                            <div class="text-xs font-medium text-green-600 dark:text-green-400 mb-1">HIT</div>
+                            <div class="font-medium text-gray-900 dark:text-white">Homepage</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">10:23 AM</div>
+                        </div>
+                        <div class="cache-event miss">
+                            <div class="text-xs font-medium text-red-600 dark:text-red-400 mb-1">MISS</div>
+                            <div class="font-medium text-gray-900 dark:text-white">New Content</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">10:25 AM</div>
+                        </div>
+                        <div class="cache-event purge">
+                            <div class="text-xs font-medium text-admin-red mb-1">PURGE</div>
+                            <div class="font-medium text-gray-900 dark:text-white">Content Update</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">10:27 AM</div>
+                        </div>
+                        <div class="cache-event cdn">
+                            <div class="text-xs font-medium text-purple-600 dark:text-purple-400 mb-1">CDN</div>
+                            <div class="font-medium text-gray-900 dark:text-white">Static Assets</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">10:28 AM</div>
+                        </div>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 font-medium">
+                            Edit Timeline
+                        </button>
+                        <button class="px-4 py-2 bg-admin-red text-white rounded-lg hover:bg-red-700 font-medium btn-enhanced">
+                            Optimize Schedule
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Active Cache Entries -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Active Cache Entries</h2>
+                    <div class="space-y-3">
+                        <!-- Cache Entry 1 -->
+                        <div class="cache-item p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white mb-1">/homepage</div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">Homepage content cache</div>
+                                    <div class="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                        <span class="status-indicator status-active"></span>
+                                        Size: 1.2 MB • Expires: 1h
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded text-xs hover:bg-gray-200 dark:hover:bg-gray-600">
+                                        Details
+                                    </button>
+                                    <button class="px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 rounded text-xs hover:bg-red-200 dark:hover:bg-red-900/50">
+                                        Purge
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Cache Entry 2 -->
+                        <div class="cache-item p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white mb-1">/api/johngpt</div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">JohnGPT session cache</div>
+                                    <div class="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                        <span class="status-indicator status-active"></span>
+                                        Size: 240 KB • Expires: 30m
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded text-xs hover:bg-gray-200 dark:hover:bg-gray-600">
+                                        Details
+                                    </button>
+                                    <button class="px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 rounded text-xs hover:bg-red-200 dark:hover:bg-red-900/50">
+                                        Purge
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Cache Entry 3 -->
+                        <div class="cache-item p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white mb-1">/content/1234</div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">Blog post cache</div>
+                                    <div class="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                        <span class="status-indicator status-active"></span>
+                                        Size: 850 KB • Expires: 24h
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded text-xs hover:bg-gray-200 dark:hover:bg-gray-600">
+                                        Details
+                                    </button>
+                                    <button class="px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 rounded text-xs hover:bg-red-200 dark:hover:bg-red-900/50">
+                                        Purge
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Cache Management -->
+            <div class="space-y-6">
+                <!-- Cache Rule Builder -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Cache Rule Builder</h2>
+                    <div class="space-y-5">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Create New Rule</div>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Path Pattern</label>
+                                    <input type="text" value="/api/*" 
+                                           class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cache Duration</label>
+                                    <select class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                                        <option>5 minutes</option>
+                                        <option>15 minutes</option>
+                                        <option>30 minutes</option>
+                                        <option>1 hour</option>
+                                        <option>24 hours</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cache Type</label>
+                                    <select class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                                        <option>Server-side Cache</option>
+                                        <option>Browser Cache</option>
+                                        <option>CDN Cache</option>
+                                        <option>Combined Cache</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="cache-auth" class="h-4 w-4 text-admin-red focus:ring-admin-red border-gray-300 rounded">
+                                    <label for="cache-auth" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+                                        Cache authenticated requests
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Current Rules</div>
+                            <div class="space-y-2">
+                                <div class="cache-rule p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between">
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-900 dark:text-white">/api/*</div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">30 minutes • Server-side</div>
+                                        </div>
+                                        <span class="text-xs bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 px-2 py-1 rounded">
+                                            Active
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="cache-rule p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between">
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-900 dark:text-white">/content/*</div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">24 hours • CDN</div>
+                                        </div>
+                                        <span class="text-xs bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 px-2 py-1 rounded">
+                                            Active
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="cache-rule p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
+                                    <div class="flex justify-between">
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-900 dark:text-white">/images/*</div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">7 days • Browser</div>
+                                        </div>
+                                        <span class="text-xs bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 px-2 py-1 rounded">
+                                            Active
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end space-x-3">
+                            <button class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 font-medium">
+                                Reset
+                            </button>
+                            <button class="px-4 py-2 bg-admin-red text-white rounded-lg hover:bg-red-700 font-medium btn-enhanced">
+                                Save Rule
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- CDN Configuration -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">CDN Configuration</h2>
+                    <div class="space-y-5">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">CDN Performance</div>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300">Requests Handled</div>
+                                    <span class="text-sm">45%</span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300">Cache Hit Rate</div>
+                                    <span class="text-sm">99.1%</span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300">Avg. Latency</div>
+                                    <span class="text-sm">42ms</span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300">Bandwidth Saved</div>
+                                    <span class="text-sm">72%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Global CDN Nodes</div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="cdn-node p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 text-center">
+                                    <div class="text-xs font-medium text-gray-900 dark:text-white">Lagos</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">42ms</div>
+                                    <div class="mt-2 latency-bar">
+                                        <div class="latency-fill latency-low" style="width: 42%"></div>
+                                    </div>
+                                </div>
+                                <div class="cdn-node p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 text-center">
+                                    <div class="text-xs font-medium text-gray-900 dark:text-white">London</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">85ms</div>
+                                    <div class="mt-2 latency-bar">
+                                        <div class="latency-fill latency-medium" style="width: 85%"></div>
+                                    </div>
+                                </div>
+                                <div class="cdn-node p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 text-center">
+                                    <div class="text-xs font-medium text-gray-900 dark:text-white">New York</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">120ms</div>
+                                    <div class="mt-2 latency-bar">
+                                        <div class="latency-fill latency-high" style="width: 120%"></div>
+                                    </div>
+                                </div>
+                                <div class="cdn-node p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 text-center">
+                                    <div class="text-xs font-medium text-gray-900 dark:text-white">Singapore</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">150ms</div>
+                                    <div class="mt-2 latency-bar">
+                                        <div class="latency-fill latency-high" style="width: 150%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Insight:</strong> Nigerian CDN nodes provide 60% lower latency for local users. 
+                                Consider adding more nodes in West Africa.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Performance Recommendations -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Performance Recommendations</h2>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex items-start">
+                                <svg class="h-5 w-5 text-green-500 mt-1 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white mb-1">Increase Cache Duration for Static Assets</div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                        Extend cache duration for images and CSS from 7 to 30 days
+                                    </div>
+                                    <div class="text-xs bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 px-2 py-1 rounded inline-block">
+                                        Potential 15% bandwidth reduction
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex items-start">
+                                <svg class="h-5 w-5 text-green-500 mt-1 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white mb-1">Add Nigerian-Specific Cache Rules</div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                        Create cache rules optimized for Nigerian traffic patterns
+                                    </div>
+                                    <div class="text-xs bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 px-2 py-1 rounded inline-block">
+                                        Potential 20% performance improvement for local users
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex items-start">
+                                <svg class="h-5 w-5 text-green-500 mt-1 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white mb-1">Add More CDN Nodes in West Africa</div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                        Expand CDN coverage to improve latency for Nigerian users
+                                    </div>
+                                    <div class="text-xs bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 px-2 py-1 rounded inline-block">
+                                        Potential 60% latency reduction
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium">
+                            Generate Optimization Plan
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-apply theme
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Initialize sidebar active state
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set cache management as active in sidebar
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.href.includes('operations/cache')) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Purge all button
+            document.getElementById('purge-all-btn').addEventListener('click', function() {
+                const originalText = this.innerHTML;
+                this.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2 inline text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Purging...';
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    alert('All cache entries purged successfully! System now serving fresh content.');
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>

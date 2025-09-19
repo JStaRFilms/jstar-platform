@@ -157,7 +157,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
   }
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen overflow-visible">
       {/* Animated background elements */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-primary/10 rounded-full filter blur-3xl animate-pulse"></div>
@@ -165,12 +165,12 @@ const HeroSection: React.FC<HeroSectionProps> = ({
         <div className="absolute top-1/3 right-1/3 w-64 h-64 bg-secondary/10 rounded-full filter blur-3xl animate-pulse animation-delay-1000"></div>
       </div>
 
-      <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
+      <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20">
         <div className="relative w-full h-full">
           {activeSlides.map((slide, index) => {
             // Dynamic transition classes and styles based on configuration
             const getTransitionClasses = () => {
-              const baseClasses = 'absolute inset-0 flex items-center';
+              const baseClasses = 'absolute inset-0 flex';
 
               switch (slideshowConfig.transitionEffect) {
                 case 'slide':
