@@ -63,15 +63,16 @@ const adminNavigationItems = [
     ]
   },
   {
-    id: 'user-management',
+    id: 'user',
     label: 'User Management',
-    href: '/admin/user-management',
+    href: '/admin/user',
     icon: ShieldCheckIcon,
     children: [
-      { id: 'overview', label: 'Overview', href: '/admin/user-management' },
-      { id: 'user-list', label: 'User List', href: '/admin/user-management/user-list' },
-      { id: 'roles-permissions', label: 'Roles & Permissions', href: '/admin/user-management/roles-permissions' },
-      { id: 'user-activity', label: 'User Activity', href: '/admin/user-management/user-activity' }
+      { id: 'overview', label: 'Overview', href: '/admin/user' },
+      { id: 'user-list', label: 'User List', href: '/admin/user/user-list' },
+      { id: 'lead-magnets', label: 'Lead Magnets', href: '/admin/users/lead-magnets' },
+      { id: 'roles-permissions', label: 'Roles & Permissions', href: '/admin/user/roles-permissions' },
+      { id: 'user-activity', label: 'User Activity', href: '/admin/user/user-activity' }
     ]
   },
   {
