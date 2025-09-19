@@ -23,23 +23,8 @@ export const HeroSlidesHeader: React.FC<HeroSlidesHeaderProps> = ({
     <header className="mb-6 sm:mb-8">
       {/* Mobile-first responsive layout */}
       <div className="flex flex-col space-y-4 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between">
-        {/* Breadcrumbs and Title */}
+        {/* Title */}
         <div className="min-w-0 flex-1">
-          {/* Breadcrumbs - Hidden on mobile, shown on tablet+ */}
-          <div className="hidden sm:flex items-center mb-2">
-            <Link
-              href="/admin/cms"
-              className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-            >
-              CMS
-            </Link>
-            <span className="mx-2 text-gray-400 dark:text-gray-500">/</span>
-            <span className="text-sm text-gray-900 dark:text-white font-medium">
-              Hero Slides
-            </span>
-          </div>
-
-          {/* Title */}
           <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent truncate">
             Hero Slides Management
           </h1>

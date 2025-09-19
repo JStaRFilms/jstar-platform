@@ -96,8 +96,8 @@ export const AdminContentContainer: React.FC<AdminContentContainerProps> = ({
                   <svg className="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
                     <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 9 4-4-4-4"/>
                   </svg>
-                  <span className="text-sm font-medium text-gray-500 dark:text-gray-500 capitalize">
-                    {subItem.replace('-', ' ')}
+                  <span className="text-sm font-medium text-gray-500 dark:text-gray-500">
+                    {subItem === 'hero-slides' ? 'Hero Slides' : subItem.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                   </span>
                 </div>
               </li>

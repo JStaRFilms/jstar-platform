@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { AdminSidebar } from '@/features/AdminDashboard/components/AdminSidebar';
 import { useHeroSlides, HeroSlide } from './hooks/useHeroSlides';
 import { HeroSlidesHeader } from './components/HeroSlidesHeader';
 import { HeroSlidesStats } from './components/HeroSlidesStats';
@@ -12,7 +11,8 @@ import { EditSlideModal } from './components/EditSlideModal';
 /**
  * Hero Slides Management Component
  * Main container for managing homepage hero slides
- * Follows mobile-first responsive design and component-driven architecture
+ * Updated to work with the new navigation pattern - no longer includes its own sidebar/layout
+ * The admin layout handles navigation, this component focuses only on content
  */
 export const HeroSlidesManagement: React.FC = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -111,34 +111,28 @@ export const HeroSlidesManagement: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Admin Sidebar - Hidden on mobile, shown on desktop */}
-      <AdminSidebar activeSection="cms" />
+    <>
+      {/* Header Section */}
+      <HeroSlidesHeader
+        onCreateClick={() => setIsCreateModalOpen(true)}
+      />
 
-      {/* Main Content - Responsive layout */}
-      <div className="ml-0 md:ml-64 p-4 sm:p-6">
-        {/* Header Section */}
-        <HeroSlidesHeader
-          onCreateClick={() => setIsCreateModalOpen(true)}
-        />
+      {/* Stats Section */}
+      <HeroSlidesStats
+        slides={slides}
+        loading={loading}
+      />
 
-        {/* Stats Section */}
-        <HeroSlidesStats
-          slides={slides}
-          loading={loading}
-        />
-
-        {/* Main Content Grid */}
-        <HeroSlidesGrid
-          slides={slides}
-          loading={loading}
-          error={error}
-          onSlideSelect={setSelectedSlide}
-          onSlideEdit={handleEditSlide}
-          onSlideDelete={handleDeleteSlide}
-          onSlideToggle={handleToggleSlide}
-        />
-      </div>
+      {/* Main Content Grid */}
+      <HeroSlidesGrid
+        slides={slides}
+        loading={loading}
+        error={error}
+        onSlideSelect={setSelectedSlide}
+        onSlideEdit={handleEditSlide}
+        onSlideDelete={handleDeleteSlide}
+        onSlideToggle={handleToggleSlide}
+      />
 
       {/* Create Slide Modal */}
       <CreateSlideModal
@@ -159,7 +153,7 @@ export const HeroSlidesManagement: React.FC = () => {
         onSubmit={handleUpdateSlide}
         loading={loading}
       />
-    </div>
+    </>
   );
 };
 

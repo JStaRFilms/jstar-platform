@@ -53,6 +53,7 @@ export default function AdminLayout({
       '/migration-center': { category: 'dashboard', subItem: 'migration-center' },
       '/feature-flags': { category: 'dashboard', subItem: 'feature-flags' },
       '/cms': { category: 'cms', subItem: 'overview' },
+      '/cms/hero-slides': { category: 'cms', subItem: 'hero-slides' },
       '/johngpt-config': { category: 'johngpt-config', subItem: 'overview' },
       '/user-management': { category: 'user-management', subItem: 'overview' },
       '/cge-admin': { category: 'cge-admin', subItem: 'overview' },
