@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - Blog Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'admin-red': '#DC2626'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-tier1: linear-gradient(135deg, var(--brand-blue) 0%, #3B82F6 100%);
+            --gradient-tier2: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --gradient-admin: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+            --obsidian-bg: #202020;
+            --obsidian-sidebar: #161618;
+            --obsidian-text: #dcddde;
+            --obsidian-text-muted: #888888;
+            --obsidian-accent: #7c3aed;
+            --obsidian-link: #8b5cf6;
+        }
+        .btn-enhanced {
+            transition: all 300ms ease;
+        }
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+        }
+        .card-interactive {
+            transition: all 300ms ease;
+            cursor: pointer;
+        }
+        .card-interactive:hover {
+            transform: translateY(-4px);
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-active {
+            background-color: #10B981;
+        }
+        .status-warning {
+            background-color: #F59E0B;
+        }
+        .status-critical {
+            background-color: #EF4444;
+        }
+        .blog-item {
+            border-left: 3px solid transparent;
+            transition: all 200ms ease;
+        }
+        .blog-item:hover {
+            border-left-color: #DC2626;
+        }
+        .blog-item.published {
+            border-left-color: #10B981;
+        }
+        .blog-item.draft {
+            border-left-color: #F59E0B;
+        }
+        .blog-item.scheduled {
+            border-left-color: #3B82F6;
+        }
+        .stats-bar {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #E5E7EB;
+            overflow: hidden;
+        }
+        .stats-fill {
+            height: 100%;
+            border-radius: 4px;
+        }
+        .stats-views {
+            background-color: #3B82F6;
+        }
+        .stats-engagement {
+            background-color: #8B5CF6;
+        }
+        .stats-conversion {
+            background-color: #10B981;
+        }
+        .blog-content {
+            max-height: 60px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+        }
+        .category-tag {
+            transition: all 200ms ease;
+        }
+        .category-tag:hover {
+            transform: scale(1.05);
+        }
+        .trend-up {
+            color: #10B981;
+        }
+        .trend-down {
+            color: #EF4444;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <!-- Theme Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="document.documentElement.classList.toggle('dark')" 
+                class="p-2 rounded-full bg-jstar-blue text-white hover:bg-faith-purple transition-all duration-300"
+                aria-label="Toggle dark/light theme">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Admin Navigation -->
+    <div class="fixed top-0 left-0 h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <a href="/admin" class="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                J StaR Admin
+            </a>
+        </div>
+        
+        <div class="p-4">
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Platform Modules
+                </h3>
+                <nav class="space-y-1">
+                    <a href="/admin" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="/admin/cms" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        CMS
+                    </a>
+                    <div class="pl-8 mt-2 space-y-1">
+                        <a href="/admin/cms/hero-slides" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-sm">
+                            Hero Slides
+                        </a>
+                        <a href="/admin/cms/blog-management" class="sidebar-item active flex items-center p-2 rounded-lg text-gray-700 dark:text-gray-200 text-sm">
+                            Blog Management
+                        </a>
+                        <a href="/admin/cms/content-editor" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-sm">
+                            Content Editor
+                        </a>
+                        <a href="/admin/cms/media-library" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-sm">
+                            Media Library
+                        </a>
+                        <a href="/admin/cms/templates" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-sm">
+                            Templates
+                        </a>
+                        <a href="/admin/cms/publishing" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-sm">
+                            Publishing
+                        </a>
+                        <a href="/admin/cms/seo-settings" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-sm">
+                            SEO Settings
+                        </a>
+                    </div>
+                    <a href="/admin/johngpt" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                        JohnGPT
+                    </a>
+                    <a href="/admin/cge" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        CGE Tools
+                    </a>
+                    <a href="/admin/users" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        User Management
+                    </a>
+                    <a href="/admin/analytics" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14m-4 6h8"></path>
+                        </svg>
+                        Analytics
+                    </a>
+                    <a href="/admin/payments" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                        </svg>
+                        Payments
+                    </a>
+                    <a href="/admin/security" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                        Security
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-admin-red to-red-500 flex items-center justify-center">
+                        <span class="text-white font-bold">JO</span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="font-medium text-gray-900 dark:text-white">John Oluleke-Oke</p>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Admin Access</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 p-6">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center mb-2">
+                        <a href="/admin" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Admin</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <a href="/admin/cms" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">CMS</a>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">/</span>
+                        <span class="text-gray-900 dark:text-white">Blog Management</span>
+                    </div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
+                        Blog Management
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">
+                        Manage, analyze, and optimize your blog content
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button class="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced" id="new-post-btn">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        New Post
+                    </button>
+                    <button class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600" id="bulk-actions-btn">
+                        <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        Bulk Actions
+                    </button>
+                    <div class="relative">
+                        <input type="text" placeholder="Search posts..." 
+                               class="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
+                        <svg class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+        <!-- System Status -->
+        <section class="mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Blog System Status</h2>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">
+                            Current blog content management status
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Blog System Active</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Analytics Connected</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="status-indicator status-active"></span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Last Post: 2 days ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Stats -->
+        <section class="mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-admin-red mb-2">24</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Total Posts</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-purple-500 mb-2">18</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Published</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-green-500 mb-2">8.2K</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Total Views</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-red-500 mb-2">4.7%</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Avg. Engagement</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Blog Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - Blog Posts -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Blog Filters -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center justify-between mb-5">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Blog Posts</h2>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
+                                All
+                            </button>
+                            <button class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
+                                Published
+                            </button>
+                            <button class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
+                                Drafts
+                            </button>
+                            <button class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
+                                Scheduled
+                            </button>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <!-- Blog Post 1 -->
+                        <div class="blog-item published p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 cursor-pointer" data-post="1">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white mb-1">Mastering YouTube Thumbnails: A Nigerian Creator's Guide</div>
+                                    <div class="blog-content text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                        In the competitive landscape of YouTube content creation, your thumbnail is often the first impression viewers get of your video. 
+                                        For Nigerian creators, understanding cultural nuances and visual preferences is key to creating compelling thumbnails that drive clicks...
+                                    </div>
+                                    <div class="flex flex-wrap gap-2 mb-2">
+                                        <span class="category-tag px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 rounded text-xs">
+                                            YouTube Strategy
+                                        </span>
+                                        <span class="category-tag px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded text-xs">
+                                            Content Creation
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                        <span class="status-indicator status-active"></span>
+                                        Published • Aug 15, 2023 • 1.2K Views
+                                    </div>
+                                </div>
+                                <div class="flex flex-col space-y-2">
+                                    <span class="text-xs bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                        Published
+                                    </span>
+                                    <button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Blog Post 2 -->
+                        <div class="blog-item published p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 cursor-pointer" data-post="2">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white mb-1">How to Create Viral Content with JohnGPT</div>
+                                    <div class="blog-content text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                        As a Nigerian content creator, standing out in the digital landscape requires both creativity and strategic thinking. 
+                                        JohnGPT, our AI-powered assistant, is designed specifically to help creators like you generate content that resonates with your audience...
+                                    </div>
+                                    <div class="flex flex-wrap gap-2 mb-2">
+                                        <span class="category-tag px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 rounded text-xs">
+                                            JohnGPT
+                                        </span>
+                                        <span class="category-tag px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded text-xs">
+                                            AI Tools
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                        <span class="status-indicator status-active"></span>
+                                        Published • Aug 10, 2023 • 2.4K Views
+                                    </div>
+                                </div>
+                                <div class="flex flex-col space-y-2">
+                                    <span class="text-xs bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                        Published
+                                    </span>
+                                    <button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Blog Post 3 -->
+                        <div class="blog-item scheduled p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 cursor-pointer" data-post="3">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white mb-1">Q4 Content Strategy for Nigerian YouTubers</div>
+                                    <div class="blog-content text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                        As we approach the holiday season, it's time to plan your Q4 content strategy. 
+                                        This guide will help Nigerian YouTubers create content that resonates with local audiences while maximizing global reach...
+                                    </div>
+                                    <div class="flex flex-wrap gap-2 mb-2">
+                                        <span class="category-tag px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 rounded text-xs">
+                                            Content Strategy
+                                        </span>
+                                        <span class="category-tag px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 rounded text-xs">
+                                            Seasonal
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                        <span class="status-indicator status-warning"></span>
+                                        Scheduled • Sep 1, 2023 • 0 Views
+                                    </div>
+                                </div>
+                                <div class="flex flex-col space-y-2">
+                                    <span class="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+                                        Scheduled
+                                    </span>
+                                    <button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Blog Post 4 -->
+                        <div class="blog-item draft p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 cursor-pointer" data-post="4">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white mb-1">Monetization Strategies for Small YouTube Channels</div>
+                                    <div class="blog-content text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                        Many Nigerian creators struggle with monetization when they're just starting out. 
+                                        This post explores practical strategies for earning from your YouTube channel even before you hit 1,000 subscribers...
+                                    </div>
+                                    <div class="flex flex-wrap gap-2 mb-2">
+                                        <span class="category-tag px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 rounded text-xs">
+                                            Monetization
+                                        </span>
+                                        <span class="category-tag px-2 py-1 bg-gray-100 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 rounded text-xs">
+                                            Beginner
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                        <span class="status-indicator status-warning"></span>
+                                        Draft • Saved 2 hours ago
+                                    </div>
+                                </div>
+                                <div class="flex flex-col space-y-2">
+                                    <span class="text-xs bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 px-2 py-1 rounded">
+                                        Draft
+                                    </span>
+                                    <button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Blog Post 5 -->
+                        <div class="blog-item published p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 cursor-pointer" data-post="5">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white mb-1">Nigerian Content Localization: What Works and What Doesn't</div>
+                                    <div class="blog-content text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                        Creating content that resonates with Nigerian audiences requires understanding cultural nuances, language preferences, 
+                                        and local trends. In this post, we explore successful localization strategies used by top Nigerian creators...
+                                    </div>
+                                    <div class="flex flex-wrap gap-2 mb-2">
+                                        <span class="category-tag px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 rounded text-xs">
+                                            Localization
+                                        </span>
+                                        <span class="category-tag px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded text-xs">
+                                            Cultural Insights
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                        <span class="status-indicator status-active"></span>
+                                        Published • Jul 28, 2023 • 3.6K Views
+                                    </div>
+                                </div>
+                                <div class="flex flex-col space-y-2">
+                                    <span class="text-xs bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                        Published
+                                    </span>
+                                    <button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex justify-end space-x-3">
+                        <button class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 font-medium">
+                            Previous
+                        </button>
+                        <button class="px-4 py-2 bg-admin-red text-white rounded-lg hover:bg-red-700 font-medium btn-enhanced">
+                            Next
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Post Details -->
+            <div class="space-y-6">
+                <!-- Post Details -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Post Performance</h2>
+                    <div class="space-y-5">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Post Information</div>
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300">Title</div>
+                                    <span class="text-sm">Mastering YouTube Thumbnails: A Nigerian Creator's Guide</span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300">Status</div>
+                                    <span class="text-sm bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                                        Published
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300">Published</div>
+                                    <span class="text-sm">Aug 15, 2023</span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300">Last Updated</div>
+                                    <span class="text-sm">Aug 16, 2023</span>
+                                </div>
+                                <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
+                                    <div class="text-sm text-gray-700 dark:text-gray-300">Categories</div>
+                                    <span class="text-sm">YouTube Strategy, Content Creation</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-3">Performance Metrics</div>
+                            <div class="space-y-3">
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm text-gray-700 dark:text-gray-300">Views</span>
+                                        <span class="text-sm">1,247 <span class="trend-up">↑ 12.3%</span></span>
+                                    </div>
+                                    <div class="stats-bar mb-2">
+                                        <div class="stats-fill stats-views" style="width: 75%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm text-gray-700 dark:text-gray-300">Engagement Rate</span>
+                                        <span class="text-sm">4.7% <span class="trend-up">↑ 2.1%</span></span>
+                                    </div>
+                                    <div class="stats-bar mb-2">
+                                        <div class="stats-fill stats-engagement" style="width: 65%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm text-gray-700 dark:text-gray-300">Conversion Rate</span>
+                                        <span class="text-sm">2.3% <span class="trend-down">↓ 0.5%</span></span>
+                                    </div>
+                                    <div class="stats-bar mb-2">
+                                        <div class="stats-fill stats-conversion" style="width: 45%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p class="text-blue-800 dark:text-blue-200 text-sm">
+                                <strong>Insight:</strong> Nigerian audience engagement peaks between 7-10 PM WAT. 
+                                Consider scheduling posts during this window for maximum impact.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Post Actions -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Post Actions</h2>
+                    <div class="space-y-4">
+                        <div class="flex space-x-3">
+                            <button class="flex-1 px-4 py-2 bg-admin-red text-white rounded-lg hover:bg-red-700 font-medium btn-enhanced" id="edit-post-btn">
+                                <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                                Edit Post
+                            </button>
+                            <button class="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 font-medium" id="duplicate-post-btn">
+                                <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3 3m-3-3l3-3"></path>
+                                </svg>
+                                Duplicate
+                            </button>
+                        </div>
+                        <div class="flex space-x-3">
+                            <button class="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 font-medium" id="schedule-post-btn">
+                                <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                Schedule
+                            </button>
+                            <button class="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 font-medium" id="delete-post-btn">
+                                <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                                Delete
+                            </button>
+                        </div>
+                        <div class="flex space-x-3">
+                            <button class="w-full px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 font-medium" id="view-post-btn">
+                                <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                                View Live
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Analytics Timeline -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Analytics Timeline</h2>
+                    <div class="space-y-4">
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="font-medium text-gray-900 dark:text-white mb-2">Last 7 Days</div>
+                            <div class="h-32 flex items-end space-x-1">
+                                <div class="flex-1 bg-blue-500 rounded-t" style="height: 20%"></div>
+                                <div class="flex-1 bg-blue-500 rounded-t" style="height: 45%"></div>
+                                <div class="flex-1 bg-blue-500 rounded-t" style="height: 60%"></div>
+                                <div class="flex-1 bg-blue-500 rounded-t" style="height: 35%"></div>
+                                <div class="flex-1 bg-blue-500 rounded-t" style="height: 75%"></div>
+                                <div class="flex-1 bg-blue-500 rounded-t" style="height: 90%"></div>
+                                <div class="flex-1 bg-blue-500 rounded-t" style="height: 80%"></div>
+                            </div>
+                            <div class="flex justify-between mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                <span>Mon</span>
+                                <span>Tue</span>
+                                <span>Wed</span>
+                                <span>Thu</span>
+                                <span>Fri</span>
+                                <span>Sat</span>
+                                <span>Sun</span>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between mb-2">
+                                <div class="font-medium text-gray-900 dark:text-white">Traffic Sources</div>
+                                <div class="text-sm text-gray-600 dark:text-gray-400">Last 30 days</div>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">Organic Search</span>
+                                    <span class="text-sm">42%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                    <div class="bg-blue-500 h-2 rounded-full" style="width: 42%"></div>
+                                </div>
+                                
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">Social Media</span>
+                                    <span class="text-sm">35%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                    <div class="bg-purple-500 h-2 rounded-full" style="width: 35%"></div>
+                                </div>
+                                
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">Direct</span>
+                                    <span class="text-sm">15%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: 15%"></div>
+                                </div>
+                                
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">Referral</span>
+                                    <span class="text-sm">8%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                    <div class="bg-yellow-500 h-2 rounded-full" style="width: 8%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-apply theme
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+        
+        // Initialize sidebar active state
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set blog management as active in sidebar
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.href.includes('cms/blog-management')) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Post selection
+            const postItems = document.querySelectorAll('.blog-item');
+            postItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // Remove active state from all posts
+                    postItems.forEach(p => {
+                        p.classList.remove('bg-gray-50', 'dark:bg-gray-700/50');
+                        p.classList.add('bg-white', 'dark:bg-gray-800');
+                    });
+                    
+                    // Add active state to clicked post
+                    this.classList.remove('bg-white', 'dark:bg-gray-800');
+                    this.classList.add('bg-gray-50', 'dark:bg-gray-700/50');
+                });
+            });
+            
+            // Edit post button
+            document.getElementById('edit-post-btn').addEventListener('click', function() {
+                const activePost = document.querySelector('.blog-item.bg-gray-50');
+                if (!activePost) {
+                    alert('Please select a post to edit first.');
+                    return;
+                }
+                
+                // Get the post ID from the data attribute
+                const postId = activePost.getAttribute('data-post');
+                
+                // Redirect to the content editor with the post ID
+                window.location.href = `/admin/cms/content-editor?post=${postId}`;
+            });
+            
+            // New post button
+            document.getElementById('new-post-btn').addEventListener('click', function() {
+                window.location.href = '/admin/cms/content-editor?new=true';
+            });
+            
+            // Delete post button
+            document.getElementById('delete-post-btn').addEventListener('click', function() {
+                const activePost = document.querySelector('.blog-item.bg-gray-50');
+                if (!activePost) {
+                    alert('Please select a post to delete first.');
+                    return;
+                }
+                
+                if (confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
+                    activePost.remove();
+                    alert('Post deleted successfully!');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

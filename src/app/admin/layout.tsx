@@ -54,6 +54,7 @@ export default function AdminLayout({
       '/feature-flags': { category: 'dashboard', subItem: 'feature-flags' },
       '/cms': { category: 'cms', subItem: 'overview' },
       '/cms/hero-slides': { category: 'cms', subItem: 'hero-slides' },
+      '/cms/blog-posts': { category: 'cms', subItem: 'blog-posts' },
       '/johngpt-config': { category: 'johngpt-config', subItem: 'overview' },
       '/user': { category: 'user-management', subItem: 'overview' },
       '/users/lead-magnets': { category: 'user-management', subItem: 'lead-magnets' },
