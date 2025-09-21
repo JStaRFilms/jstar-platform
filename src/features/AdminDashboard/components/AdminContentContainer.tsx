@@ -137,17 +137,28 @@ function getCategoryDescription(category: string): string {
 
 // Helper function to get category-specific actions
 function getCategoryActions(category: string, subItem: string): React.ReactNode {
+  // Only show the new UI on the exact /admin route (dashboard category with overview subItem)
+  if (category === 'dashboard' && subItem === 'overview') {
+    return (
+      <div className="flex flex-wrap gap-3">
+        <button className="px-4 py-2 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced">
+          <svg className="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+          </svg>
+          Emergency Panel
+        </button>
+        <div className="relative">
+          <input type="text" placeholder="Search admin functions..."
+                 className="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent" />
+          <svg className="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+        </div>
+      </div>
+    );
+  }
+
   const actions: Record<string, React.ReactNode> = {
-    'dashboard': (
-      <>
-        <button className="px-4 py-2 bg-jstar-blue text-white rounded-lg hover:bg-faith-purple transition-colors text-sm font-medium">
-          Refresh Data
-        </button>
-        <button className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-sm font-medium">
-          Export Report
-        </button>
-      </>
-    ),
     'emergency': (
       <button className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium animate-pulse">
         Emergency Mode

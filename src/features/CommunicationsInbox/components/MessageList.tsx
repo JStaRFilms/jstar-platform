@@ -17,6 +17,12 @@ interface MessageListProps {
   currentFilter: 'all' | 'unread' | 'today' | 'week';
   /** Callback when filter changes */
   onFilterChange: (filter: 'all' | 'unread' | 'today' | 'week') => void;
+  /** Whether data is loading */
+  isLoading?: boolean;
+  /** Error message if any */
+  error?: string | null;
+  /** Callback to refresh data */
+  onRefresh?: () => void;
 }
 
 /**
@@ -45,7 +51,10 @@ export const MessageList: React.FC<MessageListProps> = ({
   selectedMessageId,
   onMessageSelect,
   currentFilter,
-  onFilterChange
+  onFilterChange,
+  isLoading = false,
+  error = null,
+  onRefresh
 }) => {
   const filterOptions = ['all', 'unread', 'today', 'week'] as const;
 
@@ -73,14 +82,52 @@ export const MessageList: React.FC<MessageListProps> = ({
         </div>
       </div>
 
+      {/* Loading State */}
+      {isLoading && (
+        <div className="space-y-3">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="p-3 sm:p-4 rounded-lg border border-gray-200 dark:border-gray-600 animate-pulse">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+                <div className="flex-1">
+                  <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded mb-2"></div>
+                  <div className="h-3 bg-gray-300 dark:bg-gray-600 rounded mb-2 w-3/4"></div>
+                  <div className="h-3 bg-gray-300 dark:bg-gray-600 rounded w-1/2"></div>
+                </div>
+                <div className="h-6 bg-gray-300 dark:bg-gray-600 rounded w-16"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && !isLoading && (
+        <div className="text-center py-8">
+          <div className="text-red-500 mb-4">
+            <svg className="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
+          {onRefresh && (
+            <button
+              onClick={onRefresh}
+              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+            >
+              Try Again
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Messages List - Responsive */}
       <div className="space-y-3 max-h-96 overflow-y-auto">
-        {messages.length === 0 ? (
+        {!isLoading && !error && messages.length === 0 ? (
           <div className="text-center py-8">
             <EnvelopeIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-600 dark:text-gray-400">No messages found</p>
           </div>
-        ) : (
+        ) : !isLoading && !error && (
           messages.map((message) => (
             <div
               key={message.id}

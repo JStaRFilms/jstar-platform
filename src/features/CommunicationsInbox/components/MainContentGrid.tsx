@@ -20,6 +20,10 @@ interface MainContentGridProps {
   responseText: string;
   /** Whether response is being sent */
   isSending: boolean;
+  /** Whether data is loading */
+  isLoading?: boolean;
+  /** Error message if any */
+  error?: string | null;
   /** Handler for message selection */
   onMessageSelect: (message: any) => void;
   /** Handler for filter changes */
@@ -28,6 +32,8 @@ interface MainContentGridProps {
   onResponseTextChange: (text: string) => void;
   /** Handler for sending response */
   onSendResponse: () => void;
+  /** Handler for refreshing data */
+  onRefresh?: () => void;
   /** Optional className for styling */
   className?: string;
 }
@@ -43,10 +49,13 @@ export const MainContentGrid: React.FC<MainContentGridProps> = ({
   currentFilter,
   responseText,
   isSending,
+  isLoading = false,
+  error = null,
   onMessageSelect,
   onFilterChange,
   onResponseTextChange,
   onSendResponse,
+  onRefresh,
   className = ''
 }) => {
   return (
@@ -59,6 +68,9 @@ export const MainContentGrid: React.FC<MainContentGridProps> = ({
           onMessageSelect={onMessageSelect}
           currentFilter={currentFilter}
           onFilterChange={onFilterChange}
+          isLoading={isLoading}
+          error={error}
+          onRefresh={onRefresh}
         />
       </div>
 
