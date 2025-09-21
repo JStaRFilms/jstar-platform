@@ -594,3 +594,91 @@ export const MoonIcon: React.FC<IconProps> = ({
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
   </svg>
 );
+
+/**
+ * Paper airplane icon for sending messages
+ */
+export const PaperAirplaneIcon: React.FC<IconProps> = ({
+  className,
+  'aria-label': ariaLabel,
+  'aria-hidden': ariaHidden,
+  role
+}) => (
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+    aria-label={ariaLabel}
+    aria-hidden={ariaHidden}
+    role={role}
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+  </svg>
+);
+
+/**
+ * Archive box icon for archiving messages
+ */
+export const ArchiveBoxIcon: React.FC<IconProps> = ({
+  className,
+  'aria-label': ariaLabel,
+  'aria-hidden': ariaHidden,
+  role
+}) => (
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+    aria-label={ariaLabel}
+    aria-hidden={ariaHidden}
+    role={role}
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+  </svg>
+);
+
+/**
+ * Magnifying glass icon for search
+ */
+export const MagnifyingGlassIcon: React.FC<IconProps> = ({
+  className,
+  'aria-label': ariaLabel,
+  'aria-hidden': ariaHidden,
+  role
+}) => (
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+    aria-label={ariaLabel}
+    aria-hidden={ariaHidden}
+    role={role}
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+  </svg>
+);
+
+/**
+ * User icon for user profiles
+ */
+export const UserIcon: React.FC<IconProps> = ({
+  className,
+  'aria-label': ariaLabel,
+  'aria-hidden': ariaHidden,
+  role
+}) => (
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+    aria-label={ariaLabel}
+    aria-hidden={ariaHidden}
+    role={role}
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+  </svg>
+);

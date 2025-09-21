@@ -1,0 +1,1 @@
+export { CommunicationsInbox } from './CommunicationsInbox';

@@ -58,6 +58,7 @@ export default function AdminLayout({
       '/user': { category: 'user-management', subItem: 'overview' },
       '/users/lead-magnets': { category: 'user-management', subItem: 'lead-magnets' },
       '/cge-admin': { category: 'cge-admin', subItem: 'overview' },
+      '/communications/inbox': { category: 'notifications', subItem: 'inbox' },
       '/notifications': { category: 'notifications', subItem: 'overview' },
       '/analytics': { category: 'analytics', subItem: 'overview' },
       '/payments': { category: 'payments', subItem: 'overview' },

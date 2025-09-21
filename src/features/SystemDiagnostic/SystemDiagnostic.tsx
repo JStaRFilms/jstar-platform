@@ -159,21 +159,21 @@ const SystemDiagnostic: React.FC<SystemDiagnosticProps> = ({ className = '' }) =
   };
 
   return (
-    <div className={`space-y-6 ${className}`}>
-      {/* Header */}
-      <DiagnosticHeader
-        isRunningDiagnostics={runDiagnosticsMutation.isPending}
-        onRunDiagnostics={runFullDiagnostics}
-        onExportReport={exportReport}
-      />
+      <div className={`space-y-6 ${className}`}>
+        {/* Header */}
+        <DiagnosticHeader
+          isRunningDiagnostics={runDiagnosticsMutation.isPending}
+          onRunDiagnostics={runFullDiagnostics}
+          onExportReport={exportReport}
+        />
 
-      {/* System Status */}
-      <SystemStatus />
+        {/* System Status */}
+        <SystemStatus />
 
-      {/* Quick Stats */}
-      <section className="mb-8">
-        <QuickStats data={quickStats} isLoading={isLoadingMetrics} />
-      </section>
+        {/* Quick Stats */}
+        <section className="mb-8">
+          <QuickStats data={quickStats} isLoading={isLoadingMetrics} />
+        </section>
 
       {/* Main Diagnostic Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

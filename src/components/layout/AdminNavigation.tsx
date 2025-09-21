@@ -89,6 +89,19 @@ const adminNavigationItems = [
     ]
   },
   {
+    id: 'notifications',
+    label: 'Notifications',
+    href: '/admin/notifications',
+    icon: EnvelopeIcon,
+    children: [
+      { id: 'overview', label: 'Overview', href: '/admin/notifications' },
+      { id: 'system-notifications', label: 'System Notifications', href: '/admin/notifications/system' },
+      { id: 'user-notifications', label: 'User Notifications', href: '/admin/notifications/user' },
+      { id: 'communications-inbox', label: 'Communications Inbox', href: '/admin/communications/inbox' },
+      { id: 'notification-settings', label: 'Notification Settings', href: '/admin/notifications/settings' }
+    ]
+  },
+  {
     id: 'payments',
     label: 'Payments',
     href: '/admin/payments',
