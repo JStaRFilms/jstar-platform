@@ -21,6 +21,9 @@ import { EmergencyPanel } from '@/features/MigrationCenter/components/EmergencyP
 export default function MigrationCenterPage() {
   return (
     <>
+      {/* Migration Header */}
+      <MigrationHeader />
+
       {/* Database Status */}
       <DatabaseStatus />
 

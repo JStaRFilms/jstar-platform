@@ -68,7 +68,7 @@ export function requireAdmin(request: NextRequest): { user: AdminUser } | null {
  * Middleware wrapper for admin-only API routes
  * Returns 401 if authentication fails
  */
-export function withAdminAuth<T extends { params?: Record<string, string> }>(
+export function withAdminAuth<T = any>(
   handler: (request: NextRequest, context?: T) => Promise<NextResponse>
 ) {
   return async (request: NextRequest, context?: T): Promise<NextResponse> => {

@@ -26,6 +26,7 @@ const DiagnosticHistory: React.FC<DiagnosticHistoryProps> = ({ refreshTrigger })
   const [filterType, setFilterType] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [selectedDiagnostic, setSelectedDiagnostic] = useState<DiagnosticRecord | null>(null);
+  const [showFilters, setShowFilters] = useState<boolean>(false);
 
   const fetchDiagnostics = async () => {
     try {
@@ -126,40 +127,104 @@ const DiagnosticHistory: React.FC<DiagnosticHistoryProps> = ({ refreshTrigger })
   return (
     <>
       <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-        <div className="flex justify-between items-center mb-5">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white">Diagnostic History</h2>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={fetchDiagnostics}
-              className="p-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
-              title="Refresh"
-            >
-              <RefreshCw className="h-4 w-4" />
-            </button>
+        {/* Mobile-First Responsive Header */}
+        <div className="flex flex-col space-y-4 mb-5">
+          {/* Panel Header - Title on left, icon group on right (mobile) or refresh only (desktop) */}
+          <div className="panel-header flex justify-between items-center w-full">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white flex-shrink-0">Diagnostic History</h2>
+
+            {/* Mobile: Filter + Refresh icons grouped, Desktop: Refresh only */}
             <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-gray-500" />
-              <select
-                value={filterType}
-                onChange={(e) => setFilterType(e.target.value)}
-                className="text-sm border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              {/* Filter Icon - Mobile only */}
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="md:hidden flex items-center justify-center p-3 min-h-[44px] min-w-[44px] text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                title="Toggle Filters"
+                aria-label="Toggle filter options"
+                aria-expanded={showFilters}
               >
-                <option value="all">All Types</option>
-                <option value="FULL_SYSTEM">Full System</option>
-                <option value="AI_BENCHMARK">AI Benchmark</option>
-                <option value="HARDWARE_BENCHMARK">Hardware</option>
-                <option value="STORAGE_SCAN">Storage</option>
-                <option value="NETWORK_TEST">Network</option>
-              </select>
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="text-sm border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                <Filter className="h-5 w-5" />
+              </button>
+
+              {/* Refresh Button - Always visible */}
+              <button
+                onClick={fetchDiagnostics}
+                className="flex items-center justify-center p-3 min-h-[44px] min-w-[44px] text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 flex-shrink-0"
+                title="Refresh"
+                aria-label="Refresh diagnostic history"
               >
-                <option value="all">All Status</option>
-                <option value="PASSED">Passed</option>
-                <option value="WARNINGS">Warnings</option>
-                <option value="FAILED">Failed</option>
-              </select>
+                <RefreshCw className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Filter Bar - Mobile: stacked full-width dropdowns, Desktop: inline with icon/label */}
+          <div className="filter-bar">
+            {/* Mobile Layout: Stacked full-width dropdowns - conditionally shown */}
+            {showFilters && (
+              <div className="block md:hidden space-y-3 animate-in slide-in-from-top-2 duration-200">
+                <select
+                  value={filterType}
+                  onChange={(e) => setFilterType(e.target.value)}
+                  className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 min-h-[44px] bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-admin-red focus:border-transparent transition-colors"
+                  aria-label="Filter by diagnostic type"
+                >
+                  <option value="all">All Types</option>
+                  <option value="FULL_SYSTEM">Full System</option>
+                  <option value="AI_BENCHMARK">AI Benchmark</option>
+                  <option value="HARDWARE_BENCHMARK">Hardware</option>
+                  <option value="STORAGE_SCAN">Storage</option>
+                  <option value="NETWORK_TEST">Network</option>
+                </select>
+
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 min-h-[44px] bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-admin-red focus:border-transparent transition-colors"
+                  aria-label="Filter by status"
+                >
+                  <option value="all">All Status</option>
+                  <option value="PASSED">Passed</option>
+                  <option value="WARNINGS">Warnings</option>
+                  <option value="FAILED">Failed</option>
+                </select>
+              </div>
+            )}
+
+            {/* Desktop Layout: Icon, label, and inline dropdowns */}
+            <div className="hidden md:flex flex-row items-center justify-end space-x-3">
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                <span className="text-sm text-gray-600 dark:text-gray-400">Filters:</span>
+              </div>
+
+              <div className="flex space-x-2">
+                <select
+                  value={filterType}
+                  onChange={(e) => setFilterType(e.target.value)}
+                  className="text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 min-h-[44px] bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-admin-red focus:border-transparent transition-colors"
+                  aria-label="Filter by diagnostic type"
+                >
+                  <option value="all">All Types</option>
+                  <option value="FULL_SYSTEM">Full System</option>
+                  <option value="AI_BENCHMARK">AI Benchmark</option>
+                  <option value="HARDWARE_BENCHMARK">Hardware</option>
+                  <option value="STORAGE_SCAN">Storage</option>
+                  <option value="NETWORK_TEST">Network</option>
+                </select>
+
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  className="text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 min-h-[44px] bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-admin-red focus:border-transparent transition-colors"
+                  aria-label="Filter by status"
+                >
+                  <option value="all">All Status</option>
+                  <option value="PASSED">Passed</option>
+                  <option value="WARNINGS">Warnings</option>
+                  <option value="FAILED">Failed</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>

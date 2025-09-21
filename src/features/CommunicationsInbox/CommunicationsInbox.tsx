@@ -2,7 +2,10 @@
 
 import React, { useState, useMemo } from 'react';
 import { useContacts } from './hooks/useContacts';
-import { ContactFilters, MessageFilter, ContactSubmission, ContactStatus } from './types';
+import { useContactDetails } from './hooks/useContactDetails';
+import { useAnalytics } from './hooks/useAnalytics';
+import { sendContactResponse } from '@/lib/communications-api';
+import { ContactFilters, MessageFilter, ContactSubmission, ContactStatus, ResponseType } from './types';
 import { SystemStatus } from './components/SystemStatus';
 import { QuickStats } from './components/QuickStats';
 import { MainContentGrid } from './components/MainContentGrid';
@@ -41,10 +44,12 @@ export const CommunicationsInbox: React.FC<CommunicationsInboxProps> = ({
     sortOrder: 'desc',
   }), [searchQuery]);
 
+  // Use the analytics hook for real-time stats
+  const { quickStats } = useAnalytics();
+
   // Use the new contacts hook
   const {
     contacts,
-    stats,
     isLoading,
     error,
     getFilteredContacts,
@@ -75,19 +80,24 @@ export const CommunicationsInbox: React.FC<CommunicationsInboxProps> = ({
     setResponseText(text);
   };
 
-  const handleSendResponse = async () => {
-    if (!responseText.trim() || !selectedMessage) return;
+  const handleSendResponse = async (responseData: {
+    response: string;
+    responseType: ResponseType;
+    adminNotes?: string;
+  }) => {
+    if (!selectedMessage) return;
 
     setIsSending(true);
     try {
-      // TODO: Implement response sending via API
-      // For now, just update status to responded
-      await updateContactStatus(selectedMessage.id, ContactStatus.RESPONDED);
+      // Send the response via API
+      await sendContactResponse(selectedMessage.id, responseData);
       setResponseText('');
       setSelectedMessage(null);
+      // Success message could be shown here
     } catch (error) {
       console.error('Failed to send response:', error);
-      // TODO: Show error message to user
+      // Error message will be handled by the ResponseComposer component
+      throw error; // Re-throw to let ResponseComposer handle it
     } finally {
       setIsSending(false);
     }
@@ -122,7 +132,7 @@ export const CommunicationsInbox: React.FC<CommunicationsInboxProps> = ({
       <SystemStatus />
 
       {/* Quick Stats */}
-      <QuickStats stats={stats} />
+      <QuickStats stats={quickStats} />
 
       {/* Main Content Grid */}
       <MainContentGrid

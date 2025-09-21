@@ -16,7 +16,7 @@ const portfolioItems = [
   },
   {
     id: 2, category: 'web', title: 'E-commerce Platform',
-    image: 'https://images.unsplash.com/photo-1467232004584-b8d87734a5a2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1469&q=80',
+    image: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?q=80&w=800&auto=format&fit=crop',
     tags: ['E-commerce', 'React', 'Node.js'],
     description: 'A high-performance online store with seamless checkout and inventory management.'
   },

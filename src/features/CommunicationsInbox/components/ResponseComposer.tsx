@@ -1,39 +1,27 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { PaperAirplaneIcon } from '@/components/icons';
+import { ContactSubmission, ResponseType } from '../types';
 
 /**
  * Props for the ResponseComposer component
  */
 interface ResponseComposerProps {
-  /** The selected message for responding to */
-  message: Message | null;
+  /** The selected contact for responding to */
+  contact: ContactSubmission | null;
   /** Current response text */
   responseText: string;
   /** Callback when response text changes */
   onResponseTextChange: (text: string) => void;
   /** Callback when send button is clicked */
-  onSendResponse: () => void;
+  onSendResponse: (responseData: {
+    response: string;
+    responseType: ResponseType;
+    adminNotes?: string;
+  }) => Promise<void>;
   /** Loading state for sending */
   isSending: boolean;
-}
-
-/**
- * Message interface for type safety
- */
-interface Message {
-  id: string;
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-  service: string;
-  status: 'unread' | 'read' | 'responded' | 'archived';
-  submittedAt: string;
-  phone?: string;
-  location?: string;
-  ipAddress?: string;
 }
 
 /**
@@ -41,13 +29,31 @@ interface Message {
  * Provides interface for composing and sending responses to messages
  */
 export const ResponseComposer: React.FC<ResponseComposerProps> = ({
-  message,
+  contact,
   responseText,
   onResponseTextChange,
   onSendResponse,
   isSending
 }) => {
-  if (!message) {
+  const [selectedTemplate, setSelectedTemplate] = useState('');
+  const [responseType, setResponseType] = useState<ResponseType>('EMAIL' as ResponseType);
+
+  // Handle sending response
+  const handleSendResponse = async () => {
+    if (!contact || !responseText.trim()) return;
+
+    try {
+      await onSendResponse({
+        response: responseText.trim(),
+        responseType,
+        adminNotes: selectedTemplate ? `Used template: ${selectedTemplate}` : undefined,
+      });
+    } catch (error) {
+      console.error('Failed to send response:', error);
+    }
+  };
+
+  if (!contact) {
     return null;
   }
 
@@ -95,7 +101,7 @@ export const ResponseComposer: React.FC<ResponseComposerProps> = ({
             Save Draft
           </button>
           <button
-            onClick={onSendResponse}
+            onClick={handleSendResponse}
             disabled={isSending || !responseText.trim()}
             className="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           >

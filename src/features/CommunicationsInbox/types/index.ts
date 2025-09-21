@@ -100,11 +100,19 @@ export interface AnalyticsResponse {
   status: 'success';
   data: {
     totalSubmissions: number;
-    totalResponses: number;
-    responseRate: number;
-    avgResponseTime: string;
+    pendingCount: number;
+    processedCount: number;
+    respondedCount: number;
+    archivedCount: number;
+    newsletterSignups: number;
+    recentSubmissions: number;
+    recentSignups: number;
     serviceBreakdown: Record<string, number>;
-    recentActivity: ContactSubmission[];
+    dailyStats: Array<{
+      date: string;
+      submissions: number;
+      signups: number;
+    }>;
   };
   message: string;
 }

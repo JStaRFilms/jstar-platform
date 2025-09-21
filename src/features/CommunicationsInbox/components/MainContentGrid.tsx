@@ -1,10 +1,13 @@
 'use client';
 
 import React from 'react';
+import { useContactDetails } from '../hooks/useContactDetails';
+import { sendContactResponse, handleApiError, getErrorMessage } from '@/lib/communications-api';
 import { MessageList } from './MessageList';
 import { MessageDetails } from './MessageDetails';
 import { ResponseComposer } from './ResponseComposer';
 import { CommunicationTimeline } from './CommunicationTimeline';
+import { ContactSubmission, ContactStatus, ResponseType } from '../types';
 
 /**
  * Props for the MainContentGrid component
@@ -31,7 +34,11 @@ interface MainContentGridProps {
   /** Handler for response text changes */
   onResponseTextChange: (text: string) => void;
   /** Handler for sending response */
-  onSendResponse: () => void;
+  onSendResponse: (responseData: {
+    response: string;
+    responseType: ResponseType;
+    adminNotes?: string;
+  }) => Promise<void>;
   /** Handler for refreshing data */
   onRefresh?: () => void;
   /** Optional className for styling */
@@ -58,6 +65,43 @@ export const MainContentGrid: React.FC<MainContentGridProps> = ({
   onRefresh,
   className = ''
 }) => {
+  // Get detailed contact information
+  const {
+    contact,
+    responses,
+    isLoading: contactLoading,
+    error: contactError,
+    updateContactStatus
+  } = useContactDetails(selectedMessage?.id || null);
+
+  // Handle status updates
+  const handleStatusUpdate = async (contactId: string, status: ContactStatus) => {
+    try {
+      await updateContactStatus(status);
+    } catch (error) {
+      console.error('Failed to update contact status:', error);
+      // Error will be handled by the hook
+    }
+  };
+
+  // Handle sending response
+  const handleSendResponse = async (responseData: {
+    response: string;
+    responseType: ResponseType;
+    adminNotes?: string;
+  }) => {
+    if (!selectedMessage?.id) return;
+
+    try {
+      await sendContactResponse(selectedMessage.id, responseData);
+      // Success - the contact status will be updated to RESPONDED automatically
+      // and the UI will reflect this through the hooks
+    } catch (error) {
+      const apiError = handleApiError(error);
+      throw new Error(getErrorMessage(apiError));
+    }
+  };
+
   return (
     <div className={`grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 ${className}`}>
       {/* Messages List */}
@@ -76,13 +120,18 @@ export const MainContentGrid: React.FC<MainContentGridProps> = ({
 
       {/* Message Details & Response */}
       <div className="space-y-4 sm:space-y-6">
-        <MessageDetails message={selectedMessage} />
+        <MessageDetails
+          contact={contact}
+          onStatusUpdate={handleStatusUpdate}
+          isLoading={contactLoading}
+          error={contactError}
+        />
 
         <ResponseComposer
-          message={selectedMessage}
+          contact={contact}
           responseText={responseText}
           onResponseTextChange={onResponseTextChange}
-          onSendResponse={onSendResponse}
+          onSendResponse={handleSendResponse}
           isSending={isSending}
         />
 
