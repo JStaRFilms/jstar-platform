@@ -17,6 +17,7 @@ export interface ContactSubmission {
   respondedAt: Date | null;
   respondedBy: string | null;
   responseCount: number;
+  responses?: ContactResponse[]; // Include responses in the contact object
   // Additional metadata from API
   ipAddress?: string;
   userAgent?: string;
@@ -63,10 +64,7 @@ export interface ContactListResponse {
 
 export interface ContactDetailResponse {
   status: 'success';
-  data: {
-    submission: ContactSubmission;
-    responses: ContactResponse[];
-  };
+  data: ContactSubmission; // Contact data is returned directly, responses are included in the contact object
   message: string;
 }
 

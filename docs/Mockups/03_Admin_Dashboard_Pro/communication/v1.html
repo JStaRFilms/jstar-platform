@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Communications Inbox | J StaR Films</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e40af',
+                        secondary: '#1d4ed8',
+                        accent: '#0ea5e9',
+                        dark: '#1e293b',
+                        light: '#f8fafc'
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .message-card {
+                @apply bg-white rounded-xl shadow-md border border-gray-200 hover:shadow-lg transition-all duration-200;
+            }
+            .status-indicator {
+                @apply w-2.5 h-2.5 rounded-full mr-2;
+            }
+            .timestamp {
+                @apply text-xs text-gray-500 font-mono;
+            }
+            .unread {
+                @apply border-l-4 border-accent;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-64 bg-dark text-white flex flex-col">
+            <div class="p-5 border-b border-gray-700">
+                <div class="flex items-center">
+                    <div class="bg-accent w-10 h-10 rounded-xl flex items-center justify-center mr-3">
+                        <i class="fas fa-inbox text-white text-lg"></i>
+                    </div>
+                    <h1 class="font-bold text-xl">J StaR Films</h1>
+                </div>
+            </div>
+            
+            <div class="flex-1 py-4">
+                <nav class="px-3">
+                    <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg mb-1 bg-gray-800 font-medium">
+                        <i class="fas fa-inbox mr-3 text-accent"></i>
+                        Communications
+                    </a>
+                    <a href="#" class="flex items-center px-4 py-3 text-gray-400 hover:bg-gray-800 rounded-lg mb-1">
+                        <i class="fas fa-users mr-3"></i>
+                        Contacts
+                    </a>
+                    <a href="#" class="flex items-center px-4 py-3 text-gray-400 hover:bg-gray-800 rounded-lg mb-1">
+                        <i class="fas fa-cog mr-3"></i>
+                        Settings
+                    </a>
+                </nav>
+                
+                <div class="px-3 mt-8">
+                    <h3 class="text-gray-400 text-xs uppercase tracking-wider px-3 mb-2">System Status</h3>
+                    <div class="bg-gray-800 rounded-lg p-3">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-gray-300 text-sm">Last Submission:</span>
+                            <span class="font-mono text-gray-200">15 min ago</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-300 text-sm">Auto-responder:</span>
+                            <span class="font-mono text-gray-200">Active</span>
+                        </div>
+                        <div class="mt-3">
+                            <div class="flex justify-between text-xs text-gray-400 mb-1">
+                                <span>Processing</span>
+                                <span>99%</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-1.5">
+                                <div class="bg-accent h-1.5 rounded-full" style="width: 99%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-4 border-t border-gray-700">
+                <div class="flex items-center">
+                    <div class="bg-gray-600 w-10 h-10 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-user text-white"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium">John Oluleke-Oke</p>
+                        <p class="text-gray-400 text-xs">J StaR Films</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Top Bar -->
+            <div class="bg-white shadow-sm border-b">
+                <div class="flex items-center justify-between p-4">
+                    <div>
+                        <h1 class="text-2xl font-bold text-dark">Communications Inbox</h1>
+                        <p class="text-gray-500 text-sm mt-1">5 unread messages • Last refreshed: 14:23 WAT</p>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <button class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition">
+                            <i class="fas fa-plus mr-2"></i>New Message
+                        </button>
+                        <div class="relative">
+                            <input type="text" placeholder="Search messages..." 
+                                class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent">
+                            <i class="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Messages List -->
+            <div class="flex-1 overflow-y-auto">
+                <div class="max-w-4xl mx-auto py-6 px-4">
+                    <!-- Message 1 - Sarah Johnson -->
+                    <div class="message-card unread mb-4 cursor-pointer">
+                        <div class="p-5">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1">
+                                    <div class="flex items-center mb-2">
+                                        <div class="status-indicator bg-green-500"></div>
+                                        <h2 class="font-bold text-lg">Sarah Johnson</h2>
+                                        <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">New Inquiry</span>
+                                    </div>
+                                    <p class="text-gray-700 mb-3">Inquiry about video production services. Phone: +234 803 123 4567. Location: Lagos, Nigeria (Lat: 6.5244° N, Long: 3.3792° E).</p>
+                                    <div class="flex flex-wrap items-center text-sm text-gray-500">
+                                        <span class="timestamp mr-3">14:23 WAT • West Africa Time (UTC+1)</span>
+                                        <span class="mr-3">•</span>
+                                        <span>Location: Lagos, Nigeria</span>
+                                        <span class="ml-auto bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">Unread</span>
+                                    </div>
+                                </div>
+                                <div class="ml-4 text-right">
+                                    <div class="text-xs text-gray-500 mb-1">Auto-response</div>
+                                    <div class="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">Sent 2 min ago</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Message 2 - Michael Okafor -->
+                    <div class="message-card mb-4 cursor-pointer">
+                        <div class="p-5">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1">
+                                    <div class="flex items-center mb-2">
+                                        <div class="status-indicator bg-yellow-500"></div>
+                                        <h2 class="font-bold text-lg">Michael Okafor</h2>
+                                        <span class="ml-2 bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">Collaboration</span>
+                                    </div>
+                                    <p class="text-gray-700 mb-3">Collaboration request for video content. YouTube channel with exactly 50,213 subscribers. Available for collaboration starting 2023-10-01 (next month).</p>
+                                    <div class="flex flex-wrap items-center text-sm text-gray-500">
+                                        <span class="timestamp mr-3">13:47 WAT • West Africa Time (UTC+1)</span>
+                                        <span class="mr-3">•</span>
+                                        <span>Channel: @MichaelOkaforOfficial</span>
+                                    </div>
+                                </div>
+                                <div class="ml-4 text-right">
+                                    <div class="text-xs text-gray-500 mb-1">Auto-response</div>
+                                    <div class="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">Sent 1 hr 22 min ago</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Message 3 - Chinedu Nwosu -->
+                    <div class="message-card mb-4 cursor-pointer">
+                        <div class="p-5">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1">
+                                    <div class="flex items-center mb-2">
+                                        <div class="status-indicator bg-blue-500"></div>
+                                        <h2 class="font-bold text-lg">Chinedu Nwosu</h2>
+                                        <span class="ml-2 bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">Technical</span>
+                                    </div>
+                                    <p class="text-gray-700 mb-3">Technical question about JohnGPT implementation for my YouTube channel (specifically for video script generation and SEO optimization).</p>
+                                    <div class="flex flex-wrap items-center text-sm text-gray-500">
+                                        <span class="timestamp mr-3">12:15 WAT • West Africa Time (UTC+1)</span>
+                                        <span class="mr-3">•</span>
+                                        <span>Channel: TechWithChinedu (28,541 subscribers)</span>
+                                    </div>
+                                </div>
+                                <div class="ml-4 text-right">
+                                    <div class="text-xs text-gray-500 mb-1">Auto-response</div>
+                                    <div class="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">Sent 2 hr 45 min ago</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Message 4 - Amina Yusuf -->
+                    <div class="message-card mb-4 cursor-pointer">
+                        <div class="p-5">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1">
+                                    <div class="flex items-center mb-2">
+                                        <div class="status-indicator bg-gray-400"></div>
+                                        <h2 class="font-bold text-lg">Amina Yusuf</h2>
+                                        <span class="ml-2 bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded">Urgent</span>
+                                    </div>
+                                    <p class="text-gray-700 mb-3">Follow-up regarding yesterday's meeting. Requesting timeline for deliverables with exact dates (2023-09-25 to 2023-10-10).</p>
+                                    <div class="flex flex-wrap items-center text-sm text-gray-500">
+                                        <span class="timestamp mr-3">11:02 WAT • West Africa Time (UTC+1)</span>
+                                        <span class="mr-3">•</span>
+                                        <span>Location: Abuja, Nigeria</span>
+                                    </div>
+                                </div>
+                                <div class="ml-4 text-right">
+                                    <div class="text-xs text-gray-500 mb-1">Auto-response</div>
+                                    <div class="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">Sent 3 hr 58 min ago</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Message 5 - David Adeyemi -->
+                    <div class="message-card mb-4 cursor-pointer">
+                        <div class="p-5">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1">
+                                    <div class="flex items-center mb-2">
+                                        <div class="status-indicator bg-gray-400"></div>
+                                        <h2 class="font-bold text-lg">David Adeyemi</h2>
+                                        <span class="ml-2 bg-amber-100 text-amber-800 text-xs font-medium px-2.5 py-0.5 rounded">Feedback</span>
+                                    </div>
+                                    <p class="text-gray-700 mb-3">Feedback on recent video. Suggests adding timestamps at exactly 00:02:15 and 00:07:33 for better engagement metrics.</p>
+                                    <div class="flex flex-wrap items-center text-sm text-gray-500">
+                                        <span class="timestamp mr-3">09:30 WAT • West Africa Time (UTC+1)</span>
+                                        <span class="mr-3">•</span>
+                                        <span>Video: "Content Creation Tips" (1,243 views)</span>
+                                    </div>
+                                </div>
+                                <div class="ml-4 text-right">
+                                    <div class="text-xs text-gray-500 mb-1">Auto-response</div>
+                                    <div class="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">Sent 5 hr 30 min ago</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Response Composer -->
+            <div class="bg-white border-t p-4">
+                <div class="max-w-4xl mx-auto">
+                    <div class="flex items-center mb-3">
+                        <div class="flex-1 bg-gray-100 rounded-lg p-3 text-gray-500">
+                            Using response template: "Standard Professional Response (v3.2.1)"
+                        </div>
+                        <button class="ml-3 px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">
+                            <i class="fas fa-cog mr-2"></i>Templates
+                        </button>
+                    </div>
+                    
+                    <div class="border rounded-lg overflow-hidden">
+                        <div class="bg-gray-50 border-b p-3 flex">
+                            <button class="p-2 hover:bg-white rounded mr-1 text-gray-600">
+                                <i class="fas fa-bold"></i>
+                            </button>
+                            <button class="p-2 hover:bg-white rounded mr-1 text-gray-600">
+                                <i class="fas fa-italic"></i>
+                            </button>
+                            <button class="p-2 hover:bg-white rounded mr-1 text-gray-600">
+                                <i class="fas fa-link"></i>
+                            </button>
+                            <div class="flex-1"></div>
+                            <span class="text-xs text-gray-500 self-center">Auto-save: 2 min ago</span>
+                        </div>
+                        <div class="p-4 min-h-[150px] bg-white">
+                            <p>Dear Valued Client,</p>
+                            <p class="mt-2">Thank you for your inquiry received at exactly 14:23 WAT on 2023-09-25. We have reviewed your request regarding video production services for your location in Lagos, Nigeria.</p>
+                            <p class="mt-2">Our team will contact you at the number provided: +234 803 123 4567 within the next business day.</p>
+                            <p class="mt-4">Best regards,<br>
+                            <strong>John Oluleke-Oke</strong><br>
+                            <span class="text-gray-600">J StaR Films • Creative Director</span><br>
+                            <span class="text-xs text-gray-500">System ID: JSF-CRM-789456 • Generated: 2023-09-25T14:25:00+01:00</span></p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between mt-3">
+                        <div class="flex space-x-2">
+                            <button class="px-4 py-2 border rounded-lg hover:bg-gray-50">
+                                <i class="fas fa-paperclip mr-2"></i>Attach
+                            </button>
+                            <button class="px-4 py-2 border rounded-lg hover:bg-gray-50">
+                                <i class="fas fa-smile mr-2"></i>Emoji
+                            </button>
+                        </div>
+                        <div class="flex space-x-3">
+                            <button class="px-4 py-2 border rounded-lg hover:bg-gray-50">
+                                Save Draft
+                            </button>
+                            <button class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition">
+                                Send Response
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple interaction for demonstration
+        document.querySelectorAll('.message-card').forEach(card => {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.message-card').forEach(c => {
+                    c.classList.remove('unread');
+                    c.classList.add('bg-white');
+                });
+                this.classList.remove('bg-white');
+                this.classList.add('bg-blue-50');
+            });
+        });
+        
+        // Auto-updating "Last Submission" time
+        function updateTimestamp() {
+            const now = new Date();
+            const minutes = 15;
+            const pastTime = new Date(now - minutes * 60000);
+            
+            // Format as "X min ago"
+            const diffMinutes = Math.floor((now - pastTime) / 60000);
+            document.querySelector('[data-timestamp]').textContent = `${diffMinutes} min ago`;
+        }
+        
+        // Initialize and set interval
+        updateTimestamp();
+        setInterval(updateTimestamp, 60000);
+    </script>
+</body>
+</html>

@@ -121,14 +121,14 @@ export const MainContentGrid: React.FC<MainContentGridProps> = ({
       {/* Message Details & Response */}
       <div className="space-y-4 sm:space-y-6">
         <MessageDetails
-          contact={contact}
+          contact={contact || null}
           onStatusUpdate={handleStatusUpdate}
           isLoading={contactLoading}
           error={contactError}
         />
 
         <ResponseComposer
-          contact={contact}
+          contact={contact || null}
           responseText={responseText}
           onResponseTextChange={onResponseTextChange}
           onSendResponse={handleSendResponse}

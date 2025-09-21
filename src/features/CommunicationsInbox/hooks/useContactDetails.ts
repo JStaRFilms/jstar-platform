@@ -30,26 +30,30 @@ export const useContactDetails = (contactId: string | null) => {
   );
 
   // Extract data from response
-  const contact = response?.data?.submission || null;
-  const responses = response?.data?.responses || [];
+  const contact = response?.data || null;
+  const responses = contact?.responses || [];
 
   // Update contact status with optimistic updates
   const updateContactStatus = async (status: ContactSubmission['status'], adminNotes?: string) => {
     if (!contactId || !contact) return;
 
     try {
+      if (!response) return;
+      
       // Optimistic update
-      const optimisticContact = { ...contact, status, adminNotes: adminNotes || contact.adminNotes };
+      const optimisticResponse: ContactDetailResponse = {
+        status: 'success',
+        data: {
+          ...response.data,
+          status,
+          adminNotes: adminNotes ?? response.data.adminNotes
+        },
+        message: response.message
+      };
 
       // Update cache optimistically
       mutate(
-        prev => prev ? {
-          ...prev,
-          data: {
-            ...prev.data,
-            submission: optimisticContact
-          }
-        } : prev,
+        optimisticResponse,
         false // Don't revalidate immediately
       );
 
@@ -85,10 +89,7 @@ export const useContactDetails = (contactId: string | null) => {
       mutate(
         prev => prev ? {
           ...prev,
-          data: {
-            ...prev.data,
-            submission: optimisticContact
-          }
+          data: optimisticContact
         } : prev,
         false // Don't revalidate immediately
       );
