@@ -23,6 +23,12 @@ interface MessageListProps {
   error?: string | null;
   /** Callback to refresh data */
   onRefresh?: () => void;
+  /** Current page number */
+  currentPage?: number;
+  /** Total number of pages */
+  totalPages?: number;
+  /** Callback when page changes */
+  onPageChange?: (page: number) => void;
 }
 
 /**
@@ -54,9 +60,25 @@ export const MessageList: React.FC<MessageListProps> = ({
   onFilterChange,
   isLoading = false,
   error = null,
-  onRefresh
+  onRefresh,
+  currentPage = 1,
+  totalPages = 1,
+  onPageChange
 }) => {
   const filterOptions = ['all', 'unread', 'today', 'week'] as const;
+
+  // Handle pagination
+  const handlePrevious = () => {
+    if (onPageChange && currentPage > 1) {
+      onPageChange(currentPage - 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (onPageChange && currentPage < totalPages) {
+      onPageChange(currentPage + 1);
+    }
+  };
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-200 dark:border-gray-700">
@@ -121,7 +143,7 @@ export const MessageList: React.FC<MessageListProps> = ({
       )}
 
       {/* Messages List - Responsive */}
-      <div className="space-y-3 max-h-96 overflow-y-auto">
+      <div className="space-y-3 max-h-[38rem] overflow-y-auto">
         {!isLoading && !error && messages.length === 0 ? (
           <div className="text-center py-8">
             <EnvelopeIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -178,14 +200,37 @@ export const MessageList: React.FC<MessageListProps> = ({
       </div>
 
       {/* Pagination - Responsive */}
-      <div className="mt-4 flex flex-col sm:flex-row sm:justify-end gap-3">
-        <button className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 font-medium transition-colors order-2 sm:order-1">
-          Previous
-        </button>
-        <button className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 font-medium transition-colors order-1 sm:order-2">
-          Next
-        </button>
-      </div>
+      {totalPages > 1 && (
+        <div className="mt-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+          <div className="text-sm text-gray-600 dark:text-gray-400 order-2 sm:order-1">
+            Page {currentPage} of {totalPages}
+          </div>
+          <div className="flex gap-3 order-1 sm:order-2">
+            <button
+              onClick={handlePrevious}
+              disabled={currentPage <= 1}
+              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                currentPage <= 1
+                  ? 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-600 cursor-not-allowed'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 active:scale-95'
+              }`}
+            >
+              Previous
+            </button>
+            <button
+              onClick={handleNext}
+              disabled={currentPage >= totalPages}
+              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                currentPage >= totalPages
+                  ? 'bg-red-200 dark:bg-red-900/50 text-red-400 dark:text-red-600 cursor-not-allowed'
+                  : 'bg-red-500 text-white hover:bg-red-600 active:scale-95'
+              }`}
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

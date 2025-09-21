@@ -11,7 +11,7 @@ interface MessageDetailsProps {
   /** The selected contact to display */
   contact: ContactSubmission | null;
   /** Callback when status is updated */
-  onStatusUpdate?: (contactId: string, status: ContactStatus) => void;
+  onStatusUpdate?: (contactId: string, status: ContactStatus, adminNotes?: string) => Promise<void>;
   /** Whether the component is in loading state */
   isLoading?: boolean;
   /** Error message if any */
@@ -30,6 +30,7 @@ export const MessageDetails: React.FC<MessageDetailsProps> = ({
 }) => {
   const [adminNotes, setAdminNotes] = useState(contact?.adminNotes || '');
   const [isUpdatingNotes, setIsUpdatingNotes] = useState(false);
+  const [notesSuccessMessage, setNotesSuccessMessage] = useState('');
 
   // Format date for display
   const formatDate = (date: Date | string) => {
@@ -52,6 +53,25 @@ export const MessageDetails: React.FC<MessageDetailsProps> = ({
     } catch (error) {
       console.error('Failed to update status:', error);
       // Error handling is done in the parent component
+    }
+  };
+
+  // Handle saving admin notes
+  const handleSaveNotes = async () => {
+    if (!contact || !onStatusUpdate) return;
+
+    setIsUpdatingNotes(true);
+    try {
+      // Use the same onStatusUpdate callback but with current status to only update notes
+      await onStatusUpdate(contact.id, contact.status, adminNotes);
+      setNotesSuccessMessage('Notes saved successfully!');
+
+      // Clear success message after 3 seconds
+      setTimeout(() => setNotesSuccessMessage(''), 3000);
+    } catch (error) {
+      console.error('Failed to save notes:', error);
+    } finally {
+      setIsUpdatingNotes(false);
     }
   };
 
@@ -180,10 +200,66 @@ export const MessageDetails: React.FC<MessageDetailsProps> = ({
             className="w-full p-2 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none"
             rows={3}
           />
-          <div className="mt-2 text-xs text-gray-600 dark:text-gray-400">
-            Notes are for internal use only and help track contact progress.
+          <div className="mt-2 flex justify-between items-center">
+            <div className="text-xs text-gray-600 dark:text-gray-400">
+              Notes are for internal use only and help track contact progress.
+            </div>
+            <button
+              onClick={handleSaveNotes}
+              disabled={isUpdatingNotes}
+              className="px-3 py-1 text-xs bg-yellow-600 text-white rounded hover:bg-yellow-700 disabled:opacity-50 transition-colors"
+            >
+              {isUpdatingNotes ? 'Saving...' : 'Save Notes'}
+            </button>
           </div>
         </div>
+
+        {/* Notes Success Message */}
+        {notesSuccessMessage && (
+          <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm font-medium text-green-800 dark:text-green-200">
+                  {notesSuccessMessage}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Response History */}
+        {contact.responses && contact.responses.length > 0 && (
+          <div className="p-3 sm:p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+            <div className="font-medium text-blue-800 dark:text-blue-200 mb-3">
+              Response History
+            </div>
+            <div className="space-y-3">
+              {contact.responses.map((response, index) => (
+                <div key={response.id} className="bg-white dark:bg-gray-800 p-3 rounded border border-blue-200 dark:border-blue-700">
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                      Response #{contact.responses!.length - index}
+                    </div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">
+                      {formatDate(response.sentAt)}
+                    </div>
+                  </div>
+                  <div className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                    {response.response}
+                  </div>
+                  <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                    Type: {response.responseType}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Response Info */}
         {contact.respondedAt && (

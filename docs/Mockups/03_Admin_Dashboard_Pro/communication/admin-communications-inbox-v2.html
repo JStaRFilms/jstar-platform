@@ -357,6 +357,147 @@
                 margin-top: 1rem;
             }
         }
+        /* Add new styles for the combined version */
+        .precision-badge {
+            @apply inline-flex items-center px-2 py-1 text-xs font-medium rounded-full;
+        }
+        .detail-highlight {
+            @apply bg-yellow-50 border-l-4 border-yellow-400 pl-3;
+        }
+        .message-timeline {
+            position: relative;
+            padding-left: 2rem;
+            margin-left: 1rem;
+        }
+        .message-timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 2px;
+            background: linear-gradient(to bottom, #4f46e5, #7e3af2);
+        }
+        .timeline-point {
+            position: absolute;
+            left: -1.15rem;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid #4f46e5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .timeline-point::after {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #4f46e5;
+        }
+        .detail-tracker {
+            position: relative;
+        }
+        .detail-tracker::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            height: 2px;
+            width: 85%;
+            background: linear-gradient(to right, #4f46e5 0%, #7e3af2 100%);
+            animation: track-progress 3s ease-out forwards;
+        }
+        @keyframes track-progress {
+            from { width: 0; }
+            to { width: 85%; }
+        }
+        .fullscreen-mode {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1000;
+            background: white;
+            padding: 1.5rem;
+            overflow-y: auto;
+            margin: 0 !important;
+            max-width: 100% !important;
+            width: 100% !important;
+            height: 100vh !important;
+        }
+        .dark .fullscreen-mode {
+            background: #1f2937;
+        }
+        .fullscreen-toggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 0.375rem;
+            color: #6b7280;
+            transition: all 0.2s;
+        }
+        .fullscreen-toggle:hover {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        .dark .fullscreen-toggle:hover {
+            background: #374151;
+            color: #f3f4f6;
+        }
+        .fullscreen-toggle.active {
+            color: #2563eb;
+        }
+        .fullscreen-toggle i {
+            font-size: 1rem;
+        }
+        /* Adjust layout when in fullscreen */
+        body.fullscreen-active {
+            overflow: hidden;
+        }
+        /* Fullscreen message list */
+        .message-list-container.fullscreen-mode {
+            grid-column: 1 / -1;
+            height: calc(100vh - 3rem);
+        }
+        /* Fullscreen message details */
+        .message-details-container.fullscreen-mode {
+            grid-column: 1 / -1;
+            height: calc(100vh - 3rem);
+        }
+        /* Fullscreen response editor */
+        .response-editor.fullscreen-mode {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1001;
+            background: white;
+            padding: 1.5rem;
+            margin: 0;
+            max-width: 100%;
+            width: 100%;
+            height: 100vh;
+        }
+        .dark .response-editor.fullscreen-mode {
+            background: #1f2937;
+        }
+        .response-editor.fullscreen-mode textarea {
+            height: calc(100vh - 12rem) !important;
+            min-height: auto !important;
+        }
+        .response-editor.fullscreen-mode .response-toolbar {
+            position: absolute;
+            bottom: 1.5rem;
+            left: 1.5rem;
+            right: 1.5rem;
+        }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
@@ -386,7 +527,7 @@
         <div class="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
             <a href="/admin" class="text-xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent flex items-center logo-expanded">
                 <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2H5a2 2 0 00-2 2v3m4 0h4"></path>
                 </svg>
                 J StaR Admin
             </a>
@@ -464,7 +605,7 @@
                 <nav class="space-y-1">
                     <a href="/admin/notifications/automations" class="sidebar-item flex items-center p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
                         <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v2m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
                         </svg>
                         <span class="sidebar-item-text">Automations</span>
                     </a>
@@ -517,101 +658,49 @@
         <header class="mb-6">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <div class="flex items-center mb-1">
-                        <a href="/admin" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Admin</a>
-                        <span class="mx-1.5 text-gray-400 dark:text-gray-500">/</span>
-                        <a href="/admin/notifications" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Notifications</a>
-                        <span class="mx-1.5 text-gray-400 dark:text-gray-500">/</span>
-                        <span class="text-gray-900 dark:text-white">Communications Inbox</span>
-                    </div>
-                    <h1 class="text-2xl font-bold bg-gradient-to-r from-admin-red to-red-500 bg-clip-text text-transparent">
-                        Communications Inbox
-                    </h1>
-                    <p class="text-gray-600 dark:text-gray-400 mt-1 text-sm">
-                        Manage all contact form submissions and communications
-                    </p>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Communications Inbox</h1>
+                    <p class="text-gray-500 text-sm mt-1">5 messages • Last updated: <span class="font-mono">2023-09-25T14:23:17+01:00 (WAT)</span></p>
                 </div>
-                <div class="flex flex-wrap gap-2">
-                    <button class="px-3 py-1.5 bg-gradient-to-r from-admin-red to-red-500 text-white rounded-lg font-medium btn-enhanced flex items-center justify-center" id="respond-btn">
-                        <svg class="h-4 w-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                        </svg>
-                        Respond
-                    </button>
-                    <button id="precision-mode-toggle" class="px-3 py-1.5 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center justify-center">
-                        <svg class="h-4 w-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                        </svg>
-                        Precision Mode
-                    </button>
-                    <button class="px-3 py-1.5 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center justify-center" id="archive-btn">
-                        <svg class="h-4 w-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 12h14m7 8h-14a2 2 0 01-2-2V9a2 2 0 012-2h14a2 2 0 012 2v11a2 2 0 01-2 2z"></path>
-                        </svg>
-                        Archive
-                    </button>
-                    <div class="relative w-full sm:w-64">
-                        <input type="text" placeholder="Search messages..." 
-                               class="pl-9 pr-4 py-2 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent">
-                        <svg class="h-5 w-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
+                <div class="flex items-center space-x-3">
+                    <div class="relative">
+                        <input type="text" placeholder="Search conversations..." 
+                            class="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:border-transparent w-full sm:w-64">
+                        <i class="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
                     </div>
+                    <button class="px-4 py-2 bg-jstar-blue text-white rounded-lg hover:bg-blue-600 transition flex items-center">
+                        <i class="fas fa-plus mr-2"></i> New Message
+                    </button>
                 </div>
             </div>
         </header>
-        
-        <!-- System Status -->
+
+        <!-- System Status Dashboard -->
         <section class="mb-6">
-            <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div>
-                        <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-1">Communications System Status</h2>
-                        <p class="text-gray-600 dark:text-gray-400 text-xs">
-                            Current contact form and communication system status
-                        </p>
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col md:flex-row md:items-center justify-between">
+                    <div class="mb-3 md:mb-0">
+                        <h3 class="font-semibold text-lg text-gray-800 dark:text-white">System Status Dashboard</h3>
+                        <p class="text-gray-500 dark:text-gray-400 mt-1">Precision monitoring: <span class="detail-tracker text-jstar-blue font-mono">85.714%</span></p>
                     </div>
-                    <div class="flex flex-wrap gap-2">
-                        <div class="flex items-center">
-                            <span class="status-indicator status-active"></span>
-                            <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Contact Form Active</span>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                        <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
+                            <div class="text-gray-500 dark:text-gray-400">Last Submission</div>
+                            <div class="font-mono text-gray-800 dark:text-gray-200 mt-1">15 min 23 sec ago</div>
                         </div>
-                        <div class="flex items-center">
-                            <span class="status-indicator status-active"></span>
-                            <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Auto-Responder Active</span>
+                        <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
+                            <div class="text-gray-500 dark:text-gray-400">Auto-responder</div>
+                            <div class="font-mono text-gray-800 dark:text-gray-200 mt-1">Active (2 min 17 sec delay)</div>
                         </div>
-                        <div class="flex items-center">
-                            <span class="status-indicator status-active"></span>
-                            <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Last Submission: 15 min ago</span>
+                        <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
+                            <div class="text-gray-500 dark:text-gray-400">System Load</div>
+                            <div class="font-mono text-gray-800 dark:text-gray-200 mt-1">99.743% (Optimal)</div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
-        
-        <!-- Quick Stats -->
-        <section class="mb-6">
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6">
-                <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
-                    <div class="text-xl font-bold text-admin-red mb-1">42</div>
-                    <div class="text-xs text-gray-600 dark:text-gray-400">Total Messages</div>
-                </div>
-                <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
-                    <div class="text-xl font-bold text-purple-500 mb-1">12</div>
-                    <div class="text-xs text-gray-600 dark:text-gray-400">Unread Messages</div>
-                </div>
-                <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
-                    <div class="text-xl font-bold text-green-500 mb-1">92%</div>
-                    <div class="text-xs text-gray-600 dark:text-gray-400">Response Rate</div>
-                </div>
-                <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
-                    <div class="text-xl font-bold text-red-500 mb-1">24h</div>
-                    <div class="text-xs text-gray-600 dark:text-gray-400">Avg. Response Time</div>
-                </div>
-            </div>
-        </section>
-        
-        <!-- Main Messages Grid -->
+
         <div class="message-layout grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
             <!-- Left Column - Messages List -->
             <div class="lg:col-span-2 space-y-4 message-list-container">
@@ -619,7 +708,7 @@
                 <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
                     <div class="flex items-center justify-between mb-4">
                         <h2 class="text-lg font-bold text-gray-900 dark:text-white">Messages</h2>
-                        <div class="flex space-x-1.5">
+                        <div class="flex items-center space-x-2">
                             <button class="px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 text-sm">
                                 All
                             </button>
@@ -631,6 +720,9 @@
                             </button>
                             <button class="px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 text-sm">
                                 This Week
+                            </button>
+                            <button class="fullscreen-toggle" data-target=".message-list-container" title="Toggle fullscreen">
+                                <i class="fas fa-expand"></i>
                             </button>
                         </div>
                     </div>
@@ -788,144 +880,139 @@
             </div>
             <!-- Right Column - Message Details -->
             <div class="space-y-4 message-details-container">
-                <!-- Message Details -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700 message-details" id="message-details">
-                    <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Message Details</h2>
-                    <div class="space-y-4">
-                        <div class="contact-details p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
-                            <div class="font-medium text-gray-900 dark:text-white mb-2.5">Contact Information</div>
-                            <div class="space-y-1.5">
-                                <div class="flex items-center justify-between p-1.5 bg-white dark:bg-gray-800 rounded">
-                                    <div class="text-xs text-gray-700 dark:text-gray-300">Name</div>
-                                    <span class="text-xs">Sarah Johnson</span>
-                                </div>
-                                <div class="flex items-center justify-between p-1.5 bg-white dark:bg-gray-800 rounded">
-                                    <div class="text-xs text-gray-700 dark:text-gray-300">Email</div>
-                                    <span class="text-xs">sarah.johnson@example.com</span>
-                                </div>
-                                <div class="flex items-center justify-between p-1.5 bg-white dark:bg-gray-800 rounded">
-                                    <div class="text-xs text-gray-700 dark:text-gray-300">Phone</div>
-                                    <span class="text-xs">+234 803 123 4567</span>
-                                </div>
-                                <div class="flex items-center justify-between p-1.5 bg-white dark:bg-gray-800 rounded">
-                                    <div class="text-xs text-gray-700 dark:text-gray-300">Location</div>
-                                    <span class="text-xs">Lagos, Nigeria</span>
-                                </div>
-                                <div class="flex items-center justify-between p-1.5 bg-white dark:bg-gray-800 rounded">
-                                    <div class="text-xs text-gray-700 dark:text-gray-300">Submitted</div>
-                                    <span class="text-xs">Today at 14:23 WAT</span>
-                                </div>
-                                <div class="flex items-center justify-between p-1.5 bg-white dark:bg-gray-800 rounded">
-                                    <div class="text-xs text-gray-700 dark:text-gray-300">Status</div>
-                                    <span class="text-xs bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 px-2 py-1 rounded">
-                                        Unread
-                                    </span>
-                                </div>
+                <!-- Message Details Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-bold text-gray-900 dark:text-white">Message Details</h2>
+                        <button class="fullscreen-toggle" data-target=".message-details-container" title="Toggle fullscreen">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Contact Information -->
+                    <div class="mb-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-jstar-blue flex items-center justify-center text-white text-lg font-bold mr-3">
+                                SJ
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Sarah Johnson</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Video Production Inquiry</p>
                             </div>
                         </div>
-                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
-                            <div class="font-medium text-gray-900 dark:text-white mb-2.5">Message Content</div>
-                            <div class="space-y-2.5">
-                                <div class="p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
-                                    <div class="text-xs text-gray-600 dark:text-gray-400 mb-1">Subject</div>
-                                    <div class="text-sm">Inquiry about video production services</div>
-                                </div>
-                                <div class="p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
-                                    <div class="text-xs text-gray-600 dark:text-gray-400 mb-1">Message</div>
-                                    <div class="text-sm">
-                                        Hello John, I came across your website and was impressed with your portfolio. 
-                                        I'm looking for a videographer for my small business in Lagos. 
-                                        Can you please tell me more about your services and pricing?
-                                    </div>
-                                </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400">Email</p>
+                                <p class="text-gray-900 dark:text-white">sarah.johnson@example.com</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400">Phone</p>
+                                <p class="text-gray-900 dark:text-white">+234 803 123 4567</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400">Location</p>
+                                <p class="text-gray-900 dark:text-white">Lagos, Nigeria</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400">Received</p>
+                                <p class="text-gray-900 dark:text-white">Today, 14:23 WAT</p>
                             </div>
                         </div>
-                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                            <p class="text-blue-800 dark:text-blue-200 text-sm">
-                                <strong>Insight:</strong> Nigerian contacts often prefer phone communication. 
-                                Consider adding a phone call option to your response template.
+                    </div>
+                    
+                    <!-- Message Content -->
+                    <div class="mb-6">
+                        <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">MESSAGE</h4>
+                        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                            <p class="text-gray-800 dark:text-gray-200">
+                                Hi John, I'm reaching out to inquire about your video production services for my upcoming project. 
+                                I was impressed by your portfolio and would like to discuss how we might work together.
                             </p>
                         </div>
                     </div>
+                    
+                    <!-- Timeline -->
+                    <div class="message-timeline">
+                        <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-4">COMMUNICATION TIMELINE</h4>
+                        
+                        <div class="mb-6">
+                            <div class="timeline-point"></div>
+                            <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg mb-4">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm font-medium text-gray-900 dark:text-white">Message Received</span>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">14:23 WAT</span>
+                                </div>
+                                <p class="text-sm text-gray-600 dark:text-gray-300">Initial inquiry received from contact form</p>
+                            </div>
+                            
+                            <div class="timeline-point"></div>
+                            <div class="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg border-l-4 border-blue-400">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm font-medium text-blue-800 dark:text-blue-200">Auto-responder Sent</span>
+                                    <span class="text-xs text-blue-600 dark:text-blue-300">14:25 WAT</span>
+                                </div>
+                                <p class="text-sm text-blue-700 dark:text-blue-300">Automatic response sent with template: <span class="font-medium">Initial_Response_v2</span></p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+                
                 <!-- Response Composer -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
-                    <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Compose Response</h2>
-                    <div class="space-y-4">
-                        <div class="response-editor p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
-                            <div class="font-medium text-gray-900 dark:text-white mb-2">Response Template</div>
-                            <select class="w-full px-2.5 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent mb-3 text-sm">
-                                <option>Select a template...</option>
-                                <option>Standard Inquiry Response</option>
-                                <option>Project Quote Template</option>
-                                <option>Collaboration Response</option>
-                                <option>Technical Support Response</option>
+                <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-bold text-gray-900 dark:text-white">Compose Response</h2>
+                        <div class="flex items-center space-x-2">
+                            <button class="fullscreen-toggle" data-target=".response-editor" title="Toggle fullscreen">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                            <select class="appearance-none bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 py-1.5 pl-3 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:border-transparent text-sm">
+                                <option>Select Template</option>
+                                <option>Initial Response</option>
+                                <option>Quote Request</option>
+                                <option>Follow-up</option>
+                                <option>Thank You</option>
                             </select>
-                            <div class="font-medium text-gray-900 dark:text-white mb-1.5">Message</div>
-                            <textarea class="w-full min-h-[120px] px-2.5 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent resize-none text-sm" 
-                                      placeholder="Write your response here...">Hello Sarah,
+                        </div>
+                    </div>
+                    
+                    <div class="response-editor mb-4">
+                        <textarea class="w-full h-40 p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-jstar-blue focus:border-transparent dark:bg-gray-700 dark:text-gray-200" 
+                                  placeholder="Type your response here...">
 Thank you for reaching out about our video production services. I'd be happy to discuss your project needs and provide a quote.
+
 Could you please share some more details about:
 - The type of video you're looking for
 - Your timeline and deadline
 - Any specific requirements or locations
-I'll get back to you with a detailed proposal within 24 hours.
+
+Looking forward to your response.
+
 Best regards,
-John Oluleke-Oke
-J StaR Films</textarea>
+J StaR Films
+                    </textarea>
+                    </div>
+                    
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div class="flex items-center space-x-2">
+                            <button class="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <i class="fas fa-paperclip"></i>
+                            </button>
+                            <button class="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <i class="fas fa-image"></i>
+                            </button>
+                            <button class="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <i class="fas fa-link"></i>
+                            </button>
                         </div>
-                        <div class="flex space-x-2">
-                            <button class="flex-1 px-3 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 font-medium text-sm">
+                        
+                        <div class="flex space-x-3 w-full sm:w-auto">
+                            <button class="flex-1 sm:flex-none px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 font-medium">
                                 Save Draft
                             </button>
-                            <button class="flex-1 px-3 py-2 bg-admin-red text-white rounded-lg hover:bg-red-700 font-medium btn-enhanced text-sm" id="send-response-btn">
-                                Send Response
+                            <button id="send-response-btn" class="flex-1 sm:flex-none px-6 py-2 bg-jstar-blue text-white rounded-lg hover:bg-blue-600 font-medium flex items-center justify-center">
+                                <i class="fas fa-paper-plane mr-2"></i> Send
                             </button>
-                        </div>
-                    </div>
-                </div>
-                <!-- Communication Timeline -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
-                    <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Communication Timeline</h2>
-                    <div class="space-y-3">
-                        <div class="timeline-event p-2.5 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
-                            <div class="flex items-start">
-                                <div class="flex-shrink-0 w-7 h-7 rounded-full bg-admin-red text-white flex items-center justify-center mt-0.5 mr-2.5">
-                                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <div class="font-medium text-gray-900 dark:text-white text-sm">Message Received</div>
-                                    <div class="text-xs text-gray-600 dark:text-gray-400">Today at 14:23 WAT</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="timeline-event p-2.5 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
-                            <div class="flex items-start">
-                                <div class="flex-shrink-0 w-7 h-7 rounded-full bg-green-500 text-white flex items-center justify-center mt-0.5 mr-2.5">
-                                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <div class="font-medium text-gray-900 dark:text-white text-sm">Auto-Responder Sent</div>
-                                    <div class="text-xs text-gray-600 dark:text-gray-400">Today at 14:25 WAT</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="timeline-event p-2.5 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
-                            <div class="flex items-start">
-                                <div class="flex-shrink-0 w-7 h-7 rounded-full bg-gray-300 text-gray-700 flex items-center justify-center mt-0.5 mr-2.5">
-                                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <div class="font-medium text-gray-900 dark:text-white text-sm">Response Pending</div>
-                                    <div class="text-xs text-gray-600 dark:text-gray-400">You haven't responded yet</div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -1127,16 +1214,16 @@ J StaR Films</textarea>
                         <div class="space-y-5">
                             <div class="response-editor p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
                                 <div class="font-medium text-gray-900 dark:text-white mb-3">Response Template</div>
-                                <select class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent mb-4">
+                                <select class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-jstar-blue focus:border-transparent mb-4">
                                     <option>Select a template...</option>
-                                    <option>Standard Inquiry Response</option>
-                                    <option>Project Quote Template</option>
-                                    <option>Collaboration Response</option>
-                                    <option>Technical Support Response</option>
+                                    <option>Initial Response</option>
+                                    <option>Quote Request</option>
+                                    <option>Follow-up</option>
+                                    <option>Thank You</option>
                                 </select>
                                 <div class="font-medium text-gray-900 dark:text-white mb-2">Message</div>
-                                <textarea class="w-full min-h-[150px] px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent resize-none" 
-                                          placeholder="Write your response here...">Hello Sarah,
+                                <textarea class="w-full min-h-[150px] px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-jstar-blue focus:border-transparent resize-none" 
+                                          placeholder="Write your response here...">
 Thank you for reaching out about our video production services. I'd be happy to discuss your project needs and provide a quote.
 Could you please share some more details about:
 - The type of video you're looking for
@@ -1145,10 +1232,11 @@ Could you please share some more details about:
 I'll get back to you with a detailed proposal within 24 hours.
 Best regards,
 John Oluleke-Oke
-J StaR Films</textarea>
+J StaR Films
+                    </textarea>
                             </div>
                             <div class="flex space-x-3">
-                                <button class="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 font-medium">
+                                <button class="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 font-medium text-sm">
                                     Save Draft
                                 </button>
                                 <button class="flex-1 px-4 py-2 bg-admin-red text-white rounded-lg hover:bg-red-700 font-medium btn-enhanced" id="send-response-btn">
@@ -1252,7 +1340,7 @@ J StaR Films</textarea>
                                 <div class="flex items-start">
                                     <div class="flex-shrink-0 w-7 h-7 rounded-full bg-admin-red text-white flex items-center justify-center mt-0.5 mr-2.5">
                                         <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                                         </svg>
                                     </div>
                                     <div>
@@ -1265,7 +1353,7 @@ J StaR Films</textarea>
                                 <div class="flex items-start">
                                     <div class="flex-shrink-0 w-7 h-7 rounded-full bg-green-500 text-white flex items-center justify-center mt-0.5 mr-2.5">
                                         <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                                         </svg>
                                     </div>
                                     <div>
@@ -1295,6 +1383,71 @@ J StaR Films</textarea>
                 }
             });
         });
+        
+        // Fullscreen toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fullscreen toggle for any element
+            const fullscreenToggles = document.querySelectorAll('.fullscreen-toggle');
+            
+            fullscreenToggles.forEach(toggle => {
+                toggle.addEventListener('click', function() {
+                    const targetSelector = this.getAttribute('data-target');
+                    const target = document.querySelector(targetSelector);
+                    
+                    if (target) {
+                        target.classList.toggle('fullscreen-mode');
+                        document.body.classList.toggle('fullscreen-active');
+                        
+                        // Toggle icon between expand/compress
+                        const icon = this.querySelector('i');
+                        if (target.classList.contains('fullscreen-mode')) {
+                            icon.classList.remove('fa-expand');
+                            icon.classList.add('fa-compress');
+                            this.classList.add('active');
+                        } else {
+                            icon.classList.remove('fa-compress');
+                            icon.classList.add('fa-expand');
+                            this.classList.remove('active');
+                        }
+                    }
+                });
+            });
+            
+            // Close fullscreen when pressing Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const fullscreenElements = document.querySelectorAll('.fullscreen-mode');
+                    if (fullscreenElements.length > 0) {
+                        fullscreenElements.forEach(el => {
+                            el.classList.remove('fullscreen-mode');
+                            const toggle = document.querySelector(`.fullscreen-toggle[data-target=".${el.className.split(' ').find(cn => cn !== 'fullscreen-mode')}"]`);
+                            if (toggle) {
+                                const icon = toggle.querySelector('i');
+                                icon.classList.remove('fa-compress');
+                                icon.classList.add('fa-expand');
+                                toggle.classList.remove('active');
+                            }
+                        });
+                        document.body.classList.remove('fullscreen-active');
+                    }
+                }
+            });
+        });
+        
+        // Update the existing response editor code to handle fullscreen
+        const responseEditor = document.querySelector('.response-editor');
+        if (responseEditor) {
+            const textarea = responseEditor.querySelector('textarea');
+            const toolbar = document.createElement('div');
+            toolbar.className = 'response-toolbar';
+            
+            // Move the existing buttons into the toolbar
+            const buttons = responseEditor.querySelector('.flex.flex-col.sm\:flex-row');
+            if (buttons) {
+                toolbar.appendChild(buttons);
+                responseEditor.appendChild(toolbar);
+            }
+        }
     </script>
 </body>
 </html>

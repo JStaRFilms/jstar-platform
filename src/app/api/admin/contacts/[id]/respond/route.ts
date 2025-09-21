@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { withAdminAuth } from '@/lib/admin-auth';
+import { sendEmail } from '@/lib/email';
 
 const prisma = new PrismaClient();
 
@@ -53,9 +54,9 @@ interface ContactResponse {
  */
 export const POST = withAdminAuth(async (
   request: NextRequest,
-  context?: { params: { id: string } }
+  context?: { params: Promise<{ id: string }> }
 ) => {
-  const params = context?.params;
+  const params = await context?.params;
   if (!params?.id) {
     return NextResponse.json(
       { status: 'error', message: 'Missing contact ID' },
@@ -127,6 +128,81 @@ export const POST = withAdminAuth(async (
         }
       }
     });
+
+    // Send email to the contact (don't fail the request if email fails)
+    if (body.responseType === 'EMAIL' || !body.responseType) {
+      try {
+        const emailSubject = `Re: ${existingSubmission.subject}`;
+        const emailHtml = `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta charset="utf-8">
+              <title>Response from J StaR Films</title>
+              <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background: linear-gradient(135deg, #2563EB 0%, #8B5CF6 100%); color: white; padding: 30px; border-radius: 8px 8px 0 0; text-align: center; }
+                .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px; }
+                .original-message { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #e5e7eb; }
+                .response { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2563EB; }
+                .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; font-size: 12px; color: #6b7280; text-align: center; }
+                .highlight { background: linear-gradient(135deg, #2563EB 0%, #8B5CF6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: bold; }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <div class="header">
+                  <h1>Response from J StaR Films</h1>
+                  <p>Thank you for your message</p>
+                </div>
+
+                <div class="content">
+                  <p>Hi ${existingSubmission.name},</p>
+
+                  <div class="response">
+                    <p><strong>My Response:</strong></p>
+                    <div style="white-space: pre-wrap;">${body.response}</div>
+                  </div>
+
+                  <div class="original-message">
+                    <p><strong>Your Original Message:</strong></p>
+                    <p><em>Subject: ${existingSubmission.subject}</em></p>
+                    <div style="white-space: pre-wrap;">${existingSubmission.message}</div>
+                  </div>
+
+                  <p>If you have any further questions or need additional information, please don't hesitate to reach out.</p>
+
+                  <p>Best regards,<br><strong>John Oluleke-Oke</strong><br>J StaR Films<br>Where Faith Meets Film and Future</p>
+
+                  <div style="text-align: center; margin: 20px 0;">
+                    <a href="https://jstarfilms.com" style="background: linear-gradient(135deg, #2563EB 0%, #8B5CF6 100%); color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Visit My Website</a>
+                  </div>
+                </div>
+
+                <div class="footer">
+                  <p>This email was sent in response to your contact form submission.</p>
+                  <p>J StaR Films - Professional Cinematography & App Development</p>
+                </div>
+              </div>
+            </body>
+          </html>
+        `;
+
+        await sendEmail({
+          to: existingSubmission.email,
+          subject: emailSubject,
+          html: emailHtml,
+        });
+
+        console.log(`Response email sent to ${existingSubmission.email}`);
+
+      } catch (emailError) {
+        console.error('Failed to send response email:', emailError);
+        // Don't fail the entire request if email fails
+        // The response was still recorded in the database
+      }
+    }
 
     const response: SendResponseResponse = {
       status: 'success',

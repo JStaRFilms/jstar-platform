@@ -81,10 +81,10 @@ export const GET = withAdminAuth(async (request: NextRequest) => {
         status?: 'PENDING' | 'PROCESSED' | 'RESPONDED' | 'ARCHIVED';
         service?: string;
         OR?: Array<{
-          name?: { contains: string; mode: 'insensitive' };
-          email?: { contains: string; mode: 'insensitive' };
-          subject?: { contains: string; mode: 'insensitive' };
-          message?: { contains: string; mode: 'insensitive' };
+          name?: { contains: string };
+          email?: { contains: string };
+          subject?: { contains: string };
+          message?: { contains: string };
         }>;
       } = {};
 
@@ -97,11 +97,13 @@ export const GET = withAdminAuth(async (request: NextRequest) => {
       }
 
       if (filters.search) {
+        // Convert search to lowercase for case-insensitive search
+        const searchLower = filters.search.toLowerCase();
         where.OR = [
-          { name: { contains: filters.search, mode: 'insensitive' } },
-          { email: { contains: filters.search, mode: 'insensitive' } },
-          { subject: { contains: filters.search, mode: 'insensitive' } },
-          { message: { contains: filters.search, mode: 'insensitive' } }
+          { name: { contains: searchLower } },
+          { email: { contains: searchLower } },
+          { subject: { contains: searchLower } },
+          { message: { contains: searchLower } }
         ];
       }
 

@@ -34,15 +34,16 @@ export const CommunicationsInbox: React.FC<CommunicationsInboxProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [responseText, setResponseText] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // API filters based on search and UI state
   const apiFilters = useMemo((): ContactFilters => ({
     search: searchQuery || undefined,
-    page: 1,
+    page: currentPage,
     limit: 50,
     sortBy: 'submittedAt',
     sortOrder: 'desc',
-  }), [searchQuery]);
+  }), [searchQuery, currentPage]);
 
   // Use the analytics hook for real-time stats
   const { quickStats } = useAnalytics();
@@ -50,6 +51,7 @@ export const CommunicationsInbox: React.FC<CommunicationsInboxProps> = ({
   // Use the new contacts hook
   const {
     contacts,
+    pagination,
     isLoading,
     error,
     getFilteredContacts,
@@ -117,6 +119,11 @@ export const CommunicationsInbox: React.FC<CommunicationsInboxProps> = ({
     }
   };
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    setSelectedMessage(null); // Clear selection when changing pages
+  };
+
   return (
     <div className={`space-y-6 ${className}`}>
       {/* Page Header */}
@@ -143,8 +150,11 @@ export const CommunicationsInbox: React.FC<CommunicationsInboxProps> = ({
         isSending={isSending}
         isLoading={isLoading}
         error={error}
+        currentPage={pagination?.page || 1}
+        totalPages={pagination?.totalPages || 1}
         onMessageSelect={handleMessageSelect}
         onFilterChange={handleFilterChange}
+        onPageChange={handlePageChange}
         onResponseTextChange={handleResponseTextChange}
         onSendResponse={handleSendResponse}
         onRefresh={refresh}
