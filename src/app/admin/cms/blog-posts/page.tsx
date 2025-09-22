@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-
+import { BlogPostsManager } from '@/features/CMS/BlogPostsManager/BlogPostsManager';
 
 /**
  * Blog Posts Management Page

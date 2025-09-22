@@ -167,3 +167,84 @@ export interface Message {
   location?: string;
   ipAddress?: string;
 }
+
+// Enhanced types for advanced features
+export interface SystemStatusData {
+  contactFormActive: boolean;
+  autoResponderActive: boolean;
+  lastSubmissionTime: string;
+  systemLoad: number;
+  precisionLevel: number;
+  totalSubmissions: number;
+  pendingCount: number;
+  processedCount: number;
+  respondedCount: number;
+  archivedCount: number;
+}
+
+export interface PrecisionModeState {
+  isActive: boolean;
+  precisionLevel: number;
+  detailTracking: boolean;
+  highlightUnnecessary: boolean;
+  showTimestamps: boolean;
+}
+
+export interface FullscreenState {
+  isActive: boolean;
+  targetElement: 'messageList' | 'messageDetails' | 'responseComposer' | null;
+}
+
+export interface MessageTimelineEvent {
+  id: string;
+  type: 'received' | 'auto_response' | 'manual_response' | 'status_change' | 'archived';
+  timestamp: Date;
+  description: string;
+  metadata?: Record<string, any>;
+  precisionData?: {
+    exactTimestamp: string;
+    responseTime: number;
+    templateUsed?: string;
+    autoResponseDelay?: number;
+  };
+}
+
+export interface MessageCardState {
+  isHovered: boolean;
+  isSelected: boolean;
+  isFullscreen: boolean;
+  precisionMode: boolean;
+}
+
+export interface ResponseTemplate {
+  id: string;
+  name: string;
+  category: 'standard' | 'quote' | 'follow_up' | 'technical' | 'custom';
+  content: string;
+  variables?: string[];
+  usageCount: number;
+  lastUsed?: Date;
+}
+
+export interface ContactMetadata {
+  ipAddress: string;
+  userAgent: string;
+  location: string;
+  timezone: string;
+  deviceType: 'desktop' | 'mobile' | 'tablet';
+  browser: string;
+  submissionSource: 'website' | 'api' | 'admin';
+}
+
+export interface SystemMetrics {
+  averageResponseTime: string;
+  responseRate: number;
+  autoResponseRate: number;
+  manualResponseRate: number;
+  peakHours: string[];
+  commonServices: Array<{
+    service: string;
+    count: number;
+    percentage: number;
+  }>;
+}

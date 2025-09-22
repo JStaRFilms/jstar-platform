@@ -4,6 +4,9 @@ import React, { useState, useMemo } from 'react';
 import { useContacts } from './hooks/useContacts';
 import { useContactDetails } from './hooks/useContactDetails';
 import { useAnalytics } from './hooks/useAnalytics';
+import { useSystemStatus } from './hooks/useSystemStatus';
+import { useFullscreen } from './hooks/useFullscreen';
+import { PrecisionModeProvider } from './contexts/PrecisionModeContext';
 import { sendContactResponse } from '@/lib/communications-api';
 import { ContactFilters, MessageFilter, ContactSubmission, ContactStatus, ResponseType } from './types';
 import { SystemStatus } from './components/SystemStatus';
@@ -59,6 +62,25 @@ export const CommunicationsInbox: React.FC<CommunicationsInboxProps> = ({
     archiveContact,
     refresh,
   } = useContacts(apiFilters);
+
+  // Use the system status hook for real-time monitoring
+  const {
+    systemStatus,
+    systemMetrics,
+    isLoading: statusLoading,
+    lastUpdated,
+    refreshStatus,
+    getSystemHealthScore,
+    getStatusColor,
+  } = useSystemStatus();
+
+  // Use the fullscreen hook for fullscreen functionality
+  const {
+    fullscreenState,
+    toggleFullscreen,
+    exitFullscreen,
+    isFullscreen,
+  } = useFullscreen();
 
   // Get filtered contacts based on UI filter
   const filteredContacts = useMemo(() => {
@@ -125,40 +147,54 @@ export const CommunicationsInbox: React.FC<CommunicationsInboxProps> = ({
   };
 
   return (
-    <div className={`space-y-6 ${className}`}>
-      {/* Page Header */}
-      <PageHeader
-        title="Communications Inbox"
-        description="Manage all contact form submissions and communications"
-        searchQuery={searchQuery}
-        onSearchChange={handleSearchChange}
-        onArchive={handleArchiveMessage}
-      />
+    <PrecisionModeProvider>
+      <div className={`space-y-6 ${className}`}>
+        {/* Page Header */}
+        <PageHeader
+          title="Communications Inbox"
+          description="Manage all contact form submissions and communications"
+          searchQuery={searchQuery}
+          onSearchChange={handleSearchChange}
+          onArchive={handleArchiveMessage}
+        />
 
-      {/* System Status */}
-      <SystemStatus />
+        {/* System Status */}
+        <SystemStatus
+          systemStatus={systemStatus}
+          systemMetrics={systemMetrics}
+          isLoading={statusLoading}
+          lastUpdated={lastUpdated}
+          onRefresh={refreshStatus}
+          healthScore={getSystemHealthScore()}
+          statusColor={getStatusColor()}
+        />
 
-      {/* Quick Stats */}
-      <QuickStats stats={quickStats} />
+        {/* Quick Stats */}
+        <QuickStats stats={quickStats} />
 
-      {/* Main Content Grid */}
-      <MainContentGrid
-        messages={filteredContacts}
-        selectedMessage={selectedMessage}
-        currentFilter={uiFilter}
-        responseText={responseText}
-        isSending={isSending}
-        isLoading={isLoading}
-        error={error}
-        currentPage={pagination?.page || 1}
-        totalPages={pagination?.totalPages || 1}
-        onMessageSelect={handleMessageSelect}
-        onFilterChange={handleFilterChange}
-        onPageChange={handlePageChange}
-        onResponseTextChange={handleResponseTextChange}
-        onSendResponse={handleSendResponse}
-        onRefresh={refresh}
-      />
-    </div>
+        {/* Main Content Grid */}
+        <MainContentGrid
+          messages={filteredContacts}
+          selectedMessage={selectedMessage}
+          currentFilter={uiFilter}
+          responseText={responseText}
+          isSending={isSending}
+          isLoading={isLoading}
+          error={error}
+          currentPage={pagination?.page || 1}
+          totalPages={pagination?.totalPages || 1}
+          onMessageSelect={handleMessageSelect}
+          onFilterChange={handleFilterChange}
+          onPageChange={handlePageChange}
+          onResponseTextChange={handleResponseTextChange}
+          onSendResponse={handleSendResponse}
+          onRefresh={refresh}
+          fullscreenState={fullscreenState}
+          onToggleFullscreen={toggleFullscreen}
+          onExitFullscreen={exitFullscreen}
+          isFullscreen={isFullscreen}
+        />
+      </div>
+    </PrecisionModeProvider>
   );
 };
