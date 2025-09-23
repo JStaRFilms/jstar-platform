@@ -8,6 +8,7 @@ import { useSlideshow } from '../hooks/useSlideshow';
 import { useHeroSlides } from '../hooks/useHeroSlides';
 import { useSlideshowConfig } from '../hooks/useSlideshowConfig';
 import { PlayCircleIcon } from '../../../components/icons/static-icons';
+import { AnimatedIcon } from '../../../components/ui/AnimatedIcon';
 
 /**
  * Interface defining the structure of a hero slide
@@ -274,7 +275,15 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                            </div>
                          </div>
                          <div className="absolute -bottom-5 -right-5 w-16 h-16 bg-gradient-to-r from-primary to-accent rounded-2xl flex items-center justify-center text-white shadow-lg">
-                           <PlayCircleIcon className="w-8 h-8" />
+                           <AnimatedIcon
+                             animation="scale"
+                             trigger="hover"
+                             duration={300}
+                             className="text-white"
+                             aria-label="Play video"
+                           >
+                             <PlayCircleIcon className="w-8 h-8" />
+                           </AnimatedIcon>
                          </div>
                        </div>
                      </div>

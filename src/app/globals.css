@@ -10,6 +10,54 @@
   --color-secondary: #4f46e5;
   --color-accent: #8b5cf6;
   --color-highlight: #ec4899;
+  /* Tailwind v4 core tokens used by bg-background, text-foreground, border-border, ring */
+  --color-background: #F9FAFB; /* gray-50 */
+  --color-foreground: #0B1221; /* near slate-950 */
+  --color-border: #E5E7EB;     /* gray-200 */
+  --color-ring: #3B82F6;       /* blue-500 */
+}
+
+/* Dark mode tokens: html has class="dark" in layout.tsx */
+@theme .dark {
+  --color-background: #0B1221; /* near slate-950 */
+  --color-foreground: #E5E7EB; /* gray-200 */
+  --color-border: #374151;     /* gray-700 */
+  --color-ring: #8B5CF6;       /* violet-500 */
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(-25%);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+  50% {
+    transform: none;
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+@keyframes pulse {
+  50% {
+    opacity: .5;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-bounce {
+  animation: bounce 1s infinite;
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
 }
 
 @keyframes float {
@@ -457,6 +505,7 @@
     background-color: #F3F4F6;
     color: #4B5563;
     margin-right: 0.25rem;
+    margin-bottom: 0.5rem;
 }
 
 .tier-1 {
@@ -963,4 +1012,13 @@
     font-size: 0.75rem;
     margin-right: 0.5rem;
     margin-bottom: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }

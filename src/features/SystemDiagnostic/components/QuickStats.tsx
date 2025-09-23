@@ -1,4 +1,6 @@
 import React from 'react';
+import { motion } from 'motion/react';
+import { animationVariants, animationTransitions } from '@/components/ui/animation-presets';
 
 interface QuickStatsData {
   vramUsage: number;
@@ -33,24 +35,49 @@ const QuickStats: React.FC<QuickStatsProps> = ({ data, isLoading }) => {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+    <motion.div
+      className="grid grid-cols-1 md:grid-cols-4 gap-6"
+      variants={animationVariants.staggerContainer}
+      initial="initial"
+      animate="animate"
+    >
+      <motion.div
+        className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 cursor-pointer"
+        variants={animationVariants.cardHover}
+        whileHover="whileHover"
+        transition={animationTransitions.cardHover}
+      >
         <div className="text-2xl font-bold text-red-500 mb-2">{data.vramUsage}%</div>
         <div className="text-sm text-gray-600 dark:text-gray-400">VRAM Usage</div>
-      </div>
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+      </motion.div>
+      <motion.div
+        className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 cursor-pointer"
+        variants={animationVariants.cardHover}
+        whileHover="whileHover"
+        transition={animationTransitions.cardHover}
+      >
         <div className="text-2xl font-bold text-purple-500 mb-2">{data.aiResponseTime}s</div>
         <div className="text-sm text-gray-600 dark:text-gray-400">AI Response Time</div>
-      </div>
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+      </motion.div>
+      <motion.div
+        className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 cursor-pointer"
+        variants={animationVariants.cardHover}
+        whileHover="whileHover"
+        transition={animationTransitions.cardHover}
+      >
         <div className="text-2xl font-bold text-green-500 mb-2">{data.storageUsed} GB</div>
         <div className="text-sm text-gray-600 dark:text-gray-400">Storage Used</div>
-      </div>
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+      </motion.div>
+      <motion.div
+        className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 cursor-pointer"
+        variants={animationVariants.cardHover}
+        whileHover="whileHover"
+        transition={animationTransitions.cardHover}
+      >
         <div className="text-2xl font-bold text-red-500 mb-2">{data.performanceScore.toFixed(1)}/10</div>
         <div className="text-sm text-gray-600 dark:text-gray-400">Performance Score</div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

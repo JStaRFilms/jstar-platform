@@ -1,219 +1,330 @@
-# Styling in this Next.js + Tailwind CSS v4 Project
+# Universal Styling Guide for Tailwind CSS v4 (with AI Agent Prompt)
 
-This guide explains how styling works in this repo (`j-star-platform/`) so you can quickly understand, tweak, and debug styles. It’s written for newcomers, especially if you’re used to Vite + CDN.
-
----
-
-## What’s in use here
-
-- **Next.js (App Router)** — Pages live in `j-star-platform/src/app/`. The main wrapper is `src/app/layout.tsx`.
-- **Tailwind CSS v4** — No `@tailwind base/components/utilities` in a CSS file anymore. We use a single line import: `@import "tailwindcss";`.
-- **PostCSS** — Loads Tailwind’s plugin under the hood (`j-star-platform/postcss.config.mjs`).
-
-Relevant files:
-- `j-star-platform/src/app/layout.tsx` — imports `./globals.css` and sets global wrappers.
-- `j-star-platform/src/app/globals.css` — imports Tailwind and defines custom tokens, animations, and CSS variables.
-- `j-star-platform/postcss.config.mjs` — configures Tailwind for PostCSS.
-- `j-star-platform/tailwind.config.ts` — minimal in v4; mainly for `content` globs and optional plugins.
+This is a universal, framework-agnostic guide for using Tailwind CSS v4 in modern JavaScript/TypeScript apps (Next.js, Vite/React, Remix, etc.). It explains the v4 “CSS-first” model, how to define tokens with `@theme`, how to wire global styles, dark mode, animations, and a battle-tested troubleshooting checklist. A copy-pasteable AI agent prompt is included at the end to automate fixes in any repo.
 
 ---
 
-## How Tailwind v4 is wired in
+## What changed in Tailwind v4
 
-1. **PostCSS loads Tailwind**
-   - `postcss.config.mjs`:
-   ```js
-   const config = {
-     plugins: ["@tailwindcss/postcss"],
-   };
-   export default config;
-   ```
-
-2. **Global CSS imports Tailwind**
-   - `src/app/globals.css`:
-   ```css
-   @import "tailwindcss";
-   ```
-   That one line brings in Tailwind’s preflight and utilities.
-
-3. **The layout includes global styles once**
-   - `src/app/layout.tsx`:
-   ```tsx
-   import "./globals.css";
-   ```
-   Because App Router renders all pages through this layout, every page gets Tailwind.
+- Tailwind v4 is driven from your CSS entry using `@import "tailwindcss"`.
+- PostCSS loads Tailwind via the `"@tailwindcss/postcss"` plugin.
+- Design tokens (colors, etc.) are defined in CSS using `@theme`, not extended in `tailwind.config`.
+- Dark-mode and variants work the same, but you typically do not need custom variant hacks.
+- `tailwind.config` is minimal. In v4, the legacy `content` option is not needed for utility generation.
 
 ---
 
-## Custom colors with @theme (Tailwind v4)
+## Minimal setup
 
-In v4, you don’t extend colors in `tailwind.config.ts`. You define design tokens in CSS using `@theme`.
+- Install packages (versions can vary, examples shown):
 
-- `src/app/globals.css`:
+```bash
+npm i -D tailwindcss @tailwindcss/postcss postcss autoprefixer
+```
+
+- PostCSS config (postcss.config.[js|cjs|mjs]):
+
+```js
+// postcss.config.mjs
+const config = {
+  plugins: ["@tailwindcss/postcss"],
+};
+export default config;
+```
+
+- Global stylesheet (e.g., `src/app/globals.css` or `src/styles/tailwind.css`):
+
 ```css
 @import "tailwindcss";
 
+/* Core design tokens used by Tailwind v4 utilities */
 @theme {
-  --color-jstar-blue: #007bff;
-  --color-faith-purple: #6f42c1;
-  --color-growth-green: #28a745;
+  /* Required core color tokens used by utilities like bg-background, text-foreground, border-border, ring */
+  --color-background: #ffffff;
+  --color-foreground: #0b1221;
+  --color-border: #e5e7eb;
+  --color-ring: #3b82f6;
+
+  /* Example brand tokens (add your own) */
+  --color-brand-primary: #1e40af;
+  --color-brand-secondary: #4f46e5;
+  --color-brand-accent: #8b5cf6;
+}
+
+/* Dark-mode overrides (activated by adding class="dark" on <html>) */
+@theme .dark {
+  --color-background: #0b1221;
+  --color-foreground: #e5e7eb;
+  --color-border: #374151;
+  --color-ring: #8b5cf6;
+}
+
+/* Optional: Your custom keyframes and component classes */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up { animation: fade-in-up 0.6s ease-out both; }
+
+/* Base layer examples that leverage the tokens */
+@layer base {
+  * { @apply border-border outline-ring/50; }
+  body { @apply bg-background text-foreground; }
 }
 ```
 
-How to use them in components:
-- `bg-jstar-blue` → blue background
-- `text-faith-purple` → purple text
-- `from-growth-green` → gradient start color
+- Import the stylesheet in your app’s entry:
+  - Next.js App Router: `src/app/layout.tsx`
 
-Example:
+    ```tsx
+    import "./globals.css";
+    export default function RootLayout({ children }) {
+      return (
+        <html lang="en">
+          <body>{children}</body>
+        </html>
+      );
+    }
+    ```
+
+  - Vite + React: `src/main.tsx`
+
+    ```tsx
+    import React from "react";
+    import ReactDOM from "react-dom/client";
+    import "./styles.css"; // contains @import "tailwindcss";
+    import App from "./App";
+
+    ReactDOM.createRoot(document.getElementById("root")!).render(<App />);
+    ```
+
+  - Next.js Pages Router: `pages/_app.tsx`
+
+    ```tsx
+    import type { AppProps } from "next/app";
+    import "../styles/globals.css";
+
+    export default function MyApp({ Component, pageProps }: AppProps) {
+      return <Component {...pageProps} />;
+    }
+    ```
+
+---
+
+## About `tailwind.config` in v4
+
+- You generally do not need `content` for utility generation in v4.
+- Keep `tailwind.config` minimal. Example:
+
+```ts
+// tailwind.config.ts
+import type { Config } from "tailwindcss";
+
+const config: Config = {
+  // Optional: v4 still accepts extend/theme here, but prefer @theme tokens in CSS
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+};
+
+export default config;
+```
+
+- Prefer defining colors, spacing scale, etc. with `@theme` in CSS. Use config only when you truly need it (e.g., custom screens, container settings not expressible in CSS tokens).
+
+---
+
+## Tokens and usage
+
+- Define tokens with `@theme` in your CSS file.
+- Tailwind v4 maps tokens to utilities automatically. Examples:
+  - `bg-background`, `text-foreground`, `border-border`, `ring` use the core tokens.
+  - Custom tokens: `--color-brand-primary` → `bg-brand-primary`, `text-brand-primary`, `from-brand-primary`.
+
+```css
+@theme {
+  --color-brand-primary: #1e40af;
+  --color-brand-accent: #8b5cf6;
+}
+```
+
 ```tsx
-<button className="bg-jstar-blue text-white hover:bg-jstar-blue/80 rounded-md px-4 py-2">
+<button className="bg-brand-primary text-white hover:bg-brand-primary/90 px-4 py-2 rounded-md">
   Get Started
 </button>
 ```
 
-Why you saw muted colors earlier:
-- We initially put colors in `tailwind.config.ts` (v3 style). In v4, tokens must be defined in CSS with `@theme`. Without that, classes like `bg-jstar-blue` won’t exist.
-
 ---
 
-## Global dark mode and base styling
+## Dark mode
 
-- In `src/app/layout.tsx` we force dark mode:
+- Two common patterns:
+  1) Add `class="dark"` to `<html>` to force dark.
+  2) Toggle `dark` class at runtime (user preference, system preference, etc.).
+
+- Define dark tokens in `@theme .dark { ... }` so your utilities adapt automatically.
+
 ```tsx
-<html lang="en" className="dark">
-  <body className="bg-black text-white"> ... </body>
-</html>
-```
-- You can toggle dark mode by adding/removing the `dark` class on `<html>`, then use Tailwind’s `dark:` variants:
-```tsx
-<p className="text-gray-800 dark:text-gray-200">Hello</p>
+// Example toggle (React)
+function ThemeToggle() {
+  const toggle = () => {
+    document.documentElement.classList.toggle("dark");
+  };
+  return <button onClick={toggle}>Toggle theme</button>;
+}
 ```
 
-Custom CSS variables for light/dark are also defined in `globals.css` (under `:root` and `@media (prefers-color-scheme: dark)`), and the `body` uses them for background and text colors. These coexist fine with Tailwind utilities.
+- Avoid custom `@custom-variant dark` hacks; Tailwind’s built-in `dark:` works with the `dark` class.
 
 ---
 
 ## Animations
 
-We defined keyframes in `globals.css`:
+- Define keyframes in CSS and reference them via utility-like classes:
+
 ```css
-@keyframes float { /* ... */ }
-@keyframes fadeInUp { /* ... */ }
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
 
 .animate-float { animation: float 3s ease-in-out infinite; }
-.animate-fadeInUp { animation: fadeInUp 0.5s ease-out forwards; }
-```
-Use them directly in JSX:
-```tsx
-<h1 className="animate-fadeInUp">Where Faith Meets Film and Future</h1>
 ```
 
----
+- Optional plugin: `tailwindcss-animate`. In v4, load via CSS plugin directive:
 
-## Page structure and where styles live
-
-- **Hero and sections** live in `src/features/HomePage/` and subfolders.
-- Each component uses Tailwind utility classes in its JSX.
-- Example (`src/features/HomePage/components/HeroSection.tsx`):
-```tsx
-<div className="absolute inset-0 bg-gradient-to-r from-jstar-blue/60 via-faith-purple/50 to-growth-green/40" />
+```css
+@import "tailwindcss";
+@plugin "tailwindcss-animate";
 ```
-Tip: Avoid layering both a low alpha color AND an extra `opacity-*` on the same overlay—stacked transparency can make things look washed out.
+
+- JavaScript animation libraries (e.g., `motion`) can coexist; they don’t alter Tailwind’s pipeline.
 
 ---
 
-## Common utility patterns you’ll use a lot
+## Troubleshooting checklist (v4)
 
-- **Responsive**: `sm:`, `md:`, `lg:`, `xl:`
-  - `text-2xl sm:text-4xl lg:text-6xl`
-- **State**: `hover:`, `focus:`, `active:`, `disabled:`
-  - `hover:bg-jstar-blue/80`
-- **Dark mode**: `dark:`
-  - `text-gray-700 dark:text-gray-300`
-- **Gradients**: `bg-gradient-to-r from-... via-... to-...`
-- **Arbitrary values** (when needed): `bg-[rgba(0,0,0,0.3)]`, `shadow-[0_0_10px_#6f42c1]`
-
----
-
-## Typical problems and how to fix them
-
-1. **Custom color classes not working**
-   - Ensure tokens exist in `@theme` inside `globals.css`.
-   - Restart dev server after big config changes.
-
-2. **Styles missing on a page**
-   - Confirm `layout.tsx` imports `./globals.css`.
-   - Make sure your file paths match the `content` globs in `tailwind.config.ts`:
-     ```ts
-     content: [
-       "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
-       "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-       "./src/features/**/*.{js,ts,jsx,tsx,mdx}",
-     ],
-     ```
-
-3. **Colors look too dull**
-   - Remove stacked opacity: prefer a single gradient with per-stop alphas.
-   - Try gradient text for headings:
-     ```tsx
-     <h1 className="bg-gradient-to-r from-jstar-blue via-faith-purple to-growth-green bg-clip-text text-transparent">
-       Big colorful headline
-     </h1>
-     ```
-
-4. **Dark mode doesn’t toggle**
-   - We currently force `className="dark"` on `<html>`. Implement a toggle by adding/removing that class on the client.
-
-5. **Coming from Vite + CDN**
-   - With CDN you dropped a `<link>` or `<script>` tag. In Next.js, we ship Tailwind via NPM + PostCSS. Don’t add Tailwind CDN; keep it in build pipeline.
+- **Global import present**: Your app’s entry imports the CSS that contains `@import "tailwindcss"`.
+- **PostCSS plugin**: `"@tailwindcss/postcss"` is in `postcss.config`.
+- **Core tokens defined**: `--color-background`, `--color-foreground`, `--color-border`, `--color-ring` exist in `@theme`.
+- **Dark mode**: Using the `dark` class on `<html>` and `@theme .dark { ... }` overrides; no custom variant conflicts.
+- **Minimal config**: Don’t rely on `content` or v3 config-based color extension for utilities.
+- **Restart and hard-refresh**: After structural changes, restart dev server and do a hard refresh (Ctrl/Cmd+Shift+R).
+- **Inspect the element**: Verify final class list and computed styles in DevTools.
 
 ---
 
-## Troubleshooting checklist
+## Common symptoms and fixes
 
-- Stop and restart the dev server after structural changes:
-  ```bash
-  npm run dev
-  ```
-- Hard refresh the browser (Ctrl+Shift+R).
-- Verify `@theme` tokens in `globals.css` for any custom colors you reference.
-- Check your component file lives under one of the `content` globs.
-- Inspect the element in DevTools to see the final class list and computed styles.
+- **“All styling disappeared”**
+  - Missing global CSS import at the app entry.
+  - PostCSS plugin not configured.
+  - Core tokens not defined, so utilities like `bg-background` do nothing.
+
+- **Custom color classes don’t exist**
+  - Tokens were not defined in `@theme`.
+  - You tried to extend colors in `tailwind.config` (v3-style). Move them to CSS tokens.
+
+- **Dark mode doesn’t apply**
+  - No `dark` class on `<html>` or conflicting custom variant.
+  - Tokens not overridden in `@theme .dark { ... }`.
+
+- **Animations not running**
+  - Keyframes/classes not defined in CSS.
+  - Conflicting transitions or zero opacity/translate from other utilities.
 
 ---
 
-## Quick recipes
+## Reference snippets
 
-- **Add a new brand color**
-  ```css
-  /* globals.css */
-  @theme { --color-brand-gold: #e6b800; }
-  ```
-  ```tsx
-  <span className="text-brand-gold">Hello</span>
-  ```
+- PostCSS:
 
-- **Make a more colorful hero**
-  ```tsx
-  <div className="absolute inset-0 bg-gradient-to-r from-jstar-blue/60 via-faith-purple/50 to-growth-green/40" />
-  ```
+```js
+// postcss.config.mjs
+const config = { plugins: ["@tailwindcss/postcss"] };
+export default config;
+```
 
-- **Gradient headline**
-  ```tsx
-  <h1 className="bg-gradient-to-r from-jstar-blue via-faith-purple to-growth-green bg-clip-text text-transparent">
-    Where Faith Meets Film and Future
-  </h1>
-  ```
+- Minimal `tailwind.config`:
+
+```ts
+// tailwind.config.ts
+import type { Config } from "tailwindcss";
+const config: Config = { theme: { extend: {} }, plugins: [] };
+export default config;
+```
+
+- Core tokens and dark overrides:
+
+```css
+@theme {
+  --color-background: #ffffff;
+  --color-foreground: #0b1221;
+  --color-border: #e5e7eb;
+  --color-ring: #3b82f6;
+}
+@theme .dark {
+  --color-background: #0b1221;
+  --color-foreground: #e5e7eb;
+  --color-border: #374151;
+  --color-ring: #8b5cf6;
+}
+```
+
+---
+
+## Copy-paste AI Agent Prompt (Tailwind v4 Styling)
+
+Use this prompt to guide any AI agent to diagnose and fix Tailwind v4 styling issues in an unfamiliar repo.
+
+```text
+You are an expert front-end engineer. Audit and fix Tailwind CSS v4 styling in this repository. Follow these steps strictly and show diffs for any file edits:
+
+1) Probe the project
+- Open postcss config: postcss.config.*
+- Open Tailwind config: tailwind.config.*
+- Find the global CSS that imports Tailwind (search for '@import "tailwindcss"').
+- Find the top-level layout/app entry that imports the global CSS (Next.js App Router: src/app/layout.*; Vite/React: main.*).
+
+2) Validate Tailwind v4 setup
+- postcss.config uses plugin "@tailwindcss/postcss".
+- Global CSS contains '@import "tailwindcss";'. If not present, add it once.
+- tailwind.config is minimal; do NOT rely on v3-style 'content' or color extension for utilities.
+
+3) Define core tokens and dark overrides
+- In the global CSS, add:
+  @theme { --color-background; --color-foreground; --color-border; --color-ring; }
+  @theme .dark { dark equivalents }
+- Ensure base layer applies them:
+  @layer base { *{@apply border-border outline-ring/50} body{@apply bg-background text-foreground} }
+
+4) Dark mode
+- Ensure dark mode is controlled via 'dark' class on <html>.
+- Remove any custom '@custom-variant dark' variants that could conflict.
+
+5) Animations
+- If custom animations are used, ensure keyframes/classes exist in CSS.
+- If tailwindcss-animate is desired, add '@plugin "tailwindcss-animate";' in CSS (v4 style).
+
+6) Verify and test
+- Restart dev server and hard refresh.
+- Inspect a page to confirm utilities (bg-background, text-foreground, etc.) render.
+
+Deliverables:
+- Summarize findings and root cause.
+- Provide minimal diffs to fix the setup.
+- List follow-up best practices and verification steps.
+```
 
 ---
 
 ## TL;DR
 
-- Tailwind v4 is loaded via `@import "tailwindcss";` in `globals.css`.
-- Custom colors are defined via `@theme` in CSS (not in `tailwind.config.ts`).
-- `layout.tsx` imports `globals.css` once for the whole app.
-- Use Tailwind utility classes in your components. Prefer a single, intentional overlay/gradient to avoid double-opacity.
-- If something “just worked” in Vite via CDN, here you should add it via NPM and the build pipeline, not a CDN link.
-
-If you get stuck, open this doc and walk the troubleshooting checklist. Ping me with the file path and a screenshot, and I’ll help you debug fast.
+- Import Tailwind via CSS: `@import "tailwindcss"`.
+- Configure PostCSS to load the Tailwind plugin.
+- Define tokens with `@theme` (core: background, foreground, border, ring) and override them in `@theme .dark`.
+- Keep `tailwind.config` minimal; avoid v3-style color extension and `content` reliance.
+- Add animations via CSS keyframes (and optional `@plugin "tailwindcss-animate"`).
+- Restart after structural changes; hard refresh.
