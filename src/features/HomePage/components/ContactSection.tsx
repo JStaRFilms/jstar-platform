@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { EnvelopeIcon, PhoneIcon, MapPinIcon, ClockIcon } from '../../../components/icons/static-icons';
+import { EnvelopeIcon, PhoneIcon, MapPinIcon, ClockIcon, CheckCircleIcon, ArrowRightIcon } from '../../../components/icons/static-icons';
+import AnimatedIcon from '../../../components/ui/AnimatedIcon';
 
 // TypeScript interfaces for contact system
 interface ContactFormData {
@@ -229,9 +230,16 @@ const ContactSection: React.FC = () => {
             {formState.isSuccess ? (
               <div className="text-center py-8">
                 <div className="w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                  </svg>
+                  <AnimatedIcon
+                    animation="bounce"
+                    trigger="load"
+                    duration={600}
+                    delay={200}
+                    className="text-green-600 dark:text-green-400"
+                    aria-label="Success checkmark"
+                  >
+                    <CheckCircleIcon className="w-8 h-8" />
+                  </AnimatedIcon>
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Message Sent!</h3>
                 <p className="text-gray-600 dark:text-gray-400 mb-6">
@@ -252,20 +260,38 @@ const ContactSection: React.FC = () => {
                     <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Your Name *
                     </label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={formState.data.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
-                      className={`w-full px-4 py-3 rounded-xl border ${
-                        formState.errors.name
-                          ? 'border-red-300 dark:border-red-600 focus:ring-red-500 focus:border-red-500'
-                          : 'border-gray-300 dark:border-gray-600 focus:ring-jstar-blue/50 focus:border-jstar-blue'
-                      } bg-white dark:bg-gray-800 focus:ring-2 outline-none transition`}
-                      placeholder="John Doe"
-                      disabled={formState.isSubmitting}
-                    />
+                    <div className="relative">
+                      <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        value={formState.data.name}
+                        onChange={(e) => handleInputChange('name', e.target.value)}
+                        className={`w-full px-4 py-3 rounded-xl border ${
+                          formState.errors.name
+                            ? 'border-red-300 dark:border-red-600 focus:ring-red-500 focus:border-red-500'
+                            : 'border-gray-300 dark:border-gray-600 focus:ring-jstar-blue/50 focus:border-jstar-blue'
+                        } bg-white dark:bg-gray-800 focus:ring-2 outline-none transition`}
+                        placeholder="John Doe"
+                        disabled={formState.isSubmitting}
+                      />
+                      {formState.errors.name && (
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                          <AnimatedIcon
+                            animation="shake"
+                            trigger="load"
+                            duration={500}
+                            delay={0}
+                            className="text-red-500"
+                            aria-label="Validation error"
+                          >
+                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                          </AnimatedIcon>
+                        </div>
+                      )}
+                    </div>
                     {formState.errors.name && (
                       <p className="mt-1 text-sm text-red-600 dark:text-red-400">{formState.errors.name}</p>
                     )}
@@ -274,20 +300,38 @@ const ContactSection: React.FC = () => {
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Email Address *
                     </label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={formState.data.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
-                      className={`w-full px-4 py-3 rounded-xl border ${
-                        formState.errors.email
-                          ? 'border-red-300 dark:border-red-600 focus:ring-red-500 focus:border-red-500'
-                          : 'border-gray-300 dark:border-gray-600 focus:ring-jstar-blue/50 focus:border-jstar-blue'
-                      } bg-white dark:bg-gray-800 focus:ring-2 outline-none transition`}
-                      placeholder="john@example.com"
-                      disabled={formState.isSubmitting}
-                    />
+                    <div className="relative">
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value={formState.data.email}
+                        onChange={(e) => handleInputChange('email', e.target.value)}
+                        className={`w-full px-4 py-3 rounded-xl border ${
+                          formState.errors.email
+                            ? 'border-red-300 dark:border-red-600 focus:ring-red-500 focus:border-red-500'
+                            : 'border-gray-300 dark:border-gray-600 focus:ring-jstar-blue/50 focus:border-jstar-blue'
+                        } bg-white dark:bg-gray-800 focus:ring-2 outline-none transition`}
+                        placeholder="john@example.com"
+                        disabled={formState.isSubmitting}
+                      />
+                      {formState.errors.email && (
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                          <AnimatedIcon
+                            animation="shake"
+                            trigger="load"
+                            duration={500}
+                            delay={0}
+                            className="text-red-500"
+                            aria-label="Validation error"
+                          >
+                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                          </AnimatedIcon>
+                        </div>
+                      )}
+                    </div>
                     {formState.errors.email && (
                       <p className="mt-1 text-sm text-red-600 dark:text-red-400">{formState.errors.email}</p>
                     )}
@@ -298,24 +342,42 @@ const ContactSection: React.FC = () => {
                   <label htmlFor="service" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Service Interest *
                   </label>
-                  <select
-                    id="service"
-                    name="service"
-                    value={formState.data.service}
-                    onChange={(e) => handleInputChange('service', e.target.value)}
-                    className={`w-full px-4 py-3 rounded-xl border ${
-                      formState.errors.service
-                        ? 'border-red-300 dark:border-red-600 focus:ring-red-500 focus:border-red-500'
-                        : 'border-gray-300 dark:border-gray-600 focus:ring-jstar-blue/50 focus:border-jstar-blue'
-                    } bg-white dark:bg-gray-800 focus:ring-2 outline-none transition`}
-                    disabled={formState.isSubmitting}
-                  >
-                    {serviceOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <select
+                      id="service"
+                      name="service"
+                      value={formState.data.service}
+                      onChange={(e) => handleInputChange('service', e.target.value)}
+                      className={`w-full px-4 py-3 rounded-xl border ${
+                        formState.errors.service
+                          ? 'border-red-300 dark:border-red-600 focus:ring-red-500 focus:border-red-500'
+                          : 'border-gray-300 dark:border-gray-600 focus:ring-jstar-blue/50 focus:border-jstar-blue'
+                      } bg-white dark:bg-gray-800 focus:ring-2 outline-none transition`}
+                      disabled={formState.isSubmitting}
+                    >
+                      {serviceOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                    {formState.errors.service && (
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                        <AnimatedIcon
+                          animation="shake"
+                          trigger="load"
+                          duration={500}
+                          delay={0}
+                          className="text-red-500"
+                          aria-label="Validation error"
+                        >
+                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                        </AnimatedIcon>
+                      </div>
+                    )}
+                  </div>
                   {formState.errors.service && (
                     <p className="mt-1 text-sm text-red-600 dark:text-red-400">{formState.errors.service}</p>
                   )}
@@ -325,20 +387,38 @@ const ContactSection: React.FC = () => {
                   <label htmlFor="subject" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Subject *
                   </label>
-                  <input
-                    type="text"
-                    id="subject"
-                    name="subject"
-                    value={formState.data.subject}
-                    onChange={(e) => handleInputChange('subject', e.target.value)}
-                    className={`w-full px-4 py-3 rounded-xl border ${
-                      formState.errors.subject
-                        ? 'border-red-300 dark:border-red-600 focus:ring-red-500 focus:border-red-500'
-                        : 'border-gray-300 dark:border-gray-600 focus:ring-jstar-blue/50 focus:border-jstar-blue'
-                    } bg-white dark:bg-gray-800 focus:ring-2 outline-none transition`}
-                    placeholder="Project inquiry"
-                    disabled={formState.isSubmitting}
-                  />
+                  <div className="relative">
+                    <input
+                      type="text"
+                      id="subject"
+                      name="subject"
+                      value={formState.data.subject}
+                      onChange={(e) => handleInputChange('subject', e.target.value)}
+                      className={`w-full px-4 py-3 rounded-xl border ${
+                        formState.errors.subject
+                          ? 'border-red-300 dark:border-red-600 focus:ring-red-500 focus:border-red-500'
+                          : 'border-gray-300 dark:border-gray-600 focus:ring-jstar-blue/50 focus:border-jstar-blue'
+                      } bg-white dark:bg-gray-800 focus:ring-2 outline-none transition`}
+                      placeholder="Project inquiry"
+                      disabled={formState.isSubmitting}
+                    />
+                    {formState.errors.subject && (
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                        <AnimatedIcon
+                          animation="shake"
+                          trigger="load"
+                          duration={500}
+                          delay={0}
+                          className="text-red-500"
+                          aria-label="Validation error"
+                        >
+                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                        </AnimatedIcon>
+                      </div>
+                    )}
+                  </div>
                   {formState.errors.subject && (
                     <p className="mt-1 text-sm text-red-600 dark:text-red-400">{formState.errors.subject}</p>
                   )}
@@ -348,20 +428,38 @@ const ContactSection: React.FC = () => {
                   <label htmlFor="message" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Your Message *
                   </label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    rows={4}
-                    value={formState.data.message}
-                    onChange={(e) => handleInputChange('message', e.target.value)}
-                    className={`w-full px-4 py-3 rounded-xl border ${
-                      formState.errors.message
-                        ? 'border-red-300 dark:border-red-600 focus:ring-red-500 focus:border-red-500'
-                        : 'border-gray-300 dark:border-gray-600 focus:ring-jstar-blue/50 focus:border-jstar-blue'
-                    } bg-white dark:bg-gray-800 focus:ring-2 outline-none transition`}
-                    placeholder="Tell me about your project..."
-                    disabled={formState.isSubmitting}
-                  />
+                  <div className="relative">
+                    <textarea
+                      id="message"
+                      name="message"
+                      rows={4}
+                      value={formState.data.message}
+                      onChange={(e) => handleInputChange('message', e.target.value)}
+                      className={`w-full px-4 py-3 rounded-xl border ${
+                        formState.errors.message
+                          ? 'border-red-300 dark:border-red-600 focus:ring-red-500 focus:border-red-500'
+                          : 'border-gray-300 dark:border-gray-600 focus:ring-jstar-blue/50 focus:border-jstar-blue'
+                      } bg-white dark:bg-gray-800 focus:ring-2 outline-none transition`}
+                      placeholder="Tell me about your project..."
+                      disabled={formState.isSubmitting}
+                    />
+                    {formState.errors.message && (
+                      <div className="absolute right-3 top-4">
+                        <AnimatedIcon
+                          animation="shake"
+                          trigger="load"
+                          duration={500}
+                          delay={0}
+                          className="text-red-500"
+                          aria-label="Validation error"
+                        >
+                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                        </AnimatedIcon>
+                      </div>
+                    )}
+                  </div>
                   {formState.errors.message && (
                     <p className="mt-1 text-sm text-red-600 dark:text-red-400">{formState.errors.message}</p>
                   )}
@@ -396,10 +494,16 @@ const ContactSection: React.FC = () => {
                   >
                     {formState.isSubmitting ? (
                       <div className="flex items-center justify-center">
-                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
+                        <AnimatedIcon
+                          animation="spin"
+                          trigger="programmatic"
+                          duration={1000}
+                          isEnabled={true}
+                          className="-ml-1 mr-3 text-white"
+                          aria-label="Loading spinner"
+                        >
+                          <ArrowRightIcon className="h-5 w-5" />
+                        </AnimatedIcon>
                         Sending Message...
                       </div>
                     ) : (
