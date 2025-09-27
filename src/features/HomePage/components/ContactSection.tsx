@@ -276,19 +276,10 @@ const ContactSection: React.FC = () => {
                         disabled={formState.isSubmitting}
                       />
                       {formState.errors.name && (
-                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                          <AnimatedIcon
-                            animation="shake"
-                            trigger="load"
-                            duration={500}
-                            delay={0}
-                            className="text-red-500"
-                            aria-label="Validation error"
-                          >
-                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                            </svg>
-                          </AnimatedIcon>
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 animate-pulse">
+                          <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
                         </div>
                       )}
                     </div>
@@ -316,19 +307,10 @@ const ContactSection: React.FC = () => {
                         disabled={formState.isSubmitting}
                       />
                       {formState.errors.email && (
-                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                          <AnimatedIcon
-                            animation="shake"
-                            trigger="load"
-                            duration={500}
-                            delay={0}
-                            className="text-red-500"
-                            aria-label="Validation error"
-                          >
-                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                            </svg>
-                          </AnimatedIcon>
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 animate-pulse">
+                          <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
                         </div>
                       )}
                     </div>
@@ -362,19 +344,10 @@ const ContactSection: React.FC = () => {
                       ))}
                     </select>
                     {formState.errors.service && (
-                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                        <AnimatedIcon
-                          animation="shake"
-                          trigger="load"
-                          duration={500}
-                          delay={0}
-                          className="text-red-500"
-                          aria-label="Validation error"
-                        >
-                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                          </svg>
-                        </AnimatedIcon>
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2 animate-pulse">
+                        <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
                       </div>
                     )}
                   </div>
@@ -403,19 +376,10 @@ const ContactSection: React.FC = () => {
                       disabled={formState.isSubmitting}
                     />
                     {formState.errors.subject && (
-                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                        <AnimatedIcon
-                          animation="shake"
-                          trigger="load"
-                          duration={500}
-                          delay={0}
-                          className="text-red-500"
-                          aria-label="Validation error"
-                        >
-                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                          </svg>
-                        </AnimatedIcon>
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2 animate-pulse">
+                        <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
                       </div>
                     )}
                   </div>
@@ -444,19 +408,10 @@ const ContactSection: React.FC = () => {
                       disabled={formState.isSubmitting}
                     />
                     {formState.errors.message && (
-                      <div className="absolute right-3 top-4">
-                        <AnimatedIcon
-                          animation="shake"
-                          trigger="load"
-                          duration={500}
-                          delay={0}
-                          className="text-red-500"
-                          aria-label="Validation error"
-                        >
-                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                          </svg>
-                        </AnimatedIcon>
+                      <div className="absolute right-3 top-4 animate-pulse">
+                        <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
                       </div>
                     )}
                   </div>
@@ -494,16 +449,7 @@ const ContactSection: React.FC = () => {
                   >
                     {formState.isSubmitting ? (
                       <div className="flex items-center justify-center">
-                        <AnimatedIcon
-                          animation="spin"
-                          trigger="programmatic"
-                          duration={1000}
-                          isEnabled={true}
-                          className="-ml-1 mr-3 text-white"
-                          aria-label="Loading spinner"
-                        >
-                          <ArrowRightIcon className="h-5 w-5" />
-                        </AnimatedIcon>
+                        <div className="animate-spin -ml-1 mr-3 h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
                         Sending Message...
                       </div>
                     ) : (
