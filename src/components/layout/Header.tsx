@@ -5,6 +5,8 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { MenuIcon, CloseIcon, SunIcon, MoonIcon } from '@/components/icons';
+import { useSmartNavigation } from '@/hooks/useSmartNavigation';
+import Tooltip from '@/components/ui/Tooltip';
 
 /**
  * Navigation item interface for type safety
@@ -54,6 +56,8 @@ const Header: React.FC = () => {
     isOpen: false,
     isAnimating: false
   });
+
+
 
   // Get current pathname for active link highlighting
   const pathname = usePathname();
@@ -173,6 +177,55 @@ const Header: React.FC = () => {
     );
   }
 
+  /**
+   * Smart Navigation Link Component with long-press functionality
+   */
+  const SmartNavLink = ({ item }: { item: NavigationItem }) => {
+    const { eventHandlers, tooltip } = useSmartNavigation({
+      href: item.href
+    });
+    const isActive = isActiveLink(item.href);
+
+    // On homepage, don't use Link to prevent navigation - just use a button
+    if (pathname === '/') {
+      return (
+        <>
+          <button
+            key={item.href}
+            type="button"
+            aria-label={`Scroll to ${item.href.replace('/', '')}`}
+            className={`text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10 rounded-md px-2 py-1 text-sm font-medium ${
+              isActive
+                ? 'text-jstar-blue font-semibold'
+                : ''
+            }`}
+            aria-current={isActive ? 'page' : undefined}
+            {...eventHandlers}
+          >
+            {item.label}
+          </button>
+          <Tooltip isVisible={tooltip.isVisible} text={tooltip.text} />
+        </>
+      );
+    }
+
+    // On other pages, use normal Link navigation
+    return (
+      <Link
+        key={item.href}
+        href={item.href}
+        className={`text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10 rounded-md px-2 py-1 text-sm font-medium ${
+          isActive
+            ? 'text-jstar-blue font-semibold'
+            : ''
+        }`}
+        aria-current={isActive ? 'page' : undefined}
+      >
+        {item.label}
+      </Link>
+    );
+  };
+
   return (
     <>
       {/* Premium Glassmorphism Header - Ultra Compact */}
@@ -198,18 +251,7 @@ const Header: React.FC = () => {
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-6">
               {navigationItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10 rounded-md px-2 py-1 text-sm font-medium ${
-                    isActiveLink(item.href)
-                      ? 'text-jstar-blue font-semibold'
-                      : ''
-                  }`}
-                  aria-current={isActiveLink(item.href) ? 'page' : undefined}
-                >
-                  {item.label}
-                </Link>
+                <SmartNavLink key={item.href} item={item} />
               ))}
             </div>
 
@@ -366,6 +408,7 @@ const Header: React.FC = () => {
             </div>
           </div>
       </div>
+
     </>
   );
 };
