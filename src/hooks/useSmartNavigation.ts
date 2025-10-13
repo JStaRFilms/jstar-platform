@@ -6,31 +6,24 @@ import { useRouter } from 'next/navigation'; // Use next/navigation for App Rout
 // Props the hook will accept
 type UseSmartNavigationProps = {
   href: string; // The target URL, e.g., '/about'
+  onTooltipChange: (tooltip: { isVisible: boolean; text: string }) => void;
+  onScrollStart?: () => void; // Callback to trigger motion blur
 };
 
 // Values and handlers the hook will return
 type UseSmartNavigationReturn = {
-  /** Event handlers to be spread onto the link/button component */
-  eventHandlers: {
-    onMouseDown: (e: React.MouseEvent) => void;
-    onMouseUp: (e: React.MouseEvent) => void;
-    onTouchStart: (e: React.TouchEvent) => void;
-    onTouchEnd: (e: React.TouchEvent) => void;
-    onClick: (e: React.MouseEvent) => void; // To handle navigation on non-homepage contexts
-  };
-  /** State for controlling the tooltip visibility and content */
-  tooltip: {
-    isVisible: boolean;
-    text: string;
-  };
+  /** Individual event handlers */
+  onMouseDown: (e: React.MouseEvent) => void;
+  onMouseUp: (e: React.MouseEvent) => void;
+  onTouchStart: (e: React.TouchEvent) => void;
+  onTouchEnd: (e: React.TouchEvent) => void;
+  onClick: (e: React.MouseEvent) => void; // To handle navigation on non-homepage contexts
 };
 
-export const useSmartNavigation = ({ href }: UseSmartNavigationProps): UseSmartNavigationReturn => {
+export const useSmartNavigation = ({ href, onTooltipChange, onScrollStart }: UseSmartNavigationProps): UseSmartNavigationReturn => {
   const router = useRouter();
   const pathname = usePathname();
   const pressTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  const [tooltip, setTooltip] = useState({ isVisible: false, text: '' });
 
   const isHomepage = pathname === '/';
   const targetSectionId = href.startsWith('/') ? href.substring(1) : href;
@@ -38,13 +31,13 @@ export const useSmartNavigation = ({ href }: UseSmartNavigationProps): UseSmartN
   const handlePressStart = useCallback(() => {
     if (!isHomepage) return;
 
-    setTooltip({ isVisible: true, text: `Hold to navigate to ${targetSectionId}` });
+    onTooltipChange({ isVisible: true, text: `Hold to navigate to ${targetSectionId}` });
 
     pressTimerRef.current = setTimeout(() => {
-      setTooltip({ isVisible: false, text: '' });
+      onTooltipChange({ isVisible: false, text: '' });
       router.push(href);
     }, 1000); // 1-second long press
-  }, [isHomepage, href, router, targetSectionId]);
+  }, [isHomepage, href, router, targetSectionId, onTooltipChange]);
 
   const handlePressEnd = useCallback(() => {
     if (pressTimerRef.current) {
@@ -56,12 +49,14 @@ export const useSmartNavigation = ({ href }: UseSmartNavigationProps): UseSmartN
       // This was a short press on the homepage, so scroll to section
       const element = document.getElementById(targetSectionId);
       if (element) {
+        // Trigger motion blur before scrolling
+        onScrollStart?.();
         element.scrollIntoView({ behavior: 'smooth' });
       }
     }
 
-    setTooltip({ isVisible: false, text: '' });
-  }, [isHomepage, targetSectionId]);
+    onTooltipChange({ isVisible: false, text: '' });
+  }, [isHomepage, targetSectionId, onTooltipChange, onScrollStart]);
 
   const handleClick = useCallback((e: React.MouseEvent) => {
     if (isHomepage) {
@@ -71,18 +66,11 @@ export const useSmartNavigation = ({ href }: UseSmartNavigationProps): UseSmartN
     // On other pages, the default Link behavior is allowed to proceed
   }, [isHomepage]);
 
-  const eventHandlers = {
+  return {
     onMouseDown: handlePressStart,
     onMouseUp: handlePressEnd,
     onTouchStart: handlePressStart,
     onTouchEnd: handlePressEnd,
     onClick: handleClick,
-  };
-
-  const memoizedTooltip = useMemo(() => tooltip, [tooltip.isVisible, tooltip.text]);
-
-  return {
-    eventHandlers,
-    tooltip: memoizedTooltip,
   };
 };

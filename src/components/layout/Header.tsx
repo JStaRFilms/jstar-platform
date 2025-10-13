@@ -181,8 +181,10 @@ const Header: React.FC = () => {
    * Smart Navigation Link Component with long-press functionality
    */
   const SmartNavLink = ({ item }: { item: NavigationItem }) => {
-    const { eventHandlers, tooltip } = useSmartNavigation({
-      href: item.href
+    const [tooltip, setTooltip] = useState({ isVisible: false, text: '' });
+    const { onMouseDown, onMouseUp, onTouchStart, onTouchEnd, onClick } = useSmartNavigation({
+      href: item.href,
+      onTooltipChange: setTooltip
     });
     const isActive = isActiveLink(item.href);
 
@@ -200,7 +202,11 @@ const Header: React.FC = () => {
                 : ''
             }`}
             aria-current={isActive ? 'page' : undefined}
-            {...eventHandlers}
+            onMouseDown={onMouseDown}
+            onMouseUp={onMouseUp}
+            onTouchStart={onTouchStart}
+            onTouchEnd={onTouchEnd}
+            onClick={onClick}
           >
             {item.label}
           </button>
@@ -239,13 +245,23 @@ const Header: React.FC = () => {
           <div className="flex justify-between items-center h-12">
             {/* Logo - Compact */}
             <div className="flex items-center">
-              <Link
-                href="/"
-                className="text-xl font-bold bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10 rounded-md px-2 py-1"
-                aria-label="J StaR Films homepage"
-              >
-                J StaR Films
-              </Link>
+              {pathname === '/' ? (
+                <button
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="text-xl font-bold bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10 rounded-md px-2 py-1"
+                  aria-label="Scroll to top"
+                >
+                  J StaR Films
+                </button>
+              ) : (
+                <Link
+                  href="/"
+                  className="text-xl font-bold bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10 rounded-md px-2 py-1"
+                  aria-label="J StaR Films homepage"
+                >
+                  J StaR Films
+                </Link>
+              )}
             </div>
 
             {/* Desktop Navigation */}

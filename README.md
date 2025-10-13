@@ -17,6 +17,11 @@ A comprehensive, AI-first personal web platform for John Oluleke-Oke (J StaR Fil
 - Hero section with dynamic slides
 - Theme toggle functionality
 - Mobile-responsive design
+- Enhanced UI/UX with smooth scrolling and focus states
+  - Home button now smoothly scrolls to top when on home page
+  - Improved focus states for better accessibility
+  - Fixed horizontal overflow issues
+  - Optimized layout for all screen sizes
 
 ### 📋 **Phase 3: JohnGPT & Creator Tools (PLANNED)**
 - AI assistant integration

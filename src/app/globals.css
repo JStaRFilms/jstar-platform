@@ -1,5 +1,42 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:is(.dark *));
+
+/* Prevent horizontal overflow */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Ensure content stays within viewport */
+.layout-container {
+  width: 100%;
+  max-width: 100vw;
+  margin: 0 auto;
+  padding: 0;
+  position: relative;
+}
+
+/* Ensure images and other media don't cause overflow */
+img, video, iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Style focus states for better accessibility and visual appeal */
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
 @theme {
   --color-jstar-blue: #007bff;
   --color-faith-purple: #6f42c1;
