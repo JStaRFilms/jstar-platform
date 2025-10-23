@@ -58,9 +58,9 @@ interface ContactResponse {
  */
 export const GET = withAdminAuth(async (
   request: NextRequest,
-  context?: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> }
 ) => {
-  const params = await context?.params;
+  const params = await context.params;
   if (!params?.id) {
     return NextResponse.json(
       { status: 'error', message: 'Missing contact ID' },
@@ -135,9 +135,9 @@ export const GET = withAdminAuth(async (
  */
 export const PUT = withAdminAuth(async (
   request: NextRequest,
-  context?: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> }
 ) => {
-  const params = await context?.params;
+  const params = await context.params;
   if (!params?.id) {
     return NextResponse.json(
       { status: 'error', message: 'Missing contact ID' },
@@ -250,9 +250,9 @@ export const PUT = withAdminAuth(async (
  */
 export const DELETE = withAdminAuth(async (
   request: NextRequest,
-  context?: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> }
 ) => {
-  const params = await context?.params;
+  const params = await context.params;
   if (!params?.id) {
     return NextResponse.json(
       { status: 'error', message: 'Missing contact ID' },

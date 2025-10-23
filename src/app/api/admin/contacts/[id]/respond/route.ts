@@ -54,9 +54,9 @@ interface ContactResponse {
  */
 export const POST = withAdminAuth(async (
   request: NextRequest,
-  context?: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> }
 ) => {
-  const params = await context?.params;
+  const params = await context.params;
   if (!params?.id) {
     return NextResponse.json(
       { status: 'error', message: 'Missing contact ID' },

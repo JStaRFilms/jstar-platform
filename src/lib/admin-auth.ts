@@ -69,9 +69,9 @@ export function requireAdmin(request: NextRequest): { user: AdminUser } | null {
  * Returns 401 if authentication fails
  */
 export function withAdminAuth<T = any>(
-  handler: (request: NextRequest, context?: T) => Promise<NextResponse>
+  handler: (request: NextRequest, context: T) => Promise<NextResponse>
 ) {
-  return async (request: NextRequest, context?: T): Promise<NextResponse> => {
+  return async (request: NextRequest, context: T): Promise<NextResponse> => {
     try {
       const authResult = requireAdmin(request);
 
