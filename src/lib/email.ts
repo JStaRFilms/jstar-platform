@@ -15,15 +15,58 @@ export interface EmailResult {
   error?: string;
 }
 
-// Initialize Resend (can be easily swapped for SendGrid, Postmark, etc.)
-const resend = new Resend(process.env.RESEND_API_KEY);
+/**
+ * Validate that the RESEND_API_KEY is properly configured
+ * Returns true if valid, false if missing/invalid/placeholder
+ */
+function isValidResendKey(): boolean {
+  const apiKey = process.env.RESEND_API_KEY;
+
+  // Check if API key exists and is not the placeholder
+  if (!apiKey ||
+      apiKey === 'your_resend_api_key_here' ||
+      apiKey.trim() === '' ||
+      !apiKey.startsWith('re_')) {
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Get Resend instance lazily (only when needed)
+ * This prevents build-time failures when API key is not yet configured
+ */
+function getResendInstance(): Resend | null {
+  if (!isValidResendKey()) {
+    console.warn('Resend API key not configured properly. Email functions will return gracefully.');
+    return null;
+  }
+
+  try {
+    return new Resend(process.env.RESEND_API_KEY);
+  } catch (error) {
+    console.error('Failed to initialize Resend client:', error);
+    return null;
+  }
+}
 
 /**
  * Send email using the configured provider
  * Currently uses Resend, but can be easily switched to SendGrid, Postmark, etc.
+ * Handles missing/invalid API key gracefully by returning a non-blocking error
  */
 export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
   try {
+    // Get Resend instance lazily - handle missing API key gracefully
+    const resend = getResendInstance();
+    if (!resend) {
+      return {
+        success: false,
+        error: 'Email service not configured - check RESEND_API_KEY environment variable',
+      };
+    }
+
     const { to, subject, html, text, from } = options;
 
     // Default sender (customize as needed)
