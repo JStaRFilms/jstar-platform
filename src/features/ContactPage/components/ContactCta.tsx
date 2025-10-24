@@ -10,8 +10,8 @@ const ContactCta = () => {
           Ready to Bring Your Vision to Life?
         </h2>
         <p className="text-xl text-white/90 mb-8">
-          Whether you're planning a wedding, developing an app, or growing your creative business with AI tools,
-          I'm here to help you succeed.
+          Whether you&apos;re planning a wedding, developing an app, or growing your creative business with AI tools,
+          I&apos;m here to help you succeed.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link href="#contact-form" className="px-8 py-4 bg-white text-jstar-blue font-bold rounded-xl text-lg hover:bg-gray-100 transition-colors">
@@ -22,8 +22,8 @@ const ContactCta = () => {
           </a>
         </div>
       </div>
-    </section>
-  );
+    </section>);
+
 };
 
 export default ContactCta;

@@ -28,7 +28,7 @@ const TemplateEditor: React.FC = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Template Name</label>
                 <input type="text" defaultValue="Welcome Email"
-                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white" />
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Template Type</label>
@@ -64,12 +64,12 @@ const TemplateEditor: React.FC = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Subject Line</label>
                 <input type="text" defaultValue="Welcome to J StaR Platform, {{first_name}}!"
-                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white" />
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Preheader Text</label>
                 <input type="text" defaultValue="Your journey to creative excellence starts now"
-                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white" />
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Body</label>
@@ -95,7 +95,7 @@ const TemplateEditor: React.FC = () => {
                   <div className="p-4 font-mono text-sm bg-gray-50 dark:bg-gray-700/50 h-64 overflow-y-auto">
                     <div className="container">
                       <h1>Hello {'{'}first_name{'}'},</h1>
-                      <p>Welcome to J StaR Platform! We're excited to have you join our community of content creators.</p>
+                      <p>Welcome to J StaR Platform! We&apos;re excited to have you join our community of content creators.</p>
                       <p>As a {'{'}user_tier{'}'} member, you have access to:</p>
                       <ul>
                         <li>Premium content templates</li>
@@ -126,7 +126,7 @@ const TemplateEditor: React.FC = () => {
               </div>
               <div className="email-body">
                 <h1 className="text-2xl font-bold mb-4">Hello John,</h1>
-                <p className="mb-4">Welcome to J StaR Platform! We're excited to have you join our community of content creators.</p>
+                <p className="mb-4">Welcome to J StaR Platform! We&apos;re excited to have you join our community of content creators.</p>
                 <p className="mb-4">As a <span className="variable-highlight">Tier 1</span> member, you have access to:</p>
                 <ul className="list-disc pl-6 mb-4">
                   <li>Premium content templates</li>
@@ -142,7 +142,7 @@ const TemplateEditor: React.FC = () => {
                 Founder, J StaR Platform</p>
               </div>
               <div className="email-footer">
-                <p>You're receiving this email because you signed up for J StaR Platform.</p>
+                <p>You&apos;re receiving this email because you signed up for J StaR Platform.</p>
                 <p><a href="#" className="text-admin-red hover:underline">Unsubscribe</a> | <a href="#" className="text-admin-red hover:underline">Update preferences</a></p>
                 <p>© 2024 J StaR Platform. All rights reserved.</p>
               </div>
@@ -158,8 +158,8 @@ const TemplateEditor: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default TemplateEditor;

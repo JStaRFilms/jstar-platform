@@ -25,7 +25,7 @@ const FreeResourceHighlight = () => {
               </div>
             </div>
             <div className="bg-white/10 rounded-xl p-6 backdrop-blur-sm">
-              <h3 className="text-xl font-bold mb-4">What's Included:</h3>
+              <h3 className="text-xl font-bold mb-4">What&apos;s Included:</h3>
               <ul className="space-y-3">
                 <li className="flex items-center">
                   <svg className="h-5 w-5 mr-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -62,8 +62,8 @@ const FreeResourceHighlight = () => {
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>);
+
 };
 
 export default FreeResourceHighlight;

@@ -153,7 +153,7 @@ const Pricing = () => {
 
         <div className="mt-12 text-center">
           <p className="text-gray-600 dark:text-gray-400 mb-6">
-            Need a custom solution or have specific requirements? Let's discuss your project.
+            Need a custom solution or have specific requirements? Let&apos;s discuss your project.
           </p>
           <Link href="/contact" className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold hover:opacity-90 transition-opacity">
             Schedule a Consultation
@@ -163,8 +163,8 @@ const Pricing = () => {
           </Link>
         </div>
       </div>
-    </section>
-  );
+    </section>);
+
 };
 
 export default Pricing;

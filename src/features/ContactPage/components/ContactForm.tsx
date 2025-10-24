@@ -38,19 +38,19 @@ const ContactForm = () => {
       subject: '',
       service: '',
       message: '',
-      newsletter: false,
+      newsletter: false
     },
     errors: {},
     isSubmitting: false,
     isSuccess: false,
-    submitCount: 0,
+    submitCount: 0
   });
 
   // Validation rules from documentation
   const validateField = useCallback((name: keyof ContactFormData, value: string | boolean): string | undefined => {
     switch (name) {
       case 'name':
-        if (!value || (typeof value === 'string' && value.trim().length < 2)) {
+        if (!value || typeof value === 'string' && value.trim().length < 2) {
           return 'Name is required and must be at least 2 characters.';
         }
         break;
@@ -66,17 +66,17 @@ const ContactForm = () => {
         }
         break;
       case 'subject':
-        if (!value || (typeof value === 'string' && !value.trim())) {
+        if (!value || typeof value === 'string' && !value.trim()) {
           return 'Subject is required.';
         }
         break;
       case 'service':
-        if (!value || (typeof value === 'string' && !value)) {
+        if (!value || typeof value === 'string' && !value) {
           return 'Please select a service.';
         }
         break;
       case 'message':
-        if (!value || (typeof value === 'string' && value.trim().length < 10)) {
+        if (!value || typeof value === 'string' && value.trim().length < 10) {
           return 'Message is required and must be at least 10 characters.';
         }
         break;
@@ -100,9 +100,9 @@ const ContactForm = () => {
       }
     });
 
-    setFormState(prev => ({
+    setFormState((prev) => ({
       ...prev,
-      errors: newErrors,
+      errors: newErrors
     }));
 
     return isValid;
@@ -115,7 +115,7 @@ const ContactForm = () => {
     const fieldName = name as keyof ContactFormData;
     const fieldValue = type === 'checkbox' ? checked : value;
 
-    setFormState(prev => {
+    setFormState((prev) => {
       const newErrors = { ...prev.errors };
 
       // Only clear errors for fields that can have validation errors
@@ -127,10 +127,10 @@ const ContactForm = () => {
         ...prev,
         data: {
           ...prev.data,
-          [fieldName]: fieldValue,
+          [fieldName]: fieldValue
         },
         errors: newErrors,
-        isSuccess: false, // Clear success state when user starts typing
+        isSuccess: false // Clear success state when user starts typing
       };
     });
 
@@ -138,12 +138,12 @@ const ContactForm = () => {
     if (fieldName === 'email' || fieldName === 'name' || fieldName === 'message') {
       const error = validateField(fieldName, fieldValue);
       if (error) {
-        setFormState(prev => ({
+        setFormState((prev) => ({
           ...prev,
           errors: {
             ...prev.errors,
-            [fieldName]: error,
-          },
+            [fieldName]: error
+          }
         }));
       }
     }
@@ -158,11 +158,11 @@ const ContactForm = () => {
       return;
     }
 
-    setFormState(prev => ({
+    setFormState((prev) => ({
       ...prev,
       isSubmitting: true,
       errors: { ...prev.errors, general: undefined },
-      submitCount: prev.submitCount + 1,
+      submitCount: prev.submitCount + 1
     }));
 
     try {
@@ -170,9 +170,9 @@ const ContactForm = () => {
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formState.data),
+        body: JSON.stringify(formState.data)
       });
 
       const data = await response.json();
@@ -192,7 +192,7 @@ const ContactForm = () => {
       }
 
       // Success - matches documentation response format
-      setFormState(prev => ({
+      setFormState((prev) => ({
         ...prev,
         isSubmitting: false,
         isSuccess: true,
@@ -203,26 +203,26 @@ const ContactForm = () => {
           subject: '',
           service: '',
           message: '',
-          newsletter: false,
-        },
+          newsletter: false
+        }
       }));
 
       // Auto-dismiss success message after 5 seconds
       setTimeout(() => {
-        setFormState(prev => ({
+        setFormState((prev) => ({
           ...prev,
-          isSuccess: false,
+          isSuccess: false
         }));
       }, 5000);
 
     } catch (error) {
-      setFormState(prev => ({
+      setFormState((prev) => ({
         ...prev,
         isSubmitting: false,
         errors: {
           ...prev.errors,
-          general: error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.',
-        },
+          general: error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.'
+        }
       }));
     }
   }, [formState.data, validateForm]);
@@ -231,7 +231,7 @@ const ContactForm = () => {
     <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg form-card">
       <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Send a Message</h2>
       <p className="text-gray-600 dark:text-gray-400 mb-8">
-        Have a project in mind or want to learn more about my services? Fill out the form below and I'll get back to you within 24 hours.
+        Have a project in mind or want to learn more about my services? Fill out the form below and I&apos;ll get back to you within 24 hours.
       </p>
 
       <form className="space-y-6" onSubmit={handleSubmit} noValidate>
@@ -246,20 +246,20 @@ const ContactForm = () => {
             value={formState.data.name}
             onChange={handleInputChange}
             className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-jstar-blue focus:border-transparent dark:bg-gray-700 dark:text-white ${
-              formState.errors.name
-                ? 'border-red-500 dark:border-red-400'
-                : 'border-gray-300 dark:border-gray-600'
-            }`}
+            formState.errors.name ?
+            'border-red-500 dark:border-red-400' :
+            'border-gray-300 dark:border-gray-600'}`
+            }
             placeholder="John Doe"
             aria-describedby={formState.errors.name ? "name-error" : undefined}
             aria-invalid={!!formState.errors.name}
-            required
-          />
-          {formState.errors.name && (
-            <p id="name-error" className="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">
+            required />
+
+          {formState.errors.name &&
+          <p id="name-error" className="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">
               {formState.errors.name}
             </p>
-          )}
+          }
         </div>
 
         <div>
@@ -273,20 +273,20 @@ const ContactForm = () => {
             value={formState.data.email}
             onChange={handleInputChange}
             className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-jstar-blue focus:border-transparent dark:bg-gray-700 dark:text-white ${
-              formState.errors.email
-                ? 'border-red-500 dark:border-red-400'
-                : 'border-gray-300 dark:border-gray-600'
-            }`}
+            formState.errors.email ?
+            'border-red-500 dark:border-red-400' :
+            'border-gray-300 dark:border-gray-600'}`
+            }
             placeholder="john@example.com"
             aria-describedby={formState.errors.email ? "email-error" : undefined}
             aria-invalid={!!formState.errors.email}
-            required
-          />
-          {formState.errors.email && (
-            <p id="email-error" className="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">
+            required />
+
+          {formState.errors.email &&
+          <p id="email-error" className="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">
               {formState.errors.email}
             </p>
-          )}
+          }
         </div>
 
         <div>
@@ -300,20 +300,20 @@ const ContactForm = () => {
             value={formState.data.subject}
             onChange={handleInputChange}
             className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-jstar-blue focus:border-transparent dark:bg-gray-700 dark:text-white ${
-              formState.errors.subject
-                ? 'border-red-500 dark:border-red-400'
-                : 'border-gray-300 dark:border-gray-600'
-            }`}
+            formState.errors.subject ?
+            'border-red-500 dark:border-red-400' :
+            'border-gray-300 dark:border-gray-600'}`
+            }
             placeholder="Brief description of your inquiry"
             aria-describedby={formState.errors.subject ? "subject-error" : undefined}
             aria-invalid={!!formState.errors.subject}
-            required
-          />
-          {formState.errors.subject && (
-            <p id="subject-error" className="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">
+            required />
+
+          {formState.errors.subject &&
+          <p id="subject-error" className="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">
               {formState.errors.subject}
             </p>
-          )}
+          }
         </div>
 
         <div>
@@ -326,14 +326,14 @@ const ContactForm = () => {
             value={formState.data.service}
             onChange={handleInputChange}
             className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-jstar-blue focus:border-transparent dark:bg-gray-700 dark:text-white ${
-              formState.errors.service
-                ? 'border-red-500 dark:border-red-400'
-                : 'border-gray-300 dark:border-gray-600'
-            }`}
+            formState.errors.service ?
+            'border-red-500 dark:border-red-400' :
+            'border-gray-300 dark:border-gray-600'}`
+            }
             aria-describedby={formState.errors.service ? "service-error" : undefined}
             aria-invalid={!!formState.errors.service}
-            required
-          >
+            required>
+
             <option value="">Select a service</option>
             <option value="wedding">Wedding Cinematography</option>
             <option value="corporate">Corporate Videos</option>
@@ -342,11 +342,11 @@ const ContactForm = () => {
             <option value="consulting">Consulting</option>
             <option value="other">Other</option>
           </select>
-          {formState.errors.service && (
-            <p id="service-error" className="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">
+          {formState.errors.service &&
+          <p id="service-error" className="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">
               {formState.errors.service}
             </p>
-          )}
+          }
         </div>
 
         <div>
@@ -360,20 +360,20 @@ const ContactForm = () => {
             onChange={handleInputChange}
             rows={5}
             className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-jstar-blue focus:border-transparent dark:bg-gray-700 dark:text-white ${
-              formState.errors.message
-                ? 'border-red-500 dark:border-red-400'
-                : 'border-gray-300 dark:border-gray-600'
-            }`}
+            formState.errors.message ?
+            'border-red-500 dark:border-red-400' :
+            'border-gray-300 dark:border-gray-600'}`
+            }
             placeholder="Tell me about your project..."
             aria-describedby={formState.errors.message ? "message-error" : undefined}
             aria-invalid={!!formState.errors.message}
-            required
-          />
-          {formState.errors.message && (
-            <p id="message-error" className="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">
+            required />
+
+          {formState.errors.message &&
+          <p id="message-error" className="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">
               {formState.errors.message}
             </p>
-          )}
+          }
         </div>
 
         <div className="flex items-center">
@@ -383,8 +383,8 @@ const ContactForm = () => {
             type="checkbox"
             checked={formState.data.newsletter}
             onChange={handleInputChange}
-            className="w-4 h-4 text-jstar-blue border-gray-300 rounded focus:ring-jstar-blue"
-          />
+            className="w-4 h-4 text-jstar-blue border-gray-300 rounded focus:ring-jstar-blue" />
+
           <label htmlFor="newsletter" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
             Subscribe to my newsletter for creator tips and updates
           </label>
@@ -394,41 +394,41 @@ const ContactForm = () => {
           type="submit"
           disabled={formState.isSubmitting}
           className="w-full px-6 py-4 bg-gradient-to-r from-jstar-blue to-faith-purple text-white font-semibold rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-          aria-describedby={formState.errors.general ? "general-error" : undefined}
-        >
-          {formState.isSubmitting ? (
-            <>
+          aria-describedby={formState.errors.general ? "general-error" : undefined}>
+
+          {formState.isSubmitting ?
+          <>
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" aria-hidden="true"></div>
               Sending...
-            </>
-          ) : (
-            'Send Message'
-          )}
+            </> :
+
+          'Send Message'
+          }
         </button>
       </form>
 
       {/* Success Message */}
-      {formState.isSuccess && (
-        <div className="mt-6 p-4 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+      {formState.isSuccess &&
+      <div className="mt-6 p-4 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
           <div className="text-sm text-green-800 dark:text-green-200" role="alert">
             <div className="flex items-center">
               <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
               Thank you for your message! I will get back to you within 24 hours.
-              {formState.data.newsletter && (
-                <span className="block mt-1 text-xs">
-                  You'll also receive a confirmation email about your newsletter subscription.
+              {formState.data.newsletter &&
+            <span className="block mt-1 text-xs">
+                  You&apos;ll also receive a confirmation email about your newsletter subscription.
                 </span>
-              )}
+            }
             </div>
           </div>
         </div>
-      )}
+      }
 
       {/* General Error Message */}
-      {formState.errors.general && (
-        <div className="mt-6 p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+      {formState.errors.general &&
+      <div className="mt-6 p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
           <div className="text-sm text-red-800 dark:text-red-200" role="alert" id="general-error">
             <div className="flex items-center">
               <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
@@ -438,9 +438,9 @@ const ContactForm = () => {
             </div>
           </div>
         </div>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 };
 
 export default ContactForm;

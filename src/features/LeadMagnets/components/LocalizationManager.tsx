@@ -20,7 +20,7 @@ const LocalizationManager: React.FC = () => {
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Subject Line</label>
             <input type="text" defaultValue="Welcome to J StaR Platform, {{first_name}}!"
-                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white" />
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-admin-red focus:border-transparent dark:bg-gray-800 dark:text-white" />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Body</label>
@@ -28,7 +28,7 @@ const LocalizationManager: React.FC = () => {
               <div className="p-4 font-mono text-sm bg-gray-50 dark:bg-gray-700/50 h-48 overflow-y-auto">
                 <div className="container">
                   <h1>Hello {'{'}first_name{'}'},</h1>
-                  <p>Welcome to J StaR Platform! We're excited to have you join our community of content creators.</p>
+                  <p>Welcome to J StaR Platform! We&apos;re excited to have you join our community of content creators.</p>
                   <p>As a {'{'}user_tier{'}'} member, you have access to:</p>
                   <ul>
                     <li>Premium content templates</li>
@@ -56,8 +56,8 @@ const LocalizationManager: React.FC = () => {
           </button>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default LocalizationManager;

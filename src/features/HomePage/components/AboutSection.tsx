@@ -5,19 +5,19 @@ import { ShieldCheckIcon, CheckIcon } from '../../../components/icons/static-ico
 import ClientLogoPlaceholder from '../../../components/ui/ClientLogoPlaceholder';
 
 const teamMembers = [
-  { name: 'John Doe', role: 'Founder & Creative Director', image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80' },
-  { name: 'Jane Smith', role: 'Lead Video Editor', image: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?q=80&w=800&auto=format&fit=crop' },
-  { name: 'Michael Johnson', role: 'Cinematographer', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80' },
-  { name: 'Sarah Williams', role: 'Motion Designer', image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80' },
-];
+{ name: 'John Doe', role: 'Founder & Creative Director', image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80' },
+{ name: 'Jane Smith', role: 'Lead Video Editor', image: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?q=80&w=800&auto=format&fit=crop' },
+{ name: 'Michael Johnson', role: 'Cinematographer', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80' },
+{ name: 'Sarah Williams', role: 'Motion Designer', image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80' }];
+
 
 // Example client data - replace with your actual client information
 const clients = [
-  { name: 'TechCorp', logo: '/logos/techcorp.png', alt: 'TechCorp logo' },
-  { name: 'DesignStudio', logo: '/logos/designstudio.svg', alt: 'Design Studio logo' },
-  { name: 'MediaGroup', logo: undefined, alt: 'Media Group logo' }, // Will show placeholder
-  { name: 'CreativeAgency', logo: '/logos/creativeagency.jpg', alt: 'Creative Agency logo' },
-];
+{ name: 'TechCorp', logo: '/logos/techcorp.png', alt: 'TechCorp logo' },
+{ name: 'DesignStudio', logo: '/logos/designstudio.svg', alt: 'Design Studio logo' },
+{ name: 'MediaGroup', logo: undefined, alt: 'Media Group logo' }, // Will show placeholder
+{ name: 'CreativeAgency', logo: '/logos/creativeagency.jpg', alt: 'Creative Agency logo' }];
+
 
 /**
  * AboutSection - Homepage about section component
@@ -47,12 +47,12 @@ const AboutSection = () => {
           {/* Left Column - Image */}
           <div className="relative">
             <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-gray-100 dark:border-gray-800">
-              <Image 
-                src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80" 
-                alt="Our Team" 
-                width={1470} 
-                height={980} 
-                className="w-full h-auto"/>
+              <Image
+                src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80"
+                alt="Our Team"
+                width={1470}
+                height={980}
+                className="w-full h-auto" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
               <div className="absolute bottom-0 left-0 p-6 text-white">
                 <h3 className="text-2xl font-bold">Our Creative Team</h3>
@@ -78,7 +78,7 @@ const AboutSection = () => {
           {/* Right Column - Content */}
           <div className="lg:pl-12">
             <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-6">
-              We're a creative studio passionate about storytelling through video and digital experiences
+              We&apos;re a creative studio passionate about storytelling through video and digital experiences
             </h3>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
               At J StaR Films, we believe in the power of visual storytelling to connect, engage, and inspire. Our team of experienced filmmakers, designers, and developers work together to create compelling content that resonates with your audience and achieves your business goals.
@@ -114,7 +114,7 @@ const AboutSection = () => {
                 </div>
                 <div className="ml-3">
                   <h4 className="text-lg font-medium text-gray-900 dark:text-white">Client-Focused Approach</h4>
-                  <p className="text-gray-600 dark:text-gray-400">Your vision is our priority, and we're committed to bringing it to life.</p>
+                  <p className="text-gray-600 dark:text-gray-400">Your vision is our priority, and we&apos;re committed to bringing it to life.</p>
                 </div>
               </div>
             </div>
@@ -138,10 +138,10 @@ const AboutSection = () => {
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {teamMembers.map((member, index) => (
-              <div key={index} className="group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
+            {teamMembers.map((member, index) =>
+            <div key={index} className="group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <div className="relative overflow-hidden h-64">
-                  <Image src={member.image} alt={member.name} fill className="object-cover transition-transform duration-500 group-hover:scale-105"/>
+                  <Image src={member.image} alt={member.name} fill className="object-cover transition-transform duration-500 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
                       <div className="text-white">
                           <h4 className="text-lg font-semibold">{member.name}</h4>
@@ -150,7 +150,7 @@ const AboutSection = () => {
                   </div>
                 </div>
               </div>
-            ))}
+            )}
           </div>
         </div>
         
@@ -159,25 +159,25 @@ const AboutSection = () => {
           <div className="text-center mb-12">
             <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-4">Trusted By Industry Leaders</h3>
             <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              We've had the privilege of working with amazing companies across various industries
+              We&apos;ve had the privilege of working with amazing companies across various industries
             </p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center">
-            {clients.map((client, index) => (
-              <div key={index} className="flex justify-center opacity-70 hover:opacity-100 transition-opacity duration-300">
+            {clients.map((client, index) =>
+            <div key={index} className="flex justify-center opacity-70 hover:opacity-100 transition-opacity duration-300">
                 <ClientLogoPlaceholder
-                  src={client.logo}
-                  alt={client.alt}
-                  name={client.name}
-                  type={client.logo?.endsWith('.svg') ? 'svg' : 'image'}
-                />
+                src={client.logo}
+                alt={client.alt}
+                name={client.name}
+                type={client.logo?.endsWith('.svg') ? 'svg' : 'image'} />
+              
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>);
+
 };
 
 export default AboutSection;

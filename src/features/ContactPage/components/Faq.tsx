@@ -14,10 +14,10 @@ const Faq = () => {
 
         <div className="space-y-6">
           <div className="bg-white dark:bg-gray-700 rounded-xl p-6 shadow-sm">
-            <h3 className="font-semibold text-lg text-gray-900 dark:text-white mb-2">What's your typical project timeline?</h3>
+            <h3 className="font-semibold text-lg text-gray-900 dark:text-white mb-2">What&apos;s your typical project timeline?</h3>
             <p className="text-gray-600 dark:text-gray-300">
               Wedding films typically take 4-6 weeks for delivery. App development projects vary from 2-6 months depending on complexity.
-              AI tool implementations usually take 1-3 months. We'll discuss specific timelines during our initial consultation.
+              AI tool implementations usually take 1-3 months. We&apos;ll discuss specific timelines during our initial consultation.
             </p>
           </div>
 
@@ -25,12 +25,12 @@ const Faq = () => {
             <h3 className="font-semibold text-lg text-gray-900 dark:text-white mb-2">Do you work with clients outside Nigeria?</h3>
             <p className="text-gray-600 dark:text-gray-300">
               Absolutely! I work with clients worldwide through remote collaboration tools. For wedding cinematography,
-              I'm available for destination weddings with advance booking.
+              I&apos;m available for destination weddings with advance booking.
             </p>
           </div>
 
           <div className="bg-white dark:bg-gray-700 rounded-xl p-6 shadow-sm">
-            <h3 className="font-semibold text-lg text-gray-900 dark:text-white mb-2">What's included in your AI creator tools?</h3>
+            <h3 className="font-semibold text-lg text-gray-900 dark:text-white mb-2">What&apos;s included in your AI creator tools?</h3>
             <p className="text-gray-600 dark:text-gray-300">
               My AI tools are designed specifically for content creators and include features like script generation,
               content ideation, YouTube optimization, and workflow automation. Each tool is customizable to your specific needs.
@@ -38,8 +38,8 @@ const Faq = () => {
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>);
+
 };
 
 export default Faq;

@@ -80,36 +80,36 @@ const FinalCTASection: React.FC<FinalCTASectionProps> = ({
   return (
     <section
       className="py-20 bg-gradient-to-br from-jstar-blue to-faith-purple"
-      aria-labelledby="cta-heading"
-    >
+      aria-labelledby="cta-heading">
+
       <div className="max-w-4xl mx-auto px-6 text-center">
         <div className="glass-cta rounded-2xl p-8 md:p-12">
           <header>
             <h2
               id="cta-heading"
-              className="text-3xl md:text-4xl font-bold text-white mb-6"
-            >
+              className="text-3xl md:text-4xl font-bold text-white mb-6">
+
               Ready to Create Something <span className="text-sacred-gold">Meaningful</span>?
             </h2>
           </header>
 
           <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-            Whether you need cinematic video production, custom app development, or AI-powered creator tools, let's bring your vision to life with purpose and excellence.
+            Whether you need cinematic video production, custom app development, or AI-powered creator tools, let&apos;s bring your vision to life with purpose and excellence.
           </p>
 
           <nav aria-label="Primary actions" className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
             <button
               onClick={handleStartProject}
               className="inline-block px-8 py-4 bg-white text-jstar-blue font-bold rounded-xl text-lg hover:bg-gray-100 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-jstar-blue"
-              aria-label="Start your project - redirects to dashboard if logged in, or contact form if not"
-            >
+              aria-label="Start your project - redirects to dashboard if logged in, or contact form if not">
+
               Start Your Project
             </button>
             <button
               onClick={handleWhatsAppConsultation}
               className="inline-block px-8 py-4 bg-white/10 backdrop-blur-sm text-white border border-white/20 font-bold rounded-xl text-lg hover:bg-white/20 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-transparent"
-              aria-label="Schedule a WhatsApp consultation with our team"
-            >
+              aria-label="Schedule a WhatsApp consultation with our team">
+
               WhatsApp Consultation
             </button>
           </nav>
@@ -122,8 +122,8 @@ const FinalCTASection: React.FC<FinalCTASectionProps> = ({
                 stroke="currentColor"
                 viewBox="0 0 24 24"
                 aria-hidden="true"
-                role="presentation"
-              >
+                role="presentation">
+
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <div className="flex-1">
@@ -134,16 +134,16 @@ const FinalCTASection: React.FC<FinalCTASectionProps> = ({
                 onClick={handleDownload}
                 disabled={isDownloading}
                 className="ml-auto px-4 py-2 bg-white text-jstar-blue rounded-lg font-medium hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-jstar-blue flex-shrink-0"
-                aria-label="Download free creator resource bundle"
-              >
+                aria-label="Download free creator resource bundle">
+
                 {isDownloading ? 'Downloading...' : 'Download'}
               </button>
             </div>
           </aside>
         </div>
       </div>
-    </section>
-  );
+    </section>);
+
 };
 
 export default FinalCTASection;
