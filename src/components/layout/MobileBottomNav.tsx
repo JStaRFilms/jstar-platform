@@ -5,11 +5,13 @@ import { usePathname } from 'next/navigation';
 import MobileNavItem from './MobileNavItem';
 import Tooltip from '@/components/ui/Tooltip'; // Import Tooltip
 import { useScrollSpy } from '@/hooks/useScrollSpy';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 export interface NavItemConfig {
   href: string;
   label: string;
   iconName: string; // Corresponds to an icon in AnimatedIconsList.md
+  isAction?: boolean; // For non-navigation actions like modals
 }
 
 const navigationConfig: NavItemConfig[] = [
@@ -18,6 +20,7 @@ const navigationConfig: NavItemConfig[] = [
   { href: '/services', label: 'Services', iconName: 'sparkles' },
   { href: '/portfolio', label: 'Work', iconName: 'blocks' },
   { href: '/contact', label: 'Contact', iconName: 'mail' },
+  { href: '', label: 'JohnGPT', iconName: 'brain', isAction: true },
 ];
 
 // Define section mappings for homepage scroll spy

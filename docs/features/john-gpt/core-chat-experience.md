@@ -344,4 +344,69 @@ All features follow the project's `'docs/coding_guidelines.md'` and `'docs/Styli
 - **TypeScript safety** with proper interface definitions
 - **Mobile-first responsive design** with hover states differentiated
 
-This implementation establishes a solid foundation for conversational AI in the J StaR Films platform, with enterprise-grade architecture and room for future expansion.
+---
+
+## 📱 Phase 2: Adaptive Mobile Integration
+
+**Completed**: JohnGPT is now seamlessly integrated into the mobile bottom navigation system.
+
+### **6-Tab Navigation Structure**
+```
+Home | About | Services | Work | Contact | JohnGPT ← always last
+```
+
+### **Responsive Behavior**
+- **≥414px screens**: All 6 tabs visible with full labels and standard spacing
+- **<414px screens**: All 6 tabs maintained, reduced icon size (w-5 h-5), smaller labels (text-[0.65rem]), tighter padding (p-0.5)
+- **Navigation order**: Fixed to maintain narrative flow (JohnGPT as culmination)
+
+### **JohnGPT Special Interactions**
+- **Tap (immediate)**: Opens full-screen chat modal on mobile
+- **Long-press (≥500ms)**: Navigates to `/john-gpt` dashboard stub page
+- **Active state**: Highlights with `text-primary` + `bg-primary/10` background
+- **Accessibility**: Proper `aria-label` explaining dual functionality
+
+### **Motion Blur Performance Guardrails**
+```ts
+const shouldApplyBlur = useMemo(() => {
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const hasGoodPerformance = navigator.hardwareConcurrency >= 4;
+  return !prefersReducedMotion && hasGoodPerformance;
+}, []);
+```
+
+- **Guardrails**: Skips blur on low-performance devices or when user prefers reduced motion
+- **Preservation**: Motion blur maintained for cinematic aesthetic on capable devices
+
+### **Mobile Chat Modal**
+- **Full-screen on mobile**: `fixed inset-0 m-0 h-screen max-h-screen`
+- **Desktop**: Centered modal with max width (`md:max-w-2xl md:rounded-lg`)
+- **Flexible layout**: `flex-1 overflow-hidden` for proper mobile keyboard handling
+
+### **About Page Preservation**
+✓ **Maintains full accessibility** - no content removal or redirection
+✓ **Remains in navigation** - unchanged position and functionality
+✓ **No content migration** - original About content preserved
+
+### **Technical Architecture**
+- **`useMediaQuery` hook**: Screen size detection for responsive styling
+- **`useLongPress` hook**: Debounced long-press vs tap differentiation
+- **Performance monitoring**: Hardware concurrency check for motion density
+- **Touch handling**: Cross-platform compatibility (touch + mouse events)
+
+### **Testing Criteria Verified**
+✅ All 6 tabs visible on iPhone 14 Pro (393px) and iPhone 12 Pro Max (428px)
+✅ JohnGPT always positioned last in navigation
+✅ Tap opens modal, long-press navigates to dashboard
+✅ Responsive scaling prevents horizontal overflow
+✅ Motion blur conditional on performance and user preferences
+✅ About page remains fully functional
+✅ Passes Lighthouse performance audits
+
+This mobile integration transforms JohnGPT from a desktop-only feature into the intelligent climax of the mobile navigation experience, while maintaining the About page's storytelling value and the platform's cinematic aesthetic.
+
+Phase 3: Conversation History & Settings (Coming Soon)
+
+---
+
+This implementation establishes a solid foundation for conversational AI in the J StaR Films platform, with enterprise-grade architecture, mobile-first design, and room for future expansion.

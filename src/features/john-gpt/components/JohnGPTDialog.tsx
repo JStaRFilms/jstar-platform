@@ -78,8 +78,8 @@ export function JohnGPTDialog({ open, onOpenChange }: JohnGPTDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={`bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-border shadow-2xl ${isScrolling ? 'ring-1 ring-ring/20' : ''}`}>
-        <DialogHeader className="flex flex-row items-center justify-between">
+      <DialogContent className={`bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-border shadow-2xl ${isScrolling ? 'ring-1 ring-ring/20' : ''} w-full h-full md:max-w-2xl md:h-auto md:rounded-lg`}>
+        <DialogHeader className="flex flex-row items-center justify-between p-4">
           <DialogTitle className="flex items-center gap-2 text-lg font-semibold">
             <MessageCircle className="w-5 h-5 text-primary" />
             JohnGPT
@@ -90,7 +90,7 @@ export function JohnGPTDialog({ open, onOpenChange }: JohnGPTDialogProps) {
           />
         </DialogHeader>
 
-        <div className="flex flex-col h-96 md:h-[32rem]">
+        <div className="flex flex-col h-full overflow-hidden max-h-[calc(100vh-200px)] md:max-h-[500px]">
           <ChatMessages messages={messages} isLoading={isLoading} />
 
           {error && (
