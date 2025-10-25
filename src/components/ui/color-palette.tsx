@@ -36,7 +36,7 @@ export const ColorPalette: React.FC<ColorPaletteProps> = ({
 
   return (
     <div
-      className={`bg-neutral-900/70 p-3 rounded-xl ${
+      className={`bg-neutral-900/50 backdrop-blur-md p-3 rounded-xl border border-neutral-700/50 ${
         columns ? `grid-cols-${Math.min(columns, colors.length)}` : 'grid-cols-3 md:grid-cols-2'
       } grid gap-2 ${className}`}
     >

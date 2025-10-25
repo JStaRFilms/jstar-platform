@@ -33,7 +33,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
   const codeLines = code.split('\n');
 
   return (
-    <div className={`bg-black/50 rounded-xl overflow-hidden border border-neutral-700/80 ${className}`}>
+    <div className={`bg-black/60 backdrop-blur-md rounded-xl overflow-hidden border border-neutral-700/80 ${className}`}>
       {/* Header */}
       <div className="flex justify-between items-center bg-neutral-900/80 px-3 py-1.5 border-b border-neutral-700/50">
         <span className="text-xs font-semibold text-neutral-400">

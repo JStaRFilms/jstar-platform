@@ -42,7 +42,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   };
 
   return (
-    <div className="flex-shrink-0 p-4 bg-neutral-900 border-t border-neutral-800">
+    <div className="flex-shrink-0 p-4 bg-neutral-900/80 backdrop-blur-lg border-t border-neutral-800/60">
       <div className="w-full max-w-4xl mx-auto">
         {/* Persona selector - mobile only (desktop shown in header) */}
         <div className="md:hidden mb-3">

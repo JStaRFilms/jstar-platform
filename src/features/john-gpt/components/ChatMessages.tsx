@@ -147,13 +147,13 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
             )}
 
             {/* Message Content & Actions */}
-            <div className="space-y-4 max-w-3xl flex-1">
+            <div className="space-y-4">
               {/* Message bubble */}
               <div
-                className={`px-4 py-3 rounded-xl group/bubble relative max-w-2xl ${
+                className={`px-4 py-3 rounded-xl group/bubble relative w-fit max-w-md backdrop-blur-sm ${
                   message.role === 'user'
-                    ? 'bg-accent-blue text-white rounded-br-none text-right'
-                    : 'bg-neutral-800/60 text-neutral-300 rounded-tl-none'
+                    ? 'bg-accent-blue/90 text-white rounded-br-none text-right'
+                    : 'bg-neutral-800/50 text-neutral-300 rounded-tl-none'
                 }`}
               >
                 {/* Message content */}
@@ -225,10 +225,10 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
               {/* AI message actions (expandable suggestions) */}
               {message.role === 'assistant' && (
                 <div className="flex flex-wrap gap-2">
-                  <button className="text-sm bg-neutral-800/60 border border-neutral-700/80 px-3 py-1.5 rounded-lg hover:bg-neutral-700/80 transition-colors">
+                  <button className="text-sm bg-neutral-800/40 backdrop-blur-sm border border-neutral-700/60 px-3 py-1.5 rounded-lg hover:bg-neutral-700/60 transition-colors">
                     Expand on colors
                   </button>
-                  <button className="text-sm bg-neutral-800/60 border border-neutral-700/80 px-3 py-1.5 rounded-lg hover:bg-neutral-700/80 transition-colors">
+                  <button className="text-sm bg-neutral-800/40 backdrop-blur-sm border border-neutral-700/60 px-3 py-1.5 rounded-lg hover:bg-neutral-700/60 transition-colors">
                     CSS variables
                   </button>
                 </div>
