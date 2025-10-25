@@ -33,8 +33,8 @@ class ServicesSectionErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       // Render custom fallback UI or default error message
-      return this.props.fallback || (
-        <section id="services" className="py-20 bg-gray-50 dark:bg-gray-900/50">
+      return this.props.fallback ||
+      <section id="services" className="py-20 bg-gray-50 dark:bg-gray-900/50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
               <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-8 max-w-md mx-auto">
@@ -47,19 +47,19 @@ class ServicesSectionErrorBoundary extends Component<Props, State> {
                   Something went wrong
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
-                  We're having trouble loading our services. Please try refreshing the page.
+                  We&apos;re having trouble loading our services. Please try refreshing the page.
                 </p>
                 <button
-                  onClick={() => window.location.reload()}
-                  className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
-                >
+                onClick={() => window.location.reload()}
+                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                
                   Refresh Page
                 </button>
               </div>
             </div>
           </div>
-        </section>
-      );
+        </section>;
+
     }
 
     return this.props.children;

@@ -11,14 +11,14 @@ const PortfolioCta = () => {
         </h2>
         <p className="text-xl text-white/90 mb-8">
           Whether you need cinematic video production, custom app development, or AI-powered creator tools,
-          let's bring your vision to life with purpose and excellence.
+          let&apos;s bring your vision to life with purpose and excellence.
         </p>
         <Link href="/contact" className="inline-block px-8 py-4 bg-white text-jstar-blue font-bold rounded-xl text-lg hover:bg-gray-100 transition-colors">
           Start Your Project
         </Link>
       </div>
-    </section>
-  );
+    </section>);
+
 };
 
 export default PortfolioCta;

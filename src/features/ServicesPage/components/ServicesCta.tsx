@@ -11,7 +11,7 @@ const ServicesCta = () => {
         </h2>
         <p className="text-xl text-white/90 mb-8">
           Whether you need cinematic video production, custom app development, or AI-powered creator tools,
-          let's create something amazing together.
+          let&apos;s create something amazing together.
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-4">
           <Link href="/contact" className="px-8 py-4 bg-white text-jstar-blue font-bold rounded-xl text-lg hover:bg-gray-100 transition-colors">
@@ -22,8 +22,8 @@ const ServicesCta = () => {
           </Link>
         </div>
       </div>
-    </section>
-  );
+    </section>);
+
 };
 
 export default ServicesCta;

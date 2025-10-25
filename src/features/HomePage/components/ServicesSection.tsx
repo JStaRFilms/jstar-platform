@@ -38,78 +38,78 @@ interface ServicesSectionProps {
 
 // Default service data with enhanced structure
 const defaultServices: ServiceItem[] = [
-  {
-    id: 'video-production',
-    title: 'Video Production',
-    description: 'Professional video production services including concept development, filming, and post-production to create compelling visual stories.',
-    icon: VideoCameraIcon,
-    features: ['Pre-production planning', '4K cinematic filming', 'Professional editing & color grading'],
-    pricing: { amount: 350000, currency: 'NGN', period: 'project' },
-    image: 'https://images.unsplash.com/photo-1551818255-e6e10975bc17?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1473&q=80',
-    popular: true,
-    category: 'main'
-  },
-  {
-    id: 'web-development',
-    title: 'Web Development',
-    description: 'Custom website development with modern technologies, responsive design, and seamless user experiences.',
-    icon: CodeIcon,
-    features: ['Responsive web design', 'Custom CMS development', 'E-commerce solutions'],
-    pricing: { amount: 500000, currency: 'NGN', period: 'project' },
-    image: 'https://images.unsplash.com/photo-1467232004584-b8d87734a5a2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1469&q=80',
-    category: 'main'
-  },
-  {
-    id: 'branding',
-    title: 'Branding',
-    description: 'Comprehensive branding solutions including logo design, brand identity, and visual language development.',
-    icon: ShieldCheckIcon,
-    features: ['Logo & identity design', 'Brand guidelines', 'Marketing collateral'],
-    pricing: { amount: 250000, currency: 'NGN', period: 'package' },
-    image: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80',
-    category: 'main'
-  },
-  {
-    id: 'photography',
-    title: 'Photography',
-    description: 'Professional photography services for products, events, and portraits.',
-    icon: CameraIcon,
-    features: ['Product photography', 'Event coverage', 'Portrait sessions'],
-    pricing: { amount: 150000, currency: 'NGN', period: 'project' },
-    image: '',
-    category: 'additional'
-  },
-  {
-    id: 'motion-graphics',
-    title: 'Motion Graphics',
-    description: 'Engaging motion graphics and animations for your brand.',
-    icon: FilmIcon,
-    features: ['2D/3D animations', 'Logo animations', 'Explainer videos'],
-    pricing: { amount: 200000, currency: 'NGN', period: 'project' },
-    image: '',
-    category: 'additional'
-  },
-  {
-    id: 'audio-production',
-    title: 'Audio Production',
-    description: 'Professional audio recording, editing, and sound design services.',
-    icon: MegaphoneIcon,
-    features: ['Voice recording', 'Sound design', 'Audio mixing'],
-    pricing: { amount: 120000, currency: 'NGN', period: 'project' },
-    image: '',
-    category: 'additional'
-  },
-  {
-    id: 'app-development',
-    title: 'App Development',
-    description: 'Custom mobile application development for iOS and Android.',
-    icon: DeviceMobileIcon,
-    features: ['iOS development', 'Android development', 'Cross-platform apps'],
-    pricing: { amount: 800000, currency: 'NGN', period: 'project' },
-    image: '',
-    category: 'additional'
-  }
-];
+{
+  id: 'video-production',
+  title: 'Video Production',
+  description: 'Professional video production services including concept development, filming, and post-production to create compelling visual stories.',
+  icon: VideoCameraIcon,
+  features: ['Pre-production planning', '4K cinematic filming', 'Professional editing & color grading'],
+  pricing: { amount: 350000, currency: 'NGN', period: 'project' },
+  image: 'https://images.unsplash.com/photo-1551818255-e6e10975bc17?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1473&q=80',
+  popular: true,
+  category: 'main'
+},
+{
+  id: 'web-development',
+  title: 'Web Development',
+  description: 'Custom website development with modern technologies, responsive design, and seamless user experiences.',
+  icon: CodeIcon,
+  features: ['Responsive web design', 'Custom CMS development', 'E-commerce solutions'],
+  pricing: { amount: 500000, currency: 'NGN', period: 'project' },
+  image: 'https://images.unsplash.com/photo-1467232004584-b8d87734a5a2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1469&q=80',
+  category: 'main'
+},
+{
+  id: 'branding',
+  title: 'Branding',
+  description: 'Comprehensive branding solutions including logo design, brand identity, and visual language development.',
+  icon: ShieldCheckIcon,
+  features: ['Logo & identity design', 'Brand guidelines', 'Marketing collateral'],
+  pricing: { amount: 250000, currency: 'NGN', period: 'package' },
+  image: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80',
+  category: 'main'
+},
+{
+  id: 'photography',
+  title: 'Photography',
+  description: 'Professional photography services for products, events, and portraits.',
+  icon: CameraIcon,
+  features: ['Product photography', 'Event coverage', 'Portrait sessions'],
+  pricing: { amount: 150000, currency: 'NGN', period: 'project' },
+  image: '',
+  category: 'additional'
+},
+{
+  id: 'motion-graphics',
+  title: 'Motion Graphics',
+  description: 'Engaging motion graphics and animations for your brand.',
+  icon: FilmIcon,
+  features: ['2D/3D animations', 'Logo animations', 'Explainer videos'],
+  pricing: { amount: 200000, currency: 'NGN', period: 'project' },
+  image: '',
+  category: 'additional'
+},
+{
+  id: 'audio-production',
+  title: 'Audio Production',
+  description: 'Professional audio recording, editing, and sound design services.',
+  icon: MegaphoneIcon,
+  features: ['Voice recording', 'Sound design', 'Audio mixing'],
+  pricing: { amount: 120000, currency: 'NGN', period: 'project' },
+  image: '',
+  category: 'additional'
+},
+{
+  id: 'app-development',
+  title: 'App Development',
+  description: 'Custom mobile application development for iOS and Android.',
+  icon: DeviceMobileIcon,
+  features: ['iOS development', 'Android development', 'Cross-platform apps'],
+  pricing: { amount: 800000, currency: 'NGN', period: 'project' },
+  image: '',
+  category: 'additional'
+}];
+
 
 /**
  * ServicesSection Component
@@ -130,13 +130,13 @@ const ServicesSection: React.FC<ServicesSectionProps> = React.memo(({
 }) => {
   // Performance optimizations with useMemo and useCallback
   const mainServices = useMemo(() =>
-    services.filter(s => s.category === 'main'),
-    [services]
+  services.filter((s) => s.category === 'main'),
+  [services]
   );
 
   const additionalServices = useMemo(() =>
-    services.filter(s => s.category === 'additional'),
-    [services]
+  services.filter((s) => s.category === 'additional'),
+  [services]
   );
 
   const handleServiceClick = useCallback((serviceId: string) => {
@@ -168,10 +168,10 @@ const ServicesSection: React.FC<ServicesSectionProps> = React.memo(({
             className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
             role="article"
             aria-labelledby={`service-video-production-title`}
-            aria-describedby={`service-video-production-description`}
-          >
+            aria-describedby={`service-video-production-description`}>
+            
             <div className="relative h-48 overflow-hidden">
-              <Image src="https://images.unsplash.com/photo-1551818255-e6e10975bc17?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1473&q=80" alt="Video Production" fill className="object-cover transition-transform duration-500 hover:scale-110"/>
+              <Image src="https://images.unsplash.com/photo-1551818255-e6e10975bc17?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1473&q=80" alt="Video Production" fill className="object-cover transition-transform duration-500 hover:scale-110" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
               <div className="absolute top-4 right-4">
                 <span className="px-3 py-1 bg-primary/90 text-white text-xs font-semibold rounded-full">Popular</span>
@@ -210,8 +210,8 @@ const ServicesSection: React.FC<ServicesSectionProps> = React.memo(({
                   href="#contact"
                   className="px-6 py-2.5 bg-gradient-to-r from-primary to-accent text-white rounded-full font-medium hover:shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                   aria-label={`Get started with Video Production service`}
-                  onClick={() => handleServiceClick('video-production')}
-                >
+                  onClick={() => handleServiceClick('video-production')}>
+                  
                   Get Started
                 </Link>
               </div>
@@ -223,10 +223,10 @@ const ServicesSection: React.FC<ServicesSectionProps> = React.memo(({
             className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
             role="article"
             aria-labelledby={`service-web-development-title`}
-            aria-describedby={`service-web-development-description`}
-          >
+            aria-describedby={`service-web-development-description`}>
+            
             <div className="relative h-48 overflow-hidden">
-              <Image src="https://images.unsplash.com/photo-1467232004584-b8d87734a5a2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1469&q=80" alt="Web Development" fill className="object-cover transition-transform duration-500 hover:scale-110"/>
+              <Image src="https://images.unsplash.com/photo-1467232004584-b8d87734a5a2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1469&q=80" alt="Web Development" fill className="object-cover transition-transform duration-500 hover:scale-110" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
             </div>
             <div className="p-6">
@@ -262,8 +262,8 @@ const ServicesSection: React.FC<ServicesSectionProps> = React.memo(({
                   href="#contact"
                   className="px-6 py-2.5 bg-gradient-to-r from-primary to-accent text-white rounded-full font-medium hover:shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                   aria-label={`Get started with Web Development service`}
-                  onClick={() => handleServiceClick('web-development')}
-                >
+                  onClick={() => handleServiceClick('web-development')}>
+                  
                   Get Started
                 </Link>
               </div>
@@ -275,10 +275,10 @@ const ServicesSection: React.FC<ServicesSectionProps> = React.memo(({
             className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
             role="article"
             aria-labelledby={`service-branding-title`}
-            aria-describedby={`service-branding-description`}
-          >
+            aria-describedby={`service-branding-description`}>
+            
             <div className="relative h-48 overflow-hidden">
-              <Image src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80" alt="Branding" fill className="object-cover transition-transform duration-500 hover:scale-110"/>
+              <Image src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80" alt="Branding" fill className="object-cover transition-transform duration-500 hover:scale-110" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
             </div>
             <div className="p-6">
@@ -314,8 +314,8 @@ const ServicesSection: React.FC<ServicesSectionProps> = React.memo(({
                   href="#contact"
                   className="px-6 py-2.5 bg-gradient-to-r from-primary to-accent text-white rounded-full font-medium hover:shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                   aria-label={`Get started with Branding service`}
-                  onClick={() => handleServiceClick('branding')}
-                >
+                  onClick={() => handleServiceClick('branding')}>
+                  
                   Get Started
                 </Link>
               </div>
@@ -379,15 +379,15 @@ const ServicesSection: React.FC<ServicesSectionProps> = React.memo(({
         <div className="mt-20 bg-gradient-to-r from-primary to-accent rounded-2xl p-8 md:p-12 text-center text-white">
           <h3 className="text-2xl md:text-3xl font-bold mb-4">Have a project in mind?</h3>
           <p className="text-white/90 mb-8 max-w-2xl mx-auto">
-            Let's discuss how we can bring your ideas to life with our professional services.
+            Let&apos;s discuss how we can bring your ideas to life with our professional services.
           </p>
           <Link href="#contact" className="inline-block px-8 py-3 bg-white text-primary rounded-full font-semibold hover:bg-opacity-90 transition-opacity">
             Get a Free Quote
           </Link>
         </div>
       </div>
-    </section>
-  );
+    </section>);
+
 });
 
 ServicesSection.displayName = 'ServicesSection';

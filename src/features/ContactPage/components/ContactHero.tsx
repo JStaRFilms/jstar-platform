@@ -7,11 +7,11 @@ const ContactHero = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-3xl">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            Let's <span className="bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">Connect</span>
+            Let&apos;s <span className="bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">Connect</span>
           </h1>
           <p className="text-xl text-gray-300 mb-8">
-            Whether you're looking for cinematic storytelling, custom app development, or AI-powered creator tools,
-            I'm here to help bring your vision to life.
+            Whether you&apos;re looking for cinematic storytelling, custom app development, or AI-powered creator tools,
+            I&apos;m here to help bring your vision to life.
           </p>
           <div className="flex flex-wrap gap-3">
             <span className="px-3 py-1 bg-jstar-blue/20 text-jstar-blue rounded-full text-sm">Wedding Cinematography</span>
@@ -20,8 +20,8 @@ const ContactHero = () => {
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>);
+
 };
 
 export default ContactHero;

@@ -41,7 +41,7 @@ const FeaturedProducts = () => {
               </div>
               <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
                 The complete system for creating viral YouTube content, from ideation to optimization.
-                Used by creators who've grown to 100K+ subscribers.
+                Used by creators who&apos;ve grown to 100K+ subscribers.
               </p>
               <div className="flex items-center mb-4">
                 <div className="flex text-yellow-400">
@@ -148,8 +148,8 @@ const FeaturedProducts = () => {
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>);
+
 };
 
 export default FeaturedProducts;
