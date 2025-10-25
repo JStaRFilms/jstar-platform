@@ -8,7 +8,7 @@ import {
 import { useChat } from '@ai-sdk/react';
 import { useScrollBlur } from '@/hooks/useScrollBlur';
 import { AnimatedCloseIcon } from '@/components/icons/animated-icons';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, AlertCircle } from 'lucide-react';
 import { ChatMessages } from './ChatMessages';
 import { ChatInput } from './ChatInput';
 
@@ -22,23 +22,44 @@ type JohnGPTDialogProps = {
   onOpenChange: (open: boolean) => void;
 };
 
-export function JohnGPTDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
-  const { messages, status, sendMessage } = useChat({
+export function JohnGPTDialog({ open, onOpenChange }: JohnGPTDialogProps) {
+  const { messages, status, sendMessage, error: chatError } = useChat({
     api: '/api/chat',
     headers: {
       'Authorization': 'Bearer admin-dev-token',
     },
   } as any);
+
   const [input, setInput] = useState('');
+  const [error, setError] = useState<string | null>(null);
+
+  // Handle errors from chat
+  React.useEffect(() => {
+    if (chatError) {
+      setError('Failed to connect to JohnGPT. Please try again.');
+    } else {
+      setError(null);
+    }
+  }, [chatError]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
+    // Clear error when user starts typing
+    if (error) setError(null);
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!input.trim()) return;
     sendMessage({ text: input });
     setInput('');
+  };
+
+  const handleRetry = () => {
+    const retryText = input.trim() || 'Retry last message';
+    sendMessage({ text: retryText });
+    setInput('');
+    setError(null);
   };
 
   const isLoading = status === 'streaming' || status === 'submitted';
@@ -71,6 +92,22 @@ export function JohnGPTDialog({ open, onOpenChange }: { open: boolean; onOpenCha
 
         <div className="flex flex-col h-96 md:h-[32rem]">
           <ChatMessages messages={messages} isLoading={isLoading} />
+
+          {error && (
+            <div className="mx-4 mb-3 p-3 rounded-lg border border-destructive/20 bg-destructive/10 text-destructive">
+              <div className="flex items-center gap-2 mb-2">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <span className="text-sm font-medium">{error}</span>
+              </div>
+              <button
+                onClick={handleRetry}
+                className="text-xs text-destructive hover:underline focus:outline-none focus:underline"
+              >
+                Retry last message
+              </button>
+            </div>
+          )}
+
           <ChatInput
             input={input}
             handleInputChange={handleInputChange}

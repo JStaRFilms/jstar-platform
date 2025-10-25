@@ -321,4 +321,27 @@ import { convertToModelMessages } from 'ai';
 const modelMessages = convertToModelMessages(messages);
 ```
 
+---
+
+## ✨ UX Polish Features
+
+The JohnGPT chat experience now includes premium UI enhancements for improved usability and visual appeal:
+
+- **Typing Indicators**: Animated dots with "JohnGPT is thinking..." text during AI response generation
+- **Message Timestamps**: Subtle time context shown on hover (desktop) / always visible (mobile) using semantic `<time>` elements
+- **Error Recovery**: Graceful error states with AlertCircle icon and retry button for failed requests
+- **Smooth Auto-Scroll**: Intelligent scrolling that only activates when user is within 100px of bottom
+- **Enhanced Welcome State**: Animated brain icon with descriptive copy encouraging user interaction
+
+### Implementation Details
+
+All features follow the project's `'docs/coding_guidelines.md'` and `'docs/Styling-in-Next-and-Tailwind-v4.md'` specifications:
+
+- **Component-driven architecture** with single responsibility
+- **Semantic HTML** for accessibility (time elements, aria attributes)
+- **Tailwind v4 theming** using core tokens (background, foreground, border, ring)
+- **Performance considerations** with `prefers-reduced-motion` respect
+- **TypeScript safety** with proper interface definitions
+- **Mobile-first responsive design** with hover states differentiated
+
 This implementation establishes a solid foundation for conversational AI in the J StaR Films platform, with enterprise-grade architecture and room for future expansion.

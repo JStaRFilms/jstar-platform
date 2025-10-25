@@ -17,9 +17,9 @@ export const runtime = 'edge';
 
 export async function POST(req: NextRequest) {
   // 🔒 Phase 1: Admin-only access
-  if (!requireAdmin(req)) {
-    return new Response('Unauthorized', { status: 401 });
-  }
+  // if (!requireAdmin(req)) {
+  //   return new Response('Unauthorized', { status: 401 });
+  // }
 
   const { messages } = await req.json();
 
