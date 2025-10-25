@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useChat } from '@ai-sdk/react';
@@ -11,6 +10,7 @@ import { AnimatedCloseIcon } from '@/components/icons/animated-icons';
 import { MessageCircle, AlertCircle } from 'lucide-react';
 import { ChatMessages } from './ChatMessages';
 import { ChatInput } from './ChatInput';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 /**
  * Props for the JohnGPT dialog component
@@ -64,6 +64,9 @@ export function JohnGPTDialog({ open, onOpenChange }: JohnGPTDialogProps) {
 
   const isLoading = status === 'streaming' || status === 'submitted';
 
+  // Mobile detection
+  const isMobile = useMediaQuery('(max-width: 768px)');
+
   // Apply motion blur to background when open
   const { isScrolling, startScrollBlur } = useScrollBlur({
     blurDuration: 600,
@@ -76,45 +79,61 @@ export function JohnGPTDialog({ open, onOpenChange }: JohnGPTDialogProps) {
     }
   }, [open, startScrollBlur]);
 
+  // Fixed height for consistent sizing on both mobile and desktop
+  const fixedModalHeight = isMobile ? 'h-full' : 'h-[500px]';
+
+  // DialogContent is now the main flex container with full background coverage
+  const dialogClasses = isMobile
+    ? 'fixed inset-0 z-50 w-full h-full border-0 shadow-none rounded-none flex flex-col bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'
+    : `fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-full max-w-2xl ${fixedModalHeight} border border-border shadow-2xl rounded-lg flex flex-col bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]`;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={`bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-border shadow-2xl ${isScrolling ? 'ring-1 ring-ring/20' : ''} w-full h-full md:max-w-2xl md:h-auto md:rounded-lg`}>
-        <DialogHeader className="flex flex-row items-center justify-between p-4">
-          <DialogTitle className="flex items-center gap-2 text-lg font-semibold">
+      <DialogContent
+        className={dialogClasses}
+        hideDefaultClose={true}
+      >
+        {/* Screen reader title for accessibility */}
+        <DialogTitle className="sr-only">JohnGPT Chat Assistant</DialogTitle>
+
+        {/* Header - flex-shrink-0 keeps it from shrinking */}
+        <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-border">
+          <div className="flex items-center gap-2 text-lg font-semibold">
             <MessageCircle className="w-5 h-5 text-primary" />
             JohnGPT
-          </DialogTitle>
+          </div>
           <AnimatedCloseIcon
             onClick={() => onOpenChange(false)}
             className="cursor-pointer"
           />
-        </DialogHeader>
-
-        <div className="flex flex-col h-full overflow-hidden max-h-[calc(100vh-200px)] md:max-h-[500px]">
-          <ChatMessages messages={messages} isLoading={isLoading} />
-
-          {error && (
-            <div className="mx-4 mb-3 p-3 rounded-lg border border-destructive/20 bg-destructive/10 text-destructive">
-              <div className="flex items-center gap-2 mb-2">
-                <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                <span className="text-sm font-medium">{error}</span>
-              </div>
-              <button
-                onClick={handleRetry}
-                className="text-xs text-destructive hover:underline focus:outline-none focus:underline"
-              >
-                Retry last message
-              </button>
-            </div>
-          )}
-
-          <ChatInput
-            input={input}
-            handleInputChange={handleInputChange}
-            handleSubmit={handleSubmit}
-            isLoading={isLoading}
-          />
         </div>
+
+        {/* Messages area - flex-1 makes it expand to fill remaining space */}
+        <ChatMessages messages={messages} isLoading={isLoading} />
+
+        {/* Error - flex-shrink-0 keeps it from shrinking */}
+        {error && (
+          <div className="flex-shrink-0 mx-4 mb-3 p-3 rounded-lg border border-destructive/20 bg-destructive/10 text-destructive">
+            <div className="flex items-center gap-2 mb-2">
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              <span className="text-sm font-medium">{error}</span>
+            </div>
+            <button
+              onClick={handleRetry}
+              className="text-xs text-destructive hover:underline focus:outline-none focus:underline"
+            >
+              Retry last message
+            </button>
+          </div>
+        )}
+
+        {/* Input - flex-shrink-0 keeps it at bottom */}
+        <ChatInput
+          input={input}
+          handleInputChange={handleInputChange}
+          handleSubmit={handleSubmit}
+          isLoading={isLoading}
+        />
       </DialogContent>
     </Dialog>
   );
