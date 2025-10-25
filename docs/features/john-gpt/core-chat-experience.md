@@ -323,6 +323,51 @@ const modelMessages = convertToModelMessages(messages);
 
 ---
 
+## ✨ Phase 3: Mockup-Accurate UI Implementation
+
+The JohnGPT interface now matches the exact designs from `docs/Mockups/02_JohnGPT_Enhanced/` with professional messaging, rich content components, and seamless light/dark theme support.
+
+### Enhanced ChatInput Component
+- **Persona Selector**: Dropdown-style button in header (desktop) or input area (mobile) with "Creative Director" default
+- **File Attachment**: Paperclip icon button with hover states, tooltip, triggers file picker
+- **Send Button**: Rounded purple button (`bg-accent-purple`) with animated send icon
+- **Auto-Resize**: Maintained dynamic height adjustment with mobile keyboard compatibility
+
+### Rich Message Components
+- **Color Palette Grid**: Responsive 3×3 (mobile) / 3×2 (desktop) grid with hex values and clipboard functionality
+- **Code Blocks**: Dark-themed (`bg-black/50`) syntax-highlighted blocks with language labels and copy buttons
+- **File Attachments**: Preview cards with icons, filenames, sizes, and secure download functionality
+
+### Message Actions & Timestamps
+- **Desktop**: Actions (copy, regenerate) show on hover with opacity transition
+- **Mobile**: Actions always visible for better touch accessibility
+- **Timestamps**: Semantic `<time>` elements, hover-reveal on desktop, always-visible on mobile
+
+### Theme Compliance
+- **Tailwind v4 Tokens**: All colors use `@theme` properties (`--color-background`, `--color-foreground`, etc.)
+- **Dark Mode First**: Optimized for `#0B1221` background with premium contrast
+- **Light Mode Support**: Verified readability in light themes with proper contrast ratios
+- **No Hardcoded Colors**: Fully reactive to theme changes
+
+### Mobile Layout (new_mobile-chat.html)
+- **Fixed Header**: Hamburger menu, title/subtitle, menu button
+- **Message Bubbles**:
+  - User: `bg-accent-blue`, `rounded-br-lg`, `max-w-[85%]`
+  - AI: `bg-neutral-800`, `rounded-bl-lg`, `max-w-[85%]`
+- **Input Footer**: Persona selector above textarea/input with send button
+
+### Desktop Layout (new_chat-interface.html)
+- **Header**: Dialog-style with persona selector and actions menu
+- **Message Bubbles**:
+  - User: `bg-accent-blue/80`, `max-w-xl`, `rounded-br-none`
+  - AI: `bg-neutral-800/60`, `max-w-2xl`, `rounded-tl-none`
+- **Actions**: Hover-reveal buttons on AI messages for copy/regenerate
+
+### Animated Icon Integration
+- **Core Icons**: Brain (header/empty), Send (animated purple), Close (hover states)
+- **Interactive States**: Loading dots for streaming, attachment/file icons
+- **Performance**: Respects `prefers-reduced-motion` with optimized animations
+
 ## ✨ UX Polish Features
 
 The JohnGPT chat experience now includes premium UI enhancements for improved usability and visual appeal:
@@ -339,7 +384,7 @@ All features follow the project's `'docs/coding_guidelines.md'` and `'docs/Styli
 
 - **Component-driven architecture** with single responsibility
 - **Semantic HTML** for accessibility (time elements, aria attributes)
-- **Tailwind v4 theming** using core tokens (background, foreground, border, ring)
+- **Tailwind v4 theming** using `@theme` tokens (`--color-background`, `--color-foreground`, etc.)
 - **Performance considerations** with `prefers-reduced-motion` respect
 - **TypeScript safety** with proper interface definitions
 - **Mobile-first responsive design** with hover states differentiated
@@ -633,3 +678,52 @@ This comprehensive layout overhaul transforms JohnGPT from a layout-conflicted d
 ---
 
 This implementation establishes a solid foundation for conversational AI in the J StaR Films platform, with enterprise-grade architecture, mobile-first design, and room for future expansion.
+
+## 📋 Phase 3: Step-by-Step Implementation Plan
+
+### **Step 1: Animated Icons Setup**
+- Run `npx shadcn-ui@latest add brain send close copy attachment palette`
+- Verify installation in `src/components/ui/`
+- Update `docs/AnimatedIconsList.md` if needed
+
+### **Step 2: Create Rich Component Library**
+- Create `ColorPalette.tsx` (3x3/3x2 grid with clipboard functionality)
+- Create `CodeBlock.tsx` (syntax-highlighted with copy button)
+- Create `FileAttachment.tsx` (preview with download)
+- All using Tailwind v4 `@theme` tokens
+
+### **Step 3: Enhance ChatMessages Component**
+- Add content parsing for color codes and code blocks
+- Implement message actions (copy, regenerate) with hover states
+- Add timestamp display (hover/desktop, always/mobile)
+- Update message bubble styling per mockups
+- Integrate rich components into message rendering
+
+### **Step 4: Update ChatInput Component**
+- Add persona selector on mobile (above textarea)
+- Implement file attachment button with file picker
+- Style send button with purple accent
+- Maintain auto-resize textarea functionality
+
+### **Step 5: Modify JohnGPTDialog Layout**
+- Add persona selector to desktop header
+- Adjust dialog sizing (fixed 500px desktop, full screen mobile)
+- Update mobile header (hamburger, title, menu buttons)
+- Ensure proper flex layout preservation
+
+### **Step 6: Theme & Responsiveness Testing**
+- Test dark/light theme switching with all components
+- Verify mobile layout (393px - 428px) matches new_mobile-chat.html
+- Verify desktop layout matches new_chat-interface.html
+- Check accessibility (screen readers, keyboard nav, focus management)
+
+### **Step 7: Integration & Polish**
+- Add loading dots animation for streaming states
+- Implement smooth animations respecting `prefers-reduced-motion`
+- Update message parsing for file attachments
+- Final accessibility audit and performance testing
+
+### **Step 8: Documentation Updates**
+- Update component props and usage examples in docs
+- Add troubleshooting section for rich components
+- Document theme token usage and customizations
