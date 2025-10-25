@@ -514,7 +514,105 @@ const shouldApplyBlur = useMemo(() => {
 
 This mobile integration transforms JohnGPT from a desktop-only feature into the intelligent climax of the mobile navigation experience, while maintaining the About page's storytelling value and the platform's cinematic aesthetic.
 
-Phase 3: Conversation History & Settings (Coming Soon)
+---
+
+## 📱 Phase 3.5: Mobile Contextual Awareness & Markdown Support
+
+**Completed**: Enhanced JohnGPT with mobile-focused contextual cues and rich markdown rendering for professional AI responses.
+
+### **Mobile Contextual Awareness Layer**
+
+#### **A. Header Badge / Label**
+- Added "⚡ AI Assistant Mode" badge in mobile header for clear contextual messaging
+- Signals users are in an AI companion layer, not the main app experience
+
+#### **B. Back-to-Content Button (Mobile Only)**
+- Replaced primary X close button with prominent back button on mobile
+- Clear "Return to main content" arrow signaling layer exit
+- Includes `aria-label="Return to main content"` for accessibility
+
+#### **C. Subtle Overlay Blur (Preserved)**
+- Maintains existing `useScrollBlur` hook creating atmospheric depth
+- Perfectly complements "layer" perception on mobile
+
+### **Rich Markdown Rendering**
+
+#### **MarkdownRenderer Component**
+- **File Location**: `src/components/ui/MarkdownRenderer.tsx`
+- **Purpose**: Client-side markdown parsing for rich AI responses
+- **Props**:
+  - `content`: `string` - Markdown content to render
+- **Library**: Remarkable (lightweight, fast markdown parser)
+- **Features**:
+  - Headings (H1-H6) with proper styling
+  - Code blocks with dark theme background
+  - Inline code with syntax highlighting
+  - Lists (ordered/unordered) with proper indentation
+  - Blockquotes with border styling
+  - Links with hover states
+  - All elements use Tailwind v4 `@theme` tokens
+
+#### **Integration into ChatMessages**
+- **Assistant Message Enhancement**: Renders markdown content for AI responses only
+- **Theme Compliance**: Uses design tokens (`text-foreground`, `border-border`, etc.)
+- **Performance Optimization**: Dynamic import of Remarkable with error handling
+- **Fallback Behavior**: Falls back to basic text rendering if markdown fails
+
+### **Mobile Dashboard Teaser CTA**
+
+#### **JohnGPT Dashboard Promotion**
+- **Conditional Display**: Shows only on mobile devices after conversation starts
+- **Trigger Conditions**: `isMobile && messages.length > 0 && !isLoading`
+- **CTA Content**: "Want more? Explore the full dashboard" with navigation link
+- **Styling**: Subtle background (`bg-primary/5`) with primary text color
+- **Integration**: Positioned at bottom of messages area before scroll anchor
+
+### **Enhanced Long-Press Navigation**
+
+#### **Mobile Bottom Nav Improvements**
+- **Fixed Active State**: Brain icon now properly highlights on `/john-gpt` page
+- **Special Detection Logic**: Custom active state handling for action items
+- **Navigation Flow**: Long-press (500ms) → `/john-gpt` dashboard routing
+- **Animation**: Proper touch feedback with icon animation during press
+- **Accessibility**: Clear `aria-label` explaining tap vs long-press behavior
+
+### **Theme Compliance & Performance**
+
+#### **Tailwind v4 Token Usage**
+- All components use `@theme` properties for consistent theming
+- Dark mode first design with light mode support verified
+- No hardcoded colors - fully reactive to theme changes
+
+#### **Performance Guardrails**
+- `prefers-reduced-motion` respect for animations
+- Dynamic Remarkable import avoids loading delays
+- Efficient DOM manipulation for markdown rendering
+- Proper error boundaries with text fallbacks
+
+### **Technical Implementation Details**
+
+#### **Component Architecture**
+- **Remarkable Integration**: Dynamic imports to work around TypeScript issues
+- **Error Handling**: Catch blocks provide graceful text fallbacks
+- **Accessibility**: Semantic HTML elements maintained throughout
+- **TypeScript Safety**: Proper interfaces and type checking
+
+#### **Mobile UX Philosophy**
+- **Layer Concept**: JohnGPT feels like an overlay companion, not main app
+- **Progressive Journey**: Chat assistant → dashboard discovery → deeper engagement
+- **Contextual Clarity**: Clear mode badges and navigation signals
+
+#### **Testing Verification**
+- ✅ Mobile header shows "AI Assistant Mode" badge
+- ✅ Back button replaces X on mobile, signals content return
+- ✅ Markdown renders with theme-compliant styling
+- ✅ Dashboard teaser appears conditionally on mobile
+- ✅ Active state highlights brain icon properly
+- ✅ Long-press navigation to `/john-gpt` works correctly
+
+This enhancement transforms JohnGPT into a truly mobile-first AI experience where users understand their context within the platform's layered architecture while receiving rich, formatted AI responses that match the professional aesthetic.
+
+Phase 4: Conversation History & Settings (Coming Soon)
 
 ---
 

@@ -100,25 +100,39 @@ export function JohnGPTDialog({ open, onOpenChange }: JohnGPTDialogProps) {
         <DialogTitle className="sr-only">JohnGPT Chat Assistant</DialogTitle>
 
         {/* Header - flex-shrink-0 keeps it from shrinking */}
-        <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-neutral-800">
+        <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-border">
           {isMobile ? (
             /* Mobile Header */
             <div className="flex items-center justify-between w-full">
-              <button className="p-2 -ml-2 text-neutral-400 hover:text-white transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+              {/* Back-to-Content Button */}
+              <button
+                onClick={() => {
+                  onOpenChange(false);
+                  // Optional: scroll to top or back to previous content
+                }}
+                className="p-2 -ml-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted"
+                aria-label="Return to main content"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
               <div className="absolute left-1/2 transform -translate-x-1/2 text-center">
-                <h1 className="font-semibold text-white">Brand Identity</h1>
-                <p className="text-xs text-neutral-400">
+                {/* Contextual Awareness Badge */}
+                <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground mb-1">
+                  <span>⚡</span>
+                  <span>AI Assistant Mode</span>
+                </div>
+                <h1 className="font-semibold text-foreground">JohnGPT</h1>
+                <p className="text-xs text-muted-foreground">
                   {status === 'streaming' ? 'JOHNGPT is generating...' :
                    status === 'ready' ? 'Ready to help' : 'Processing...'}
                 </p>
               </div>
+              {/* Keep X for quick close, but Back button is primary */}
               <button
                 onClick={() => onOpenChange(false)}
-                className="p-2 -mr-2 text-neutral-400 hover:text-white transition-colors"
+                className="p-2 -mr-2 text-muted-foreground hover:text-foreground transition-colors"
                 aria-label="Close chat"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -129,17 +143,17 @@ export function JohnGPTDialog({ open, onOpenChange }: JohnGPTDialogProps) {
           ) : (
             /* Desktop Header */
             <div className="flex items-center justify-between w-full">
-              <div className="relative">
+            <div className="relative">
                 <button
                   type="button"
                   onClick={() => setIsPersonaDropdownOpen(!isPersonaDropdownOpen)}
-                  className="flex items-center gap-2 text-white bg-neutral-800/60 border border-neutral-700/80 px-3 py-1.5 rounded-lg hover:bg-neutral-700/80 transition-colors"
+                  className="flex items-center gap-2 text-foreground bg-background/60 border border-border px-3 py-1.5 rounded-lg hover:bg-background/80 transition-colors"
                 >
                   <div className="w-5 h-5 rounded bg-gradient-to-br from-accent-blue to-accent-purple"></div>
                   <span className="font-medium">{selectedPersona}</span>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className={`h-4 w-4 text-neutral-400 transition-transform ${
+                    className={`h-4 w-4 text-muted-foreground transition-transform ${
                       isPersonaDropdownOpen ? 'rotate-180' : ''
                     }`}
                     fill="none"
@@ -152,7 +166,7 @@ export function JohnGPTDialog({ open, onOpenChange }: JohnGPTDialogProps) {
 
                 {/* Persona dropdown */}
                 {isPersonaDropdownOpen && (
-                  <div className="absolute top-full mt-1 left-0 bg-neutral-800 border border-neutral-700 rounded-lg shadow-lg min-w-[200px] z-10">
+                  <div className="absolute top-full mt-1 left-0 bg-background border border-border rounded-lg shadow-lg min-w-[200px] z-10">
                     {['Creative Director', 'Technical Advisor', 'Project Manager'].map((persona) => (
                       <button
                         key={persona}
@@ -160,7 +174,7 @@ export function JohnGPTDialog({ open, onOpenChange }: JohnGPTDialogProps) {
                           setSelectedPersona(persona);
                           setIsPersonaDropdownOpen(false);
                         }}
-                        className="w-full text-left px-3 py-2 text-sm text-white hover:bg-neutral-700 first:rounded-t-lg last:rounded-b-lg"
+                        className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-muted first:rounded-t-lg last:rounded-b-lg"
                       >
                         {persona}
                       </button>
@@ -172,7 +186,7 @@ export function JohnGPTDialog({ open, onOpenChange }: JohnGPTDialogProps) {
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  className="p-2 rounded-lg text-neutral-400 hover:bg-neutral-700 hover:text-white transition-colors"
+                  className="p-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                   title="Share Chat"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -184,7 +198,7 @@ export function JohnGPTDialog({ open, onOpenChange }: JohnGPTDialogProps) {
 
                 <AnimatedCloseIcon
                   onClick={() => onOpenChange(false)}
-                  className="cursor-pointer text-neutral-400 hover:text-white"
+                  className="cursor-pointer text-muted-foreground hover:text-foreground"
                 />
               </div>
             </div>

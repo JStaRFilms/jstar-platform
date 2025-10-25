@@ -88,7 +88,7 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({ item, onTooltipChange, is
     },
   });
 
-  // 2. Create a combined press handler to trigger animation
+  // 2. Create a combined press handler to trigger animation (for regular nav items)
   const handlePressStart = (e: React.MouseEvent | React.TouchEvent) => {
     iconRef.current?.startAnimation();
     // Call the smart navigation handler only for navigation items
@@ -98,6 +98,12 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({ item, onTooltipChange, is
     } else {
       smartNavHandlers.onMouseDown(e as React.MouseEvent);
     }
+  };
+
+  // Combined press handler for JohnGPT that handles both animation and long-press
+  const handleJohnGPTPressStart = (e: React.MouseEvent | React.TouchEvent) => {
+    iconRef.current?.startAnimation();
+    // Don't call smart navigation for JohnGPT - it uses long press logic
   };
 
   // Handle home button click to scroll to top
@@ -153,13 +159,24 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({ item, onTooltipChange, is
 
   // Special handling for JohnGPT action button
   if (item.isAction) {
+    // Combine long-press handlers with animation handler
+    const johnGPTHandlers = {
+      ...longPressHandlers,
+      onMouseDown: (e: React.MouseEvent) => {
+        handleJohnGPTPressStart(e);
+        longPressHandlers.onMouseDown(e);
+      },
+      onTouchStart: (e: React.TouchEvent) => {
+        handleJohnGPTPressStart(e);
+        longPressHandlers.onTouchStart(e);
+      },
+    };
+
     return (
       <>
         <button
           className={commonClasses}
-          {...longPressHandlers}
-          onMouseDown={handlePressStart}
-          onTouchStart={handlePressStart}
+          {...johnGPTHandlers}
           aria-label={`${item.label} - Tap for chat, long press for dashboard`}
         >
           {content}

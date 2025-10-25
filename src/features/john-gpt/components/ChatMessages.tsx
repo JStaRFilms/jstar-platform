@@ -5,6 +5,9 @@ import { BrainIcon } from '@/components/ui/BrainIcon';
 import { ColorPalette } from '@/components/ui/color-palette';
 import { CodeBlock } from '@/components/ui/code-block';
 import { FileAttachment } from '@/components/ui/file-attachment';
+import { MarkdownRenderer } from '@/components/ui/MarkdownRenderer';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { useRouter } from 'next/navigation';
 
 /**
  * Props for the ChatMessages component
@@ -94,6 +97,8 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
 }) => {
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+  const router = useRouter();
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   // Smooth auto-scroll logic - only scroll if user is within 100px of bottom
   React.useEffect(() => {
@@ -161,8 +166,10 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
                   {parsedParts.map((part, index) => {
                     switch (part.type) {
                       case 'text':
-                        return (
-                          <p key={index} className="text-sm leading-relaxed">
+                        return message.role === 'assistant' ? (
+                          <MarkdownRenderer key={index} content={part.content} />
+                        ) : (
+                          <p key={index} className="text-sm leading-relaxed text-foreground">
                             {part.content}
                           </p>
                         );
@@ -253,6 +260,21 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
             <div className="h-2 w-2 animate-pulse rounded-full bg-primary animation-delay-400"></div>
             <span className="text-sm">JohnGPT is thinking...</span>
           </div>
+        </div>
+      )}
+
+      {/* Teaser CTA for /john-gpt dashboard - only on mobile and when there are messages */}
+      {isMobile && messages.length > 0 && !isLoading && (
+        <div className="mx-4 my-3 p-3 rounded-lg bg-primary/5 border border-primary/20 text-center">
+          <p className="text-sm text-primary">
+            Want more?
+            <button
+              onClick={() => router.push('/john-gpt')}
+              className="ml-1 text-sm underline hover:text-primary/80 transition-colors"
+            >
+              Explore the full dashboard
+            </button>
+          </p>
         </div>
       )}
 
