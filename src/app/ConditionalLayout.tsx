@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
+import { JohnGPTFeature } from "@/features/john-gpt";
 import Providers from "@/lib/providers";
 import { useScrollBlur } from "@/hooks/useScrollBlur";
 
@@ -39,6 +40,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
       </main>
       {!isAdminPage && <Footer />}
       {!isAdminPage && <MobileBottomNav />}
+      {!isAdminPage && <JohnGPTFeature />}
     </Providers>
   );
 }
