@@ -13,7 +13,7 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
     // Dynamically import Remarkable to work around type issues
     import('remarkable').then((RemarkableModule) => {
       console.log('Remarkable module:', RemarkableModule); // Debug log
-      // @ts-ignore
+      // @ts-expect-error - Remarkable constructor has complex export structure across versions
       const md = new (RemarkableModule.default || RemarkableModule.Remarkable || RemarkableModule)();
       const html = md.render(content);
 

@@ -32,11 +32,11 @@ const parseMessageContent = (content: string) => {
   const codeBlockRegex = /```(\w+)?\n?([\s\S]*?)```/g;
   const attachmentRegex = /{{attachment:(.*?)}}/g; // Placeholder for file attachments
 
-  let lastIndex = 0;
-  let match;
+
 
   // Find all patterns and create parts
   const allMatches: Array<{ index: number, endIndex: number, type: string, data: any }> = [];
+  let match: RegExpExecArray | null;
 
   // Colors
   while ((match = colorRegex.exec(content)) !== null) {

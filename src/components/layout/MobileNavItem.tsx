@@ -70,14 +70,8 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({ item, onTooltipChange, is
   // 1. Create a ref for the animated icon
   const iconRef = useRef<AnimatedIconHandle>(null);
 
-  // Only use smart navigation for navigation items, not action items
-  const smartNavHandlers = item.isAction ? {
-    onMouseDown: () => {},
-    onMouseUp: () => {},
-    onTouchStart: () => {},
-    onTouchEnd: () => {},
-    onClick: () => {}
-  } : useSmartNavigation({
+  // Always call useSmartNavigation hook at the top level (hooks must be called unconditionally)
+  const smartNavHandlers = useSmartNavigation({
     href: item.href || '#', // Use # as fallback for action items
     onTooltipChange: onTooltipChange,
     onScrollStart: () => {
