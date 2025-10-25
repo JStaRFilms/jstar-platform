@@ -8,10 +8,12 @@ import { useScrollSpy } from '@/hooks/useScrollSpy';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 export interface NavItemConfig {
-  href: string;
+  href?: string; // Optional for action-only items
   label: string;
   iconName: string; // Corresponds to an icon in AnimatedIconsList.md
   isAction?: boolean; // For non-navigation actions like modals
+  onClick?: () => void; // Direct click handler for action items
+  onLongPress?: () => void; // Long press handler for action items
 }
 
 const navigationConfig: NavItemConfig[] = [
@@ -20,7 +22,19 @@ const navigationConfig: NavItemConfig[] = [
   { href: '/services', label: 'Services', iconName: 'sparkles' },
   { href: '/portfolio', label: 'Work', iconName: 'blocks' },
   { href: '/contact', label: 'Contact', iconName: 'mail' },
-  { href: '', label: 'JohnGPT', iconName: 'brain', isAction: true },
+  {
+    label: 'JohnGPT',
+    iconName: 'brain',
+    isAction: true,
+    onClick: () => {
+      // Tap action - will be handled in MobileNavItem component
+      // This prevents any default link behavior
+    },
+    onLongPress: () => {
+      // Long press action - will be handled in MobileNavItem component
+      // This prevents any default link behavior
+    }
+  },
 ];
 
 // Define section mappings for homepage scroll spy
@@ -48,7 +62,7 @@ const MobileBottomNav = () => {
     if (!isHomepage) {
       // On other pages, use pathname-based logic
       return navigationConfig.find(item =>
-        item.href !== '/' && pathname.startsWith(item.href)
+        item.href && item.href !== '/' && pathname.startsWith(item.href)
       )?.href || '/';
     }
 
@@ -66,7 +80,7 @@ const MobileBottomNav = () => {
         <div className="max-w-md mx-auto h-full flex justify-around items-center px-2">
           {navigationConfig.map((item) => (
             <MobileNavItem
-              key={item.href}
+              key={item.label}
               item={item}
               onTooltipChange={setActiveTooltip}
               isActive={getActiveItem === item.href}

@@ -355,6 +355,70 @@ All features follow the project's `'docs/coding_guidelines.md'` and `'docs/Styli
 Home | About | Services | Work | Contact | JohnGPT ← always last
 ```
 
+## 🔧 Phase A: Mobile Nav Scroll-Jump Fix
+
+**Completed**: Fixed mobile nav scroll-jump behavior for JohnGPT tab by replacing href="#" with pure action handlers using preventDefault().
+
+### **Technical Changes**
+
+#### **1. NavItemConfig Interface Extension**
+- Added optional `onClick` and `onLongPress` callback function properties
+- Made `href` optional for action-only navigation items
+
+```typescript
+export interface NavItemConfig {
+  href?: string; // Optional for action-only items
+  label: string;
+  iconName: string; // Corresponds to an icon in AnimatedIconsList.md
+  isAction?: boolean; // For non-navigation actions like modals
+  onClick?: () => void; // Direct click handler for action items
+  onLongPress?: () => void; // Long press handler for action items
+}
+```
+
+#### **2. JohnGPT Configuration Update**
+- Replaced empty `href: ''` with callback functions
+- Maintains existing tap/long-press behavior for modal/dashboard access
+
+```typescript
+{
+  label: 'JohnGPT',
+  iconName: 'brain',
+  isAction: true,
+  onClick: () => { /* Prevents default link behavior */ },
+  onLongPress: () => { /* Prevents default link behavior */ }
+}
+```
+
+#### **3. Action Handler Implementation**
+- Added preventDefault/stopPropagation in click and long-press handlers
+- Ensures no page scroll behavior is triggered even with "#" fallback
+- Maintains proper event handling for animation and touch interactions
+
+#### **4. Smart Navigation Isolation**
+**Key Fix**: Conditionally disabled smart navigation hooks for action items to prevent href-based interference.
+
+- **Smart Navigation Bypass**: Action items now skip `useSmartNavigation` entirely, preventing `'#'` fallback href from triggering browser navigation
+- **Event Handler Isolation**: `handlePressStart` function excludes action items from smart navigation calls, avoiding mouse/touch handler interference
+- **Clean Action Handling**: Action items operate with pure JavaScript callbacks, completely isolated from navigation system
+
+#### **5. Component Architecture Preservation**
+- JohnGPT retains special long-press hook behavior (tap → modal, long-press → dashboard)
+- Other action items can use generic callback functions
+- No breaking changes to existing navigation flow or styling
+
+### **Problem Solved**
+- **Before**: JohnGPT tab caused unwanted page scroll-to-top due to empty `href=""` being treated as anchor link
+- **After**: Pure JavaScript action handling with event prevention prevents all default browser navigation behavior
+- **Result**: Clean user experience with no unintended scrolling interruptions
+
+### **Testing Verification**
+✅ JohnGPT tap opens chat modal without page movement
+✅ JohnGPT long-press navigates to dashboard without scroll
+✅ Other navigation items maintain expected scroll spy behavior
+✅ Active state highlighting works correctly for all tabs
+✅ Mobile responsive design preserved across screen sizes
+
 ### **Responsive Behavior**
 - **≥414px screens**: All 6 tabs visible with full labels and standard spacing
 - **<414px screens**: All 6 tabs maintained, reduced icon size (w-5 h-5), smaller labels (text-[0.65rem]), tighter padding (p-0.5)

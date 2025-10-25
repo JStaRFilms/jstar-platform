@@ -35,7 +35,7 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({ item, onTooltipChange, is
   // Special handling for JohnGPT - it's active if we're on john-gpt page or the page might be considered "active"
   const isActive = forcedActive !== undefined ? forcedActive :
     item.iconName === 'brain' ? pathname === '/john-gpt' :
-    (pathname === '/' && item.href === '/') || (item.href !== '/' && pathname.startsWith(item.href));
+    item.href ? (pathname === '/' && item.href === '/') || (item.href !== '/' && pathname.startsWith(item.href)) : false;
 
   // Check screen size for responsive behavior
   const isLargeScreen = useMediaQuery('(min-width: 414px)');
@@ -44,7 +44,7 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({ item, onTooltipChange, is
   const [isJohnGPTModalOpen, setIsJohnGPTModalOpen] = useState(false);
 
   // Special handling for JohnGPT long-press (nav to page) vs tap (open modal)
-  const { isLongPressActive, ...longPressHandlers } = useLongPress({
+  const { isLongPressActive: isJohnGPTLongPressActive, ...longPressHandlers } = useLongPress({
     onLongPress: () => {
       // Long-press: navigate to JohnGPT dashboard page
       router.push('/john-gpt');
@@ -56,11 +56,29 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({ item, onTooltipChange, is
     delay: 500,
   });
 
+  // For action items with callbacks, handle them with preventDefault/stopPropagation
+  const handleActionClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (item.onClick) item.onClick();
+  };
+
+  const handleActionLongPress = () => {
+    if (item.onLongPress) item.onLongPress();
+  };
+
   // 1. Create a ref for the animated icon
   const iconRef = useRef<AnimatedIconHandle>(null);
 
-  const { onMouseDown, onMouseUp, onTouchStart, onTouchEnd, onClick } = useSmartNavigation({
-    href: item.href,
+  // Only use smart navigation for navigation items, not action items
+  const smartNavHandlers = item.isAction ? {
+    onMouseDown: () => {},
+    onMouseUp: () => {},
+    onTouchStart: () => {},
+    onTouchEnd: () => {},
+    onClick: () => {}
+  } : useSmartNavigation({
+    href: item.href || '#', // Use # as fallback for action items
     onTooltipChange: onTooltipChange,
     onScrollStart: () => {
       // Trigger motion blur when navigation starts scrolling
@@ -73,11 +91,12 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({ item, onTooltipChange, is
   // 2. Create a combined press handler to trigger animation
   const handlePressStart = (e: React.MouseEvent | React.TouchEvent) => {
     iconRef.current?.startAnimation();
-    // Call the original handler from the smart navigation hook
+    // Call the smart navigation handler only for navigation items
+    if (!item.href || item.isAction) return;
     if ('touches' in e) {
-      onTouchStart(e as React.TouchEvent);
+      smartNavHandlers.onTouchStart(e as React.TouchEvent);
     } else {
-      onMouseDown(e as React.MouseEvent);
+      smartNavHandlers.onMouseDown(e as React.MouseEvent);
     }
   };
 
@@ -88,7 +107,7 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({ item, onTooltipChange, is
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
-    onClick(e);
+    smartNavHandlers.onClick(e);
   };
 
   // 3. Use useEffect to trigger animation when the item becomes active
@@ -153,10 +172,10 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({ item, onTooltipChange, is
   // We need to define the event handlers for both the button and the link
   const eventHandlers = {
       onMouseDown: handlePressStart,
-      onMouseUp: onMouseUp,
+      onMouseUp: smartNavHandlers.onMouseUp,
       onTouchStart: handlePressStart,
-      onTouchEnd: onTouchEnd,
-      onClick: item.href === '/' && pathname === '/' ? handleHomeClick : onClick
+      onTouchEnd: smartNavHandlers.onTouchEnd,
+      onClick: item.href === '/' && pathname === '/' ? handleHomeClick : smartNavHandlers.onClick
   };
 
   if (isHomepage) {
@@ -168,7 +187,7 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({ item, onTooltipChange, is
   }
 
   return (
-    <Link href={item.href} className={commonClasses}>
+    <Link href={item.href!} className={commonClasses}>
       {content}
     </Link>
   );
