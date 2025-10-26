@@ -20,13 +20,13 @@ const StatusIndicator: React.FC<StatusIndicatorProps> = ({
   };
 
   const statusClasses = {
-    active: 'bg-green-500',
-    warning: 'bg-yellow-500',
-    critical: 'bg-red-500',
+    active: 'bg-success',
+    warning: 'bg-warning',
+    critical: 'bg-error',
     idle: 'bg-gray-400',
-    running: 'bg-blue-500',
-    passed: 'bg-green-500',
-    failed: 'bg-red-500'
+    running: 'bg-primary',
+    passed: 'bg-success',
+    failed: 'bg-error'
   };
 
   return (
