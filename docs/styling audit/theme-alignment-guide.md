@@ -45,6 +45,7 @@ text-growth-green
 --color-ring: #3B82F6;           // blue-500
 --color-card: #FFFFFF;           // white (light) / #0B1221 (dark)
 --color-muted: #374151;          // gray-700 (light) / #94A3B8 (dark)
+--color-muted-foreground: #6B7280; // gray-500 (light) / #94A3B8 (dark)
 
 // Status semantic tokens
 --color-error: #DC2626;           // red-600 (light) / #EF4444 (dark)
@@ -54,12 +55,13 @@ text-growth-green
 
 **Tailwind Classes:**
 ```tsx
-bg-background    // Page backgrounds
-text-foreground  // Primary text
-border-border    // All borders
-bg-card          // Card/component backgrounds
-text-muted       // Secondary/muted text
-bg-error text-error  // Error states
+bg-background          // Page backgrounds
+text-foreground        // Primary text
+border-border          // All borders
+bg-card                // Card/component backgrounds
+text-muted             // Secondary/muted text
+text-muted-foreground  // Subtle secondary text (lighter than text-muted)
+bg-error text-error    // Error states
 bg-success text-success  // Success states
 bg-warning text-warning  // Warning states
 ```

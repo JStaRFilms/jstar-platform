@@ -16,11 +16,11 @@ export default function CMSPage() {
   return (
     <>
       {/* CMS Overview */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+      <div className="admin-card-spaced">
+        <h2 className="text-xl font-semibold text-card-foreground mb-2">
           Content Management System
         </h2>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-muted-foreground">
           Manage your website content, pages, blog posts, and media assets from this central hub.
         </p>
       </div>
@@ -39,7 +39,7 @@ export default function CMSPage() {
           <RecentActivity />
 
           {/* Content Management Tools */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+          <div className="admin-card">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               Content Management
             </h3>
@@ -82,7 +82,7 @@ export default function CMSPage() {
           <ModuleAccess />
 
           {/* Content Tools */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+          <div className="admin-card">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               Content Tools
             </h3>
@@ -103,7 +103,7 @@ export default function CMSPage() {
           </div>
 
           {/* Publishing Status */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+          <div className="admin-card">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               Publishing Status
             </h3>

@@ -196,7 +196,7 @@ const Header: React.FC = () => {
             key={item.href}
             type="button"
             aria-label={`Scroll to ${item.href.replace('/', '')}`}
-            className={`text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10 rounded-md px-2 py-1 text-sm font-medium ${
+            className={`text-foreground hover:text-jstar-blue transition-colors focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10 rounded-md px-2 py-1 text-sm font-medium ${
               isActive
                 ? 'text-jstar-blue font-semibold'
                 : ''
@@ -220,7 +220,7 @@ const Header: React.FC = () => {
       <Link
         key={item.href}
         href={item.href}
-        className={`text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10 rounded-md px-2 py-1 text-sm font-medium ${
+        className={`text-foreground hover:text-jstar-blue transition-colors focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10 rounded-md px-2 py-1 text-sm font-medium ${
           isActive
             ? 'text-jstar-blue font-semibold'
             : ''
@@ -276,7 +276,7 @@ const Header: React.FC = () => {
               {/* Theme Toggle - Desktop */}
               <button
                 onClick={toggleTheme}
-                className="hidden md:flex p-1.5 rounded-lg bg-white/10 dark:bg-black/10 backdrop-blur-sm text-gray-700 dark:text-gray-300 hover:bg-white/20 dark:hover:bg-black/20 transition-all focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10"
+                className="hidden md:flex p-1.5 rounded-lg bg-white/10 dark:bg-black/10 backdrop-blur-sm text-foreground hover:bg-white/20 dark:hover:bg-black/20 transition-all focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10"
                 aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
                 aria-pressed={theme === 'dark'}
               >
@@ -299,7 +299,7 @@ const Header: React.FC = () => {
               {/* Mobile Menu Toggle */}
               <button
                 onClick={toggleMobileMenu}
-                className="md:hidden p-1.5 rounded-lg bg-white/10 dark:bg-black/10 backdrop-blur-sm text-gray-700 dark:text-gray-300 hover:bg-white/20 dark:hover:bg-black/20 transition-all focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10"
+                className="md:hidden p-1.5 rounded-lg bg-white/10 dark:bg-black/10 backdrop-blur-sm text-foreground hover:bg-white/20 dark:hover:bg-black/20 transition-all focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10"
                 aria-label={mobileMenu.isOpen ? 'Close mobile menu' : 'Open mobile menu'}
                 aria-expanded={mobileMenu.isOpen}
                 aria-controls="mobile-menu"
@@ -349,12 +349,12 @@ const Header: React.FC = () => {
             {/* Animated Header Section */}
             <div className="p-6 border-b border-white/10 dark:border-white/5 animate-fade-in-up">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold text-gray-800 dark:text-gray-200 animate-fade-in-up">
+                <h2 className="text-lg font-bold text-foreground animate-fade-in-up">
                   Menu
                 </h2>
                 <button
                   onClick={closeMobileMenu}
-                  className="p-2 rounded-lg bg-white/10 dark:bg-black/10 backdrop-blur-sm text-gray-600 dark:text-gray-400 hover:bg-white/20 dark:hover:bg-black/20 transition-all focus:outline-none focus:ring-2 focus:ring-jstar-blue animate-fade-in-up"
+                  className="p-2 rounded-lg bg-white/10 dark:bg-black/10 backdrop-blur-sm text-muted-foreground hover:bg-white/20 dark:hover:bg-black/20 transition-all focus:outline-none focus:ring-2 focus:ring-jstar-blue animate-fade-in-up"
                   style={{ animationDelay: '100ms' }}
                   aria-label="Close menu"
                 >
@@ -364,10 +364,10 @@ const Header: React.FC = () => {
 
               {/* Animated Mobile Theme Toggle */}
               <div className="flex items-center justify-between p-3 rounded-lg bg-white/5 dark:bg-black/5 backdrop-blur-sm mt-4 animate-fade-in-up">
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Theme</span>
+                <span className="text-sm font-medium text-foreground">Theme</span>
                 <button
                   onClick={toggleTheme}
-                  className="p-2 rounded-lg bg-white/10 dark:bg-black/10 backdrop-blur-sm text-gray-700 dark:text-gray-300 hover:bg-white/20 dark:hover:bg-black/20 transition-all focus:outline-none focus:ring-2 focus:ring-jstar-blue animate-fade-in-up"
+                  className="p-2 rounded-lg bg-white/10 dark:bg-black/10 backdrop-blur-sm text-foreground hover:bg-white/20 dark:hover:bg-black/20 transition-all focus:outline-none focus:ring-2 focus:ring-jstar-blue animate-fade-in-up"
                   style={{ animationDelay: '200ms' }}
                   aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
                   aria-pressed={theme === 'dark'}
@@ -391,7 +391,7 @@ const Header: React.FC = () => {
                     className={`group flex items-center px-4 py-3 text-base font-medium rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10 animate-fade-in-up ${
                       isActiveLink(item.href)
                         ? 'text-jstar-blue bg-gradient-to-r from-jstar-blue/10 to-faith-purple/10 dark:from-jstar-blue/20 dark:to-faith-purple/20 shadow-lg'
-                        : 'text-gray-700 dark:text-gray-300 hover:text-jstar-blue hover:bg-white/10 dark:hover:bg-black/10 hover:shadow-md hover:scale-[1.02]'
+                        : 'text-foreground hover:text-jstar-blue hover:bg-white/10 dark:hover:bg-black/10 hover:shadow-md hover:scale-[1.02]'
                     }`}
                     style={{
                       animationDelay: `${index * 100}ms`

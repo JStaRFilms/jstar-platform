@@ -81,7 +81,7 @@ const MobileBottomNav = () => {
       <div className="md:hidden fixed bottom-16 left-0 right-0 flex justify-center">
           <Tooltip isVisible={activeTooltip.isVisible} text={activeTooltip.text} />
       </div>
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white/80 dark:bg-black/80 backdrop-blur-lg border-t border-gray-200 dark:border-white/10 z-50">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white/80 dark:bg-black/80 backdrop-blur-lg border-t border-border z-50">
         <div className="max-w-md mx-auto h-full flex justify-around items-center px-2">
           {navigationConfig.map((item) => {
             // Special active state logic for JohnGPT since it's an action item without href

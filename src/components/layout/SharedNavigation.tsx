@@ -229,7 +229,7 @@ export const SharedNavigation: React.FC<SharedNavigationProps> = ({
                   className={`relative px-4 py-2 rounded-lg font-medium transition-all duration-200 group ${
                     currentPath === item.href
                       ? 'text-white bg-gradient-to-r from-jstar-blue to-faith-purple shadow-lg'
-                      : 'text-gray-700 dark:text-gray-300 hover:text-jstar-blue hover:bg-gray-100 dark:hover:bg-gray-800'
+                      : 'text-foreground hover:text-jstar-blue hover:bg-gray-100 dark:hover:bg-gray-800'
                   }`}
                   aria-current={currentPath === item.href ? 'page' : undefined}
                 >
@@ -403,7 +403,7 @@ export const MobileMenu: React.FC<{
               className={`flex items-center w-full px-4 py-3 rounded-lg transition-all duration-200 ${
                 currentPath === item.href
                   ? 'bg-gradient-to-r from-jstar-blue to-faith-purple text-white shadow-lg'
-                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                  : 'text-foreground hover:bg-gray-100 dark:hover:bg-gray-800'
               }`}
               aria-current={currentPath === item.href ? 'page' : undefined}
             >

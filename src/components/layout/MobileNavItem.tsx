@@ -138,11 +138,11 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({ item, onTooltipChange, is
       <IconComponent
         ref={iconRef} // Assign the ref to the icon
         className={`${isLargeScreen ? 'w-6 h-6' : 'w-5 h-5'} transition-colors duration-200 ${
-          isActive ? 'text-primary' : 'text-gray-600 dark:text-gray-400'
+          isActive ? 'text-primary' : 'text-muted-foreground'
         }`}
       />
       <span className={`transition-colors duration-200 ${isLargeScreen ? 'text-xs' : 'text-[0.65rem]'} ${
-        isActive ? 'text-primary font-semibold' : 'text-gray-700 dark:text-gray-200'
+        isActive ? 'text-primary font-semibold' : 'text-muted-foreground'
       }`}>
         {item.label}
       </span>
