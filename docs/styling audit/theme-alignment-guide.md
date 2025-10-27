@@ -1,9 +1,11 @@
 # Theme Alignment Guide for J StaR Films Website
 
-## Overview
-This guide provides a reference for ensuring theme consistency across all pages of the J StaR Films website. It uses the golden pages (`/about`, `/services`, `/blog`) as the authoritative reference for correct theming patterns. Any page can be aligned by comparing against these patterns and applying semantic corrections while preserving design intent.
+## Introduction
+
+This guide provides a comprehensive reference for ensuring theme consistency across all pages of the J StaR Films website, incorporating lessons learned from theme alignment audits. It establishes guidelines for maintaining consistent theming while preserving design intent, brand colors, and accessibility. The rules prioritize semantic token usage over hardcoded colors, with exceptions for fixed design elements that require specific color behaviors. It uses the golden pages (`/about`, `/services`, `/blog`) as the authoritative reference for correct theming patterns. Any page can be aligned by comparing against these patterns and applying semantic corrections while preserving design integrity.
 
 ## Golden Pages Reference
+
 **Location:** `src/features/AboutPage/`, `src/features/ServicesPage/`, `src/features/BlogPage/`
 
 **Key Components to Study:**
@@ -66,7 +68,14 @@ bg-success text-success  // Success states
 bg-warning text-warning  // Warning states
 ```
 
-### 3. Design Intent Patterns (PRESERVE)
+### 3. General Rules
+- **Replace hardcoded colors with semantic classes**: Convert direct color values (e.g., `bg-blue-500`, `text-gray-900`) to theme-aware semantic tokens (e.g., `bg-primary`, `text-foreground`) to ensure automatic dark mode support and consistent theming.
+- **Preserve brand colors**: Maintain brand-specific colors (e.g., jstar-blue, faith-purple) in semantic tokens rather than hardcoded values, allowing for centralized theme management.
+- **Verify dark mode support**: Ensure all semantic tokens have appropriate dark mode variants defined in the theme configuration.
+- **Respect design intent**: When elements have fixed visual requirements (e.g., white text on dark backgrounds), prioritize readability and design consistency over adaptive theming.
+- **Adhere to documentation**: Follow established theme token naming conventions and update documentation when creating new semantic tokens.
+
+### 4. Design Intent Patterns (PRESERVE)
 
 #### Hero Sections
 ```tsx
@@ -95,9 +104,17 @@ bg-success    // For success
 bg-primary    // For active/running
 ```
 
-## What to FIX vs IGNORE
+## Design Intent Rules & Exceptions
 
-### ❌ FIX: Hardcoded Colors Not Aligning
+### Specific Design Intent Rules
+- **Fixed design intent elements**: For components with immutable visual requirements (e.g., white text on dark backgrounds), use hardcoded colors like `text-white` instead of adaptive semantic tokens like `text-foreground` or `text-background`.
+- **Contrast considerations**: Avoid using `text-background` on background colors, as this creates poor readability. Instead, use appropriate fixed colors that ensure sufficient contrast.
+- **Gradient buttons**: Buttons with gradients (e.g., `from-jstar-blue to-faith-purple`) should use `text-white` for optimal readability of light text on dark backgrounds.
+- **Permanent white headings**: Headings designed to remain white in all themes should use `text-white` rather than `text-foreground` to prevent unintended color changes.
+
+### What to FIX vs IGNORE
+
+#### ❌ FIX: Hardcoded Colors Not Aligning
 - `text-gray-900` → `text-foreground` (primary text)
 - `text-gray-300` → `text-muted` (secondary text)
 - `bg-gray-50/70` → `bg-card` (component backgrounds)
@@ -105,18 +122,65 @@ bg-primary    // For active/running
 - `text-red-500` → `text-error` (error states)
 - `text-green-500` → `text-success` (success states)
 
-### ✅ IGNORE: Intentional Design Choices
+#### ✅ IGNORE: Intentional Design Choices
 - `text-white` on dark backgrounds (design hierarchy in heroes/sections)
 - Brand colors (`text-jstar-blue`, `bg-faith-purple`) - correct usage
 - `bg-gray-900/800` for dark sections (structural, not color-system dependent)
 - Dark mode overrides that follow pattern: `dark:bg-gray-700 dark:text-gray-300`
 
-### ⚠️ BE CAUTIOUS: Borderline Cases
+#### ⚠️ BE CAUTIOUS: Borderline Cases
 - `text-gray-400/500/600` - check if it's truly muted text or needs foreground/card
 - `bg-black/transparent` - often design-dependent, not theme-related
 - Hero background gradients - preserve unless semantically mapping
 
-## Step-by-Step Page Alignment Process
+## Audit-Specific Lessons & Examples
+
+### Semantic Token Creation
+- **PortfolioGrid cards**: Replaced `bg-white border border-gray-200` with `bg-portfolio-card border border-portfolio-card-border`, creating new semantic tokens for consistent card theming.
+- **Filter components**: Updated `bg-gray-100` and `bg-blue-500` to `bg-filter-section` and `bg-filter-button` with hover variants for theme-aware filter styling.
+
+### Fixed Color Usage
+- **CTA buttons**: Maintained `text-white` on gradient backgrounds to preserve design intent and readability.
+- **Hero headings**: Used `text-white` for headings that must remain white across all themes.
+
+### Contrast Fixes
+- **Background text**: Replaced problematic `text-background` usage with `text-white` or appropriate fixed colors to ensure readability on colored backgrounds.
+
+### Real-World Fix Examples
+
+#### ✅ Table Cell Visibility Fix + Semantic Token Implementation (PricingSection.tsx)
+**Problem**: Table data cells missing explicit text colors, inheriting barely-readable `text-foreground`. Site uses custom dark variant that doesn't work with `@theme .dark` selectors.
+
+**Solution**: Implement semantic tokens using direct CSS custom properties with `.dark` overrides - works with `&:is(.dark *)` custom variant.
+
+```css
+/* Step 1: Define default semantic values */
+--color-muted: #374151;  /* gray-700 light */
+--color-muted-dark: #94A3B8; /* slate-400 dark */
+
+.dark {
+  --color-muted: var(--color-muted-dark); /* Override for dark mode */
+}
+
+text-muted           /* gray-700 → slate-400 */
+text-foreground      /* very dark → very light */
+text-card           /* white → near-black */
+```
+
+```tsx
+// Step 2: Convert hardcoded classes to semantic tokens
+<td className="text-center text-gray-700 dark:text-gray-300">3-5</td>
+// ↓
+<td className="text-center text-muted">3-5</td>
+
+// Result: Semantic, theme-compatible, automatically switches colors
+```
+
+**Applied to**: All table data cells converted to `text-muted`, maintaining visual consistency while enabling proper semantic theming.
+
+**Why this approach?**: Custom dark variants (`&:is(.dark *)`) require direct CSS overrides instead of `@theme .dark` selectors. This ensures semantic tokens work correctly across your custom implementation.
+
+## Step-by-Step Alignment Process
 
 ### 1. Analyze Golden Page References
 ```bash
@@ -157,30 +221,32 @@ read_file src/features/[PageName]/components/[ComponentName].tsx
 - Are all hardcoded grays replaced with semantic tokens?
 - Is dark mode behavior preserved/improved?
 
-## Common Issues & Solutions
+## Common Issues, Resources & Verification
 
-### Issue: "Component doesn't switch properly in dark mode"
+### Common Issues & Solutions
+
+#### Issue: "Component doesn't switch properly in dark mode"
 **Solution:** Replace hardcoded colors with semantic tokens that have dark variants.
 
-### Issue: "Colors don't match the rest of the site"
+#### Issue: "Colors don't match the rest of the site"
 **Solution:** Check that brand colors are used for accents, semantic tokens for basics.
 
-### Issue: "Hero section looks inconsistent"
+#### Issue: "Hero section looks inconsistent"
 **Solution:** Ensure dark hero sections maintain `text-white` and `text-gray-300` patterns.
 
-### Issue: "Status indicators don't match golden pages"
+#### Issue: "Status indicators don't match golden pages"
 **Solution:** Use `bg-error`, `bg-success`, `bg-warning` for status states.
 
-## Build Verification
+### Build Verification
 After making changes, always run:
 ```bash
 npm run build
 ```
 This ensures no invalid classes were introduced and dark mode works properly.
 
-## Reference Examples
+### Reference Examples
 
-### ✅ Good - Aligned Component
+#### ✅ Good - Aligned Component
 ```tsx
 <div className="bg-card border border-border rounded-lg p-6">
   <h3 className="text-foreground font-semibold mb-2">Title</h3>
@@ -191,7 +257,7 @@ This ensures no invalid classes were introduced and dark mode works properly.
 </div>
 ```
 
-### ❌ Bad - Needs Fixing
+#### ❌ Bad - Needs Fixing
 ```tsx
 <div className="bg-white dark:bg-gray-800 border border-gray-200 rounded-lg p-6">
   <h3 className="text-gray-900 dark:text-white font-semibold mb-2">Title</h3>
@@ -202,41 +268,7 @@ This ensures no invalid classes were introduced and dark mode works properly.
 </div>
 ```
 
-## Real-World Fix Examples
-
-### ✅ Table Cell Visibility Fix + Semantic Token Implementation (PricingSection.tsx)
-**Problem**: Table data cells missing explicit text colors, inheriting barely-readable `text-foreground`. Site uses custom dark variant that doesn't work with `@theme .dark` selectors.
-
-**Solution**: Implement semantic tokens using direct CSS custom properties with `.dark` overrides - works with `&:is(.dark *)` custom variant.
-
-```css
-/* Step 1: Define default semantic values */
---color-muted: #374151;  /* gray-700 light */
---color-muted-dark: #94A3B8; /* slate-400 dark */
-
-.dark {
-  --color-muted: var(--color-muted-dark); /* Override for dark mode */
-}
-
-text-muted           /* gray-700 → slate-400 */
-text-foreground      /* very dark → very light */
-text-card           /* white → near-black */
-```
-
-```tsx
-// Step 2: Convert hardcoded classes to semantic tokens
-<td className="text-center text-gray-700 dark:text-gray-300">3-5</td>
-// ↓
-<td className="text-center text-muted">3-5</td>
-
-// Result: Semantic, theme-compatible, automatically switches colors
-```
-
-**Applied to**: All table data cells converted to `text-muted`, maintaining visual consistency while enabling proper semantic theming.
-
-**Why this approach?**: Custom dark variants (`&:is(.dark *)`) require direct CSS overrides instead of `@theme .dark` selectors. This ensures semantic tokens work correctly across your custom implementation.
-
-## Resources
+### Resources
 - **Globals.css**: Contains all theme token definitions and custom variants
 - **Theme Audit Report**: `docs/styling audit/theme-audit-report.json` for systematic issues
 - **Golden Pages**: Always reference for design intent and color usage patterns

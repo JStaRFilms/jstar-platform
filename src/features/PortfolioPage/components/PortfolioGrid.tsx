@@ -72,39 +72,39 @@ const PortfolioGrid = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {portfolioItems.map((item) => (
-              <div key={item.id} className="portfolio-item bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg">
+              <div key={item.id} className="portfolio-item bg-portfolio-card rounded-2xl overflow-hidden shadow-lg">
                 <div className="portfolio-image">
-                  <div className="h-64 bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center">
+                  <div className="h-64 bg-gradient-to-br bg-portfolio-gradient-start to-portfolio-gradient-end flex items-center justify-center">
                     <div className="text-center text-white">
-                      <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <div className="w-16 h-16 bg-portfolio-icon rounded-full flex items-center justify-center mx-auto mb-4">
                         <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                         </svg>
                       </div>
-                      <p className="font-medium">{item.title}</p>
+                      <p className="font-medium text-portfolio-text">{item.title}</p>
                     </div>
                   </div>
                   <div className="portfolio-overlay">
-                    <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
-                    <p className="text-gray-200 mb-4">{item.description}</p>
-                    <button onClick={() => openLightbox(item.imageUrl, item.title)} className="px-4 py-2 bg-white text-gray-900 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+                    <h3 className="text-xl font-bold text-foreground mb-2">{item.title}</h3>
+                    <p className="text-muted-foreground mb-4">{item.description}</p>
+                    <button onClick={() => openLightbox(item.imageUrl, item.title)} className="px-4 py-2 bg-background text-foreground rounded-lg font-medium hover:bg-muted transition-colors">
                       View Project
                     </button>
                   </div>
                 </div>
                 <div className="p-6">
                   <div className="flex justify-between items-start mb-3">
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">{item.title}</h3>
-                    <span className={`px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded text-xs font-medium`}>
+                    <h3 className="text-lg font-bold text-foreground">{item.title}</h3>
+                    <span className={`px-2 py-1 bg-accent dark:bg-accent/30 text-accent-foreground rounded text-xs font-medium`}>
                       {item.category}
                     </span>
                   </div>
-                  <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                  <p className="text-muted-foreground text-sm mb-4">
                     {item.description}
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {item.tags.map((tag) => (
-                      <span key={tag} className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded text-xs">{tag}</span>
+                      <span key={tag} className="px-2 py-1 bg-portfolio-tag text-gray-800 dark:text-gray-300 rounded text-xs">{tag}</span>
                     ))}
                   </div>
                 </div>
