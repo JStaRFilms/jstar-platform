@@ -1,11 +1,15 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 
 const SearchAndFilter = () => {
+  const [activeFilter, setActiveFilter] = useState('All');
+
+  const filters = ['All', 'Video', 'Apps', 'AI'];
+
   return (
-    <section className="py-8 bg-filter-section-bg dark:bg-filter-section-bg-dark border-b border-border">
+    <section className="py-8 bg-filter-section-bg dark:bg-filter-section-bg-dark border-b border-border sticky top-16 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row gap-6 items-center">
           {/* Search */}
@@ -23,18 +27,16 @@ const SearchAndFilter = () => {
 
           {/* Categories */}
           <div className="flex flex-wrap gap-2">
-            <button className="category-badge px-6 py-3 rounded-full font-medium text-foreground bg-filter-button-bg dark:bg-filter-button-bg-dark hover:bg-filter-button-hover-bg dark:hover:bg-filter-button-hover-bg-dark">
-              All
-            </button>
-            <button className="category-badge px-6 py-3 rounded-full font-medium text-foreground bg-filter-button-bg dark:bg-filter-button-bg-dark hover:bg-filter-button-hover-bg dark:hover:bg-filter-button-hover-bg-dark">
-              Video
-            </button>
-            <button className="category-badge px-6 py-3 rounded-full font-medium text-foreground bg-filter-button-bg dark:bg-filter-button-bg-dark hover:bg-filter-button-hover-bg dark:hover:bg-filter-button-hover-bg-dark">
-              Apps
-            </button>
-            <button className="category-badge px-6 py-3 rounded-full font-medium text-foreground bg-filter-button-bg dark:bg-filter-button-bg-dark hover:bg-filter-button-hover-bg dark:hover:bg-filter-button-hover-bg-dark">
-              AI
-            </button>
+            {filters.map((filter) => (
+              <button
+                key={filter}
+                onClick={() => setActiveFilter(filter)}
+                className={`filter-btn px-6 py-3 rounded-full font-medium text-foreground hover:bg-filter-button-hover-bg dark:hover:bg-filter-button-hover-bg-dark ${
+                  activeFilter === filter ? 'active' : 'bg-filter-button-bg dark:bg-filter-button-bg-dark'
+                }`}>
+                {filter}
+              </button>
+            ))}
           </div>
         </div>
       </div>
