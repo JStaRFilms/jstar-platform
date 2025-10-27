@@ -3,8 +3,8 @@ import React from 'react';
 
 const MyStory = () => {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg mb-8">
-      <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">My Story</h2>
+    <div className="bg-card rounded-2xl p-8 shadow-lg mb-8">
+      <h2 className="text-3xl font-bold text-foreground mb-6">My Story</h2>
       <div className="prose prose-lg dark:prose-invert max-w-none">
         <p className="text-gray-700 dark:text-gray-300 mb-4">
           I&apos;m John Oluleke-Oke, a creative technologist based in Nigeria, passionate about merging faith, technology, and storytelling.
@@ -16,7 +16,7 @@ const MyStory = () => {
           What started as a side hustle quickly evolved into a full-fledged production company, J StaR Films, where we&apos;ve
           captured over 50 love stories and created cinematic experiences that families treasure for generations.
         </p>
-        <p className="text-gray-700 dark:text-gray-300 mb-4">
+        <p className="text-muted mb-4">
           As technology evolved, so did my interests. I dove deep into app development, creating custom solutions for
           businesses and individuals. My work spans from mobile applications to complex web platforms, always with
           a focus on user experience and performance.
