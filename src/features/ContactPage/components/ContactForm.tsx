@@ -228,16 +228,16 @@ const ContactForm = () => {
   }, [formState.data, validateForm]);
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg form-card">
-      <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Send a Message</h2>
-      <p className="text-gray-600 dark:text-gray-400 mb-8">
+    <div className="bg-card rounded-2xl p-8 shadow-lg form-card">
+      <h2 className="text-3xl font-bold text-foreground mb-6">Send a Message</h2>
+      <p className="text-muted-foreground mb-8">
         Have a project in mind or want to learn more about my services? Fill out the form below and I&apos;ll get back to you within 24 hours.
       </p>
 
       <form className="space-y-6" onSubmit={handleSubmit} noValidate>
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Full Name <span className="text-red-500">*</span>
+          <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
+            Full Name <span className="text-destructive">*</span>
           </label>
           <input
             type="text"
@@ -263,8 +263,8 @@ const ContactForm = () => {
         </div>
 
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Email Address <span className="text-red-500">*</span>
+          <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
+            Email Address <span className="text-destructive">*</span>
           </label>
           <input
             type="email"
@@ -290,8 +290,8 @@ const ContactForm = () => {
         </div>
 
         <div>
-          <label htmlFor="subject" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Subject <span className="text-red-500">*</span>
+          <label htmlFor="subject" className="block text-sm font-medium text-foreground mb-2">
+            Subject <span className="text-destructive">*</span>
           </label>
           <input
             type="text"
@@ -317,8 +317,8 @@ const ContactForm = () => {
         </div>
 
         <div>
-          <label htmlFor="service" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Service Interest <span className="text-red-500">*</span>
+          <label htmlFor="service" className="block text-sm font-medium text-foreground mb-2">
+            Service Interest <span className="text-destructive">*</span>
           </label>
           <select
             id="service"
@@ -350,8 +350,8 @@ const ContactForm = () => {
         </div>
 
         <div>
-          <label htmlFor="message" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Your Message <span className="text-red-500">*</span>
+          <label htmlFor="message" className="block text-sm font-medium text-foreground mb-2">
+            Your Message <span className="text-destructive">*</span>
           </label>
           <textarea
             id="message"
@@ -385,7 +385,7 @@ const ContactForm = () => {
             onChange={handleInputChange}
             className="w-4 h-4 text-jstar-blue border-gray-300 rounded focus:ring-jstar-blue" />
 
-          <label htmlFor="newsletter" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+          <label htmlFor="newsletter" className="ml-2 block text-sm text-foreground">
             Subscribe to my newsletter for creator tips and updates
           </label>
         </div>

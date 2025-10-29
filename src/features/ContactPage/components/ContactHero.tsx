@@ -9,7 +9,7 @@ const ContactHero = () => {
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
             Let&apos;s <span className="bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">Connect</span>
           </h1>
-          <p className="text-xl text-gray-300 mb-8">
+          <p className="text-xl text-muted-foreground mb-8">
             Whether you&apos;re looking for cinematic storytelling, custom app development, or AI-powered creator tools,
             I&apos;m here to help bring your vision to life.
           </p>

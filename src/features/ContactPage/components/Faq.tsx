@@ -6,8 +6,8 @@ const Faq = () => {
     <section className="py-16 bg-gray-100 dark:bg-gray-800">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Frequently Asked Questions</h2>
-          <p className="text-gray-600 dark:text-gray-400">
+          <h2 className="text-3xl font-bold text-foreground mb-4">Frequently Asked Questions</h2>
+          <p className="text-muted-foreground">
             Quick answers to common questions about my services and process
           </p>
         </div>
