@@ -210,16 +210,16 @@ const ContactSection: React.FC = () => {
   };
 
   return (
-    <section id="contact" className="py-20 bg-gray-50 dark:bg-gray-900/50">
+    <section id="contact" className="py-20 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <span className="inline-block px-4 py-1.5 bg-jstar-blue/10 text-jstar-blue dark:text-jstar-blue rounded-full text-sm font-medium mb-4">
             Get In Touch
           </span>
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-            Let&apos;s Create Something Amazing Together
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
+            Let's Create Something Amazing Together
           </h2>
-          <p className="text-xl text-gray-600 dark:text-gray-400">
+          <p className="text-xl text-muted-foreground">
             Have a project in mind or want to discuss how we can work together? Drop us a message and we&apos;ll get back to you as soon as possible.
           </p>
         </div>
@@ -241,8 +241,8 @@ const ContactSection: React.FC = () => {
                     <CheckCircleIcon className="w-8 h-8" />
                   </AnimatedIcon>
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Message Sent!</h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-6">
+                <h3 className="text-2xl font-bold text-foreground mb-2">Message Sent!</h3>
+                <p className="text-muted-foreground mb-6">
                   Thank you for reaching out. I&apos;ve received your message and will get back to you within 24 hours.
                   {formState.data.newsletter && " You'll also receive our weekly creator tips and updates."}
                 </p>
@@ -487,8 +487,8 @@ const ContactSection: React.FC = () => {
                   <EnvelopeIcon className="h-5 w-5" />
                 </div>
                 <div className="ml-4">
-                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Email us</h3>
-                  <p className="text-base text-gray-900 dark:text-white">hello@jstarfilms.com</p>
+                  <h3 className="text-sm font-medium text-muted-foreground">Email us</h3>
+                  <p className="text-base text-foreground">hello@jstarfilms.com</p>
                 </div>
               </div>
               <div className="flex items-start">
@@ -496,8 +496,8 @@ const ContactSection: React.FC = () => {
                   <PhoneIcon className="h-5 w-5" />
                 </div>
                 <div className="ml-4">
-                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Call us</h3>
-                  <p className="text-base text-gray-900 dark:text-white">+1 (555) 123-4567</p>
+                  <h3 className="text-sm font-medium text-muted-foreground">Call us</h3>
+                  <p className="text-base text-foreground">+1 (555) 123-4567</p>
                 </div>
               </div>
               <div className="flex items-start">
@@ -505,8 +505,8 @@ const ContactSection: React.FC = () => {
                   <MapPinIcon className="h-5 w-5" />
                 </div>
                 <div className="ml-4">
-                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Visit us</h3>
-                  <p className="text-base text-gray-900 dark:text-white">123 Creative Lane, Suite 100<br />San Francisco, CA 94107</p>
+                  <h3 className="text-sm font-medium text-muted-foreground">Visit us</h3>
+                  <p className="text-base text-foreground">123 Creative Lane, Suite 100<br />San Francisco, CA 94107</p>
                 </div>
               </div>
               <div className="flex items-start">
@@ -514,8 +514,8 @@ const ContactSection: React.FC = () => {
                   <ClockIcon className="h-5 w-5" />
                 </div>
                 <div className="ml-4">
-                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Working hours</h3>
-                  <p className="text-base text-gray-900 dark:text-white">Monday - Friday: 9am - 6pm<br />Saturday: 10am - 4pm</p>
+                  <h3 className="text-sm font-medium text-muted-foreground">Working hours</h3>
+                  <p className="text-base text-foreground">Monday - Friday: 9am - 6pm<br />Saturday: 10am - 4pm</p>
                 </div>
               </div>
             </div>
