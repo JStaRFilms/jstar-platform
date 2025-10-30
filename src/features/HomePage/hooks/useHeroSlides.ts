@@ -101,7 +101,13 @@ export const useHeroSlides = () => {
         const result: HeroSlidesResponse = await response.json();
 
         if (result.status === 'success' && result.data && result.data.length > 0) {
-          setSlides(result.data);
+          const themedSlides = result.data.map(slide => ({
+            ...slide,
+            buttonBorder: 'border-primary dark:border-accent',
+            buttonText: 'text-primary dark:text-accent',
+            buttonHover: 'hover:bg-primary/10 dark:hover:bg-accent/10',
+          }));
+          setSlides(themedSlides);
         } else {
           // Use default slides if no data or API fails
           console.warn('Using default hero slides:', result.message || 'No slides found');
