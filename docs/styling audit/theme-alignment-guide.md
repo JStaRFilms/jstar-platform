@@ -180,6 +180,34 @@ text-card           /* white → near-black */
 
 **Why this approach?**: Custom dark variants (`&:is(.dark *)`) require direct CSS overrides instead of `@theme .dark` selectors. This ensures semantic tokens work correctly across your custom implementation.
 
+#### Hero Section Button Visibility Fix (useHeroSlides Hook)
+**Problem**: The "View Our Work" button in hero sections was not visible in light mode due to hardcoded `text-white` styles fetched from the API. This prevented proper theme adaptation for dynamic content.
+
+**Solution**: Process slide data in the `useHeroSlides` hook to replace hardcoded theme-dependent styles with theme-aware utility classes that work in both light and dark modes.
+
+```typescript
+// src/features/HomePage/hooks/useHeroSlides.ts
+if (result.status === 'success' && result.data && result.data.length > 0) {
+    const themedSlides = result.data.map(slide => ({
+    ...slide,
+    buttonBorder: 'border-primary dark:border-accent',
+    buttonText: 'text-primary dark:text-accent',
+    buttonHover: 'hover:bg-primary/10 dark:hover:bg-accent/10',
+    }));
+    setSlides(themedSlides);
+}
+```
+
+**Key Changes**:
+- Replaced hardcoded `text-white` with `text-primary dark:text-accent`
+- Ensured button borders use `border-primary dark:border-accent`
+- Added hover states with `hover:bg-primary/10 dark:hover:bg-accent/10`
+- Preserved the transparent, bordered button style while making it theme-compatible
+
+**Result**: Button remains fully visible and readable in both light and dark modes, while still allowing the API to control other customizable styles.
+
+**Applied to**: All hero section buttons where slide data is fetched from the admin panel.
+
 ## Step-by-Step Alignment Process
 
 ### 1. Analyze Golden Page References
