@@ -28,7 +28,7 @@ const FeaturedArticle = () => {
         <div className="mb-12">
           <h2
             id="featured-article-heading"
-            className="text-2xl font-bold text-gray-900 dark:text-white mb-6"
+            className="text-2xl font-bold text-foreground mb-6"
           >
             Featured Article
           </h2>
@@ -57,7 +57,7 @@ const FeaturedArticle = () => {
                   <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">
                     {featuredPost.title}
                   </h3>
-                  <p className="text-gray-200 text-sm md:text-base mb-4 max-w-2xl">
+                  <p className="text-white/80 text-sm md:text-base mb-4 max-w-2xl">
                     {featuredPost.excerpt}
                   </p>
                   <div className="flex items-center">
@@ -72,7 +72,7 @@ const FeaturedArticle = () => {
                     )}
                     <div>
                       <div className="font-medium text-white">{featuredPost.author}</div>
-                      <div className="text-sm text-gray-300">
+                      <div className="text-sm text-white/80">
                         <time dateTime={featuredPost.date}>
                           {new Date(featuredPost.date).toLocaleDateString('en-US', {
                             year: 'numeric',
@@ -105,7 +105,7 @@ const FeaturedArticle = () => {
                   <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
                     {featuredPost.title}
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-400 mb-6">
+                  <p className="text-muted mb-6">
                     {featuredPost.excerpt}
                   </p>
                   <div className="flex items-center justify-between">
@@ -116,10 +116,10 @@ const FeaturedArticle = () => {
                         </div>
                       )}
                       <div>
-                        <div className="font-medium text-gray-900 dark:text-white">
+                        <div className="font-medium text-foreground">
                           {featuredPost.author}
                         </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                        <div className="text-sm text-muted">
                           <time dateTime={featuredPost.date}>
                             {new Date(featuredPost.date).toLocaleDateString('en-US', {
                               year: 'numeric',

@@ -17,7 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.className} bg-gray-50 dark:bg-gray-900 transition-colors duration-300`}>
+      <body className={`${inter.className} bg-background transition-colors duration-300`}>
         <ConditionalLayout>
           {children}
         </ConditionalLayout>

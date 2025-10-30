@@ -83,7 +83,7 @@ export const AnimatedCheckIcon: React.FC<AnimatedIconProps> = ({
       aria-hidden={ariaHidden}
       role={role}
     >
-      <CheckIcon className="w-5 h-5 text-green-500" />
+      <CheckIcon className="w-5 h-5 text-success" />
     </div>
   );
 };
@@ -181,7 +181,7 @@ export const AnimatedStarIcon: React.FC<AnimatedIconProps> = ({
       className={`
         transition-all duration-${duration} ease-in-out
         hover:scale-125
-        ${isActive ? 'text-yellow-400 animate-spin' : 'text-gray-400'}
+        ${isActive ? 'text-warning animate-spin' : 'text-muted'}
         ${className || ''}
       `}
       aria-label={ariaLabel}

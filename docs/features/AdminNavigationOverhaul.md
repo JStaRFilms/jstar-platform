@@ -338,6 +338,59 @@ src/app/admin/layout.tsx (Main Layout)
 - Mobile experience significantly improved
 - Reduced cognitive load with cleaner interface
 
+## Admin Card Styling Standardization
+
+### Overview
+As part of the theme alignment audit, implemented centralized admin card styling to ensure visual consistency across all admin pages while maintaining the professional dark/light adaptive design.
+
+### Implementation Details
+
+#### CSS Classes Added to globals.css
+```css
+/* Admin Theme Classes - centralized admin card styling */
+.admin-card {
+  @apply bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-200 dark:border-gray-700;
+}
+
+.admin-card-spaced {
+  @apply bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-200 dark:border-gray-700 mb-6;
+}
+
+.admin-sub-card {
+  @apply p-4 border border-gray-200 dark:border-gray-700 rounded-lg;
+}
+```
+
+#### Files Updated
+- `src/app/globals.css` - Added centralized admin card classes
+- `src/app/admin/cms/page.tsx` - Replaced hardcoded card styles with `.admin-card` and `.admin-card-spaced`
+- `src/app/layout.tsx` - Updated to use `bg-background` for semantic theme alignment
+- `src/app/admin/layout.tsx` - Updated background to use `bg-background`
+
+#### Key Benefits
+- **Visual Consistency**: All admin cards now use identical premium styling with rounded-xl corners, shadow-lg, and responsive padding
+- **Maintainability**: Single CSS definition controls admin card appearance across entire admin panel
+- **Theme Alignment**: Admin cards adapt to dark/light themes while preserving professional admin aesthetic
+- **Scalability**: All future admin pages can use `'admin-card'` for instant visual consistency
+
+#### Technical Notes
+- Avoided nested `@apply` directives that caused rendering issues (resolved by duplicating styles)
+- Responsive design: `rounded-xl sm:rounded-2xl p-4 sm:p-6` provides mobile-first responsive styling
+- Border handling: `border-gray-200 dark:border-gray-700` ensures proper contrast in both themes
+- Spacing option: `.admin-card-spaced` includes bottom margin for cards needing separation
+
+#### Usage Examples
+```tsx
+// Standard admin card
+<div className="admin-card">...</div>
+
+// Admin card with bottom margin
+<div className="admin-card-spaced">...</div>
+
+// Inner card within main cards
+<div className="admin-sub-card">...</div>
+```
+
 ## Change Log
 
 ### [Date: 2025-09-18] - Admin Navigation Overhaul Implementation

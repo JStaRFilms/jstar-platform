@@ -28,7 +28,7 @@ const BlogGrid = () => {
         <div className="flex justify-between items-center mb-6">
           <h2
             id="blog-grid-heading"
-            className="text-2xl font-bold text-gray-900 dark:text-white"
+            className="text-2xl font-bold text-foreground"
           >
             Latest Articles
           </h2>
@@ -70,11 +70,11 @@ const BlogGrid = () => {
                     </span>
                   ))}
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 group-hover:text-jstar-blue dark:group-hover:text-faith-purple transition-colors">
+                <h3 className="text-xl font-bold text-foreground mb-3 group-hover:text-jstar-blue dark:group-hover:text-faith-purple transition-colors">
                   {post.title}
                 </h3>
                 <div className="flex items-center justify-between">
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                  <div className="text-sm text-muted">
                     <time dateTime={post.date}>
                       {new Date(post.date).toLocaleDateString('en-US', {
                         year: 'numeric',

@@ -52,14 +52,55 @@ a:focus-visible {
   --color-foreground: #0B1221; /* near slate-950 */
   --color-border: #E5E7EB;     /* gray-200 */
   --color-ring: #3B82F6;       /* blue-500 */
-}
+  --color-error: #DC2626;      /* red-600 */
+  --color-success: #10B981;    /* green-500 */
+  --color-warning: #F59E0B;    /* yellow-400 */
+  --color-card: #FFFFFF;       /* white */
+  --color-muted: #374151;      /* gray-700 */
+  --color-muted-foreground: #6B7280; /* gray-500 */
+  --color-filter-section-bg: white;
+  --color-filter-section-bg-dark: #1f2937; /* gray-800 */
+  --color-filter-button-bg: #f3f4f6; /* gray-100 */
+  --color-filter-button-bg-dark: #374151; /* gray-700 */
+  --color-filter-button-hover-bg: #e5e7eb; /* gray-200 */
+  --color-filter-button-hover-bg-dark: #4b5563; /* gray-600 */
+  /* --color-portfolio-card-bg: #ffffff;
+  --color-portfolio-card-bg-dark: #1f2937; */
+  --color-portfolio-gradient-start: #9ca3af;
+  --color-portfolio-gradient-end: #4b5563;
+  --color-portfolio-text: #ffffff;
+  --color-portfolio-icon-bg: rgba(255, 255, 255, 0.2);
+  --color-portfolio-tag-bg: #e5e7eb;
+  --color-portfolio-tag-bg-dark: #374151;
+  }
 
-/* Dark mode tokens: html has class="dark" in layout.tsx */
-@theme .dark {
-  --color-background: #0B1221; /* near slate-950 */
-  --color-foreground: #E5E7EB; /* gray-200 */
-  --color-border: #374151;     /* gray-700 */
-  --color-ring: #8B5CF6;       /* violet-500 */
+@layer base {
+  :root {
+    /* Dark mode tokens: html has class="dark" in layout.tsx */
+    --color-background-dark: #101828; /* near slate-950 */
+    --color-foreground-dark: #E5E7EB; /* gray-200 */
+    --color-border-dark: #374151;     /* gray-700 */
+    --color-ring-dark: #8B5CF6;       /* violet-500 */
+    --color-error-dark: #EF4444;      /* red-500 */
+    --color-success-dark: #34D399;    /* green-400 */
+    --color-warning-dark: #FCD34D;    /* yellow-300 */
+    --color-card-dark: #1e2939;       /* near slate-950 */
+    --color-muted-dark: #94A3B8;      /* slate-400 */
+    --color-muted-foreground-dark: #94A3B8; /* slate-400 */
+  }
+
+  .dark {
+    --color-background: var(--color-background-dark);
+    --color-foreground: var(--color-foreground-dark);
+    --color-border: var(--color-border-dark);
+    --color-ring: var(--color-ring-dark);
+    --color-error: var(--color-error-dark);
+    --color-success: var(--color-success-dark);
+    --color-warning: var(--color-warning-dark);
+    --color-card: var(--color-card-dark);
+    --color-muted: var(--color-muted-dark);
+    --color-muted-foreground: var(--color-muted-foreground-dark);
+  }
 }
 
 @keyframes bounce {
@@ -248,6 +289,43 @@ a:focus-visible {
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+/* Lead Magnet Card - Gradient background with hover animation */
+.lead-magnet-card {
+    background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+    transition: all 300ms ease;
+}
+
+.lead-magnet-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 25px 50px -12px rgba(139, 92, 246, 0.25);
+}
+
+/* WhatsApp Button - Hover animation */
+.whatsapp-button {
+    background: #25D366;
+    transition: all 300ms ease;
+}
+
+.whatsapp-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 15px -3px rgba(37, 211, 102, 0.3);
+}
+
+/* Form Card - Hover animation */
+.form-card {
+    transition: all 300ms ease;
+}
+
+.form-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Floating Element - Continuous animation */
+.floating-element {
+    animation: float 6s ease-in-out infinite;
+}
+
 .timeline-item {
     position: relative;
     padding-left: 30px;
@@ -270,6 +348,11 @@ a:focus-visible {
 }
 
 .portfolio-filter.active {
+    background: linear-gradient(135deg, #2563EB 0%, #8B5CF6 100%);
+    color: white;
+}
+
+.filter-btn.active {
     background: linear-gradient(135deg, #2563EB 0%, #8B5CF6 100%);
     color: white;
 }
@@ -1054,6 +1137,40 @@ a:focus-visible {
     margin-bottom: 0.5rem;
 }
 
+@layer utilities {
+  .bg-portfolio-card {
+    background-color: var(--color-portfolio-card-bg);
+  }
+
+  .dark .bg-portfolio-card {
+    background-color: var(--color-portfolio-card-bg-dark);
+  }
+
+  .bg-portfolio-gradient-start {
+    background-color: var(--color-portfolio-gradient-start);
+  }
+
+  .bg-portfolio-gradient-end {
+    background-color: var(--color-portfolio-gradient-end);
+  }
+
+  .text-portfolio-text {
+    color: var(--color-portfolio-text);
+  }
+
+  .bg-portfolio-icon {
+    background-color: var(--color-portfolio-icon-bg);
+  }
+
+  .bg-portfolio-tag {
+    background-color: var(--color-portfolio-tag-bg);
+  }
+
+  .dark .bg-portfolio-tag {
+    background-color: var(--color-portfolio-tag-bg-dark);
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -1061,4 +1178,17 @@ a:focus-visible {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Admin Theme Classes - centralized admin card styling */
+.admin-card {
+  @apply bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-200 dark:border-gray-700;
+}
+
+.admin-card-spaced {
+  @apply bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-200 dark:border-gray-700 mb-6;
+}
+
+.admin-sub-card {
+  @apply p-4 border border-gray-200 dark:border-gray-700 rounded-lg;
 }

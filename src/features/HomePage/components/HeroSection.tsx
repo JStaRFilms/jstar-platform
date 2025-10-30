@@ -143,10 +143,10 @@ const HeroSection: React.FC<HeroSectionProps> = ({
   // Show loading state (AFTER all hooks are called)
   if (loading && !customSlides) {
     return (
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-gray-900">
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading hero content...</p>
+          <p className="text-muted-foreground">Loading hero content...</p>
         </div>
       </section>
     );
@@ -221,7 +221,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                        {slide.tagline}
                      </span>
                      <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
-                       <span className="text-gray-900 dark:text-white">{slide.titleLine1}</span>
+                       <span className="text-foreground">{slide.titleLine1}</span>
                        <br />
                        <span className={`bg-clip-text text-transparent bg-gradient-to-r ${
                          slide.id === 0
@@ -231,7 +231,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                          {slide.titleLine2}
                        </span>
                      </h1>
-                     <p className="text-xl text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto lg:mx-0">
+                     <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto lg:mx-0">
                        {slide.description}
                      </p>
                      <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
@@ -242,21 +242,21 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                          View Our Work
                        </Link>
                      </div>
-                     {slide.id === 0 && (
+                     {index === 0 && (
                         <div className="mt-10 flex items-center justify-center lg:justify-start space-x-8">
                             <div className="text-center">
                                 <div className="text-3xl font-bold text-primary dark:text-accent">10+</div>
-                                <div className="text-gray-600 dark:text-gray-400">Years Experience</div>
+                                <div className="text-muted-foreground">Years Experience</div>
                             </div>
-                            <div className="h-12 w-px bg-gray-300 dark:bg-gray-700"></div>
+                            <div className="h-12 w-px bg-border"></div>
                             <div className="text-center">
                                 <div className="text-3xl font-bold text-primary dark:text-accent">200+</div>
-                                <div className="text-gray-600 dark:text-gray-400">Projects Completed</div>
+                                <div className="text-muted-foreground">Projects Completed</div>
                             </div>
-                            <div className="h-12 w-px bg-gray-300 dark:bg-gray-700"></div>
+                            <div className="h-12 w-px bg-border"></div>
                             <div className="text-center">
                                 <div className="text-3xl font-bold text-primary dark:text-accent">98%</div>
-                                <div className="text-gray-600 dark:text-gray-400">Client Satisfaction</div>
+                                <div className="text-muted-foreground">Client Satisfaction</div>
                             </div>
                         </div>
                      )}

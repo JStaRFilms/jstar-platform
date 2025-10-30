@@ -49,7 +49,7 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
     <div className={`p-4 border-l-4 rounded-r-lg transition-colors ${config.borderColor} ${config.bgColor} ${config.hoverBgColor} ${className}`}>
       <div className="flex justify-between items-start">
         <div className="flex-1">
-          <h3 className={`font-medium text-gray-900 dark:text-white mb-1`}>{title}</h3>
+          <h3 className={`font-medium text-foreground mb-1`}>{title}</h3>
           <p className={`text-sm ${config.textColor} mb-2`}>{description}</p>
         </div>
         <span className={`px-2 py-1 rounded text-xs font-medium ml-2 flex-shrink-0 ${

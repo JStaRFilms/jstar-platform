@@ -384,33 +384,33 @@ const PricingSection: React.FC<PricingSectionProps> = React.memo(({
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                   {/* Pages */}
                   <tr>
-                    <td className="py-4 text-gray-700 dark:text-gray-300 font-medium">Pages</td>
-                    <td className="text-center">3-5</td>
-                    <td className="text-center">Up to 10</td>
-                    <td className="text-center">Unlimited</td>
+                    <td className="py-4 text-muted font-medium">Pages</td>
+                    <td className="text-center text-muted">3-5</td>
+                    <td className="text-center text-muted">Up to 10</td>
+                    <td className="text-center text-muted">Unlimited</td>
                   </tr>
                   {/* Responsive Design */}
                   <tr>
-                    <td className="py-4 text-gray-700 dark:text-gray-300 font-medium">Responsive Design</td>
+                    <td className="py-4 text-muted font-medium">Responsive Design</td>
                     {plans.map((plan) =>
                   <td key={plan.id} className="text-center">
                         <CheckCircleIcon
                       className="mx-auto h-5 w-5 text-jstar-blue"
                       aria-label={`${plan.displayName} includes responsive design`} />
-                    
+
                       </td>
                   )}
                   </tr>
                   {/* SEO Optimization */}
                   <tr>
-                    <td className="py-4 text-gray-700 dark:text-gray-300 font-medium">SEO Optimization</td>
-                    <td className="text-center">Basic</td>
-                    <td className="text-center">Full</td>
-                    <td className="text-center">Advanced</td>
+                    <td className="py-4 text-muted font-medium">SEO Optimization</td>
+                    <td className="text-center text-muted">Basic</td>
+                    <td className="text-center text-muted">Full</td>
+                    <td className="text-center text-muted">Advanced</td>
                   </tr>
                   {/* CMS Integration */}
                   <tr>
-                    <td className="py-4 text-gray-700 dark:text-gray-300 font-medium">CMS Integration</td>
+                    <td className="py-4 text-muted font-medium">CMS Integration</td>
                     <td className="text-center">
                       <CheckIcon className="mx-auto h-5 w-5 text-gray-400" aria-label="Not included" />
                     </td>
@@ -429,7 +429,7 @@ const PricingSection: React.FC<PricingSectionProps> = React.memo(({
                   </tr>
                   {/* E-commerce */}
                   <tr>
-                    <td className="py-4 text-gray-700 dark:text-gray-300 font-medium">E-commerce</td>
+                    <td className="py-4 text-muted font-medium">E-commerce</td>
                     <td className="text-center">
                       <CheckIcon className="mx-auto h-5 w-5 text-gray-400" aria-label="Not included" />
                     </td>
@@ -445,10 +445,10 @@ const PricingSection: React.FC<PricingSectionProps> = React.memo(({
                   </tr>
                   {/* Support */}
                   <tr>
-                    <td className="py-4 text-gray-700 dark:text-gray-300 font-medium">Support</td>
-                    <td className="text-center">30 days</td>
-                    <td className="text-center">90 days</td>
-                    <td className="text-center">Ongoing</td>
+                    <td className="py-4 text-muted font-medium">Support</td>
+                    <td className="text-center text-muted">30 days</td>
+                    <td className="text-center text-muted">90 days</td>
+                    <td className="text-center text-muted">Ongoing</td>
                   </tr>
                 </tbody>
               </table>

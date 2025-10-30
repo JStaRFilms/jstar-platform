@@ -26,7 +26,7 @@ const clients = [
  */
 const AboutSection = () => {
   return (
-    <section id="about" className="py-20 bg-gray-50 dark:bg-gray-900/50">
+    <section id="about" className="py-20 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-16">
@@ -34,11 +34,11 @@ const AboutSection = () => {
             About J StaR Films
           </span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
-            <span className="text-gray-900 dark:text-white">Crafting Exceptional </span>
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">Visual Experiences</span>
+          <span className="text-foreground">Crafting Exceptional </span>
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">Visual Experiences</span>
           </h2>
           <div className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto mb-6"></div>
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
             We blend creativity, technology, and strategy to bring your vision to life with stunning visuals that captivate and inspire.
           </p>
         </div>
@@ -46,7 +46,7 @@ const AboutSection = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left Column - Image */}
           <div className="relative">
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-gray-100 dark:border-gray-800">
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-border">
               <Image
                 src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80"
                 alt="Our Team"
@@ -56,20 +56,20 @@ const AboutSection = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
               <div className="absolute bottom-0 left-0 p-6 text-white">
                 <h3 className="text-2xl font-bold">Our Creative Team</h3>
-                <p className="text-gray-200">Passionate professionals dedicated to excellence</p>
+              <p className="text-gray-200">Passionate professionals dedicated to excellence</p>
               </div>
             </div>
             <div className="absolute -top-6 -right-6 w-32 h-32 bg-accent/10 rounded-full -z-10 hidden lg:block"></div>
             <div className="absolute -bottom-6 -left-6 w-40 h-40 bg-primary/10 rounded-full -z-10 hidden lg:block"></div>
             {/* Stats Card */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg absolute -bottom-8 right-0 max-w-xs transform translate-x-1/4 hidden md:block">
+            <div className="bg-card rounded-xl p-6 shadow-lg absolute -bottom-8 right-0 max-w-xs transform translate-x-1/4 hidden md:block">
               <div className="flex items-center space-x-4">
                 <div className="w-12 h-12 bg-primary/10 dark:bg-accent/20 rounded-lg flex items-center justify-center text-primary dark:text-accent">
                   <ShieldCheckIcon className="w-6 h-6" />
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-gray-900 dark:text-white">10+</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Years Experience</div>
+                  <div className="text-2xl font-bold text-foreground">10+</div>
+                  <div className="text-sm text-muted-foreground">Years Experience</div>
                 </div>
               </div>
             </div>
@@ -77,10 +77,10 @@ const AboutSection = () => {
           
           {/* Right Column - Content */}
           <div className="lg:pl-12">
-            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-6">
-              We&apos;re a creative studio passionate about storytelling through video and digital experiences
+            <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-6">
+              We're a creative studio passionate about storytelling through video and digital experiences
             </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
+            <p className="text-muted-foreground mb-6">
               At J StaR Films, we believe in the power of visual storytelling to connect, engage, and inspire. Our team of experienced filmmakers, designers, and developers work together to create compelling content that resonates with your audience and achieves your business goals.
             </p>
             <div className="space-y-4 mb-8">
@@ -91,8 +91,8 @@ const AboutSection = () => {
                   </div>
                 </div>
                 <div className="ml-3">
-                  <h4 className="text-lg font-medium text-gray-900 dark:text-white">Creative Excellence</h4>
-                  <p className="text-gray-600 dark:text-gray-400">We push creative boundaries to deliver unique and impactful visual content.</p>
+                  <h4 className="text-lg font-medium text-foreground">Client-Focused Approach</h4>
+                  <p className="text-muted-foreground">Your vision is our priority, and we're committed to bringing it to life.</p>
                 </div>
               </div>
               <div className="flex items-start">
@@ -102,8 +102,8 @@ const AboutSection = () => {
                   </div>
                 </div>
                 <div className="ml-3">
-                  <h4 className="text-lg font-medium text-gray-900 dark:text-white">Technical Expertise</h4>
-                  <p className="text-gray-600 dark:text-gray-400">State-of-the-art equipment and cutting-edge techniques for superior quality.</p>
+                  <h4 className="text-lg font-medium text-foreground">Technical Expertise</h4>
+                  <p className="text-muted-foreground">State-of-the-art equipment and cutting-edge techniques for superior quality.</p>
                 </div>
               </div>
               <div className="flex items-start">
@@ -132,14 +132,14 @@ const AboutSection = () => {
         {/* Team Section */}
         <div className="mt-24">
           <div className="text-center mb-12">
-            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-4">Meet Our Creative Team</h3>
-            <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+            <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">Meet Our Creative Team</h3>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
               A talented group of professionals passionate about creating exceptional visual experiences
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {teamMembers.map((member, index) =>
-            <div key={index} className="group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <div key={index} className="group bg-card rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <div className="relative overflow-hidden h-64">
                   <Image src={member.image} alt={member.name} fill className="object-cover transition-transform duration-500 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
@@ -157,9 +157,9 @@ const AboutSection = () => {
         {/* Clients Section */}
         <div className="mt-24">
           <div className="text-center mb-12">
-            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-4">Trusted By Industry Leaders</h3>
-            <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              We&apos;ve had the privilege of working with amazing companies across various industries
+            <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">Trusted By Industry Leaders</h3>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              We've had the privilege of working with amazing companies across various industries
             </p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center">

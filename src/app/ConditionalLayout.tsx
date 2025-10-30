@@ -38,7 +38,11 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
       <main className={`${shouldAddPadding ? "pt-12" : ""} pb-20 md:pb-0 transition-all duration-300 ${isScrolling ? 'blur-[1px]' : ''}`}>
         {children}
       </main>
-      {!isAdminPage && <Footer />}
+      {!isAdminPage && (
+        <div className="pb-16 md:pb-0">
+          <Footer />
+        </div>
+      )}
       {!isAdminPage && <MobileBottomNav />}
       {!isAdminPage && <JohnGPTFeature />}
     </Providers>

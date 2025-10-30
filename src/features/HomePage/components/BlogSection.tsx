@@ -43,7 +43,7 @@ const BlogSection = () => {
   return (
     <section
       id="blog"
-      className="py-20 bg-gray-50 dark:bg-gray-900/50"
+      className="py-20 bg-background"
       aria-labelledby="blog-heading"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -55,18 +55,18 @@ const BlogSection = () => {
             id="blog-heading"
             className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6"
           >
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-jstar-blue to-faith-purple">
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-jstar-blue to-faith-purple">
               Blog & Articles
             </span>
           </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Discover the latest trends, insights, and stories from our creative journey.
           </p>
         </div>
 
         {/* Featured Blog Post */}
         <div className="mb-16 group">
-          <article className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500">
+          <article className="bg-card rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500">
             <div className="md:flex">
               <div className="relative overflow-hidden h-64 md:flex-shrink-0 md:w-1/2 md:h-auto">
                 <Image
@@ -149,7 +149,7 @@ const BlogSection = () => {
           {posts.map((post) => (
             <article
               key={post.id}
-              className="group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
+              className="group bg-card rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
             >
               <div className="relative overflow-hidden h-48">
                 <Image
