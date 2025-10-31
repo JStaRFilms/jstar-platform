@@ -9,7 +9,7 @@ import { StarIcon, ChevronLeftIcon, ChevronRightIcon } from '../../../components
 type Testimonial = {
   name: string;
   title: string;
-  image: string;
+  image?: string;
   quote: string;
   tags: string[];
 };
@@ -18,70 +18,70 @@ const testimonials: Testimonial[] = [
 {
   name: 'Sarah Johnson',
   title: 'CEO, Creative Solutions',
-  image: 'https://randomuser.me/api/portraits/women/44.jpg',
+  image: undefined,
   quote: "Working with J StaR Films was an absolute pleasure. Their attention to detail and creative vision brought our brand story to life in ways we couldn't have imagined.",
   tags: ['Video Production', 'Brand Story']
 },
 {
   name: 'Michael Chen',
   title: 'Marketing Director, TechNova',
-  image: 'https://randomuser.me/api/portraits/men/32.jpg',
+  image: undefined,
   quote: "The web application J StaR developed for us has transformed our business operations. Their team's technical expertise and understanding of our needs were impressive.",
   tags: ['Web Development', 'Custom App']
 },
 {
   name: 'Emily Rodriguez',
   title: 'Founder, Bloom & Grow',
-  image: 'https://randomuser.me/api/portraits/women/68.jpg',
+  image: undefined,
   quote: "The branding package we received was beyond our expectations. They captured our vision perfectly and created a cohesive identity that resonates with our target audience. Our new branding has already made a significant impact on our business.",
   tags: ['Branding', 'Visual Identity']
 },
 {
   name: 'David Kimani',
   title: 'Creative Director, UrbanPulse',
-  image: 'https://randomuser.me/api/portraits/men/75.jpg',
+  image: undefined,
   quote: "The team at J StaR Films brought incredible creativity and technical expertise to our project. Their ability to understand our brand and translate it into stunning visuals was remarkable. The final product exceeded our expectations in every way.",
   tags: ['Video Production', 'Motion Graphics']
 },
 {
   name: 'Jessica Lee',
   title: 'Founder, Greenify',
-  image: 'https://randomuser.me/api/portraits/women/76.jpg',
+  image: undefined,
   quote: "J StaR Films exceeded our expectations with their professionalism, creativity, and attention to detail. We're thrilled with the final product and look forward to working with them again.",
   tags: ['Web Development', 'E-commerce']
 },
 {
   name: 'Michael Brown',
   title: 'Marketing Manager, Proxima',
-  image: 'https://randomuser.me/api/portraits/men/77.jpg',
+  image: undefined,
   quote: "We were impressed by J StaR Films' ability to understand our brand and create a custom video that exceeded our expectations. Their team was professional, creative, and easy to work with.",
   tags: ['Video Production', 'Corporate']
 },
 {
   name: 'Emily Davis',
   title: 'Founder, Lumin',
-  image: 'https://randomuser.me/api/portraits/women/78.jpg',
+  image: undefined,
   quote: "J StaR Films delivered a high-quality video that met our expectations. Their team was responsive, professional, and easy to work with. We would definitely recommend them to others.",
   tags: ['Video Production', 'Explainer']
 },
 {
   name: 'James Wilson',
   title: 'Creative Director, Pulse',
-  image: 'https://randomuser.me/api/portraits/men/79.jpg',
+  image: undefined,
   quote: "J StaR Films' video production services exceeded our expectations. Their team was professional, creative, and delivered a high-quality final product that met our needs.",
   tags: ['Video Production', 'Social Media']
 },
 {
   name: 'Sophia Patel',
   title: 'Founder, Zenith',
-  image: 'https://randomuser.me/api/portraits/women/80.jpg',
+  image: undefined,
   quote: "We were impressed by J StaR Films' professionalism, creativity, and attention to detail. Their video production services exceeded our expectations and we would definitely recommend them to others.",
   tags: ['Video Production', 'Event']
 },
 {
   name: 'William Lee',
   title: 'Marketing Manager, Apex',
-  image: 'https://randomuser.me/api/portraits/men/81.jpg',
+  image: undefined,
   quote: "J StaR Films' team was a pleasure to work with. They delivered a high-quality video that met our expectations and we would definitely recommend them to others.",
   tags: ['Video Production', 'Promotional']
 }];
@@ -146,13 +146,21 @@ const TestimonialsSection = () => {
                       <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6 md:p-8 h-full transform transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
                         <div className="flex items-center mb-4 md:mb-6">
                           <div className="w-12 h-12 md:w-16 md:h-16 rounded-full overflow-hidden mr-3 md:mr-4 border-2 border-primary/20 dark:border-accent/30 flex-shrink-0">
-                            <Image
-                          src={testimonial.image}
-                          alt={testimonial.name}
-                          width={64}
-                          height={64}
-                          className="w-full h-full object-cover" />
-                        
+                            {testimonial.image ? (
+                              <Image
+                                src={testimonial.image}
+                                alt={testimonial.name}
+                                width={64}
+                                height={64}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                                <span className="text-primary dark:text-accent font-bold text-lg">
+                                  {testimonial.name.charAt(0)}
+                                </span>
+                              </div>
+                            )}
                           </div>
                           <div className="min-w-0">
                             <h4 className="text-base md:text-lg font-bold text-gray-900 dark:text-white truncate">
