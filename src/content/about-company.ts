@@ -5,16 +5,23 @@ export interface TeamMember {
   imageUrl: string;
 }
 
-export interface Client {
+export interface ClientProfile {
   name: string;
-  logo?: string;
-  alt: string;
+  logoUrl?: string;
+  textLogoStyle?: {
+    fontFamily?: string;
+    fontSize?: string;
+    fontWeight?: string;
+    color?: string;
+    textTransform?: string;
+    letterSpacing?: string;
+  };
 }
 
 export interface CompanyData {
   mission: string;
   teamMembers: TeamMember[];
-  clients: Client[];
+  clients: ClientProfile[];
 }
 
 export const companyData: CompanyData = {
@@ -32,9 +39,37 @@ export const companyData: CompanyData = {
   ],
 
   clients: [
-    { name: 'TechCorp', logo: '/logos/techcorp.png', alt: 'TechCorp logo' },
-    { name: 'DesignStudio', logo: '/logos/designstudio.svg', alt: 'Design Studio logo' },
-    { name: 'MediaGroup', logo: undefined, alt: 'Media Group logo' },
-    { name: 'CreativeAgency', logo: '/logos/creativeagency.jpg', alt: 'Creative Agency logo' }
+    {
+      name: 'Winning Worship Way',
+      logoUrl: '/logos/winning-worship-way-logo.png',
+    },
+    {
+      name: 'Monjola Aminu',
+      // No logoUrl - this will be a generated logotype
+      textLogoStyle: {
+        fontFamily: 'font-cursive', // Momo Signature cursive font
+        fontSize: 'text-xl',
+        fontWeight: 'font-normal',
+        color: 'text-blue-700 dark:text-blue-300',
+        textTransform: '',
+        letterSpacing: 'tracking-normal'
+      }
+    },
+    {
+      name: 'Success Light Music',
+      textLogoStyle: {
+        fontFamily: 'font-cursive', // Momo Signature cursive font
+        fontSize: 'text-2xl',
+        fontWeight: 'font-normal',
+        // color: 'text-pink-700 dark:text-pink-300',
+        textTransform: '',
+        letterSpacing: 'tracking-normal'
+      },
+    },
+    {
+      name: 'Sharon\'s Chronicles',
+      logoUrl: '/logos/sharons-chronicles.png'
+      // No logoUrl - this will be a generated logotype
+    },
   ]
 };

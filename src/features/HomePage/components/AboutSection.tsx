@@ -2,7 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ShieldCheckIcon, CheckIcon } from '../../../components/icons/static-icons';
-import ClientLogoPlaceholder from '../../../components/ui/ClientLogoPlaceholder';
+import ClientLogo from '../../../components/ui/ClientLogo';
 import { companyData } from '../../../content/about-company';
 
 
@@ -152,12 +152,7 @@ const AboutSection = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center">
             {companyData.clients.map((client, index) =>
             <div key={index} className="flex justify-center opacity-70 hover:opacity-100 transition-opacity duration-300">
-                <ClientLogoPlaceholder
-                src={client.logo}
-                alt={client.alt}
-                name={client.name}
-                type={client.logo?.endsWith('.svg') ? 'svg' : 'image'} />
-
+                <ClientLogo client={client} />
               </div>
             )}
           </div>
