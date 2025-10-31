@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'J StaR Films Studios - Creative & Technology Partner',
     description: 'An integrated creative and technology partner specializing in crafting holistic brand experiences.',
-    url: 'https://www.jstarstudios.com', // Replace with your actual production domain
+    url: 'https://www.jstarstudios.com/', // Replace with your actual production domain
     siteName: 'J StaR Films Studios',
     images: [
       {

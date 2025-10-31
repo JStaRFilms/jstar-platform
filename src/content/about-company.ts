@@ -22,13 +22,13 @@ export const companyData: CompanyData = {
 
   teamMembers: [
     { employeeId: 'JS001', name: 'John Oluleke-Oke', role: 'CEO / Chief Creative Director', imageUrl: '/team/john-oluleke-oke.jpg' },
-    { employeeId: 'JS002', name: 'Monjola Aminu', role: 'Director of Brand & Communications', imageUrl: '/team/monjola-aminu.jpg' },
+    { employeeId: 'JS002', name: 'Monjola Aminu', role: 'Chief Brand & Communications Officer', imageUrl: '/team/monjola-aminu.jpg' },
     { employeeId: 'JS003', name: 'Sharon Alalibo', role: 'Chief Operating Officer & Head of Human Resources', imageUrl: '/team/sharon-alalibo.jpg' },
     { employeeId: 'JS004', name: 'Justina Ominisan', role: 'Head of Software & AI Development', imageUrl: '/team/justina-ominisan.jpg' },
     { employeeId: 'JS005', name: 'Ifechukwu Odigwe', role: 'AI Tools Engineer & Data Scientist', imageUrl: '/team/Ifechukwude-odigwe.jpg' },
-    { employeeId: 'JS006', name: 'Nengi Inala', role: 'Head of Photography', imageUrl: '/team/nengi-inala.jpg' },
+    { employeeId: 'JS006', name: 'Nengimote Inala', role: 'Head of Photography', imageUrl: '/team/nengimote-inala.jpg' },
     { employeeId: 'JS007', name: 'Michael Osondu', role: 'Lead Graphics Designer', imageUrl: '/team/michael-osondu.jpg' },
-    { employeeId: 'JS008', name: 'Olamide Wunmi-Olajide', role: 'Legal & Compliance Advisor', imageUrl: '/team/olamide-Wunmi-Olajide.jpg' }
+    { employeeId: 'JS008', name: 'Olamide Wunmi-Olajide', role: 'Legal & Compliance Advisor', imageUrl: '/team/olamide-wunmi-olajide.jpg' }
   ],
 
   clients: [
