@@ -6,8 +6,26 @@ import ConditionalLayout from "./ConditionalLayout";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "J StaR Films - Creative Operating System | Faith-Inspired Content Creation",
-  description: "Where faith meets film and future. Professional video production, app development, and AI-powered creator tools by John Oluleke-Oke.",
+  title: {
+    template: '%s | J StaR Films Studios', // Page titles will look like "About Us | J StaR Films Studios"
+    default: 'J StaR Films Studios - Creative & Technology Partner', // Default title for the homepage
+  },
+  description: 'J StaR Films Studios is an integrated creative and technology partner, specializing in crafting holistic brand experiences from cinematic narratives to intelligent AI tools.',
+  openGraph: {
+    title: 'J StaR Films Studios - Creative & Technology Partner',
+    description: 'An integrated creative and technology partner specializing in crafting holistic brand experiences.',
+    url: 'https://www.jstarstudios.com', // Replace with your actual production domain
+    siteName: 'J StaR Films Studios',
+    images: [
+      {
+        url: '/og-image.png', // The path to your OG image in the `public` folder
+        width: 1200,
+        height: 630,
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
 };
 
 export default function RootLayout({
