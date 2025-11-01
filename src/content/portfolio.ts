@@ -55,27 +55,66 @@ export const youtubeOverrides: Record<string, Partial<PortfolioProject>> = {
 
 // Manual portfolio projects
 export const manualProjects: PortfolioProject[] = [
+  // --- Project 1: Blink ---
   {
-    id: 'blink',
-    title: 'Blink',
-    description: 'A cutting-edge web application that revolutionizes user interaction through innovative design and seamless functionality.',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1551650975-87deedd944c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1974&q=80',
+    id: 'blink-ai-sidekick',
+    title: 'Blink: Your Instant AI Sidekick',
+    description: 'A system-wide Windows utility that brings AI to your workflow with a simple hotkey. Select text, get AI magic, instantly, anywhere.',
+    thumbnailUrl: '/portfolio/thumbnails/blink-logo.png',
     liveUrl: 'https://github.com/JStaRFilms/Blink',
     source: 'manual',
     order: 1,
-    tags: ['React', 'TypeScript', 'Web Development', 'UI/UX'],
+    tags: ['Python', 'AI Utility', 'Desktop App', 'Open Source'],
     category: 'web',
-    challenge: 'Create a modern web application that provides an exceptional user experience while maintaining high performance and accessibility standards.',
-    solution: 'Developed a responsive React application using TypeScript, implementing advanced state management and optimized rendering techniques.',
-    results: 'Achieved 95% user satisfaction rate with sub-2-second load times and full WCAG 2.1 AA compliance.',
+    hasDetailedCaseStudy: true,
+    challenge: 'Developers and writers constantly break their workflow by switching to a browser to use AI. The challenge was to create a seamless, system-wide utility that brings the AI to the user, instantly.',
+    solution: 'Built a lightweight Windows utility in Python from scratch in under 24 hours. It lives in the system tray and uses a global hotkey to capture selected text, process it via an LLM, and stream the response back into any application.',
+    results: 'Shipped a public open-source project on GitHub with a full installer, featuring dual output modes, conversational memory, and adaptive multimodal support for vision models.',
     credits: [
-      {
-        name: 'John Oke',
-        role: 'Lead Developer',
-        linkedin: 'https://linkedin.com/in/saxy',
-        website: 'https://jstarstudios.com'
-      }
+      { name: 'John Oluleke-Oke', role: 'Lead Architect & Developer' }
     ],
-    publishedAt: '2024-01-15T00:00:00Z'
+    publishedAt: '2024-05-15T00:00:00Z'
+  },
+
+  // --- Project 2: Adaptive Study Game ---
+  {
+    id: 'adaptive-study-game',
+    title: 'Adaptive AI Study Game',
+    description: 'An intelligent study tool using Google Gemini to transform notes, documents, and videos into interactive, gamified learning quests.',
+    thumbnailUrl: '/portfolio/thumbnails/adaptive-study-game.png',
+    liveUrl: 'https://github.com/JStaRFilms/Adaptive-Study-Game',
+    source: 'manual',
+    order: 3,
+    tags: ['React', 'TypeScript', 'Google Gemini', 'Local-First'],
+    category: 'web',
+    hasDetailedCaseStudy: true,
+    challenge: 'Traditional studying from static notes is often passive and ineffective. The challenge was to create an active, engaging, and personalized learning experience powered by AI.',
+    solution: "Developed a web application that transforms diverse user inputs (PDFs, docs, YouTube URLs) into a suite of study tools, including an interactive 'Visual Reading Canvas' and AI-generated quizzes. The architecture uses 'Parallel Pipelines' to reduce latency.",
+    results: 'Shipped a feature-rich, local-first application that runs entirely in the browser, ensuring user privacy and offline access. Key features include a personal AI tutor, spaced repetition mode, and AI exam prediction.',
+    credits: [
+      { name: 'John Oluleke-Oke', role: 'Lead Architect & Full-Stack Developer' }
+    ],
+    publishedAt: '2024-04-20T00:00:00Z'
+  },
+
+  // --- Project 3: Obsidian Tag Automator ---
+  {
+    id: 'obsidian-tag-automator',
+    title: 'Obsidian Tag Automator',
+    description: 'An AI-powered tag management system for Obsidian vaults that automates tagging, suggests aliases, and maintains knowledge base consistency.',
+    thumbnailUrl: '/portfolio/thumbnails/obsidian-tag-automator.png',
+    liveUrl: 'https://github.com/JStaRFilms/Obsidian-Tag-Automator',
+    source: 'manual',
+    order: 6,
+    tags: ['Python', 'Obsidian', 'AI', 'CLI', 'Flask'],
+    category: 'web',
+    hasDetailedCaseStudy: true,
+    challenge: 'Maintaining a consistent and organized tag system in a large Obsidian vault is a manual and error-prone process. The goal was to automate this using AI.',
+    solution: 'Architected a dual-interface Python application with a rich command-line interface (CLI) and a modern web UI built with Flask. The core engine uses the Gemini API to analyze notes and intelligently suggest, rename, and merge tags.',
+    results: 'Delivered a complete, installable tool for the Obsidian community with features for batch processing, tag validation, and smart alias generation, significantly improving knowledge management workflows.',
+    credits: [
+      { name: 'John Oluleke-Oke', role: 'Lead Developer' }
+    ],
+    publishedAt: '2024-03-10T00:00:00Z'
   }
 ];
