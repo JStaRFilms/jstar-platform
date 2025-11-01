@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PortfolioProject, youtubeOverrides } from '@/content/portfolio';
 
 const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
-const PLAYLIST_ID = 'PLkFqsWpoD-J7nr3-AuGK6Y17Kc-meiRz7';
+const PLAYLIST_ID = 'PLkFqsWpoD-J5VcXgVfyfp-uFPKtKpSMzw';
 
 interface YouTubeVideoItem {
   id: string;
@@ -79,7 +79,7 @@ function transformYouTubeVideo(item: YouTubeVideoItem): PortfolioProject {
       publishedAt: overrides.publishedAt || baseProject.publishedAt,
       duration: overrides.duration || baseProject.duration,
       views: overrides.views !== undefined ? overrides.views : baseProject.views,
-      thumbnailUrl: overrides.thumbnailUrl || baseProject.thumbnailUrl,
+      thumbnailUrl: overrides.customThumbnailUrl || overrides.thumbnailUrl || baseProject.thumbnailUrl,
       videoUrl: overrides.videoUrl || baseProject.videoUrl
     };
   }
@@ -137,8 +137,9 @@ export async function GET(request: NextRequest) {
       return transformYouTubeVideo(item);
     });
 
-    // Sort by published date (newest first)
-    projects.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+    // Keep playlist order (as defined in YouTube)
+    // Comment out the line below if you want published date sorting instead
+    // projects.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
 
     return NextResponse.json({ projects });
 

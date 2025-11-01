@@ -28,6 +28,7 @@ export interface PortfolioProject {
   showViews?: boolean; // Default: true, can be overridden to false
   customTitle?: string; // Override YouTube title
   customDescription?: string; // Override YouTube description
+  customThumbnailUrl?: string; // Override YouTube thumbnail
 
   // Metadata
   publishedAt: string; // ISO date string
