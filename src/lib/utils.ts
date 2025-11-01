@@ -14,3 +14,14 @@ export function formatTime(date: Date): string {
     minute: '2-digit'
   });
 }
+
+/**
+ * Returns a random contact from an array of contacts
+ */
+export function getRandomContact(contacts: string[]): string {
+  if (!contacts || contacts.length === 0) {
+    return '';
+  }
+  const randomIndex = Math.floor(Math.random() * contacts.length);
+  return contacts[randomIndex];
+}

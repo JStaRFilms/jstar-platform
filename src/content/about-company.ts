@@ -29,7 +29,7 @@ export const companyData: CompanyData = {
 
   teamMembers: [
     { employeeId: 'JS001', name: 'John Oluleke-Oke', role: 'CEO / Chief Creative Director', imageUrl: '/team/john-oluleke-oke.jpg' },
-    { employeeId: 'JS002', name: 'Monjola Aminu', role: 'Chief Brand & Communications Officer', imageUrl: '/team/monjola-aminu.jpg' },
+    { employeeId: 'JS002', name: 'Monjolaoluwa Aminu', role: 'Chief Brand & Communications Officer', imageUrl: '/team/monjola-aminu.jpg' },
     { employeeId: 'JS003', name: 'Sharon Alalibo', role: 'Chief Operating Officer & Head of Human Resources', imageUrl: '/team/sharon-alalibo.jpg' },
     { employeeId: 'JS004', name: 'Justina Ominisan', role: 'Head of Software & AI Development', imageUrl: '/team/justina-ominisan.jpg' },
     { employeeId: 'JS005', name: 'Ifechukwu Odigwe', role: 'AI Tools Engineer & Data Scientist', imageUrl: '/team/Ifechukwude-odigwe.jpg' },

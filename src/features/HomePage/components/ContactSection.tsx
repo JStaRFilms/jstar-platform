@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { EnvelopeIcon, PhoneIcon, MapPinIcon, ClockIcon, CheckCircleIcon, ArrowRightIcon } from '../../../components/icons/static-icons';
 import AnimatedIcon from '../../../components/ui/AnimatedIcon';
+import { businessInfo } from '../../../content/contact';
+import { getRandomContact } from '../../../lib/utils';
 
 // TypeScript interfaces for contact system
 interface ContactFormData {
@@ -474,8 +476,8 @@ const ContactSection: React.FC = () => {
               <div className="flex items-center">
                 <div className="h-10 w-10 rounded-full bg-gradient-to-r from-jstar-blue to-faith-purple flex-shrink-0"></div>
                 <div className="ml-3">
-                  <p className="font-medium text-gray-900 dark:text-white">Sarah Johnson</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Marketing Director, TechNova</p>
+                  <p className="font-medium text-gray-900 dark:text-white">Johnson</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Marketing Director</p>
                 </div>
               </div>
             </div>
@@ -488,7 +490,7 @@ const ContactSection: React.FC = () => {
                 </div>
                 <div className="ml-4">
                   <h3 className="text-sm font-medium text-muted-foreground">Email us</h3>
-                  <p className="text-base text-foreground">hello@jstarfilms.com</p>
+                  <p className="text-base text-foreground">{businessInfo.email}</p>
                 </div>
               </div>
               <div className="flex items-start">
@@ -497,7 +499,7 @@ const ContactSection: React.FC = () => {
                 </div>
                 <div className="ml-4">
                   <h3 className="text-sm font-medium text-muted-foreground">Call us</h3>
-                  <p className="text-base text-foreground">+1 (555) 123-4567</p>
+                  <p className="text-base text-foreground">{getRandomContact(businessInfo.phone)}</p>
                 </div>
               </div>
               <div className="flex items-start">
@@ -506,7 +508,7 @@ const ContactSection: React.FC = () => {
                 </div>
                 <div className="ml-4">
                   <h3 className="text-sm font-medium text-muted-foreground">Visit us</h3>
-                  <p className="text-base text-foreground">123 Creative Lane, Suite 100<br />San Francisco, CA 94107</p>
+                  <p className="text-base text-foreground">{businessInfo.address}</p>
                 </div>
               </div>
               <div className="flex items-start">
@@ -515,7 +517,7 @@ const ContactSection: React.FC = () => {
                 </div>
                 <div className="ml-4">
                   <h3 className="text-sm font-medium text-muted-foreground">Working hours</h3>
-                  <p className="text-base text-foreground">Monday - Friday: 9am - 6pm<br />Saturday: 10am - 4pm</p>
+                  <p className="text-base text-foreground">{businessInfo.workingHours}</p>
                 </div>
               </div>
             </div>
