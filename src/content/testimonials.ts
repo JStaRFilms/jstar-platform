@@ -18,7 +18,7 @@ export const testimonials: Testimonial[] = [
   {
     quote: "Huge thanks to Goodness for helping elevate our church’s YouTube channel... we’ve started seeing some improvements in engagement and we are very glad we are working with him.",
     authorName: "Rev. Dr. Emmanuel Oke",
-    authorRole: "Lead Pastor, Winning Worship Way",
+    authorRole: "Lead Pastor, Winning Worship Way Christian Centre",
     authorImage: "/testimonials/rev-dr-oke.jpg",
     tags: ["Live Streaming", "Social Media Content"],
   },
