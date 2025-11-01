@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Platform - Portfolio Modal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669'
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', '-apple-system'],
+                        'mono': ['JetBrains Mono', 'Courier New', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --jstar-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --growth-green: #059669;
+            --gradient-brand: linear-gradient(135deg, var(--jstar-blue) 0%, var(--faith-purple) 100%);
+            --modal-overlay: rgba(0,0,0,0.5);
+        }
+        
+        .modal {
+            transition: all 0.3s ease-out;
+            transform: scale(0.95);
+            opacity: 0;
+        }
+        
+        .modal.open {
+            transform: scale(1);
+            opacity: 1;
+        }
+        
+        .video-container {
+            position: relative;
+            width: 100%;
+            max-height: 70vh;
+            max-height: calc(70vh - 4px); /* Slight adjustment for borders */
+            max-height: min(70vh, 600px);
+            overflow: hidden;
+            border-top-left-radius: 1rem;
+            border-top-right-radius: 1rem;
+        }
+        
+        .video-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.6) 100%);
+            z-index: 1;
+        }
+        
+        .video-player {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .tag-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+        
+        .tech-tag {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .tech-tag:hover {
+            transform: translateY(-2px);
+        }
+        
+        .modal-content {
+            max-height: calc(95vh - 200px);
+            overflow-y: auto;
+        }
+        
+        .modal-content::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .modal-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        .modal-content::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+        
+        .modal-content::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+        
+        @media (max-width: 768px) {
+            .modal-content {
+                max-height: calc(95vh - 150px);
+            }
+        }
+        
+        .btn-primary {
+            background: var(--gradient-brand);
+            background-size: 200% 200%;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
+            background-position: right center;
+        }
+        
+        .btn-outline {
+            border: 2px solid var(--jstar-blue);
+            color: var(--jstar-blue);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline:hover {
+            background: var(--jstar-blue);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.2);
+        }
+        
+        .stats-badge {
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            border-radius: 1rem;
+            padding: 0.3rem 0.75rem;
+            font-size: 0.75rem;
+            color: #4b5563;
+        }
+        
+        .stats-container {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .modal.open {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .focus-ring {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <!-- Demo trigger button -->
+    <div class="flex justify-center items-center h-screen">
+        <button id="openModal" class="px-6 py-3 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-xl font-medium hover:opacity-90 transition-opacity">
+            View Portfolio Project
+        </button>
+    </div>
+
+    <!-- Modal Overlay -->
+    <div id="modalOverlay" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
+        <div class="modal relative w-full max-w-5xl bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <!-- Close Button -->
+            <button id="closeModal" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 z-10" aria-label="Close modal">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+
+            <!-- Video Section (70% height) -->
+            <div class="bg-black rounded-t-2xl overflow-hidden">
+                <div class="video-container">
+                    <div class="relative w-full" style="padding-top: 56.25%;"> <!-- 16:9 aspect ratio -->
+                        <iframe class="absolute top-0 left-0 w-full h-full"
+                                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0"
+                                title="YouTube video player"
+                                frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Section (30% height) -->
+            <div class="modal-content p-6">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                    My Valentine | Shot on NOT iPhone
+                </h2>
+                
+                <div class="flex flex-wrap items-center gap-2 mb-4">
+                    <span class="text-sm text-gray-500 dark:text-gray-400">Case Study • 2023</span>
+                    <span class="w-1 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"></span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">15 min read</span>
+                </div>
+                
+                <p class="text-gray-700 dark:text-gray-300 mb-6">
+                    Get ready for a unique cinematic twist! 🎥✨ In my latest short film, "My Valentine," I break from the norm and create a visually stunning piece *not* shot on an iPhone. Using just a Samsung S10+, I explore the boundaries of mobile cinematography with creative techniques, lighting, and composition that challenge conventional wisdom.
+                </p>
+                
+                <!-- Technology Tags -->
+                <div class="tag-container">
+                    <span class="tech-tag bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300">Video Production</span>
+                    <span class="tech-tag bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300">Cinematography</span>
+                    <span class="tech-tag bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300">Mobile Filmmaking</span>
+                    <span class="tech-tag bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300">Color Grading</span>
+                </div>
+                
+                <!-- Project Stats -->
+                <div class="stats-container mt-6">
+                    <div class="stats-badge flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                        2.4M views
+                    </div>
+                    <div class="stats-badge flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        59 min
+                    </div>
+                    <div class="stats-badge flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 2.5 6.253v13C4.168 20.523 5.754 21 7.5 21s3.332-.477 5-1.253m0-13C14.168 5.477 15.754 5 17.5 5S20.832 5.477 22.5 6.253v13C20.832 20.523 19.246 21 17.5 21s-3.332-.477-5-1.253" />
+                        </svg>
+                        87K likes
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-3 mt-8">
+                    <button class="btn-primary text-white py-3 px-6 rounded-xl font-medium flex items-center justify-center gap-2">
+                        <span>View Live Project</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                    </button>
+                    <button class="btn-outline py-3 px-6 rounded-xl font-medium flex items-center justify-center gap-2">
+                        <span>View Full Case Study</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Modal functionality
+        const modalOverlay = document.getElementById('modalOverlay');
+        const openModalBtn = document.getElementById('openModal');
+        const closeModalBtn = document.getElementById('closeModal');
+        
+        function openModal() {
+            modalOverlay.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            
+            // Use requestAnimationFrame for smooth animation
+            requestAnimationFrame(() => {
+                modalOverlay.querySelector('.modal').classList.add('open');
+            });
+        }
+        
+        function closeModal() {
+            const modal = modalOverlay.querySelector('.modal');
+            modal.classList.remove('open');
+            
+            // Wait for animation to complete before hiding
+            setTimeout(() => {
+                modalOverlay.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }, 300);
+        }
+        
+        // Event listeners
+        openModalBtn.addEventListener('click', openModal);
+        closeModalBtn.addEventListener('click', closeModal);
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                closeModal();
+            }
+        });
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !modalOverlay.classList.contains('hidden')) {
+                closeModal();
+            }
+        });
+        
+        // Auto-apply dark mode
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        }
+        
+        // Add focus ring for accessibility
+        document.querySelectorAll('button, a').forEach(el => {
+            el.addEventListener('focus', () => {
+                el.classList.add('focus-ring');
+            });
+            el.addEventListener('blur', () => {
+                el.classList.remove('focus-ring');
+            });
+        });
+    </script>
+</body>
+</html>

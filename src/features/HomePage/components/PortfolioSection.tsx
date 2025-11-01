@@ -1,51 +1,62 @@
 
 'use client';
 
-import React from 'react';
-import Image from 'next/image';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePortfolioFilter } from '../hooks/usePortfolioFilter';
-import { PlayCircleIcon, ArrowRightIcon } from '../../../components/icons/static-icons';
-
-const portfolioItems = [
-  {
-    id: 1, category: 'video', title: 'Luxury Wedding Film',
-    image: 'https://images.unsplash.com/photo-1551818255-e6e10975bc17?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1473&q=80',
-    tags: ['4K Video', 'Wedding', 'Cinematic'],
-    description: 'A breathtaking cinematic wedding film captured in 4K with stunning aerial shots.'
-  },
-  {
-    id: 2, category: 'web', title: 'E-commerce Platform',
-    image: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?q=80&w=800&auto=format&fit=crop',
-    tags: ['E-commerce', 'React', 'Node.js'],
-    description: 'A high-performance online store with seamless checkout and inventory management.'
-  },
-  {
-    id: 3, category: 'branding', title: 'Brand Identity',
-    image: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80',
-    tags: ['Logo', 'Branding', 'Identity'],
-    description: 'Complete brand identity system including logo, colors, and typography.'
-  },
-  {
-    id: 4, category: 'video', title: 'Music Video Production',
-    image: 'https://images.unsplash.com/photo-1541462608143-67571c6738dd?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80',
-    tags: ['Music Video', 'Performance', '4K'],
-    description: 'High-energy music video featuring dynamic performances and creative visuals.'
-  },
-  {
-    id: 5, category: 'web', title: 'Fitness Mobile App',
-    image: 'https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80',
-    tags: ['Mobile App', 'React Native', 'UI/UX'],
-    description: 'A comprehensive fitness tracking application with personalized workout plans.'
-  },
-];
+import { ArrowRightIcon } from '../../../components/icons/static-icons';
+import { PortfolioProject, manualProjects } from '../../../content/portfolio';
+import PortfolioCard from './PortfolioCard';
+import PortfolioModal from './PortfolioModal';
 
 const PortfolioSection = () => {
   const { activeFilter, handleFilterChange } = usePortfolioFilter('all');
+  const [portfolioProjects, setPortfolioProjects] = useState<PortfolioProject[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedProject, setSelectedProject] = useState<PortfolioProject | null>(null);
+
+  // Smart curation engine: manual projects first (by order), then YouTube videos
+  useEffect(() => {
+    const fetchPortfolioData = async () => {
+      try {
+        setLoading(true);
+
+        // Fetch YouTube playlist data
+        const youtubeResponse = await fetch('/api/portfolio/youtube-playlist');
+        const youtubeData = youtubeResponse.ok ? await youtubeResponse.json() : { projects: [] };
+
+        // Combine manual projects and YouTube projects
+        const allProjects = [
+          ...manualProjects,
+          ...youtubeData.projects
+        ];
+
+        // Sort: manual projects by order first, then YouTube by date
+        allProjects.sort((a, b) => {
+          if (a.source === 'manual' && b.source === 'manual') {
+            return (a.order || 999) - (b.order || 999);
+          }
+          if (a.source === 'manual') return -1;
+          if (b.source === 'manual') return 1;
+          return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
+        });
+
+        setPortfolioProjects(allProjects);
+      } catch (error) {
+        console.error('Error fetching portfolio data:', error);
+        // Fallback to manual projects only
+        setPortfolioProjects(manualProjects);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPortfolioData();
+  }, []);
 
   const filteredItems = activeFilter === 'all'
-    ? portfolioItems
-    : portfolioItems.filter(item => item.category === activeFilter);
+    ? portfolioProjects
+    : portfolioProjects.filter(item => item.category === activeFilter);
 
   const getCategoryLabel = (category: string) => {
     switch (category) {
@@ -63,6 +74,14 @@ const PortfolioSection = () => {
       'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300'
     ];
     return colors[index % colors.length];
+  };
+
+  const handleProjectClick = (project: PortfolioProject) => {
+    setSelectedProject(project);
+  };
+
+  const closeModal = () => {
+    setSelectedProject(null);
   };
 
   return (
@@ -134,89 +153,37 @@ const PortfolioSection = () => {
         </div>
 
         {/* Portfolio Grid */}
-        {/* First Row - 2 columns */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-          {filteredItems.slice(0, 2).map(item => (
-            <div key={item.id} className="portfolio-item group relative overflow-hidden rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 h-full flex flex-col">
-              <div className={`aspect-video overflow-hidden ${item.category === 'video' ? 'bg-gradient-to-br from-primary to-accent' : item.category === 'web' ? 'bg-gradient-to-br from-blue-500 to-cyan-400' : 'bg-gradient-to-br from-purple-500 to-pink-500'}`}>
-                <Image src={item.image} alt={item.title} fill className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"/>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
-                  <div className="translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      {item.tags.map((tag, index) => (
-                        <span key={tag} className={`px-3 py-1 text-xs font-medium rounded-full ${getTagColor(tag, index)}`}>
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                    <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
-                    <p className="text-gray-200 text-sm">{item.description}</p>
-                  </div>
-                </div>
-                {item.category === 'video' && (
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-                      <PlayCircleIcon className="w-8 h-8 text-white" />
-                    </div>
-                  </div>
-                )}
-              </div>
-              <div className="p-6 bg-white dark:bg-gray-800 flex-1 flex flex-col justify-between">
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">{item.title}</h3>
-                    <p className="text-gray-500 dark:text-gray-400 text-sm">{getCategoryLabel(item.category)}</p>
-                  </div>
-                  <a href="#" className="text-primary dark:text-accent hover:opacity-80 transition-opacity ml-4 flex-shrink-0">
-                    <ArrowRightIcon className="w-5 h-5" />
-                  </a>
-                </div>
-              </div>
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          </div>
+        ) : (
+          <>
+            {/* First Row - 2 columns */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+              {filteredItems.slice(0, 2).map(project => (
+                <PortfolioCard
+                  key={project.id}
+                  project={project}
+                  onClick={() => handleProjectClick(project)}
+                  getTagColor={getTagColor}
+                />
+              ))}
             </div>
-          ))}
-        </div>
 
-        {/* Second Row - 3 columns */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-          {filteredItems.slice(2).map(item => (
-            <div key={item.id} className="portfolio-item group relative overflow-hidden rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 h-full flex flex-col">
-              <div className={`aspect-video overflow-hidden ${item.category === 'video' ? 'bg-gradient-to-br from-rose-500 to-pink-500' : item.category === 'web' ? 'bg-gradient-to-br from-emerald-500 to-cyan-500' : 'bg-gradient-to-br from-purple-500 to-pink-500'}`}>
-                <Image src={item.image} alt={item.title} fill className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"/>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
-                  <div className="translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      {item.tags.map((tag, index) => (
-                        <span key={tag} className={`px-3 py-1 text-xs font-medium rounded-full ${getTagColor(tag, index)}`}>
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                    <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
-                    <p className="text-gray-200 text-sm">{item.description}</p>
-                  </div>
-                </div>
-                {item.category === 'video' && (
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-                      <PlayCircleIcon className="w-8 h-8 text-white" />
-                    </div>
-                  </div>
-                )}
-              </div>
-              <div className="p-6 bg-white dark:bg-gray-800 flex-1 flex flex-col justify-between">
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">{item.title}</h3>
-                    <p className="text-gray-500 dark:text-gray-400 text-sm">{getCategoryLabel(item.category)}</p>
-                  </div>
-                  <a href="#" className="text-primary dark:text-accent hover:opacity-80 transition-opacity ml-4 flex-shrink-0">
-                    <ArrowRightIcon className="w-5 h-5" />
-                  </a>
-                </div>
-              </div>
+            {/* Second Row - 3 columns */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+              {filteredItems.slice(2, 5).map(project => (
+                <PortfolioCard
+                  key={project.id}
+                  project={project}
+                  onClick={() => handleProjectClick(project)}
+                  getTagColor={getTagColor}
+                />
+              ))}
             </div>
-          ))}
-        </div>
+          </>
+        )}
 
         {/* CTA */}
         <div className="text-center">
@@ -225,6 +192,13 @@ const PortfolioSection = () => {
             <ArrowRightIcon className="ml-2 -mr-1 w-5 h-5" />
           </Link>
         </div>
+
+        {/* Portfolio Modal */}
+        <PortfolioModal
+          project={selectedProject}
+          onClose={closeModal}
+          isOpen={selectedProject !== null}
+        />
       </div>
     </section>
   );

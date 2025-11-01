@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J StaR Films - Design System</title>
+    <meta name="description" content="Comprehensive design system for J StaR Films platform featuring colors, typography, components, and navigation patterns.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Clash+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'jstar-blue': '#2563EB',
+                        'faith-purple': '#8B5CF6',
+                        'growth-green': '#059669',
+                        'obsidian-gray': '#2D3748'
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', '-apple-system'],
+                        'display': ['Clash Display', 'system-ui', '-apple-system']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-blue: #2563EB;
+            --faith-purple: #8B5CF6;
+            --growth-green: #059669;
+            --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--faith-purple) 100%);
+            --transition-normal: 300ms;
+        }
+
+        .btn-enhanced {
+            transition: all var(--transition-normal) ease;
+        }
+
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
+        }
+
+        .portfolio-card {
+            position: relative;
+            overflow: hidden;
+            transition: all var(--transition-normal) ease;
+        }
+
+        .portfolio-card:hover {
+            transform: translateY(-8px);
+        }
+
+        .portfolio-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity var(--transition-normal) ease;
+        }
+
+        .portfolio-card:hover .portfolio-image::before {
+            opacity: 1;
+        }
+
+        .portfolio-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all var(--transition-normal) ease;
+        }
+
+        .portfolio-card:hover .portfolio-overlay {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .navbar-blur {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .dark .navbar-blur {
+            background: rgba(17, 24, 39, 0.9);
+        }
+
+        .color-swatch {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .component-showcase {
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .dark .component-showcase {
+            background: #1F2937;
+            border-color: #4B5563;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+    <!-- Theme Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="document.documentElement.classList.toggle('dark')"
+                class="p-3 rounded-full bg-jstar-blue text-white hover:bg-faith-purple transition-all duration-300 shadow-lg">
+            <i class="fas fa-moon text-lg"></i>
+        </button>
+    </div>
+
+    <div class="max-w-7xl mx-auto p-6">
+        <!-- Header -->
+        <header class="text-center mb-16">
+            <h1 class="text-6xl font-bold bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent mb-6 font-display">
+                J StaR Design System
+            </h1>
+            <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                Comprehensive visual style guide for the J StaR Films platform
+            </p>
+        </header>
+
+        <!-- 1. Color Palette -->
+        <section class="mb-20">
+            <h2 class="text-4xl font-bold mb-12 text-gray-900 dark:text-white text-center">Color Palette</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-xl">
+                    <h3 class="text-2xl font-semibold mb-6">Primary Colors</h3>
+                    <div class="space-y-6">
+                        <div class="flex items-center">
+                            <div class="color-swatch bg-jstar-blue mr-4"></div>
+                            <div>
+                                <div class="font-semibold">J StaR Blue</div>
+                                <div class="text-sm text-gray-500 font-mono">#2563EB</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="color-swatch bg-faith-purple mr-4"></div>
+                            <div>
+                                <div class="font-semibold">Faith Purple</div>
+                                <div class="text-sm text-gray-500 font-mono">#8B5CF6</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="color-swatch bg-growth-green mr-4"></div>
+                            <div>
+                                <div class="font-semibold">Growth Green</div>
+                                <div class="text-sm text-gray-500 font-mono">#059669</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-xl">
+                    <h3 class="text-2xl font-semibold mb-6">Gradients</h3>
+                    <div class="space-y-6">
+                        <div>
+                            <div class="w-full h-16 rounded-xl shadow-md" style="background: var(--gradient-brand);"></div>
+                            <div class="text-sm mt-3 font-semibold">Brand Gradient</div>
+                        </div>
+                        <div>
+                            <div class="w-full h-16 rounded-xl shadow-md bg-gradient-to-r from-faith-purple to-pink-500"></div>
+                            <div class="text-sm mt-3 font-semibold">Faith Gradient</div>
+                        </div>
+                        <div>
+                            <div class="w-full h-16 rounded-xl shadow-md bg-gradient-to-r from-growth-green to-cyan-400"></div>
+                            <div class="text-sm mt-3 font-semibold">Growth Gradient</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-xl">
+                    <h3 class="text-2xl font-semibold mb-6">Tier System</h3>
+                    <div class="space-y-4">
+                        <div class="px-3 py-2 bg-gradient-to-r from-gray-400 to-gray-500 text-white rounded-full text-center text-sm font-medium">Guest</div>
+                        <div class="px-3 py-2 bg-gradient-to-r from-jstar-blue to-blue-600 text-white rounded-full text-center text-sm font-medium">Tier 1</div>
+                        <div class="px-3 py-2 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-full text-center text-sm font-medium">Tier 2</div>
+                        <div class="px-3 py-2 bg-gradient-to-r from-faith-purple to-growth-green text-white rounded-full text-center text-sm font-medium">Tier 3</div>
+                        <div class="px-3 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-full text-center text-sm font-medium">Admin</div>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-xl">
+                    <h3 class="text-2xl font-semibold mb-6">Semantic</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 rounded-full bg-red-500 mr-3"></div>
+                            <div><div class="font-medium">Error</div><div class="text-xs text-gray-500">#EF4444</div></div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 rounded-full bg-yellow-500 mr-3"></div>
+                            <div><div class="font-medium">Warning</div><div class="text-xs text-gray-500">#F59E0B</div></div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 rounded-full bg-green-500 mr-3"></div>
+                            <div><div class="font-medium">Success</div><div class="text-xs text-gray-500">#10B981</div></div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 rounded-full bg-blue-500 mr-3"></div>
+                            <div><div class="font-medium">Info</div><div class="text-xs text-gray-500">#3B82F6</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Typography -->
+        <section class="mb-20">
+            <h2 class="text-4xl font-bold mb-12 text-center">Typography</h2>
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-12 shadow-xl">
+                <div class="space-y-8">
+                    <div>
+                        <div class="text-6xl font-bold mb-2 font-display">Display Heading</div>
+                        <div class="text-sm text-gray-500 font-mono">Clash Display - 60px - Bold</div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-8">
+                        <div><h1 class="text-5xl font-bold mb-2">Heading 1</h1><div class="text-sm text-gray-500 font-mono">Inter - 48px - Bold</div></div>
+                        <div><h2 class="text-4xl font-bold mb-2">Heading 2</h2><div class="text-sm text-gray-500 font-mono">Inter - 36px - Bold</div></div>
+                        <div><h3 class="text-3xl font-semibold mb-2">Heading 3</h3><div class="text-sm text-gray-500 font-mono">Inter - 30px - Semibold</div></div>
+                        <div><h4 class="text-2xl font-semibold mb-2">Heading 4</h4><div class="text-sm text-gray-500 font-mono">Inter - 24px - Semibold</div></div>
+                    </div>
+                    <div class="border-t pt-8">
+                        <h3 class="text-xl font-semibold mb-4">Body Text</h3>
+                        <div class="space-y-4">
+                            <div><p class="text-lg">Large body text for emphasis</p><div class="text-sm text-gray-500 font-mono">18px Regular</div></div>
+                            <div><p class="text-base">Regular body text</p><div class="text-sm text-gray-500 font-mono">16px Regular</div></div>
+                            <div><p class="text-sm">Small text for captions</p><div class="text-sm text-gray-500 font-mono">14px Regular</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Core Components -->
+        <section class="mb-20">
+            <h2 class="text-4xl font-bold mb-12 text-center">Core Components</h2>
+
+            <!-- Buttons -->
+            <div class="mb-16">
+                <h3 class="text-3xl font-semibold mb-8">Buttons</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="component-showcase">
+                        <h4 class="text-lg font-semibold mb-4">Primary Button</h4>
+                        <button class="btn-enhanced w-full px-6 py-3 text-white rounded-lg font-semibold" style="background: var(--gradient-brand);">
+                            Get Started
+                        </button>
+                    </div>
+                    <div class="component-showcase">
+                        <h4 class="text-lg font-semibold mb-4">Secondary Button</h4>
+                        <button class="w-full px-6 py-3 border-2 border-jstar-blue text-jstar-blue rounded-lg font-semibold hover:bg-jstar-blue hover:text-white transition-all">
+                            Learn More
+                        </button>
+                    </div>
+                    <div class="component-showcase">
+                        <h4 class="text-lg font-semibold mb-4">Tertiary Button</h4>
+                        <button class="w-full px-6 py-3 text-gray-600 hover:text-jstar-blue transition-colors font-medium">
+                            View Details →
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cards -->
+            <div class="mb-16">
+                <h3 class="text-3xl font-semibold mb-8">Cards</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="component-showcase">
+                        <h4 class="text-lg font-semibold mb-4">Service Card</h4>
+                        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
+                            <div class="w-12 h-12 bg-gradient-to-r from-jstar-blue to-faith-purple rounded-xl flex items-center justify-center mb-4">
+                                <i class="fas fa-video text-white"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-3">Video Production</h3>
+                            <p class="text-gray-600 text-sm mb-4">Cinematic wedding films and brand storytelling</p>
+                            <a href="#" class="text-jstar-blue font-semibold hover:text-faith-purple">View Portfolio →</a>
+                        </div>
+                    </div>
+
+                    <div class="component-showcase">
+                        <h4 class="text-lg font-semibold mb-4">Pricing Card</h4>
+                        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border-2 border-jstar-blue relative">
+                            <div class="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                                <span class="bg-gradient-to-r from-jstar-blue to-faith-purple text-white px-4 py-1 rounded-full text-sm font-bold">
+                                    MOST POPULAR
+                                </span>
+                            </div>
+                            <div class="text-center mb-6">
+                                <h3 class="text-2xl font-bold">Premium</h3>
+                                <div class="mt-2"><span class="text-4xl font-bold">₦350,000</span><span class="text-gray-600">/project</span></div>
+                            </div>
+                            <ul class="space-y-3 mb-6">
+                                <li class="flex items-center text-sm"><i class="fas fa-check text-green-500 mr-2"></i>5-8 minute highlight film</li>
+                                <li class="flex items-center text-sm"><i class="fas fa-check text-green-500 mr-2"></i>Professional color grading</li>
+                                <li class="flex items-center text-sm"><i class="fas fa-check text-green-500 mr-2"></i>Drone footage included</li>
+                            </ul>
+                            <button class="w-full px-6 py-3 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold">
+                                Get Started
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="component-showcase">
+                        <h4 class="text-lg font-semibold mb-4">Testimonial Card</h4>
+                        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 bg-gradient-to-r from-faith-purple to-growth-green rounded-full flex items-center justify-center mr-4">
+                                    <span class="text-white font-bold">SJ</span>
+                                </div>
+                                <div><div class="font-semibold">Sarah Johnson</div><div class="text-sm text-gray-600">Wedding Client</div></div>
+                            </div>
+                            <div class="flex text-yellow-400 mb-2"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                            <p class="italic">"John captured our wedding day perfectly..."</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Portfolio Card -->
+            <div>
+                <h3 class="text-3xl font-semibold mb-8">Portfolio Card (Interactive)</h3>
+                <div class="max-w-md mx-auto component-showcase">
+                    <h4 class="text-lg font-semibold mb-4">Portfolio Card - Hover for Effects</h4>
+                    <div class="portfolio-card bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg">
+                        <div class="portfolio-image h-48 bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center">
+                            <div class="text-center text-white">
+                                <i class="fas fa-video text-3xl mb-2"></i>
+                                <p class="font-medium">Wedding Film</p>
+                            </div>
+                            <div class="portfolio-overlay">
+                                <h3 class="text-lg font-bold text-white mb-2">The Johnson Wedding</h3>
+                                <p class="text-gray-200 mb-3 text-sm">Cinematic highlight film with drone footage</p>
+                                <button class="px-4 py-2 bg-white text-gray-900 rounded-lg font-medium hover:bg-gray-100">
+                                    View Project
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-lg font-bold">The Johnson Wedding</h3>
+                                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium">Wedding</span>
+                            </div>
+                            <p class="text-gray-600 text-sm mb-3">A cinematic highlight film capturing the joy and emotion...</p>
+                            <div class="flex flex-wrap gap-1">
+                                <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded text-xs">Drone</span>
+                                <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded text-xs">4K</span>
+                                <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded text-xs">Color Grading</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-sm text-gray-600">
+                        <strong>Hover Effects:</strong> Image scaling, gradient overlay, animated text content
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Layout & Spacing -->
+        <section class="mb-20">
+            <h2 class="text-4xl font-bold mb-12 text-center">Layout & Spacing</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-xl">
+                    <h3 class="text-2xl font-semibold mb-6">Spacing Scale</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center"><div class="w-2 h-8 bg-jstar-blue rounded mr-4"></div><div><div class="font-medium">space-1</div><div class="text-sm text-gray-500">4px</div></div></div>
+                        <div class="flex items-center"><div class="w-4 h-8 bg-jstar-blue rounded mr-4"></div><div><div class="font-medium">space-2</div><div class="text-sm text-gray-500">8px</div></div></div>
+                        <div class="flex items-center"><div class="w-6 h-8 bg-jstar-blue rounded mr-4"></div><div><div class="font-medium">space-4</div><div class="text-sm text-gray-500">16px</div></div></div>
+                        <div class="flex items-center"><div class="w-8 h-8 bg-jstar-blue rounded mr-4"></div><div><div class="font-medium">space-6</div><div class="text-sm text-gray-500">24px</div></div></div>
+                        <div class="flex items-center"><div class="w-10 h-8 bg-jstar-blue rounded mr-4"></div><div><div class="font-medium">space-8</div><div class="text-sm text-gray-500">32px</div></div></div>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-xl">
+                    <h3 class="text-2xl font-semibold mb-6">Border Radius</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center"><div class="w-12 h-6 bg-jstar-blue rounded-sm mr-4"></div><span class="font-mono text-sm">rounded-sm</span></div>
+                        <div class="flex items-center"><div class="w-12 h-6 bg-jstar-blue rounded-md mr-4"></div><span class="font-mono text-sm">rounded-md</span></div>
+                        <div class="flex items-center"><div class="w-12 h-6 bg-jstar-blue rounded-lg mr-4"></div><span class="font-mono text-sm">rounded-lg</span></div>
+                        <div class="flex items-center"><div class="w-12 h-6 bg-jstar-blue rounded-xl mr-4"></div><span class="font-mono text-sm">rounded-xl</span></div>
+                        <div class="flex items-center"><div class="w-12 h-6 bg-jstar-blue rounded-full mr-4"></div><span class="font-mono text-sm">rounded-full</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. Navigation System -->
+        <section class="mb-20">
+            <h2 class="text-4xl font-bold mb-12 text-center">Navigation System</h2>
+
+            <!-- Desktop Navigation -->
+            <div class="mb-12">
+                <h3 class="text-3xl font-semibold mb-8">Desktop Navigation</h3>
+                <div class="component-showcase">
+                    <h4 class="text-lg font-semibold mb-4">Primary Navigation Bar</h4>
+                    <nav class="navbar-blur border-b border-gray-200 dark:border-gray-700">
+                        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <div class="flex justify-between items-center h-16">
+                                <div class="flex items-center">
+                                    <a href="/" class="text-2xl font-bold bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">
+                                        J StaR Films
+                                    </a>
+                                </div>
+
+                                <div class="hidden md:flex items-center space-x-8">
+                                    <a href="#about" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">About</a>
+                                    <a href="#portfolio" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Portfolio</a>
+                                    <a href="#services" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Services</a>
+                                    <a href="#store" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Store</a>
+                                    <a href="#blog" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Blog</a>
+                                    <a href="#contact" class="text-gray-700 dark:text-gray-300 hover:text-jstar-blue transition-colors">Contact</a>
+                                </div>
+
+                                <div class="flex items-center space-x-4">
+                                    <button onclick="document.documentElement.classList.toggle('dark')"
+                                            class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all">
+                                        <i class="fas fa-moon"></i>
+                                    </button>
+                                    <button class="btn-enhanced px-4 py-2 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold">
+                                        Meet JohnGPT
+                                    </button>
+                                    <button class="md:hidden p-2 rounded-lg bg-gray-100 dark:bg-gray-800">
+                                        <i class="fas fa-bars"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </nav>
+                    <div class="mt-4 text-sm text-gray-600">
+                        <strong>Features:</strong> Logo, navigation links, theme toggle, CTA button, mobile hamburger
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Navigation -->
+            <div>
+                <h3 class="text-3xl font-semibold mb-8">Mobile Navigation</h3>
+                <div class="component-showcase">
+                    <h4 class="text-lg font-semibold mb-4">Mobile Menu (Slide-out)</h4>
+                    <div class="relative">
+                        <!-- Mobile Menu Trigger -->
+                        <button class="md:hidden fixed top-4 left-4 z-50 p-3 rounded-lg bg-gray-100 dark:bg-gray-800 shadow-lg">
+                            <i class="fas fa-bars text-lg"></i>
+                        </button>
+
+                        <!-- Mobile Menu Panel (Mockup) -->
+                        <div class="fixed top-0 left-0 h-full w-80 bg-white dark:bg-gray-800 shadow-2xl transform -translate-x-full transition-transform duration-300 border-r border-gray-200 dark:border-gray-700">
+                            <div class="p-6">
+                                <div class="flex items-center justify-between mb-8">
+                                    <a href="/" class="text-xl font-bold bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent">
+                                        J StaR Films
+                                    </a>
+                                    <button class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+
+                                <nav class="space-y-6">
+                                    <a href="#about" class="block py-3 px-4 text-lg font-medium text-gray-900 dark:text-white hover:bg-jstar-blue hover:text-white rounded-lg transition-all">
+                                        <i class="fas fa-user mr-3"></i>About
+                                    </a>
+                                    <a href="#portfolio" class="block py-3 px-4 text-lg font-medium text-gray-900 dark:text-white hover:bg-jstar-blue hover:text-white rounded-lg transition-all">
+                                        <i class="fas fa-briefcase mr-3"></i>Portfolio
+                                    </a>
+                                    <a href="#services" class="block py-3 px-4 text-lg font-medium text-gray-900 dark:text-white hover:bg-jstar-blue hover:text-white rounded-lg transition-all">
+                                        <i class="fas fa-cogs mr-3"></i>Services
+                                    </a>
+                                    <a href="#store" class="block py-3 px-4 text-lg font-medium text-gray-900 dark:text-white hover:bg-jstar-blue hover:text-white rounded-lg transition-all">
+                                        <i class="fas fa-store mr-3"></i>Store
+                                    </a>
+                                    <a href="#blog" class="block py-3 px-4 text-lg font-medium text-gray-900 dark:text-white hover:bg-jstar-blue hover:text-white rounded-lg transition-all">
+                                        <i class="fas fa-blog mr-3"></i>Blog
+                                    </a>
+                                    <a href="#contact" class="block py-3 px-4 text-lg font-medium text-gray-900 dark:text-white hover:bg-jstar-blue hover:text-white rounded-lg transition-all">
+                                        <i class="fas fa-envelope mr-3"></i>Contact
+                                    </a>
+                                </nav>
+
+                                <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                                    <button class="w-full btn-enhanced px-6 py-3 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold">
+                                        <i class="fas fa-robot mr-2"></i>Meet JohnGPT
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-sm text-gray-600">
+                        <strong>Features:</strong> Slide-out panel, icon navigation, close button, CTA integration
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center py-12 border-t border-gray-200 dark:border-gray-700">
+            <p class="text-gray-600 dark:text-gray-400">
+                J StaR Films Design System • Where faith meets film and future
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // Theme management
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        }
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
