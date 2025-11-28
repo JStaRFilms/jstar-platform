@@ -247,6 +247,56 @@ See `src/components/examples/ScrollAnimationExamples.tsx` for:
 - Ensure refs are typed correctly: `MutableRefObject<HTMLElement | null>`
 - For specific elements use: `as HTMLDivElement` if needed
 
+### Dynamic Content Support
+
+The `useScrollAnimationMulti` hook automatically handles dynamic content updates. If the `count` changes (e.g., due to filtering or async data loading), the hook will:
+1. Re-initialize refs
+2. Reset visibility states
+3. Re-observe elements
+
+This makes it perfect for filtered lists or asynchronously loaded grids.
+
+### Re-triggering Animations
+
+By default, animations only play once (`triggerOnce: true`). To have elements animate every time they enter the viewport:
+
+```tsx
+const { ref, isVisible } = useScrollAnimation({
+  triggerOnce: false
+});
+```
+
+This is useful for:
+- Long landing pages where users might scroll back up
+- Interactive elements that should reset their state when out of view
+
+### Mobile-Specific Interactions
+
+You can use the scroll animation system to trigger mobile-specific interactions, such as auto-revealing hover states when elements enter the viewport.
+
+**Pattern:**
+1. Detect mobile device
+2. Use `useScrollAnimationMulti` to track visibility
+3. Pass visibility state to component to force "hover" styles
+
+```tsx
+// Component
+const { refs, visibilityStates } = useScrollAnimationMulti({
+  count: items.length,
+  triggerOnce: false // Reset when out of view
+});
+
+// Render
+<Card 
+  forceHover={isMobile && visibilityStates[index]} 
+  ref={refs[index]} 
+/>
+```
+
+This ensures mobile users get a rich experience without needing touch interactions.
+
+---
+
 ## 10. Integration
 
 ### Adding to Existing Components

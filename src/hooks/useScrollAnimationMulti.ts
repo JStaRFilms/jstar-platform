@@ -73,15 +73,29 @@ export const useScrollAnimationMulti = <T extends HTMLElement = HTMLElement>({
     triggerOnce = true,
     staggerDelay = 100,
 }: UseScrollAnimationMultiOptions): UseScrollAnimationMultiReturn<T> => {
-    // Create array of refs for each element
-    const refs = useRef<React.MutableRefObject<T | null>[]>(
-        Array.from({ length: count }, () => ({ current: null }))
-    ).current;
+    // Create array of refs for each element - handle dynamic count
+    const refs = useRef<React.MutableRefObject<T | null>[]>([]);
+
+    // Update refs array if count changes
+    if (refs.current.length !== count) {
+        refs.current = Array.from({ length: count }, (_, i) =>
+            refs.current[i] || { current: null }
+        );
+    }
 
     // Track visibility state for each element
     const [visibilityStates, setVisibilityStates] = useState<boolean[]>(
         Array(count).fill(false)
     );
+
+    // Update visibility states when count changes
+    useEffect(() => {
+        setVisibilityStates((prev) => {
+            if (prev.length === count) return prev;
+            return Array(count).fill(false);
+        });
+        setAllAnimated(false);
+    }, [count]);
 
     // Track if all elements have been animated
     const [allAnimated, setAllAnimated] = useState(false);
@@ -108,7 +122,7 @@ export const useScrollAnimationMulti = <T extends HTMLElement = HTMLElement>({
                 entries.forEach((entry) => {
                     if (entry.isIntersecting) {
                         // Find which element triggered the observer
-                        const elementIndex = refs.findIndex(
+                        const elementIndex = refs.current.findIndex(
                             (ref) => ref.current === entry.target
                         );
 
@@ -138,7 +152,7 @@ export const useScrollAnimationMulti = <T extends HTMLElement = HTMLElement>({
                         }
                     } else if (!triggerOnce) {
                         // If triggerOnce is false, allow re-triggering
-                        const elementIndex = refs.findIndex(
+                        const elementIndex = refs.current.findIndex(
                             (ref) => ref.current === entry.target
                         );
 
@@ -160,7 +174,7 @@ export const useScrollAnimationMulti = <T extends HTMLElement = HTMLElement>({
         );
 
         // Observe all elements
-        refs.forEach((ref) => {
+        refs.current.forEach((ref) => {
             if (ref.current) {
                 observer.observe(ref.current);
             }
@@ -170,10 +184,10 @@ export const useScrollAnimationMulti = <T extends HTMLElement = HTMLElement>({
         return () => {
             observer.disconnect();
         };
-    }, [count, threshold, rootMargin, triggerOnce, staggerDelay, refs]);
+    }, [count, threshold, rootMargin, triggerOnce, staggerDelay]); // Removed refs from dependency as it is a ref
 
     return {
-        refs,
+        refs: refs.current,
         visibilityStates,
         allAnimated,
     };
