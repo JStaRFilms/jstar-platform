@@ -13,10 +13,11 @@ This document comprehensively details the implementation of a sophisticated thre
 - **Unified Experience**: Consistent UI across all content types
 
 ### **2. Advanced Modal System**
-- **Video-Centric Design**: Large cinematic modal with focus on playback
-- **Responsive Sizing**: Adapts to viewport with standard 16:9 aspect ratio
-- **Native Experience**: Uses YouTube's native player for maximum compatibility
-- **Interactive Controls**: Full native YouTube controls (autoplay, quality, speed, captions)
+- **Mini Cinema Experience**: Immersive 70/30 split layout (70% video, 30% content)
+- **Cinematic Design**: Dark-themed video section with custom controls
+- **Responsive Sizing**: Fixed height modal (85vh) with scrollable content area
+- **Clean Interface**: Minimalist design with hidden YouTube branding
+- **Interactive Controls**: Custom Play/Pause and Mute/Unmute toggles
 - **Accessibility**: Full keyboard navigation and screen reader support
 
 ### **3. Dynamic Case Study Pages**
@@ -75,6 +76,8 @@ src/
 │       │   └── PortfolioModal.tsx       # Video modal component
 │       └── hooks/
 │           └── usePortfolioFilter.ts    # Filtering logic
+├── hooks/
+│   └── useYouTubePlayer.ts              # Custom YouTube player hook
 └── components/
     ├── ui/
     │   └── dialog.tsx                   # Reusable dialog component
@@ -180,11 +183,11 @@ interface ProjectCredit {
 - **Click Handling**: Opens modal with project data
 
 ### **PortfolioModal Component**
-- **Video-First Layout**: Video takes prominence at the top
-- **Native Video Display**: Uses YouTube's native player for reliability
-- **Aspect Ratio Handling**: Standard 16:9 aspect ratio (`padding-top: 56.25%`)
-- **Responsive Design**: Adapts to screen size, stacking content below video
-- **Content Types**: Handles videos, images, and text
+- **Split Layout**: 70% Video (Left/Top) / 30% Content (Right/Bottom)
+- **Custom Player**: Uses `useYouTubePlayer` hook for seamless integration
+- **Clean UI**: Removed borders and dividers for a unified look
+- **Responsive Design**: Stacks vertically on mobile, side-by-side on desktop
+- **Content Types**: Handles videos, images, and text with consistent styling
 
 ## ⚙️ **Configuration Options**
 
@@ -270,16 +273,16 @@ Edit the `max-w-` class in `PortfolioModal.tsx`:
 - `max-w-2xl` = 672px (compact)
 - `max-w-3xl` = 768px (balanced)
 - `max-w-4xl` = 896px (spacious)
-- `max-w-6xl` = 1152px (cinematic/current default)
+- `max-w-7xl` = 1280px (cinematic/current default)
 
 ## 🎬 **Video System Features**
 
 ### **Modal Video Player**
-- **Native Interface**: Uses standard YouTube controls for familiarity
+- **Custom Interface**: Custom Play/Pause and Mute controls overlay
 - **Autoplay**: Videos start automatically when modal opens
-- **Aspect Ratio**: Standard 16:9 ratio ensures no cropping
+- **Aspect Ratio**: Player fills the 70% container width
 - **Responsive**: Adapts to modal size changes
-- **Reliability**: Eliminates sizing conflicts by adhering to YouTube standards
+- **Reliability**: Uses YouTube IFrame API for robust control
 
 ### **Thumbnail Display**
 - **Custom Thumbnails**: Override YouTube thumbnails per video

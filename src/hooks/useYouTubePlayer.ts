@@ -15,6 +15,13 @@ interface UseYouTubePlayerProps {
     onStateChange?: (event: any) => void;
 }
 
+/**
+ * Custom hook to manage a YouTube IFrame Player API instance.
+ * Handles loading the API script, initializing the player, and exposing control methods.
+ *
+ * @param props - Configuration options for the player.
+ * @returns An object containing player state and control functions.
+ */
 export const useYouTubePlayer = ({
     videoId,
     elementId,
@@ -27,6 +34,15 @@ export const useYouTubePlayer = ({
     const [isMuted, setIsMuted] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
     const playerRef = useRef<any>(null);
+
+    // Refs for callbacks to ensure stable dependencies for the effect
+    const onReadyRef = useRef(onReady);
+    const onStateChangeRef = useRef(onStateChange);
+
+    useEffect(() => {
+        onReadyRef.current = onReady;
+        onStateChangeRef.current = onStateChange;
+    }, [onReady, onStateChange]);
 
     useEffect(() => {
         // Load YouTube IFrame API if not already loaded
@@ -67,12 +83,12 @@ export const useYouTubePlayer = ({
                         if (autoPlay) {
                             event.target.playVideo();
                         }
-                        if (onReady) onReady();
+                        if (onReadyRef.current) onReadyRef.current();
                     },
                     onStateChange: (event: any) => {
                         // YT.PlayerState.PLAYING = 1, PAUSED = 2
                         setIsPlaying(event.data === 1);
-                        if (onStateChange) onStateChange(event);
+                        if (onStateChangeRef.current) onStateChangeRef.current(event);
                     },
                 },
             });

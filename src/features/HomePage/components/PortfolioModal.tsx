@@ -7,11 +7,22 @@ import { PortfolioProject } from '../../../content/portfolio';
 import { useYouTubePlayer } from '@/hooks/useYouTubePlayer';
 import { PlayCircleIcon, PauseCircleIcon } from '@/components/icons/static-icons';
 
+/**
+ * Props for the PortfolioModal component.
+ */
 interface PortfolioModalProps {
+  /** The project data to display. If null, the modal is hidden (though usually controlled by isOpen). */
   project: PortfolioProject | null;
+  /** Callback function to close the modal. */
   onClose: () => void;
+  /** Boolean indicating if the modal is currently open. */
   isOpen: boolean;
 }
+
+/**
+ * A modal component that displays detailed information about a portfolio project.
+ * It features a split layout with a video player (using a custom YouTube hook) and a content section.
+ */
 
 // Custom Mute/Unmute Icons
 const VolumeUpIcon = ({ className }: { className?: string }) => (
@@ -138,7 +149,7 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ project, onClose, isOpe
               {project.title}
             </h2>
 
-            <div className="flex items-center gap-3 mb-6 text-sm text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700 pb-6">
+            <div className="flex items-center gap-3 mb-6 text-sm text-gray-500 dark:text-gray-400">
               <span>{new Date(project.publishedAt).getFullYear()}</span>
               {project.views && (
                 <>
@@ -168,7 +179,7 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ project, onClose, isOpe
               )}
             </div>
 
-            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <div className="mt-8">
               {project.liveUrl && (
                 <a
                   href={project.liveUrl}
