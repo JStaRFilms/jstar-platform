@@ -25,6 +25,28 @@ export const PlayCircleIcon: React.FC<IconProps> = ({
 );
 
 /**
+ * Pause circle icon for video/media controls
+ */
+export const PauseCircleIcon: React.FC<IconProps> = ({
+  className,
+  'aria-label': ariaLabel,
+  'aria-hidden': ariaHidden,
+  role
+}) => (
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+    aria-label={ariaLabel}
+    aria-hidden={ariaHidden}
+    role={role}
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+  </svg>
+);
+
+/**
  * Check mark icon for success states
  */
 export const CheckIcon: React.FC<IconProps> = ({
