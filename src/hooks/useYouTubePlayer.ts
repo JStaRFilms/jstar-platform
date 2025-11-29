@@ -110,11 +110,15 @@ export const useYouTubePlayer = ({
     }, [videoId, elementId, autoPlay, startTime]);
 
     const play = useCallback(() => {
-        player?.playVideo();
+        if (player && typeof player.playVideo === 'function') {
+            player.playVideo();
+        }
     }, [player]);
 
     const pause = useCallback(() => {
-        player?.pauseVideo();
+        if (player && typeof player.pauseVideo === 'function') {
+            player.pauseVideo();
+        }
     }, [player]);
 
     const togglePlay = useCallback(() => {

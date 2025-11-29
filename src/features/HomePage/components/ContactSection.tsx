@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { EnvelopeIcon, PhoneIcon, MapPinIcon, ClockIcon, CheckCircleIcon, ArrowRightIcon } from '../../../components/icons/static-icons';
+import { EnvelopeIcon, PhoneIcon, MapPinIcon, ClockIcon, CheckCircleIcon } from '../../../components/icons/static-icons';
 import AnimatedIcon from '../../../components/ui/AnimatedIcon';
 import { businessInfo } from '../../../content/contact';
 import { getRandomContact } from '../../../lib/utils';
@@ -16,13 +16,7 @@ interface ContactFormData {
   newsletter: boolean;
 }
 
-interface ContactSubmission extends ContactFormData {
-  id?: string;
-  submittedAt: Date;
-  ipAddress?: string;
-  userAgent?: string;
-  status: 'pending' | 'processed' | 'responded';
-}
+
 
 interface FormErrors {
   name?: string;
@@ -213,7 +207,7 @@ const ContactSection: React.FC = () => {
         setFormState((prev) => ({ ...prev, isSuccess: false }));
       }, 5000);
 
-    } catch (error) {
+    } catch {
       // Network or other errors
       setFormState((prev) => ({
         ...prev,
@@ -479,7 +473,7 @@ const ContactSection: React.FC = () => {
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h.01a1 1 0 100-2H10V9z" clipRule="evenodd" />
                 </svg>
               </div>
-              <p className="text-gray-700 dark:text-gray-300 italic mb-4">"Working with J StaR Films was an absolute game-changer for our brand. Their attention to detail and creative vision brought our story to life in ways we couldn&apos;t have imagined. The entire process was smooth, professional, and exceeded our expectations at every turn."</p>
+              <p className="text-gray-700 dark:text-gray-300 italic mb-4">&quot;Working with J StaR Films was an absolute game-changer for our brand. Their attention to detail and creative vision brought our story to life in ways we couldn&apos;t have imagined. The entire process was smooth, professional, and exceeded our expectations at every turn.&quot;</p>
               <div className="flex items-center">
                 <div className="h-10 w-10 rounded-full bg-gradient-to-r from-jstar-blue to-faith-purple flex-shrink-0"></div>
                 <div className="ml-3">
