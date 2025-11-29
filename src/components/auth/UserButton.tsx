@@ -31,7 +31,7 @@ export async function UserButton({ user }: UserButtonProps) {
             <form
                 action={async () => {
                     'use server';
-                    await signOut();
+                    await signOut({ returnTo: '/' });
                 }}
             >
                 <button
