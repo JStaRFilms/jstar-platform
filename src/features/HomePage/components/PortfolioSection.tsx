@@ -8,12 +8,29 @@ import { ArrowRightIcon } from '../../../components/icons/static-icons';
 import { PortfolioProject, manualProjects } from '../../../content/portfolio';
 import PortfolioCard from './PortfolioCard';
 import PortfolioModal from './PortfolioModal';
+import { useScrollAnimationMulti } from '@/hooks/useScrollAnimationMulti';
+import { isMobileDevice } from '@/lib/scrollAnimationUtils';
 
 const PortfolioSection = () => {
   const { activeFilter, handleFilterChange } = usePortfolioFilter('all');
   const [portfolioProjects, setPortfolioProjects] = useState<PortfolioProject[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedProject, setSelectedProject] = useState<PortfolioProject | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check for mobile device on mount and resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(isMobileDevice());
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+    };
+  }, []);
 
   // Smart curation engine: manual projects first (by order), then YouTube videos
   useEffect(() => {
@@ -57,6 +74,15 @@ const PortfolioSection = () => {
   const filteredItems = activeFilter === 'all'
     ? portfolioProjects
     : portfolioProjects.filter(item => item.category === activeFilter);
+
+  // Scroll animation hook
+  const { refs, visibilityStates } = useScrollAnimationMulti<HTMLDivElement>({
+    count: filteredItems.length,
+    staggerDelay: 100,
+    threshold: 0.6, // Higher threshold to ensure only one card is active at a time
+    triggerOnce: false, // Allow animations to reset when out of view
+    onlyOneActive: true, // Enforce mutual exclusivity for active state
+  });
 
   const getCategoryLabel = (category: string) => {
     switch (category) {
@@ -107,44 +133,40 @@ const PortfolioSection = () => {
           <div className="inline-flex flex-wrap justify-center gap-2 bg-gray-100 dark:bg-gray-800 rounded-full p-1.5">
             <button
               onClick={() => handleFilterChange('all')}
-              className={`portfolio-filter px-5 py-2.5 rounded-full font-medium transition-colors ${
-                activeFilter === 'all'
-                  ? 'bg-white dark:bg-gray-700 shadow-sm text-primary dark:text-white'
-                  : 'text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700'
-              }`}
+              className={`portfolio-filter px-5 py-2.5 rounded-full font-medium transition-colors ${activeFilter === 'all'
+                ? 'bg-white dark:bg-gray-700 shadow-sm text-primary dark:text-white'
+                : 'text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700'
+                }`}
               data-filter="all"
             >
               All Projects
             </button>
             <button
               onClick={() => handleFilterChange('video')}
-              className={`portfolio-filter px-5 py-2.5 rounded-full font-medium transition-colors ${
-                activeFilter === 'video'
-                  ? 'bg-white dark:bg-gray-700 shadow-sm text-primary dark:text-white'
-                  : 'text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700'
-              }`}
+              className={`portfolio-filter px-5 py-2.5 rounded-full font-medium transition-colors ${activeFilter === 'video'
+                ? 'bg-white dark:bg-gray-700 shadow-sm text-primary dark:text-white'
+                : 'text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700'
+                }`}
               data-filter="video"
             >
               Video Production
             </button>
             <button
               onClick={() => handleFilterChange('web')}
-              className={`portfolio-filter px-5 py-2.5 rounded-full font-medium transition-colors ${
-                activeFilter === 'web'
-                  ? 'bg-white dark:bg-gray-700 shadow-sm text-primary dark:text-white'
-                  : 'text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700'
-              }`}
+              className={`portfolio-filter px-5 py-2.5 rounded-full font-medium transition-colors ${activeFilter === 'web'
+                ? 'bg-white dark:bg-gray-700 shadow-sm text-primary dark:text-white'
+                : 'text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700'
+                }`}
               data-filter="web"
             >
               Web Development
             </button>
             <button
               onClick={() => handleFilterChange('branding')}
-              className={`portfolio-filter px-5 py-2.5 rounded-full font-medium transition-colors ${
-                activeFilter === 'branding'
-                  ? 'bg-white dark:bg-gray-700 shadow-sm text-primary dark:text-white'
-                  : 'text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700'
-              }`}
+              className={`portfolio-filter px-5 py-2.5 rounded-full font-medium transition-colors ${activeFilter === 'branding'
+                ? 'bg-white dark:bg-gray-700 shadow-sm text-primary dark:text-white'
+                : 'text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700'
+                }`}
               data-filter="branding"
             >
               Branding
@@ -161,25 +183,37 @@ const PortfolioSection = () => {
           <>
             {/* First Row - 2 columns */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-              {filteredItems.slice(0, 2).map(project => (
-                <PortfolioCard
+              {filteredItems.slice(0, 2).map((project, index) => (
+                <div
                   key={project.id}
-                  project={project}
-                  onClick={() => handleProjectClick(project)}
-                  getTagColor={getTagColor}
-                />
+                  ref={refs[index]}
+                  className="h-full"
+                >
+                  <PortfolioCard
+                    project={project}
+                    onClick={() => handleProjectClick(project)}
+                    getTagColor={getTagColor}
+                    forceHover={isMobile && visibilityStates[index]}
+                  />
+                </div>
               ))}
             </div>
 
             {/* Second Row - 3 columns */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-              {filteredItems.slice(2, 5).map(project => (
-                <PortfolioCard
+              {filteredItems.slice(2, 5).map((project, index) => (
+                <div
                   key={project.id}
-                  project={project}
-                  onClick={() => handleProjectClick(project)}
-                  getTagColor={getTagColor}
-                />
+                  ref={refs[index + 2]} // Offset index by 2 since we sliced the first 2
+                  className="h-full"
+                >
+                  <PortfolioCard
+                    project={project}
+                    onClick={() => handleProjectClick(project)}
+                    getTagColor={getTagColor}
+                    forceHover={isMobile && visibilityStates[index + 2]}
+                  />
+                </div>
               ))}
             </div>
           </>

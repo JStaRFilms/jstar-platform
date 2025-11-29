@@ -320,6 +320,114 @@ Deliverables:
 
 ---
 
+## Scroll-Triggered Animations
+
+The jstar-platform includes a production-ready scroll animation system built on IntersectionObserver for optimal performance on both mobile and desktop.
+
+### Quick Start
+
+1. Import the hook:
+
+```tsx
+import { useScrollAnimation } from '@/hooks/useScrollAnimation';
+```
+
+2. Use in your component:
+
+```tsx
+const { ref, isVisible } = useScrollAnimation({ triggerOnce: true });
+
+return (
+  <div 
+    ref={ref}
+    className={`scroll-animate-hidden ${isVisible ? 'scroll-animate-fade-in-up' : ''}`}
+  >
+    Your content here
+  </div>
+);
+```
+
+### Available Animation Classes
+
+All animations are defined in `globals.css` with GPU-accelerated transforms:
+
+- `.scroll-animate-fade-in` - Simple fade in
+- `.scroll-animate-fade-in-up` - Fade in + slide up (most common)
+- `.scroll-animate-fade-in-down` - Fade in + slide down
+- `.scroll-animate-fade-in-left` - Fade in + slide from left
+- `.scroll-animate-fade-in-right` - Fade in + slide from right
+- `.scroll-animate-scale-in` - Scale from 95% to 100% with fade
+- `.scroll-animate-rotate-in` - Rotate + scale + fade
+
+Always pair with `.scroll-animate-hidden` on the initial state.
+
+### Multi-Element Stagger Animation
+
+For lists, grids, or any collection of elements:
+
+```tsx
+import { useScrollAnimationMulti } from '@/hooks/useScrollAnimationMulti';
+
+const { refs, visibilityStates } = useScrollAnimationMulti({ 
+  count: 4,
+  staggerDelay: 150  // milliseconds between each
+});
+
+return (
+  <div className="grid grid-cols-2 gap-4">
+    {items.map((item, i) => (
+      <div
+        key={i}
+        ref={refs[i]}
+        className={`scroll-animate-hidden ${visibilityStates[i] ? 'scroll-animate-fade-in-up' : ''}`}
+      >
+        {item.content}
+      </div>
+    ))}
+  </div>
+);
+```
+
+### Hook Options
+
+**useScrollAnimation:**
+- `threshold` - Visibility percentage to trigger (default: 0.2 desktop, 0.1 mobile)
+- `rootMargin` - Margin around viewport (default: device-optimized)
+- `triggerOnce` - Animate only once (default: true)
+- `delay` - Delay before animation starts in ms (default: 0)
+
+**useScrollAnimationMulti:**
+- `count` - Number of elements (required)
+- `staggerDelay` - Delay between elements in ms (default: 100)
+- Plus all options from `useScrollAnimation`
+
+### Mobile vs Desktop
+
+The system automatically optimizes for device type:
+- **Mobile**: Lower threshold (10% visible) for earlier triggers on smaller viewports
+- **Desktop**: Higher threshold (20% visible) for more deliberate animations
+
+### Accessibility
+
+✅ **Automatic prefers-reduced-motion support**
+
+All animations respect user preferences. If a user has "Reduce Motion" enabled in their OS settings, elements appear instantly without animation.
+
+This is handled automatically by the hooks and CSS media queries - no extra configuration needed.
+
+### Performance Tips
+
+1. Use `triggerOnce:  true` (default) to prevent re-triggering on scroll up
+2. Animations use `will-change: transform, opacity` for GPU acceleration
+3. Single IntersectionObserver per hook instance for efficiency
+4. Cleanup happens automatically on unmount
+
+### Example Component
+
+See `src/components/examples/ScrollAnimationExamples.tsx` for a complete demonstration of all animation patterns.
+
+---
+
 ## TL;DR
 
 - Import Tailwind via CSS: `@import "tailwindcss"`.

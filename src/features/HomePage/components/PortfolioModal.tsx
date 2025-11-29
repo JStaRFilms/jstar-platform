@@ -32,17 +32,50 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ project, onClose, isOpe
           </button>
 
           {/* Video Section (70% of modal height) */}
+          {/* Video Section (70% of modal height) */}
           <div className="video-section bg-black rounded-t-2xl overflow-hidden">
             <div className="aspect-ratio-container">
-              {project.source === 'youtube' && project.videoId ? (
-                <iframe
-                  src={`https://www.youtube.com/embed/${project.videoId}`}
-                  title={project.title}
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-                />
+              {project.videoUrl && project.source === 'youtube' ? (
+                <div className="relative w-full h-full group">
+                  <iframe
+                    className="video-iframe"
+                    src={`https://www.youtube.com/embed/${(() => {
+                      try {
+                        const urlStr = project.videoUrl || '';
+                        // Handle raw ID (11 chars, no special chars)
+                        if (/^[a-zA-Z0-9_-]{11}$/.test(urlStr)) return urlStr;
+
+                        // Handle URLs
+                        if (urlStr.includes('youtube.com') || urlStr.includes('youtu.be')) {
+                          // Ensure protocol exists for URL constructor
+                          const fullUrl = urlStr.startsWith('http') ? urlStr : `https://${urlStr}`;
+                          const url = new URL(fullUrl);
+
+                          if (url.hostname.includes('youtu.be')) {
+                            return url.pathname.slice(1);
+                          }
+                          if (url.pathname.includes('/embed/')) {
+                            return url.pathname.split('/embed/')[1];
+                          }
+                          return url.searchParams.get('v') || '';
+                        }
+                        // Fallback for simple string match if URL parsing fails
+                        if (urlStr.includes('v=')) return urlStr.split('v=')[1]?.split('&')[0] || '';
+
+                        return '';
+                      } catch (e) {
+                        console.error('Error parsing video ID:', e);
+                        return '';
+                      }
+                    })()}?autoplay=0&controls=1&rel=0&modestbranding=1&playsinline=1&origin=${typeof window !== 'undefined' ? window.location.origin : ''}`}
+                    title="YouTube video player"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerPolicy="strict-origin-when-cross-origin"
+                    allowFullScreen
+                    style={{ width: '100%', height: '100%' }}
+                  />
+                </div>
               ) : project.videoUrl ? (
                 <video
                   className="video-iframe"
@@ -62,6 +95,7 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ project, onClose, isOpe
               ) : null}
             </div>
           </div>
+
 
           {/* Content Section (30% of modal height) */}
           <div className="content-section">
@@ -164,8 +198,8 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ project, onClose, isOpe
               )}
             </div>
           </div>
-        </div>
-      </div>
+        </div >
+      </div >
 
       <style jsx>{`
         /* Modal container with proper sizing */
@@ -201,7 +235,6 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ project, onClose, isOpe
 ;
           height: 100%;
           border: 0;
-          object-fit: cover;
         }
 
         /* Content section takes remaining space */
