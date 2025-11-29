@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
                     workosId: id,
                     picture: profilePictureUrl,
                     name: name || undefined,
-                    tier: 'GUEST', // Default tier
+                    tier: 'TIER1', // Default tier for new signups (free tier)
                 },
             });
         },
