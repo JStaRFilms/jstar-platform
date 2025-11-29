@@ -23,13 +23,7 @@ type JohnGPTDialogProps = {
 };
 
 export function JohnGPTDialog({ open, onOpenChange }: JohnGPTDialogProps) {
-  const { messages, status, sendMessage, error: chatError } = useChat({
-    api: '/api/chat',
-    headers: {
-      'Authorization': 'Bearer admin-dev-token',
-    },
-  } as any);
-
+  const { messages, status, sendMessage, error: chatError } = useChat();
   const [input, setInput] = useState('');
   const [error, setError] = useState<string | null>(null);
 
@@ -126,7 +120,7 @@ export function JohnGPTDialog({ open, onOpenChange }: JohnGPTDialogProps) {
                 <h1 className="font-semibold text-foreground">JohnGPT</h1>
                 <p className="text-xs text-muted-foreground">
                   {status === 'streaming' ? 'JOHNGPT is generating...' :
-                   status === 'ready' ? 'Ready to help' : 'Processing...'}
+                    status === 'ready' ? 'Ready to help' : 'Processing...'}
                 </p>
               </div>
               {/* Keep X for quick close, but Back button is primary */}
@@ -143,7 +137,7 @@ export function JohnGPTDialog({ open, onOpenChange }: JohnGPTDialogProps) {
           ) : (
             /* Desktop Header */
             <div className="flex items-center justify-between w-full">
-            <div className="relative">
+              <div className="relative">
                 <button
                   type="button"
                   onClick={() => setIsPersonaDropdownOpen(!isPersonaDropdownOpen)}
@@ -153,9 +147,8 @@ export function JohnGPTDialog({ open, onOpenChange }: JohnGPTDialogProps) {
                   <span className="font-medium">{selectedPersona}</span>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className={`h-4 w-4 text-muted-foreground transition-transform ${
-                      isPersonaDropdownOpen ? 'rotate-180' : ''
-                    }`}
+                    className={`h-4 w-4 text-muted-foreground transition-transform ${isPersonaDropdownOpen ? 'rotate-180' : ''
+                      }`}
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"

@@ -1,0 +1,32 @@
+import { handleAuth } from '@workos-inc/authkit-nextjs';
+import { NextRequest } from 'next/server';
+import { prisma } from '@/lib/prisma';
+
+export async function GET(request: NextRequest) {
+    return handleAuth({
+        onSuccess: async (auth) => {
+            if (!auth.user) return;
+
+            const { id, email, firstName, lastName, profilePictureUrl } = auth.user;
+            const name = [firstName, lastName].filter(Boolean).join(' ');
+
+            // Sync user to database
+            await prisma.user.upsert({
+                where: { email },
+                update: {
+                    workosId: id,
+                    picture: profilePictureUrl,
+                    name: name || undefined,
+                    // Keep existing role/tier
+                },
+                create: {
+                    email,
+                    workosId: id,
+                    picture: profilePictureUrl,
+                    name: name || undefined,
+                    tier: 'GUEST', // Default tier
+                },
+            });
+        },
+    })(request);
+}

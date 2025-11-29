@@ -16,6 +16,7 @@ const PortfolioSection = () => {
   const [portfolioProjects, setPortfolioProjects] = useState<PortfolioProject[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedProject, setSelectedProject] = useState<PortfolioProject | null>(null);
+  const [initialTime, setInitialTime] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
   // Check for mobile device on mount and resize
@@ -102,12 +103,14 @@ const PortfolioSection = () => {
     return colors[index % colors.length];
   };
 
-  const handleProjectClick = (project: PortfolioProject) => {
+  const handleProjectClick = (project: PortfolioProject, startTime: number = 0) => {
     setSelectedProject(project);
+    setInitialTime(startTime);
   };
 
   const closeModal = () => {
     setSelectedProject(null);
+    setInitialTime(0);
   };
 
   return (
@@ -191,9 +194,10 @@ const PortfolioSection = () => {
                 >
                   <PortfolioCard
                     project={project}
-                    onClick={() => handleProjectClick(project)}
+                    onClick={(startTime) => handleProjectClick(project, startTime)}
                     getTagColor={getTagColor}
                     forceHover={isMobile && visibilityStates[index]}
+                    isModalOpen={selectedProject?.id === project.id}
                   />
                 </div>
               ))}
@@ -209,9 +213,10 @@ const PortfolioSection = () => {
                 >
                   <PortfolioCard
                     project={project}
-                    onClick={() => handleProjectClick(project)}
+                    onClick={(startTime) => handleProjectClick(project, startTime)}
                     getTagColor={getTagColor}
                     forceHover={isMobile && visibilityStates[index + 2]}
+                    isModalOpen={selectedProject?.id === project.id}
                   />
                 </div>
               ))}
@@ -232,6 +237,7 @@ const PortfolioSection = () => {
           project={selectedProject}
           onClose={closeModal}
           isOpen={selectedProject !== null}
+          initialTime={initialTime}
         />
       </div>
     </section>

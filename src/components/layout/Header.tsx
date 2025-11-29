@@ -48,7 +48,11 @@ interface MobileMenuState {
  * - Enhanced typography and interactivity
  * - WCAG 2.1 AA compliant accessibility
  */
-const Header: React.FC = () => {
+interface HeaderProps {
+  authButton?: React.ReactNode;
+}
+
+const Header: React.FC<HeaderProps> = ({ authButton }) => {
   // Theme state with proper typing
   const [theme, setTheme] = useState<ThemeMode>('light');
   const [isThemeLoaded, setIsThemeLoaded] = useState(false);
@@ -286,6 +290,9 @@ const Header: React.FC = () => {
                   <MoonIcon className="h-4 w-4" aria-hidden={true} />
                 )}
               </button>
+
+              {/* Auth Button */}
+              {authButton}
 
               {/* JohnGPT Button - Desktop Only */}
               <button

@@ -26,9 +26,10 @@ export const useYouTubePlayer = ({
     videoId,
     elementId,
     autoPlay = true,
+    startTime = 0,
     onReady,
     onStateChange,
-}: UseYouTubePlayerProps) => {
+}: UseYouTubePlayerProps & { startTime?: number }) => {
     const [player, setPlayer] = useState<any>(null);
     const [isReady, setIsReady] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
@@ -68,6 +69,7 @@ export const useYouTubePlayer = ({
                 height: '100%',
                 playerVars: {
                     autoplay: autoPlay ? 1 : 0,
+                    start: Math.floor(startTime), // Start time in seconds
                     controls: 0, // Hide native controls
                     modestbranding: 1,
                     rel: 0,
@@ -105,7 +107,7 @@ export const useYouTubePlayer = ({
                 playerRef.current = null;
             }
         };
-    }, [videoId, elementId, autoPlay]);
+    }, [videoId, elementId, autoPlay, startTime]);
 
     const play = useCallback(() => {
         player?.playVideo();
@@ -124,13 +126,17 @@ export const useYouTubePlayer = ({
     }, [isPlaying, play, pause]);
 
     const mute = useCallback(() => {
-        player?.mute();
-        setIsMuted(true);
+        if (player && typeof player.mute === 'function') {
+            player.mute();
+            setIsMuted(true);
+        }
     }, [player]);
 
     const unmute = useCallback(() => {
-        player?.unMute();
-        setIsMuted(false);
+        if (player && typeof player.unMute === 'function') {
+            player.unMute();
+            setIsMuted(false);
+        }
     }, [player]);
 
     const toggleMute = useCallback(() => {
@@ -140,6 +146,19 @@ export const useYouTubePlayer = ({
             mute();
         }
     }, [isMuted, mute, unmute]);
+
+    const getCurrentTime = useCallback(() => {
+        if (player && typeof player.getCurrentTime === 'function') {
+            return player.getCurrentTime() || 0;
+        }
+        return 0;
+    }, [player]);
+
+    const seekTo = useCallback((seconds: number, allowSeekAhead: boolean = true) => {
+        if (player && typeof player.seekTo === 'function') {
+            player.seekTo(seconds, allowSeekAhead);
+        }
+    }, [player]);
 
     return {
         player,
@@ -152,5 +171,7 @@ export const useYouTubePlayer = ({
         mute,
         unmute,
         toggleMute,
+        getCurrentTime,
+        seekTo,
     };
 };

@@ -17,6 +17,8 @@ interface PortfolioModalProps {
   onClose: () => void;
   /** Boolean indicating if the modal is currently open. */
   isOpen: boolean;
+  /** Initial start time for the video in seconds. */
+  initialTime?: number;
 }
 
 /**
@@ -38,7 +40,7 @@ const VolumeOffIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const PortfolioModal: React.FC<PortfolioModalProps> = ({ project, onClose, isOpen }) => {
+const PortfolioModal: React.FC<PortfolioModalProps> = ({ project, onClose, isOpen, initialTime = 0 }) => {
   const [showControls, setShowControls] = useState(false);
 
   // Hook for YouTube Player
@@ -46,6 +48,7 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ project, onClose, isOpe
     videoId: project?.videoId || '',
     elementId: 'youtube-player-container',
     autoPlay: true,
+    startTime: initialTime,
   });
 
   if (!isOpen || !project) return null;

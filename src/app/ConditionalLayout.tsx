@@ -11,9 +11,10 @@ import { useScrollBlur } from "@/hooks/useScrollBlur";
 
 interface ConditionalLayoutProps {
   children: React.ReactNode;
+  authButton?: React.ReactNode;
 }
 
-export default function ConditionalLayout({ children }: ConditionalLayoutProps) {
+export default function ConditionalLayout({ children, authButton }: ConditionalLayoutProps) {
   const pathname = usePathname();
   const { isScrolling, startScrollBlur } = useScrollBlur({ blurDuration: 600, blurIntensity: 1 });
 
@@ -34,7 +35,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
 
   return (
     <Providers>
-      {!isAdminPage && <Header />}
+      {!isAdminPage && <Header authButton={authButton} />}
       <main className={`${shouldAddPadding ? "pt-12" : ""} pb-20 md:pb-0 transition-all duration-300 ${isScrolling ? 'blur-[1px]' : ''}`}>
         {children}
       </main>

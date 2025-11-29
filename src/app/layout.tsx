@@ -28,11 +28,18 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+import { withAuth } from '@workos-inc/authkit-nextjs';
+import { SignInButton } from "@/components/auth/SignInButton";
+import { UserButton } from "@/components/auth/UserButton";
+
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { user } = await withAuth();
+  const authButton = user ? <UserButton user={user} /> : <SignInButton />;
+
   return (
     <html lang="en" className="dark">
       <head>
@@ -44,7 +51,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.className} bg-background transition-colors duration-300`}>
-        <ConditionalLayout>
+        <ConditionalLayout authButton={authButton}>
           {children}
         </ConditionalLayout>
       </body>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { EnvelopeIcon, PhoneIcon, MapPinIcon, ClockIcon, CheckCircleIcon, ArrowRightIcon } from '../../../components/icons/static-icons';
 import AnimatedIcon from '../../../components/ui/AnimatedIcon';
 import { businessInfo } from '../../../content/contact';
@@ -42,6 +42,18 @@ interface FormState {
 }
 
 const ContactSection: React.FC = () => {
+  // State for selected phone number (initialized to avoid hydration mismatch)
+  const [selectedPhone, setSelectedPhone] = useState<string>(
+    businessInfo.phone[0] || ''
+  );
+
+  // Set random phone number after component mounts (client-side only)
+  useEffect(() => {
+    if (Array.isArray(businessInfo.phone)) {
+      setSelectedPhone(getRandomContact(businessInfo.phone));
+    }
+  }, []);
+
   // Form state management
   const [formState, setFormState] = useState<FormState>({
     data: {
@@ -60,13 +72,13 @@ const ContactSection: React.FC = () => {
 
   // Service options (matching ContactPage)
   const serviceOptions = [
-  { value: '', label: 'Select a service' },
-  { value: 'wedding', label: 'Wedding Cinematography' },
-  { value: 'corporate', label: 'Corporate Videos' },
-  { value: 'app', label: 'App Development' },
-  { value: 'ai', label: 'AI Creator Tools' },
-  { value: 'consulting', label: 'Consulting' },
-  { value: 'other', label: 'Other' }];
+    { value: '', label: 'Select a service' },
+    { value: 'wedding', label: 'Wedding Cinematography' },
+    { value: 'corporate', label: 'Corporate Videos' },
+    { value: 'app', label: 'App Development' },
+    { value: 'ai', label: 'AI Creator Tools' },
+    { value: 'consulting', label: 'Consulting' },
+    { value: 'other', label: 'Other' }];
 
 
   // Validation function
@@ -156,12 +168,12 @@ const ContactSection: React.FC = () => {
           // Validation errors from server
           const serverErrors: FormErrors = {};
           result.errors.forEach((error: string) => {
-            if (error.toLowerCase().includes('name')) serverErrors.name = error;else
-            if (error.toLowerCase().includes('email')) serverErrors.email = error;else
-            if (error.toLowerCase().includes('subject')) serverErrors.subject = error;else
-            if (error.toLowerCase().includes('service')) serverErrors.service = error;else
-            if (error.toLowerCase().includes('message')) serverErrors.message = error;else
-            serverErrors.general = error;
+            if (error.toLowerCase().includes('name')) serverErrors.name = error; else
+              if (error.toLowerCase().includes('email')) serverErrors.email = error; else
+                if (error.toLowerCase().includes('subject')) serverErrors.subject = error; else
+                  if (error.toLowerCase().includes('service')) serverErrors.service = error; else
+                    if (error.toLowerCase().includes('message')) serverErrors.message = error; else
+                      serverErrors.general = error;
           });
           setFormState((prev) => ({
             ...prev,
@@ -230,16 +242,16 @@ const ContactSection: React.FC = () => {
           {/* Contact Form */}
           <div className="glass rounded-2xl p-8 md:p-10 border border-gray-200/10">
             {formState.isSuccess ?
-            <div className="text-center py-8">
+              <div className="text-center py-8">
                 <div className="w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <AnimatedIcon
-                  animation="bounce"
-                  trigger="load"
-                  duration={600}
-                  delay={200}
-                  className="text-green-600 dark:text-green-400"
-                  aria-label="Success checkmark">
-                  
+                    animation="bounce"
+                    trigger="load"
+                    duration={600}
+                    delay={200}
+                    className="text-green-600 dark:text-green-400"
+                    aria-label="Success checkmark">
+
                     <CheckCircleIcon className="w-8 h-8" />
                   </AnimatedIcon>
                 </div>
@@ -249,14 +261,14 @@ const ContactSection: React.FC = () => {
                   {formState.data.newsletter && " You'll also receive our weekly creator tips and updates."}
                 </p>
                 <button
-                onClick={() => setFormState((prev) => ({ ...prev, isSuccess: false }))}
-                className="px-6 py-2 bg-jstar-blue text-white rounded-lg hover:bg-jstar-blue/90 transition-colors">
-                
+                  onClick={() => setFormState((prev) => ({ ...prev, isSuccess: false }))}
+                  className="px-6 py-2 bg-jstar-blue text-white rounded-lg hover:bg-jstar-blue/90 transition-colors">
+
                   Send Another Message
                 </button>
               </div> :
 
-            <form className="space-y-6" onSubmit={handleSubmit}>
+              <form className="space-y-6" onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -264,30 +276,29 @@ const ContactSection: React.FC = () => {
                     </label>
                     <div className="relative">
                       <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={formState.data.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
-                      className={`w-full px-4 py-3 rounded-xl border ${
-                      formState.errors.name ?
-                      'border-red-300 dark:border-red-600 focus:ring-red-500 focus:border-red-500' :
-                      'border-gray-300 dark:border-gray-600 focus:ring-jstar-blue/50 focus:border-jstar-blue'} bg-white dark:bg-gray-800 focus:ring-2 outline-none transition`
-                      }
-                      placeholder="John Doe"
-                      disabled={formState.isSubmitting} />
-                    
+                        type="text"
+                        id="name"
+                        name="name"
+                        value={formState.data.name}
+                        onChange={(e) => handleInputChange('name', e.target.value)}
+                        className={`w-full px-4 py-3 rounded-xl border ${formState.errors.name ?
+                          'border-red-300 dark:border-red-600 focus:ring-red-500 focus:border-red-500' :
+                          'border-gray-300 dark:border-gray-600 focus:ring-jstar-blue/50 focus:border-jstar-blue'} bg-white dark:bg-gray-800 focus:ring-2 outline-none transition`
+                        }
+                        placeholder="John Doe"
+                        disabled={formState.isSubmitting} />
+
                       {formState.errors.name &&
-                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 animate-pulse">
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 animate-pulse">
                           <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                           </svg>
                         </div>
-                    }
+                      }
                     </div>
                     {formState.errors.name &&
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{formState.errors.name}</p>
-                  }
+                      <p className="mt-1 text-sm text-red-600 dark:text-red-400">{formState.errors.name}</p>
+                    }
                   </div>
                   <div>
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -295,30 +306,29 @@ const ContactSection: React.FC = () => {
                     </label>
                     <div className="relative">
                       <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={formState.data.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
-                      className={`w-full px-4 py-3 rounded-xl border ${
-                      formState.errors.email ?
-                      'border-red-300 dark:border-red-600 focus:ring-red-500 focus:border-red-500' :
-                      'border-gray-300 dark:border-gray-600 focus:ring-jstar-blue/50 focus:border-jstar-blue'} bg-white dark:bg-gray-800 focus:ring-2 outline-none transition`
-                      }
-                      placeholder="john@example.com"
-                      disabled={formState.isSubmitting} />
-                    
+                        type="email"
+                        id="email"
+                        name="email"
+                        value={formState.data.email}
+                        onChange={(e) => handleInputChange('email', e.target.value)}
+                        className={`w-full px-4 py-3 rounded-xl border ${formState.errors.email ?
+                          'border-red-300 dark:border-red-600 focus:ring-red-500 focus:border-red-500' :
+                          'border-gray-300 dark:border-gray-600 focus:ring-jstar-blue/50 focus:border-jstar-blue'} bg-white dark:bg-gray-800 focus:ring-2 outline-none transition`
+                        }
+                        placeholder="john@example.com"
+                        disabled={formState.isSubmitting} />
+
                       {formState.errors.email &&
-                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 animate-pulse">
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 animate-pulse">
                           <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                           </svg>
                         </div>
-                    }
+                      }
                     </div>
                     {formState.errors.email &&
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{formState.errors.email}</p>
-                  }
+                      <p className="mt-1 text-sm text-red-600 dark:text-red-400">{formState.errors.email}</p>
+                    }
                   </div>
                 </div>
 
@@ -328,34 +338,33 @@ const ContactSection: React.FC = () => {
                   </label>
                   <div className="relative">
                     <select
-                    id="service"
-                    name="service"
-                    value={formState.data.service}
-                    onChange={(e) => handleInputChange('service', e.target.value)}
-                    className={`w-full px-4 py-3 rounded-xl border ${
-                    formState.errors.service ?
-                    'border-red-300 dark:border-red-600 focus:ring-red-500 focus:border-red-500' :
-                    'border-gray-300 dark:border-gray-600 focus:ring-jstar-blue/50 focus:border-jstar-blue'} bg-white dark:bg-gray-800 focus:ring-2 outline-none transition`
-                    }
-                    disabled={formState.isSubmitting}>
-                    
+                      id="service"
+                      name="service"
+                      value={formState.data.service}
+                      onChange={(e) => handleInputChange('service', e.target.value)}
+                      className={`w-full px-4 py-3 rounded-xl border ${formState.errors.service ?
+                        'border-red-300 dark:border-red-600 focus:ring-red-500 focus:border-red-500' :
+                        'border-gray-300 dark:border-gray-600 focus:ring-jstar-blue/50 focus:border-jstar-blue'} bg-white dark:bg-gray-800 focus:ring-2 outline-none transition`
+                      }
+                      disabled={formState.isSubmitting}>
+
                       {serviceOptions.map((option) =>
-                    <option key={option.value} value={option.value}>
+                        <option key={option.value} value={option.value}>
                           {option.label}
                         </option>
-                    )}
+                      )}
                     </select>
                     {formState.errors.service &&
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 animate-pulse">
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2 animate-pulse">
                         <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                         </svg>
                       </div>
-                  }
+                    }
                   </div>
                   {formState.errors.service &&
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{formState.errors.service}</p>
-                }
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{formState.errors.service}</p>
+                  }
                 </div>
 
                 <div>
@@ -364,30 +373,29 @@ const ContactSection: React.FC = () => {
                   </label>
                   <div className="relative">
                     <input
-                    type="text"
-                    id="subject"
-                    name="subject"
-                    value={formState.data.subject}
-                    onChange={(e) => handleInputChange('subject', e.target.value)}
-                    className={`w-full px-4 py-3 rounded-xl border ${
-                    formState.errors.subject ?
-                    'border-red-300 dark:border-red-600 focus:ring-red-500 focus:border-red-500' :
-                    'border-gray-300 dark:border-gray-600 focus:ring-jstar-blue/50 focus:border-jstar-blue'} bg-white dark:bg-gray-800 focus:ring-2 outline-none transition`
-                    }
-                    placeholder="Project inquiry"
-                    disabled={formState.isSubmitting} />
-                  
+                      type="text"
+                      id="subject"
+                      name="subject"
+                      value={formState.data.subject}
+                      onChange={(e) => handleInputChange('subject', e.target.value)}
+                      className={`w-full px-4 py-3 rounded-xl border ${formState.errors.subject ?
+                        'border-red-300 dark:border-red-600 focus:ring-red-500 focus:border-red-500' :
+                        'border-gray-300 dark:border-gray-600 focus:ring-jstar-blue/50 focus:border-jstar-blue'} bg-white dark:bg-gray-800 focus:ring-2 outline-none transition`
+                      }
+                      placeholder="Project inquiry"
+                      disabled={formState.isSubmitting} />
+
                     {formState.errors.subject &&
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 animate-pulse">
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2 animate-pulse">
                         <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                         </svg>
                       </div>
-                  }
+                    }
                   </div>
                   {formState.errors.subject &&
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{formState.errors.subject}</p>
-                }
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{formState.errors.subject}</p>
+                  }
                 </div>
 
                 <div>
@@ -396,67 +404,66 @@ const ContactSection: React.FC = () => {
                   </label>
                   <div className="relative">
                     <textarea
-                    id="message"
-                    name="message"
-                    rows={4}
-                    value={formState.data.message}
-                    onChange={(e) => handleInputChange('message', e.target.value)}
-                    className={`w-full px-4 py-3 rounded-xl border ${
-                    formState.errors.message ?
-                    'border-red-300 dark:border-red-600 focus:ring-red-500 focus:border-red-500' :
-                    'border-gray-300 dark:border-gray-600 focus:ring-jstar-blue/50 focus:border-jstar-blue'} bg-white dark:bg-gray-800 focus:ring-2 outline-none transition`
-                    }
-                    placeholder="Tell me about your project..."
-                    disabled={formState.isSubmitting} />
-                  
+                      id="message"
+                      name="message"
+                      rows={4}
+                      value={formState.data.message}
+                      onChange={(e) => handleInputChange('message', e.target.value)}
+                      className={`w-full px-4 py-3 rounded-xl border ${formState.errors.message ?
+                        'border-red-300 dark:border-red-600 focus:ring-red-500 focus:border-red-500' :
+                        'border-gray-300 dark:border-gray-600 focus:ring-jstar-blue/50 focus:border-jstar-blue'} bg-white dark:bg-gray-800 focus:ring-2 outline-none transition`
+                      }
+                      placeholder="Tell me about your project..."
+                      disabled={formState.isSubmitting} />
+
                     {formState.errors.message &&
-                  <div className="absolute right-3 top-4 animate-pulse">
+                      <div className="absolute right-3 top-4 animate-pulse">
                         <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                         </svg>
                       </div>
-                  }
+                    }
                   </div>
                   {formState.errors.message &&
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{formState.errors.message}</p>
-                }
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{formState.errors.message}</p>
+                  }
                 </div>
 
                 <div className="flex items-center">
                   <input
-                  id="newsletter"
-                  name="newsletter"
-                  type="checkbox"
-                  checked={formState.data.newsletter}
-                  onChange={(e) => handleInputChange('newsletter', e.target.checked)}
-                  className="w-4 h-4 text-jstar-blue border-gray-300 rounded focus:ring-jstar-blue"
-                  disabled={formState.isSubmitting} />
-                
+                    id="newsletter"
+                    name="newsletter"
+                    type="checkbox"
+                    checked={formState.data.newsletter}
+                    onChange={(e) => handleInputChange('newsletter', e.target.checked)}
+                    className="w-4 h-4 text-jstar-blue border-gray-300 rounded focus:ring-jstar-blue"
+                    disabled={formState.isSubmitting} />
+
                   <label htmlFor="newsletter" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
                     Subscribe to my newsletter for creator tips and updates
                   </label>
                 </div>
 
                 {formState.errors.general &&
-              <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                  <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
                     <p className="text-sm text-red-600 dark:text-red-400">{formState.errors.general}</p>
                   </div>
-              }
+                }
 
                 <div>
                   <button
-                  type="submit"
-                  disabled={formState.isSubmitting}
-                  className="w-full px-6 py-3.5 bg-gradient-to-r from-jstar-blue to-faith-purple text-white font-semibold rounded-xl hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:-translate-y-0.5 disabled:transform-none">
-                  
+                    type="submit"
+                    disabled={formState.isSubmitting}
+                    className="w-full px-6 py-3.5 bg-gradient-to-r from-jstar-blue to-faith-purple text-white font-semibold rounded-xl hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:-translate-y-0.5 disabled:transform-none">
+
                     {formState.isSubmitting ?
-                  <div className="flex items-center justify-center">
+                      <div className="flex items-center justify-center">
                         <div className="animate-spin -ml-1 mr-3 h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
                         Sending Message...
                       </div> :
 
-                  'Send Message'
-                  }
+                      'Send Message'
+                    }
                   </button>
                 </div>
               </form>
@@ -499,7 +506,7 @@ const ContactSection: React.FC = () => {
                 </div>
                 <div className="ml-4">
                   <h3 className="text-sm font-medium text-muted-foreground">Call us</h3>
-                  <p className="text-base text-foreground">{getRandomContact(businessInfo.phone)}</p>
+                  <p className="text-base text-foreground">{selectedPhone}</p>
                 </div>
               </div>
               <div className="flex items-start">
