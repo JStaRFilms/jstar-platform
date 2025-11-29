@@ -12,19 +12,19 @@ import { useScrollAnimationMulti } from '@/hooks/useScrollAnimationMulti';
  */
 export function ScrollAnimationExamples() {
     // Single element example
-    const example1 = useScrollAnimation({ triggerOnce: true });
-    const example2 = useScrollAnimation({ triggerOnce: true });
-    const example3 = useScrollAnimation({ triggerOnce: true });
-    const example4 = useScrollAnimation({ triggerOnce: true });
+    const example1 = useScrollAnimation<HTMLDivElement>({ triggerOnce: true });
+    const example2 = useScrollAnimation<HTMLDivElement>({ triggerOnce: true });
+    const example3 = useScrollAnimation<HTMLDivElement>({ triggerOnce: true });
+    const example4 = useScrollAnimation<HTMLDivElement>({ triggerOnce: true });
 
     // Multi-element staggered example
-    const { refs: cardRefs, visibilityStates: cardStates } = useScrollAnimationMulti({
+    const { refs: cardRefs, visibilityStates: cardStates } = useScrollAnimationMulti<HTMLDivElement>({
         count: 4,
         staggerDelay: 150,
     });
 
     // List items with default stagger
-    const { refs: listRefs, visibilityStates: listStates } = useScrollAnimationMulti({
+    const { refs: listRefs, visibilityStates: listStates } = useScrollAnimationMulti<HTMLDivElement>({
         count: 6,
         staggerDelay: 100,
     });
