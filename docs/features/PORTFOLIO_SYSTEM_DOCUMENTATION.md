@@ -13,10 +13,10 @@ This document comprehensively details the implementation of a sophisticated thre
 - **Unified Experience**: Consistent UI across all content types
 
 ### **2. Advanced Modal System**
-- **Video-Centric Design**: 70% video, 30% content layout
-- **Responsive Sizing**: Adapts to viewport with proper aspect ratios
-- **Clean Video Experience**: Hidden YouTube controls with custom mute button
-- **Interactive Controls**: Autoplay, fullscreen, and navigation
+- **Video-Centric Design**: Large cinematic modal with focus on playback
+- **Responsive Sizing**: Adapts to viewport with standard 16:9 aspect ratio
+- **Native Experience**: Uses YouTube's native player for maximum compatibility
+- **Interactive Controls**: Full native YouTube controls (autoplay, quality, speed, captions)
 - **Accessibility**: Full keyboard navigation and screen reader support
 
 ### **3. Dynamic Case Study Pages**
@@ -91,7 +91,8 @@ interface PortfolioProject {
   title: string;
   description: string;
   thumbnailUrl: string;
-  videoUrl?: string;
+  videoUrl?: string; // Full URL for external links
+  videoId?: string;  // Clean video ID for embeds (YouTube only)
   liveUrl?: string;
   source: 'manual' | 'youtube';
   order?: number;
@@ -150,6 +151,7 @@ interface ProjectCredit {
       "description": "Custom or YouTube Description",
       "thumbnailUrl": "Custom or YouTube thumbnail",
       "videoUrl": "https://www.youtube.com/watch?v=...",
+      "videoId": "VIDEO_ID",
       "source": "youtube",
       "tags": ["Video Production", "YouTube"],
       "category": "video",
@@ -178,10 +180,10 @@ interface ProjectCredit {
 - **Click Handling**: Opens modal with project data
 
 ### **PortfolioModal Component**
-- **Video-First Layout**: 70% video, 30% content
-- **Clean Video Display**: Hidden YouTube controls, custom mute button
-- **Aspect Ratio Handling**: Videos fill space regardless of original ratio
-- **Responsive Design**: Adapts to screen size
+- **Video-First Layout**: Video takes prominence at the top
+- **Native Video Display**: Uses YouTube's native player for reliability
+- **Aspect Ratio Handling**: Standard 16:9 aspect ratio (`padding-top: 56.25%`)
+- **Responsive Design**: Adapts to screen size, stacking content below video
 - **Content Types**: Handles videos, images, and text
 
 ## ⚙️ **Configuration Options**
@@ -268,15 +270,16 @@ Edit the `max-w-` class in `PortfolioModal.tsx`:
 - `max-w-2xl` = 672px (compact)
 - `max-w-3xl` = 768px (balanced)
 - `max-w-4xl` = 896px (spacious)
+- `max-w-6xl` = 1152px (cinematic/current default)
 
 ## 🎬 **Video System Features**
 
 ### **Modal Video Player**
-- **Clean Interface**: Hidden YouTube controls and branding
-- **Autoplay**: Videos start automatically (muted for YouTube)
-- **Custom Mute Button**: Appears on hover, bottom-right corner
-- **Aspect Ratio**: Fills modal space with `object-fit: cover`
+- **Native Interface**: Uses standard YouTube controls for familiarity
+- **Autoplay**: Videos start automatically when modal opens
+- **Aspect Ratio**: Standard 16:9 ratio ensures no cropping
 - **Responsive**: Adapts to modal size changes
+- **Reliability**: Eliminates sizing conflicts by adhering to YouTube standards
 
 ### **Thumbnail Display**
 - **Custom Thumbnails**: Override YouTube thumbnails per video
@@ -293,7 +296,7 @@ Edit the `max-w-` class in `PortfolioModal.tsx`:
 
 ### **Modal Responsiveness**
 - **Height**: Max 95vh on all devices
-- **Video**: Scales while maintaining aspect ratio
+- **Video**: Scales while maintaining 16:9 ratio
 - **Content**: Scrollable when exceeding available space
 - **Touch**: Optimized for mobile interaction
 
@@ -400,10 +403,10 @@ This portfolio system represents a comprehensive solution for creative professio
 ### **Key Achievements**
 - ✅ **Hybrid Content System**: Manual + YouTube integration
 - ✅ **Advanced Modal**: Video-centric, responsive design
-- ✅ **Clean Video Experience**: Hidden controls, custom mute button
+- ✅ **Native Video Experience**: Reliable playback with standard controls
 - ✅ **Dynamic Pages**: SEO-optimized case studies
 - ✅ **YouTube Customization**: Full control over playlist content
-- ✅ **Aspect Ratio Handling**: Videos fill space properly
+- ✅ **Aspect Ratio Handling**: Videos fill space properly (16:9)
 - ✅ **Playlist Order**: Respects YouTube arrangement
 - ✅ **Performance**: Optimized loading and caching
 - ✅ **Accessibility**: Full keyboard and screen reader support
