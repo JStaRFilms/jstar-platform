@@ -72,7 +72,8 @@ export const useScrollAnimationMulti = <T extends HTMLElement = HTMLElement>({
     rootMargin,
     triggerOnce = true,
     staggerDelay = 100,
-}: UseScrollAnimationMultiOptions): UseScrollAnimationMultiReturn<T> => {
+    onlyOneActive = false,
+}: UseScrollAnimationMultiOptions & { onlyOneActive?: boolean }): UseScrollAnimationMultiReturn<T> => {
     // Create array of refs for each element - handle dynamic count
     const refs = useRef<React.MutableRefObject<T | null>[]>([]);
 
@@ -127,31 +128,42 @@ export const useScrollAnimationMulti = <T extends HTMLElement = HTMLElement>({
                         );
 
                         if (elementIndex !== -1) {
-                            // Calculate stagger delay for this specific element
-                            const delay = getStaggerDelay(elementIndex, staggerDelay);
-
-                            // Apply stagger delay
-                            setTimeout(() => {
+                            if (onlyOneActive) {
+                                // If onlyOneActive is true, set this element to true and all others to false
                                 setVisibilityStates((prev) => {
-                                    const newStates = [...prev];
+                                    // If this element is already active and we are the only one, do nothing
+                                    // But checking that is complex, simpler to just set state
+                                    const newStates = Array(count).fill(false);
                                     newStates[elementIndex] = true;
-
-                                    // Check if all elements are now visible
-                                    if (newStates.every((state) => state)) {
-                                        setAllAnimated(true);
-                                    }
-
                                     return newStates;
                                 });
-                            }, delay);
+                            } else {
+                                // Calculate stagger delay for this specific element
+                                const delay = getStaggerDelay(elementIndex, staggerDelay);
 
-                            // If triggerOnce is true, stop observing this element
-                            if (triggerOnce) {
-                                observer.unobserve(entry.target);
+                                // Apply stagger delay
+                                setTimeout(() => {
+                                    setVisibilityStates((prev) => {
+                                        const newStates = [...prev];
+                                        newStates[elementIndex] = true;
+
+                                        // Check if all elements are now visible
+                                        if (newStates.every((state) => state)) {
+                                            setAllAnimated(true);
+                                        }
+
+                                        return newStates;
+                                    });
+                                }, delay);
+
+                                // If triggerOnce is true, stop observing this element
+                                if (triggerOnce) {
+                                    observer.unobserve(entry.target);
+                                }
                             }
                         }
-                    } else if (!triggerOnce) {
-                        // If triggerOnce is false, allow re-triggering
+                    } else if (!triggerOnce && !onlyOneActive) {
+                        // If triggerOnce is false and NOT in exclusive mode, allow re-triggering
                         const elementIndex = refs.current.findIndex(
                             (ref) => ref.current === entry.target
                         );
@@ -184,7 +196,7 @@ export const useScrollAnimationMulti = <T extends HTMLElement = HTMLElement>({
         return () => {
             observer.disconnect();
         };
-    }, [count, threshold, rootMargin, triggerOnce, staggerDelay]); // Removed refs from dependency as it is a ref
+    }, [count, threshold, rootMargin, triggerOnce, staggerDelay, onlyOneActive]);
 
     return {
         refs: refs.current,

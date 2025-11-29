@@ -32,44 +32,49 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ project, onClose, isOpe
           </button>
 
           {/* Video Section (70% of modal height) */}
+          {/* Video Section (70% of modal height) */}
           <div className="video-section bg-black rounded-t-2xl overflow-hidden">
             <div className="aspect-ratio-container">
               {project.videoUrl && project.source === 'youtube' ? (
                 <div className="relative w-full h-full group">
                   <iframe
                     className="video-iframe"
-                    src={`https://www.youtube.com/embed/${project.videoUrl.split('v=')[1]?.split('&')[0]}?autoplay=1&mute=1&controls=0&showinfo=0&modestbranding=1&rel=0&iv_load_policy=3&cc_load_policy=0`}
+                    src={`https://www.youtube.com/embed/${(() => {
+                      try {
+                        const urlStr = project.videoUrl || '';
+                        // Handle raw ID (11 chars, no special chars)
+                        if (/^[a-zA-Z0-9_-]{11}$/.test(urlStr)) return urlStr;
+
+                        // Handle URLs
+                        if (urlStr.includes('youtube.com') || urlStr.includes('youtu.be')) {
+                          // Ensure protocol exists for URL constructor
+                          const fullUrl = urlStr.startsWith('http') ? urlStr : `https://${urlStr}`;
+                          const url = new URL(fullUrl);
+
+                          if (url.hostname.includes('youtu.be')) {
+                            return url.pathname.slice(1);
+                          }
+                          if (url.pathname.includes('/embed/')) {
+                            return url.pathname.split('/embed/')[1];
+                          }
+                          return url.searchParams.get('v') || '';
+                        }
+                        // Fallback for simple string match if URL parsing fails
+                        if (urlStr.includes('v=')) return urlStr.split('v=')[1]?.split('&')[0] || '';
+
+                        return '';
+                      } catch (e) {
+                        console.error('Error parsing video ID:', e);
+                        return '';
+                      }
+                    })()}?autoplay=0&controls=1&rel=0&modestbranding=1&playsinline=1&origin=${typeof window !== 'undefined' ? window.location.origin : ''}`}
                     title="YouTube video player"
                     frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerPolicy="strict-origin-when-cross-origin"
                     allowFullScreen
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    style={{ width: '100%', height: '100%' }}
                   />
-                  {/* Custom Mute Button */}
-                  <button
-                    onClick={() => {
-                      const iframe = document.querySelector('.video-iframe') as HTMLIFrameElement;
-                      if (iframe) {
-                        // Toggle mute by reloading iframe with different mute setting
-                        const currentSrc = iframe.src;
-                        const isCurrentlyMuted = currentSrc.includes('mute=1');
-                        const newSrc = currentSrc.replace(
-                          isCurrentlyMuted ? 'mute=1' : 'mute=0',
-                          isCurrentlyMuted ? 'mute=0' : 'mute=1'
-                        );
-                        iframe.src = newSrc;
-                      }
-                    }}
-                    className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-black/60 hover:bg-black/80 flex items-center justify-center transition-all duration-200 z-10 opacity-0 group-hover:opacity-100"
-                    aria-label="Toggle sound"
-                    title="Click to toggle sound"
-                  >
-                    {/* Muted Icon */}
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clipRule="evenodd" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
-                    </svg>
-                  </button>
                 </div>
               ) : project.videoUrl ? (
                 <video
@@ -90,6 +95,7 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ project, onClose, isOpe
               ) : null}
             </div>
           </div>
+
 
           {/* Content Section (30% of modal height) */}
           <div className="content-section">
@@ -192,8 +198,8 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ project, onClose, isOpe
               )}
             </div>
           </div>
-        </div>
-      </div>
+        </div >
+      </div >
 
       <style jsx>{`
         /* Modal container with proper sizing */
@@ -227,7 +233,6 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ project, onClose, isOpe
           width: 100%;
           height: 100%;
           border: 0;
-          object-fit: cover;
         }
 
         /* Content section takes remaining space */

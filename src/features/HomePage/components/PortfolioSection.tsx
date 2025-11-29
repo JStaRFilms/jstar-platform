@@ -79,8 +79,9 @@ const PortfolioSection = () => {
   const { refs, visibilityStates } = useScrollAnimationMulti<HTMLDivElement>({
     count: filteredItems.length,
     staggerDelay: 100,
-    threshold: 0.2, // Slightly higher threshold for better UX
+    threshold: 0.6, // Higher threshold to ensure only one card is active at a time
     triggerOnce: false, // Allow animations to reset when out of view
+    onlyOneActive: true, // Enforce mutual exclusivity for active state
   });
 
   const getCategoryLabel = (category: string) => {
