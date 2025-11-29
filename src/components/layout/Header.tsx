@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { MenuIcon, CloseIcon, SunIcon, MoonIcon } from '@/components/icons';
+import { MenuIcon, CloseIcon, SunIcon, MoonIcon, UserIcon, VideoCameraIcon, FilmIcon, PenFancyIcon, GiftIcon, EnvelopeIcon } from '@/components/icons';
 import { useSmartNavigation } from '@/hooks/useSmartNavigation';
 import Tooltip from '@/components/ui/Tooltip';
 
@@ -16,6 +16,8 @@ interface NavigationItem {
   href: string;
   /** Display label */
   label: string;
+  /** Icon component */
+  icon: React.ElementType;
   /** Whether link opens in new tab */
   external?: boolean;
 }
@@ -64,12 +66,12 @@ const Header: React.FC = () => {
 
   // Navigation items configuration
   const navigationItems: NavigationItem[] = useMemo(() => [
-    { href: '/about', label: 'About' },
-    { href: '/services', label: 'Services' },
-    { href: '/portfolio', label: 'Portfolio' },
-    { href: '/blog', label: 'Blog' },
-    { href: '/store', label: 'Store' },
-    { href: '/contact', label: 'Contact' }
+    { href: '/about', label: 'About', icon: UserIcon },
+    { href: '/services', label: 'Services', icon: VideoCameraIcon },
+    { href: '/portfolio', label: 'Portfolio', icon: FilmIcon },
+    { href: '/blog', label: 'Blog', icon: PenFancyIcon },
+    { href: '/store', label: 'Store', icon: GiftIcon },
+    { href: '/contact', label: 'Contact', icon: EnvelopeIcon }
   ], []);
 
   /**
@@ -196,11 +198,10 @@ const Header: React.FC = () => {
             key={item.href}
             type="button"
             aria-label={`Scroll to ${item.href.replace('/', '')}`}
-            className={`text-foreground hover:text-jstar-blue transition-colors focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10 rounded-md px-2 py-1 text-sm font-medium ${
-              isActive
-                ? 'text-jstar-blue font-semibold'
-                : ''
-            }`}
+            className={`text-foreground hover:text-jstar-blue transition-colors focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10 rounded-md px-2 py-1 text-sm font-medium ${isActive
+              ? 'text-jstar-blue font-semibold'
+              : ''
+              }`}
             aria-current={isActive ? 'page' : undefined}
             onMouseDown={onMouseDown}
             onMouseUp={onMouseUp}
@@ -220,11 +221,10 @@ const Header: React.FC = () => {
       <Link
         key={item.href}
         href={item.href}
-        className={`text-foreground hover:text-jstar-blue transition-colors focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10 rounded-md px-2 py-1 text-sm font-medium ${
-          isActive
-            ? 'text-jstar-blue font-semibold'
-            : ''
-        }`}
+        className={`text-foreground hover:text-jstar-blue transition-colors focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10 rounded-md px-2 py-1 text-sm font-medium ${isActive
+          ? 'text-jstar-blue font-semibold'
+          : ''
+          }`}
         aria-current={isActive ? 'page' : undefined}
       >
         {item.label}
@@ -317,20 +317,18 @@ const Header: React.FC = () => {
 
       {/* Cinematic Mobile Menu - Enhanced Slide Animations */}
       <div
-        className={`fixed inset-0 z-[100] md:hidden transition-all duration-100 ease-out ${
-          mobileMenu.isOpen
-            ? 'opacity-100 pointer-events-auto'
-            : 'opacity-0 pointer-events-none'
-        }`}
+        className={`fixed inset-0 z-[100] md:hidden transition-all duration-100 ease-out ${mobileMenu.isOpen
+          ? 'opacity-100 pointer-events-auto'
+          : 'opacity-0 pointer-events-none'
+          }`}
         aria-hidden={!mobileMenu.isOpen}
       >
         {/* Premium Backdrop with Smooth Blur Animation */}
         <div
-          className={`absolute inset-0 transition-all duration-500 ease-out ${
-            mobileMenu.isOpen
-              ? 'bg-black/60 backdrop-blur-md opacity-100'
-              : 'bg-black/0 backdrop-blur-none opacity-0'
-          }`}
+          className={`absolute inset-0 transition-all duration-500 ease-out ${mobileMenu.isOpen
+            ? 'bg-black/60 backdrop-blur-md opacity-100'
+            : 'bg-black/0 backdrop-blur-none opacity-0'
+            }`}
           onClick={closeMobileMenu}
           aria-hidden="true"
         />
@@ -338,91 +336,91 @@ const Header: React.FC = () => {
         {/* Cinematic Sidebar - Enhanced Slide Animation */}
         <div
           id="mobile-menu"
-          className={`absolute top-0 right-0 w-4/5 max-w-sm h-full glassmorphism-sidebar shadow-2xl transform transition-all duration-700 ease-out ${
-            mobileMenu.isOpen
-              ? 'translate-x-0 opacity-100 scale-100'
-              : 'translate-x-full opacity-95 scale-95'
-          }`}
+          className={`absolute top-0 right-0 w-4/5 max-w-sm h-full glassmorphism-sidebar shadow-2xl transform transition-all duration-700 ease-out ${mobileMenu.isOpen
+            ? 'translate-x-0 opacity-100 scale-100'
+            : 'translate-x-full opacity-95 scale-95'
+            }`}
           role="menu"
           aria-label="Mobile navigation menu"
         >
-            {/* Animated Header Section */}
-            <div className="p-6 border-b border-white/10 dark:border-white/5 animate-fade-in-up">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold text-foreground animate-fade-in-up">
-                  Menu
-                </h2>
-                <button
-                  onClick={closeMobileMenu}
-                  className="p-2 rounded-lg bg-white/10 dark:bg-black/10 backdrop-blur-sm text-muted-foreground hover:bg-white/20 dark:hover:bg-black/20 transition-all focus:outline-none focus:ring-2 focus:ring-jstar-blue animate-fade-in-up"
-                  style={{ animationDelay: '100ms' }}
-                  aria-label="Close menu"
-                >
-                  <CloseIcon className="h-5 w-5" aria-hidden={true} />
-                </button>
-              </div>
-
-              {/* Animated Mobile Theme Toggle */}
-              <div className="flex items-center justify-between p-3 rounded-lg bg-white/5 dark:bg-black/5 backdrop-blur-sm mt-4 animate-fade-in-up">
-                <span className="text-sm font-medium text-foreground">Theme</span>
-                <button
-                  onClick={toggleTheme}
-                  className="p-2 rounded-lg bg-white/10 dark:bg-black/10 backdrop-blur-sm text-foreground hover:bg-white/20 dark:hover:bg-black/20 transition-all focus:outline-none focus:ring-2 focus:ring-jstar-blue animate-fade-in-up"
-                  style={{ animationDelay: '200ms' }}
-                  aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
-                  aria-pressed={theme === 'dark'}
-                >
-                  {theme === 'dark' ? (
-                    <SunIcon className="h-4 w-4" aria-hidden={true} />
-                  ) : (
-                    <MoonIcon className="h-4 w-4" aria-hidden={true} />
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {/* Animated Navigation Links */}
-            <div className="flex-1 px-6 py-6">
-              <nav className="space-y-2">
-                {navigationItems.map((item, index) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`group flex items-center px-4 py-3 text-base font-medium rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10 animate-fade-in-up ${
-                      isActiveLink(item.href)
-                        ? 'text-jstar-blue bg-gradient-to-r from-jstar-blue/10 to-faith-purple/10 dark:from-jstar-blue/20 dark:to-faith-purple/20 shadow-lg'
-                        : 'text-foreground hover:text-jstar-blue hover:bg-white/10 dark:hover:bg-black/10 hover:shadow-md hover:scale-[1.02]'
-                    }`}
-                    style={{
-                      animationDelay: `${index * 100}ms`
-                    }}
-                    onClick={closeMobileMenu}
-                    role="menuitem"
-                    tabIndex={0}
-                  >
-                    <span className="flex-1">{item.label}</span>
-                    {isActiveLink(item.href) && (
-                      <div className="w-2 h-2 rounded-full bg-jstar-blue animate-pulse" />
-                    )}
-                  </Link>
-                ))}
-              </nav>
-            </div>
-
-            {/* Animated JohnGPT CTA Section */}
-            <div className="p-6 border-t border-white/10 dark:border-white/5 animate-fade-in-up">
+          {/* Animated Header Section */}
+          <div className="p-6 border-b border-white/10 dark:border-white/5 animate-fade-in-up">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-bold text-foreground animate-fade-in-up">
+                Menu
+              </h2>
               <button
-                onClick={handleJohnGPTClick}
-                className="w-full btn-enhanced px-6 py-3 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-xl font-semibold text-base hover:opacity-90 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10 shadow-lg hover:shadow-xl hover:scale-[1.02] animate-fade-in-up"
-                aria-label="Open JohnGPT assistant interface"
+                onClick={closeMobileMenu}
+                className="p-2 rounded-lg bg-white/10 dark:bg-black/10 backdrop-blur-sm text-muted-foreground hover:bg-white/20 dark:hover:bg-black/20 transition-all focus:outline-none focus:ring-2 focus:ring-jstar-blue animate-fade-in-up"
+                style={{ animationDelay: '100ms' }}
+                aria-label="Close menu"
               >
-                <span className="flex items-center justify-center space-x-2">
-                  <span>Meet JohnGPT</span>
-                  <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
-                </span>
+                <CloseIcon className="h-5 w-5" aria-hidden={true} />
               </button>
             </div>
+
+            {/* Animated Mobile Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="w-full flex items-center justify-between p-3 rounded-lg bg-white/5 dark:bg-black/5 backdrop-blur-sm mt-4 animate-fade-in-up hover:bg-white/10 dark:hover:bg-black/10 transition-all focus:outline-none focus:ring-2 focus:ring-jstar-blue group"
+              style={{ animationDelay: '200ms' }}
+              aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
+              aria-pressed={theme === 'dark'}
+            >
+              <span className="text-sm font-medium text-foreground group-hover:text-jstar-blue transition-colors">Theme</span>
+              <div className="p-2 rounded-lg bg-white/10 dark:bg-black/10 backdrop-blur-sm text-foreground group-hover:bg-white/20 dark:group-hover:bg-black/20 transition-all">
+                {theme === 'dark' ? (
+                  <SunIcon className="h-4 w-4" aria-hidden={true} />
+                ) : (
+                  <MoonIcon className="h-4 w-4" aria-hidden={true} />
+                )}
+              </div>
+            </button>
           </div>
+
+          {/* Animated Navigation Links */}
+          <div className="flex-1 px-6 py-6 overflow-y-auto">
+            <nav className="space-y-3">
+              {navigationItems.map((item, index) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`group flex items-center px-4 py-4 text-base font-medium rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10 animate-fade-in-up border-b border-white/5 dark:border-white/5 last:border-0 ${isActiveLink(item.href)
+                    ? 'text-jstar-blue bg-gradient-to-r from-jstar-blue/10 to-faith-purple/10 dark:from-jstar-blue/20 dark:to-faith-purple/20 shadow-lg border-transparent'
+                    : 'text-foreground hover:text-jstar-blue hover:bg-white/5 dark:hover:bg-black/20 hover:pl-6'
+                    }`}
+                  style={{
+                    animationDelay: `${index * 100}ms`
+                  }}
+                  onClick={closeMobileMenu}
+                  role="menuitem"
+                  tabIndex={0}
+                >
+                  <item.icon className={`w-5 h-5 mr-4 transition-colors ${isActiveLink(item.href) ? 'text-jstar-blue' : 'text-muted-foreground group-hover:text-jstar-blue'
+                    }`} />
+                  <span className="flex-1">{item.label}</span>
+                  {isActiveLink(item.href) && (
+                    <div className="w-2 h-2 rounded-full bg-jstar-blue animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+                  )}
+                </Link>
+              ))}
+            </nav>
+          </div>
+
+          {/* Animated JohnGPT CTA Section */}
+          <div className="p-6 border-t border-white/10 dark:border-white/5 animate-fade-in-up">
+            <button
+              onClick={handleJohnGPTClick}
+              className="w-full btn-enhanced px-6 py-3 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-xl font-semibold text-base hover:opacity-90 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10 shadow-lg hover:shadow-xl hover:scale-[1.02] animate-fade-in-up"
+              aria-label="Open JohnGPT assistant interface"
+            >
+              <span className="flex items-center justify-center space-x-2">
+                <span>Meet JohnGPT</span>
+                <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
+              </span>
+            </button>
+          </div>
+        </div>
       </div>
 
     </>
