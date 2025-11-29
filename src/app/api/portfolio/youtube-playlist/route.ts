@@ -56,7 +56,8 @@ function transformYouTubeVideo(item: YouTubeVideoItem): PortfolioProject {
       ? item.snippet.description.substring(0, 200) + '...'
       : item.snippet.description,
     thumbnailUrl,
-    videoUrl: `https://www.youtube.com/watch?v=${videoId}`,
+    videoUrl: `https://www.youtube.com/watch?v=${videoId}`, // Keep for external links
+    videoId: videoId, // Clean video ID for embed use
     source: 'youtube',
     tags: ['Video Production', 'YouTube'],
     category: 'video',

@@ -10,7 +10,8 @@ export interface PortfolioProject {
   title: string;
   description: string;
   thumbnailUrl: string;
-  videoUrl?: string; // For YouTube videos
+  videoUrl?: string; // Full URL for external links
+  videoId?: string; // Clean video ID for embeds (YouTube only)
   liveUrl?: string; // For live demos or GitHub repos
   source: 'manual' | 'youtube';
   order?: number; // For manual projects to control display order
