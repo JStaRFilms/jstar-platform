@@ -31,7 +31,9 @@ export async function UserButton({ user }: UserButtonProps) {
             <form
                 action={async () => {
                     'use server';
-                    await signOut({ returnTo: '/' });
+                    // Build absolute URL for sign out redirect
+                    const baseUrl = process.env.WORKOS_REDIRECT_URI?.replace('/auth/callback', '') || 'http://localhost:5782';
+                    await signOut({ returnTo: baseUrl });
                 }}
             >
                 <button
