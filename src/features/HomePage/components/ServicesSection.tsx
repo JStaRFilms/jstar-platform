@@ -5,6 +5,7 @@ import React from 'react';
 import Link from 'next/link';
 import { serviceTiers } from '../../../content/services';
 import ServiceTierCard from './ServiceTierCard';
+import { useScrollAnimationMulti } from '@/hooks/useScrollAnimationMulti';
 
 /**
  * ServicesSection Component
@@ -13,6 +14,12 @@ import ServiceTierCard from './ServiceTierCard';
  * Displays partnership tiers with features, deliverables, and contact CTAs.
  */
 const ServicesSection: React.FC = React.memo(() => {
+  // Scroll-triggered animation for staggered card appearance
+  const { refs: cardRefs, visibilityStates } = useScrollAnimationMulti<HTMLDivElement>({
+    count: serviceTiers.length,
+    staggerDelay: 150, // 150ms delay between each card
+  });
+
 
   return (
     <section id="services" className="py-20 bg-gray-50 dark:bg-gray-900/50">
@@ -34,8 +41,15 @@ const ServicesSection: React.FC = React.memo(() => {
 
         {/* Partnership Tiers Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16" role="grid" aria-label="Partnership tiers">
-          {serviceTiers.map((tier) => (
-            <ServiceTierCard key={tier.id} tier={tier} />
+          {serviceTiers.map((tier, index) => (
+            <div
+              key={tier.id}
+              ref={cardRefs[index]}
+              className={`scroll-animate-hidden ${visibilityStates[index] ? 'scroll-animate-fade-in-up' : ''
+                }`}
+            >
+              <ServiceTierCard tier={tier} />
+            </div>
           ))}
         </div>
 
