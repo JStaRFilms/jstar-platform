@@ -3,6 +3,10 @@ import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
+    // Extract the state parameter (contains the original URL)
+    const state = request.nextUrl.searchParams.get('state');
+    const returnPath = state ? decodeURIComponent(state) : '/';
+
     return handleAuth({
         onSuccess: async (auth) => {
             if (!auth.user) return;
@@ -17,7 +21,7 @@ export async function GET(request: NextRequest) {
                     workosId: id,
                     picture: profilePictureUrl,
                     name: name || undefined,
-                    // Keep existing role/tier
+                    // Keep existing tier
                 },
                 create: {
                     email,
@@ -28,5 +32,7 @@ export async function GET(request: NextRequest) {
                 },
             });
         },
+        // Redirect user back to where they started
+        returnPathname: returnPath,
     })(request);
 }
