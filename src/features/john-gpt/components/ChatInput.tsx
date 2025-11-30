@@ -1,7 +1,7 @@
 import React from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
 import { Send, Paperclip } from 'lucide-react';
-import { BrainIcon } from '@/components/ui/BrainIcon';
+import { cn } from '@/lib/utils';
 
 /**
  * Props for the ChatInput component
@@ -15,6 +15,8 @@ interface ChatInputProps {
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   /** Whether the AI is currently loading/generating a response */
   isLoading: boolean;
+  /** Function to stop the current generation */
+  stop: () => void;
 }
 
 export const ChatInput: React.FC<ChatInputProps> = ({
@@ -22,10 +24,8 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   handleInputChange,
   handleSubmit,
   isLoading,
+  stop,
 }) => {
-  const [persona, setPersona] = React.useState('Creative Director');
-  const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
-
   const handleFileAttach = () => {
     // TODO: Implement file picker
     const input = document.createElement('input');
@@ -41,94 +41,62 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     input.click();
   };
 
+  // Safe input handling
+  const safeInput = input || '';
+
   return (
-    <div className="flex-shrink-0 p-4 bg-neutral-900/80 backdrop-blur-lg border-t border-neutral-800/60">
-      <div className="w-full max-w-4xl mx-auto">
-        {/* Persona selector - mobile only (desktop shown in header) */}
-        <div className="md:hidden mb-3">
+    <div className="w-full">
+      <form onSubmit={handleSubmit} className="relative group">
+        <div className="relative flex items-end gap-2 bg-secondary/30 hover:bg-secondary/40 border border-border/50 hover:border-primary/20 rounded-2xl p-2 transition-all shadow-sm focus-within:shadow-md focus-within:border-primary/30 focus-within:bg-background">
+          {/* File attachment button */}
           <button
             type="button"
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="w-full flex items-center justify-center gap-2 text-sm bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-1.5 hover:bg-neutral-700 transition-colors"
+            onClick={handleFileAttach}
+            className="flex-shrink-0 w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-background rounded-xl transition-all"
+            aria-label="Attach file"
           >
-            <span className="text-accent-purple">
-              <BrainIcon size={16} className="inline-block mr-1" />
-            </span>
-            <span className="font-medium text-white">{persona}</span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className={`h-4 w-4 text-neutral-400 transition-transform ${
-                isDropdownOpen ? 'rotate-180' : ''
-              }`}
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-            </svg>
+            <Paperclip className="w-4 h-4" />
           </button>
 
-          {/* Dropdown options */}
-          {isDropdownOpen && (
-            <div className="mt-1 bg-neutral-800 border border-neutral-700 rounded-lg shadow-lg">
-              {['Creative Director', 'Technical Advisor', 'Project Manager'].map((option) => (
-                <button
-                  key={option}
-                  onClick={() => {
-                    setPersona(option);
-                    setIsDropdownOpen(false);
-                  }}
-                  className="w-full text-left px-3 py-2 text-sm text-white hover:bg-neutral-700 first:rounded-t-lg last:rounded-b-lg"
-                >
-                  {option}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+          {/* Text input */}
+          <TextareaAutosize
+            value={safeInput}
+            onChange={handleInputChange}
+            placeholder="Message JohnGPT..."
+            className="w-full bg-transparent border-none resize-none py-2.5 px-2 text-sm text-foreground focus:ring-0 focus:outline-none placeholder:text-muted-foreground/70"
+            disabled={isLoading}
+            minRows={1}
+            maxRows={5}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (safeInput.trim() && !isLoading) {
+                  handleSubmit(e as any);
+                }
+              }
+            }}
+          />
 
-        <form onSubmit={handleSubmit} className="relative">
-          <div className="relative flex items-end gap-2">
-            {/* File attachment button */}
+          {/* Send / Stop button */}
+          {isLoading ? (
             <button
               type="button"
-              onClick={handleFileAttach}
-              className="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-neutral-800 text-neutral-400 rounded-full hover:bg-neutral-700 transition-colors"
-              aria-label="Attach file"
+              onClick={stop}
+              className="flex-shrink-0 w-9 h-9 flex items-center justify-center bg-foreground text-background rounded-xl hover:opacity-90 transition-all shadow-sm"
             >
-              <Paperclip className="w-5 h-5" />
+              <div className="w-2.5 h-2.5 bg-current rounded-sm" />
             </button>
-
-            {/* Text input */}
-            <TextareaAutosize
-              value={input}
-              onChange={handleInputChange}
-              placeholder="Message JohnGPT..."
-              className="w-full bg-neutral-800 border border-neutral-700 rounded-2xl resize-none p-3 pr-12 text-white focus:ring-2 focus:ring-accent-purple focus:outline-none"
-              disabled={isLoading}
-              minRows={1}
-              maxRows={5}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  if (input.trim() && !isLoading) {
-                    handleSubmit(e as any);
-                  }
-                }
-              }}
-            />
-
-            {/* Send button */}
+          ) : (
             <button
               type="submit"
-              disabled={!input.trim() || isLoading}
-              className="absolute right-3 bottom-3 w-8 h-8 flex items-center justify-center bg-accent-purple text-white rounded-full hover:bg-violet-500 transition-colors disabled:bg-neutral-600 disabled:cursor-not-allowed"
+              disabled={!safeInput.trim()}
+              className="flex-shrink-0 w-9 h-9 flex items-center justify-center bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all shadow-sm disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed disabled:shadow-none"
             >
-              <Send className="w-5 h-5" />
+              <Send className="w-4 h-4 ml-0.5" />
             </button>
-          </div>
-        </form>
-      </div>
+          )}
+        </div>
+      </form>
     </div>
   );
 };

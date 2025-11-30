@@ -33,15 +33,15 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
   const codeLines = code.split('\n');
 
   return (
-    <div className={`bg-black/60 backdrop-blur-md rounded-xl overflow-hidden border border-neutral-700/80 ${className}`}>
+    <div className={`bg-muted/50 backdrop-blur-md rounded-xl overflow-hidden border border-border ${className}`}>
       {/* Header */}
-      <div className="flex justify-between items-center bg-neutral-900/80 px-3 py-1.5 border-b border-neutral-700/50">
-        <span className="text-xs font-semibold text-neutral-400">
+      <div className="flex justify-between items-center bg-muted/80 px-3 py-1.5 border-b border-border">
+        <span className="text-xs font-semibold text-muted-foreground">
           {language}
         </span>
         <button
           onClick={handleCopy}
-          className="flex items-center gap-1.5 text-xs text-neutral-400 hover:text-white transition-colors p-1 rounded hover:bg-neutral-700/50"
+          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors p-1 rounded hover:bg-background/50"
           aria-label="Copy code"
         >
           <svg
@@ -64,29 +64,29 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
       </div>
 
       {/* Code content */}
-      <pre className="p-3 text-xs font-mono overflow-x-auto">
+      <pre className="p-3 text-xs font-mono overflow-x-auto bg-background/50">
         {/* TODO: Integrate syntax highlighting (Prism.js) */}
-        <code className={`language-${language} text-white`}>
+        <code className={`language-${language} text-foreground`}>
           {showLineNumbers ? (
             codeLines.map((line, index) => (
               <div key={index} className="flex">
                 {showLineNumbers && (
-                  <span className="text-neutral-500 mr-4 select-none min-w-[2rem]">
+                  <span className="text-muted-foreground mr-4 select-none min-w-[2rem]">
                     {index + 1}
                   </span>
                 )}
-                <span className="text-white">{line}</span>
+                <span className="text-foreground">{line}</span>
               </div>
             ))
           ) : (
-            <span className="text-white">{code}</span>
+            <span className="text-foreground">{code}</span>
           )}
         </code>
       </pre>
 
       {/* Copy success feedback */}
       {copied && (
-        <div className="absolute top-2 right-2 bg-accent-purple text-white text-xs px-2 py-1 rounded shadow-lg animate-in fade-in">
+        <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded shadow-lg animate-in fade-in">
           Copied!
         </div>
       )}

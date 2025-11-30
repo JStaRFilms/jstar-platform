@@ -12,7 +12,7 @@
  * Route: POST /api/chat
  * Runtime: Node.js (required for Prisma/SQLite)
  */
-import { streamText, convertToModelMessages } from 'ai';
+import { streamText } from 'ai';
 import { getAIModel } from '../../../lib/ai-providers';
 import { withAuth } from '@workos-inc/authkit-nextjs';
 import { prisma } from '../../../lib/prisma';
@@ -21,7 +21,10 @@ import { NextRequest } from 'next/server';
 export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
-  const { messages } = await req.json();
+  const body = await req.json();
+  const { messages } = body;
+  console.log('API /api/chat received body:', JSON.stringify(body, null, 2));
+  console.log('API /api/chat messages:', JSON.stringify(messages, null, 2));
 
   // 🔓 Optional Authentication - Allow anonymous users
   const { user } = await withAuth();
@@ -44,8 +47,21 @@ export async function POST(req: NextRequest) {
     console.log('Anonymous user accessing JohnGPT');
   }
 
-  // Convert UIMessage[] to ModelMessage[]
-  const modelMessages = convertToModelMessages(messages);
+  // Convert UIMessage[] to CoreMessage[]
+  // UIMessage has a 'parts' array, we need to extract text content from it
+  const modelMessages = messages.map((m: any) => {
+    // Extract text content from parts
+    const textContent = m.parts
+      ? m.parts.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('')
+      : '';
+
+    return {
+      role: m.role,
+      content: textContent,
+    };
+  });
+
+  console.log('Converted model messages:', JSON.stringify(modelMessages, null, 2));
 
   // 🌐 Stream response from selected provider (available to all users)
   const result = await streamText({

@@ -51,7 +51,7 @@ export default async function RootLayout({
         />
       </head>
       <body className={`${inter.className} bg-background transition-colors duration-300`}>
-        <ConditionalLayout authButton={authButton}>
+        <ConditionalLayout authButton={authButton} user={user}>
           {children}
         </ConditionalLayout>
       </body>

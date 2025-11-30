@@ -8,6 +8,7 @@ import { FileAttachment } from '@/components/ui/file-attachment';
 import { MarkdownRenderer } from '@/components/ui/MarkdownRenderer';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useRouter } from 'next/navigation';
+import type { User as WorkOSUser } from '@workos-inc/node';
 
 /**
  * Props for the ChatMessages component
@@ -19,6 +20,8 @@ interface ChatMessagesProps {
   isLoading: boolean;
   /** Whether auto-scroll is enabled */
   autoScrollEnabled?: boolean;
+  /** The current user, used for avatar */
+  user?: WorkOSUser | null;
 }
 
 /**
@@ -90,15 +93,48 @@ const parseMessageContent = (content: string) => {
   return parts.filter(part => part.content !== '');
 };
 
+/**
+ * Component for rendering user message content with collapsible functionality
+ */
+const UserMessageContent = ({ content }: { content: string }) => {
+  const [isExpanded, setIsExpanded] = React.useState(false);
+  const maxLength = 300;
+  const shouldCollapse = content.length > maxLength;
+
+  if (!shouldCollapse) {
+    return <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{content}</p>;
+  }
+
+  return (
+    <div className="relative">
+      <p className={`text-[15px] leading-relaxed whitespace-pre-wrap ${!isExpanded ? 'line-clamp-3' : ''}`}>
+        {content}
+      </p>
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="text-xs font-medium mt-1 hover:underline opacity-80 hover:opacity-100 transition-opacity"
+      >
+        {isExpanded ? 'Show less' : 'Show more'}
+      </button>
+    </div>
+  );
+};
+
 export const ChatMessages: React.FC<ChatMessagesProps> = ({
   messages,
   isLoading,
-  autoScrollEnabled = true
+  autoScrollEnabled = true,
+  user
 }) => {
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
   const router = useRouter();
   const isMobile = useMediaQuery('(max-width: 768px)');
+
+  // Scroll to bottom on mount
+  React.useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+  }, []);
 
   // Smooth auto-scroll logic - only scroll if user is within 100px of bottom
   React.useEffect(() => {
@@ -132,34 +168,35 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
   }
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 space-y-8" ref={scrollContainerRef}>
+    <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 md:space-y-8 scroll-smooth" ref={scrollContainerRef}>
       {messages.map((message) => {
-        const textContent = message.parts.filter(part => part.type === 'text').map(part => part.text).join('');
+        const textContent = message.parts
+          ? message.parts.filter(part => part.type === 'text').map(part => part.text).join('')
+          : (message as any).content;
+
         const parsedParts = parseMessageContent(textContent);
 
         return (
           <div
             key={message.id}
-            className={`flex items-start gap-4 group ${
-              message.role === 'user' ? 'justify-end' : 'justify-start'
-            }`}
+            className={`flex items-start gap-3 md:gap-4 group animate-in fade-in slide-in-from-bottom-4 duration-500 ${message.role === 'user' ? 'justify-end' : 'justify-start'
+              }`}
           >
             {/* AI Avatar (left side) */}
             {message.role === 'assistant' && (
-              <div className="w-9 h-9 flex-shrink-0 rounded-lg bg-gradient-to-br from-accent-blue to-accent-purple flex items-center justify-center">
-                <BrainIcon size={20} />
+              <div className="hidden md:flex w-8 h-8 md:w-9 md:h-9 flex-shrink-0 rounded-xl bg-gradient-to-br from-primary/80 to-purple-600/80 items-center justify-center shadow-md shadow-primary/10 ring-1 ring-white/10">
+                <BrainIcon size={18} className="text-white" />
               </div>
             )}
 
             {/* Message Content & Actions */}
-            <div className="space-y-4">
+            <div className={`space-y-2 ${message.role === 'user' ? 'max-w-[85%] md:max-w-2xl items-end flex flex-col' : 'max-w-full md:max-w-4xl items-start flex flex-col w-full'}`}>
               {/* Message bubble */}
               <div
-                className={`px-4 py-3 rounded-xl group/bubble relative w-fit max-w-md backdrop-blur-sm ${
-                  message.role === 'user'
-                    ? 'bg-accent-blue/90 text-white rounded-br-none text-right'
-                    : 'bg-neutral-800/50 text-neutral-300 rounded-tl-none'
-                }`}
+                className={`px-5 py-3.5 shadow-sm relative backdrop-blur-md transition-all duration-300 ${message.role === 'user'
+                  ? 'bg-primary text-primary-foreground rounded-2xl rounded-br-sm'
+                  : 'md:bg-background/60 md:border md:border-border/40 text-foreground rounded-2xl rounded-tl-sm md:hover:bg-background/80 md:hover:shadow-md md:hover:border-border/60 w-full md:w-auto bg-transparent border-none shadow-none p-0 md:px-5 md:py-3.5'
+                  }`}
               >
                 {/* Message content */}
                 <div className="space-y-3">
@@ -169,16 +206,14 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
                         return message.role === 'assistant' ? (
                           <MarkdownRenderer key={index} content={part.content} />
                         ) : (
-                          <p key={index} className="text-sm leading-relaxed text-foreground">
-                            {part.content}
-                          </p>
+                          <UserMessageContent key={index} content={part.content} />
                         );
                       case 'color-palette':
                         return (
                           <ColorPalette
                             key={index}
                             colors={part.content}
-                            className="max-w-sm"
+                            className="max-w-sm my-2"
                           />
                         );
                       case 'code-block':
@@ -187,7 +222,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
                             key={index}
                             code={part.content.code}
                             language={part.content.language}
-                            className="max-w-full"
+                            className="max-w-full my-2 shadow-sm border border-border/50"
                           />
                         );
                       case 'file-attachment':
@@ -203,39 +238,44 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
                   })}
                 </div>
 
-                {/* Timestamp */}
+                {/* Timestamp - Absolute positioned for cleaner look or inline if preferred, keeping inline for now but subtle */}
                 {(message as any).createdAt && (
-                  <time
-                    dateTime={new Date((message as any).createdAt).toISOString()}
-                    className="block text-xs text-neutral-400 mt-2 md:opacity-60 md:group-hover:opacity-100 transition-opacity"
-                  >
-                    {formatTime(new Date((message as any).createdAt))}
-                  </time>
+                  <div className={`flex items-center mt-1.5 gap-1.5 ${message.role === 'user' ? 'justify-end text-primary-foreground/70' : 'justify-start text-muted-foreground/70'}`}>
+                    <time
+                      dateTime={new Date((message as any).createdAt).toISOString()}
+                      className="text-[10px] font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    >
+                      {formatTime(new Date((message as any).createdAt))}
+                    </time>
+                  </div>
                 )}
 
-                {/* Message actions for AI messages - desktop hover, mobile always */}
+                {/* Message actions for AI messages */}
                 {message.role === 'assistant' && (
-                  <div className="absolute top-3 right-3 md:opacity-0 md:group-hover/bubble:opacity-100 transition-opacity flex items-center gap-1">
-                    <button
-                      className="p-1.5 text-neutral-500 hover:text-white hover:bg-neutral-700/50 rounded-md transition-colors"
-                      title="Copy message"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                      </svg>
-                    </button>
+                  <div className="absolute -top-3 -right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 scale-90 group-hover:scale-100">
+                    <div className="bg-background border border-border shadow-sm rounded-lg p-0.5 flex items-center">
+                      <button
+                        className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md transition-colors"
+                        title="Copy message"
+                        onClick={() => navigator.clipboard.writeText(textContent)}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
 
               {/* AI message actions (expandable suggestions) */}
               {message.role === 'assistant' && (
-                <div className="flex flex-wrap gap-2">
-                  <button className="text-sm bg-neutral-800/40 backdrop-blur-sm border border-neutral-700/60 px-3 py-1.5 rounded-lg hover:bg-neutral-700/60 transition-colors">
+                <div className="flex flex-wrap gap-2 px-1 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                  <button className="text-xs bg-background/40 backdrop-blur-sm border border-border/40 px-2.5 py-1 rounded-full hover:bg-background/80 hover:border-primary/30 transition-all text-muted-foreground hover:text-foreground">
                     Expand on colors
                   </button>
-                  <button className="text-sm bg-neutral-800/40 backdrop-blur-sm border border-neutral-700/60 px-3 py-1.5 rounded-lg hover:bg-neutral-700/60 transition-colors">
+                  <button className="text-xs bg-background/40 backdrop-blur-sm border border-border/40 px-2.5 py-1 rounded-full hover:bg-background/80 hover:border-primary/30 transition-all text-muted-foreground hover:text-foreground">
                     CSS variables
                   </button>
                 </div>
@@ -244,8 +284,12 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
 
             {/* User Avatar (right side) */}
             {message.role === 'user' && (
-              <div className="w-9 h-9 flex-shrink-0 rounded-full bg-neutral-700 flex items-center justify-center font-bold text-sm">
-                U
+              <div className="w-8 h-8 md:w-9 md:h-9 flex-shrink-0 rounded-full bg-gradient-to-br from-neutral-200 to-neutral-300 dark:from-neutral-700 dark:to-neutral-800 flex items-center justify-center font-bold text-xs text-muted-foreground shadow-sm overflow-hidden ring-2 ring-background">
+                {user?.profilePictureUrl ? (
+                  <img src={user.profilePictureUrl} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  <span>{user?.firstName?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}</span>
+                )}
               </div>
             )}
           </div>
@@ -253,26 +297,26 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
       })}
 
       {isLoading && (
-        <div className="flex justify-start">
-          <div className="flex items-center gap-2 p-3 text-muted-foreground">
-            <div className="h-2 w-2 animate-pulse rounded-full bg-primary"></div>
-            <div className="h-2 w-2 animate-pulse rounded-full bg-primary animation-delay-200"></div>
-            <div className="h-2 w-2 animate-pulse rounded-full bg-primary animation-delay-400"></div>
-            <span className="text-sm">JohnGPT is thinking...</span>
+        <div className="flex justify-start animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <div className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-muted/30 border border-border/30 text-muted-foreground">
+            <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary/60 [animation-delay:-0.3s]"></div>
+            <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary/60 [animation-delay:-0.15s]"></div>
+            <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary/60"></div>
+            <span className="text-xs font-medium ml-1">Thinking...</span>
           </div>
         </div>
       )}
 
       {/* Teaser CTA for /john-gpt dashboard - only on mobile and when there are messages */}
       {isMobile && messages.length > 0 && !isLoading && (
-        <div className="mx-4 my-3 p-3 rounded-lg bg-primary/5 border border-primary/20 text-center">
-          <p className="text-sm text-primary">
-            Want more?
+        <div className="mx-4 my-3 p-4 rounded-xl bg-gradient-to-r from-primary/5 via-purple-500/5 to-primary/5 border border-primary/10 text-center animate-in fade-in zoom-in-95 duration-500">
+          <p className="text-sm text-primary font-medium">
+            Want more capabilities?
             <button
               onClick={() => router.push('/john-gpt')}
-              className="ml-1 text-sm underline hover:text-primary/80 transition-colors"
+              className="ml-2 text-sm underline decoration-primary/30 underline-offset-4 hover:text-primary/80 transition-colors"
             >
-              Explore the full dashboard
+              Open Dashboard
             </button>
           </p>
         </div>

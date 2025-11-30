@@ -38,11 +38,19 @@ const providerMap = {
 export function getAISetup(): { provider: keyof typeof providerMap; model: string } {
   return {
     provider: (process.env.AI_PROVIDER as keyof typeof providerMap) || 'gemini',
-    model: process.env.AI_MODEL || 'gemini-1.5-flash',
+    model: process.env.AI_MODEL || 'gemini-2.5-flash',
   };
 }
 
 export function getAIModel(): LanguageModel {
   const { provider, model } = getAISetup();
   return providerMap[provider](model);
+}
+
+export function getFastModel(): LanguageModel {
+  // Always use Gemini for fast tasks like title generation if available
+  if (process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+    return google('gemini-2.5-flash-lite');
+  }
+  return getAIModel();
 }
