@@ -8,9 +8,10 @@ The WorkOS Authentication System provides secure, enterprise-grade authenticatio
 
 ### Runtime & Technology Stack
 - **Provider**: WorkOS AuthKit (`@workos-inc/authkit-nextjs`)
-- **Database**: Prisma + SQLite (local development)
+- **Database**: Supabase PostgreSQL (via Prisma ORM)
 - **Session Management**: HTTP-only cookies (secure, automatic)
 - **Middleware**: Route protection via `authkitMiddleware`
+- **User Sync**: Automatic database sync on authentication callback
 
 ### User Tier System
 
@@ -133,17 +134,29 @@ export default async function RootLayout({ children }) {
 Required in `.env.local`:
 
 ```env
-# WorkOS Configuration
+# WorkOS Authentication
 WORKOS_CLIENT_ID="client_xxxx"
 WORKOS_API_KEY="sk_test_xxxx"
 WORKOS_REDIRECT_URI="http://localhost:5782/auth/callback"
 WORKOS_COOKIE_PASSWORD="<64-character random string>"
+
+# Database (Supabase PostgreSQL)
+DATABASE_URL="postgresql://postgres.xxx:PASSWORD@aws-1-us-west-1.pooler.supabase.com:6543/postgres?pgbouncer=true"
+DIRECT_URL="postgresql://postgres.xxx:PASSWORD@aws-1-us-west-1.pooler.supabase.com:5432/postgres"
+
+# Supabase (optional - for client-side features)
+NEXT_PUBLIC_SUPABASE_URL="https://xxx.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="eyJhbGc..."
 ```
 
 **Generate Cookie Password:**
 ```bash
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
+
+**Database URLs:**
+- `DATABASE_URL`: Uses PgBouncer connection pooler (port 6543) for serverless compatibility
+- `DIRECT_URL`: Direct PostgreSQL connection (port 5432) for running migrations
 
 ## 6. Database Schema
 
@@ -338,3 +351,12 @@ export default authkitMiddleware({
 - Updated tier definitions: GUEST = anonymous, TIER1 = free logged-in users
 - Enabled public access to basic features (e.g., JohnGPT modal)
 - Prepared framework for chat history (TIER1+) vs. ephemeral sessions (GUEST)
+
+### v2.0.0 - Production Database Migration (2025-11-30)
+- **Migrated from SQLite to Supabase PostgreSQL**
+- Updated Prisma schema to use PostgreSQL provider
+- Configured connection pooling via PgBouncer (port 6543)
+- Added direct connection URL for migrations (port 5432)
+- Verified all tables created successfully in Supabase
+- Tested WorkOS authentication with PostgreSQL user sync
+- See [`DATABASE_INTEGRATION.md`](./DATABASE_INTEGRATION.md) for complete database documentation

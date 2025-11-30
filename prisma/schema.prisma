@@ -1,6 +1,3 @@
-// Prisma schema for J StaR Personal Platform
-// This schema defines the database structure for contact forms, admin dashboard, and other features
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,93 +8,288 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-// Contact form submissions
 model ContactSubmission {
-  id          String   @id @default(cuid())
+  id          String            @id @default(cuid())
   name        String
   email       String
   subject     String
-  service     String   // Service type: wedding, corporate, app, ai, consulting, other
+  service     String
   message     String
-  newsletter  Boolean  @default(false)
-
-  // Metadata
-  submittedAt DateTime @default(now())
+  newsletter  Boolean           @default(false)
+  submittedAt DateTime          @default(now())
   ipAddress   String?
   userAgent   String?
-  status      ContactStatus @default(PENDING)
-
-  // Admin tracking
+  status      ContactStatus     @default(PENDING)
   adminNotes  String?
   respondedAt DateTime?
   respondedBy String?
-
-  // Relations
-  responses ContactResponse[]
+  responses   ContactResponse[]
 
   @@map("contact_submissions")
 }
 
-// Contact response tracking
 model ContactResponse {
-  id           String   @id @default(cuid())
+  id           String            @id @default(cuid())
   submissionId String
-  adminId      String?  // Future: link to admin user
-  response     String   // Email content or notes
-  responseType ResponseType // EMAIL, CALL, MEETING, NOTE
-  sentAt       DateTime @default(now())
-
-  // Relations
-  submission ContactSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  adminId      String?
+  response     String
+  responseType ResponseType
+  sentAt       DateTime          @default(now())
+  submission   ContactSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
 
   @@map("contact_responses")
 }
 
-// Newsletter subscribers
 model NewsletterSubscriber {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  subscribedAt DateTime @default(now())
+  id             String    @id @default(cuid())
+  email          String    @unique
+  name           String?
+  subscribedAt   DateTime  @default(now())
   unsubscribedAt DateTime?
-  isActive  Boolean  @default(true)
-
-  // Source tracking
-  source    String?  // contact_form, landing_page, etc.
-  tags      String?  // JSON string of interests, segments
+  isActive       Boolean   @default(true)
+  source         String?
+  tags           String?
 
   @@map("newsletter_subscribers")
 }
 
-// Admin users (for future admin dashboard)
 model AdminUser {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String
-  role      AdminRole @default(ADMIN)
-  createdAt DateTime @default(now())
-  lastLogin DateTime?
-
-  // Security
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String
+  role         AdminRole @default(ADMIN)
+  createdAt    DateTime  @default(now())
+  lastLogin    DateTime?
   passwordHash String
-  isActive   Boolean  @default(true)
+  isActive     Boolean   @default(true)
 
   @@map("admin_users")
 }
 
-// Analytics and tracking
 model ContactAnalytics {
-  id          String   @id @default(cuid())
-  date        DateTime @default(now())
-  submissions Int      @default(0)
-  newsletterSignups Int @default(0)
-  serviceBreakdown Json? // JSON object with service counts
+  id                String   @id @default(cuid())
+  date              DateTime @unique @default(now())
+  submissions       Int      @default(0)
+  newsletterSignups Int      @default(0)
+  serviceBreakdown  Json?
 
-  @@unique([date])
   @@map("contact_analytics")
 }
 
-// Enums
+/// *
+///  * Hero Slides - Dynamic content for homepage hero section
+///  * Allows admin to manage carousel slides with custom content
+model HeroSlide {
+  id             String   @id @default(cuid())
+  titleLine1     String
+  titleLine2     String
+  tagline        String
+  description    String
+  imageUrl       String
+  gradient       String
+  buttonGradient String
+  buttonBorder   String
+  buttonText     String
+  buttonHover    String
+  isActive       Boolean  @default(true)
+  sortOrder      Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  createdBy      String?
+  altText        String?
+  projectTitle   String?
+  projectDesc    String?
+
+  @@map("hero_slides")
+}
+
+/// *
+///  * Hero Slideshow Configuration - Global settings for hero carousel behavior
+///  * Controls auto-play, transitions, indicators, and timing
+model HeroSlideshowConfig {
+  id                 String   @id @default(cuid())
+  autoPlayEnabled    Boolean  @default(true)
+  autoPlayInterval   Int      @default(7000)
+  showIndicators     Boolean  @default(true)
+  transitionEffect   String   @default("fade")
+  transitionDuration Int      @default(700)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  createdBy          String?
+
+  @@map("hero_slideshow_config")
+}
+
+model User {
+  id                String             @id @default(cuid())
+  email             String             @unique
+  name              String?
+  picture           String?
+  workosId          String?            @unique
+  tier              UserTier           @default(GUEST)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  storageQuota      Int                @default(1073741824)
+  storageUsed       Int                @default(0)
+  fileShares        FileShare[]        @relation("SharedByUser")
+  receivedShares    FileShare[]        @relation("SharedWithUser")
+  files             File[]
+  folders           Folder[]
+  googleDriveConfig GoogleDriveConfig?
+
+  @@map("users")
+}
+
+model File {
+  id              String        @id @default(cuid())
+  name            String
+  originalName    String
+  mimeType        String
+  size            Int
+  path            String
+  folderId        String?
+  ownerId         String
+  storageProvider String        @default("local")
+  storagePath     String?
+  checksum        String?
+  metadata        Json?
+  isPublic        Boolean       @default(false)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  shares          FileShare[]
+  versions        FileVersion[]
+  folder          Folder?       @relation(fields: [folderId], references: [id])
+  owner           User          @relation(fields: [ownerId], references: [id])
+
+  @@map("files")
+}
+
+model Folder {
+  id        String   @id @default(cuid())
+  name      String
+  path      String
+  parentId  String?
+  ownerId   String
+  color     String?
+  icon      String?
+  isShared  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  files     File[]
+  owner     User     @relation(fields: [ownerId], references: [id])
+  parent    Folder?  @relation("FolderHierarchy", fields: [parentId], references: [id])
+  children  Folder[] @relation("FolderHierarchy")
+
+  @@map("folders")
+}
+
+model FileShare {
+  id           String          @id @default(cuid())
+  fileId       String
+  sharedById   String
+  sharedWithId String?
+  shareType    ShareType       @default(USER)
+  permissions  PermissionLevel @default(READ)
+  expiresAt    DateTime?
+  createdAt    DateTime        @default(now())
+  file         File            @relation(fields: [fileId], references: [id])
+  sharedBy     User            @relation("SharedByUser", fields: [sharedById], references: [id])
+  sharedWith   User?           @relation("SharedWithUser", fields: [sharedWithId], references: [id])
+
+  @@map("file_shares")
+}
+
+model FileVersion {
+  id          String   @id @default(cuid())
+  fileId      String
+  version     Int
+  size        Int
+  checksum    String
+  storagePath String
+  createdAt   DateTime @default(now())
+  file        File     @relation(fields: [fileId], references: [id])
+
+  @@map("file_versions")
+}
+
+model StorageAnalytics {
+  id            String   @id @default(cuid())
+  userId        String?
+  date          DateTime @default(now())
+  uploads       Int      @default(0)
+  downloads     Int      @default(0)
+  storageUsed   Int      @default(0)
+  bandwidthUsed Int      @default(0)
+  fileTypes     Json?
+
+  @@unique([userId, date])
+  @@map("storage_analytics")
+}
+
+model GoogleDriveConfig {
+  id                 String             @id @default(cuid())
+  userId             String             @unique
+  accessToken        String
+  refreshToken       String
+  tokenExpiry        DateTime
+  enabled            Boolean            @default(false)
+  syncDirection      SyncDirection      @default(BIDIRECTIONAL)
+  conflictResolution ConflictResolution @default(LOCAL_WINS)
+  syncInterval       Int                @default(60)
+  folderMappings     Json?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  lastSync           DateTime?
+  user               User               @relation(fields: [userId], references: [id])
+
+  @@map("google_drive_configs")
+}
+
+model DiagnosticHistory {
+  id        String           @id @default(cuid())
+  type      DiagnosticType
+  status    DiagnosticStatus
+  timestamp DateTime         @default(now())
+  duration  Int?
+  title     String
+  summary   String
+  results   Json
+  warnings  Int              @default(0)
+  errors    Int              @default(0)
+
+  @@map("diagnostic_history")
+}
+
+model DiagnosticConfig {
+  id             String    @id @default(cuid())
+  autoEnabled    Boolean   @default(true)
+  autoInterval   Int       @default(3600000)
+  lastRun        DateTime?
+  runFullSystem  Boolean   @default(true)
+  runAIBenchmark Boolean   @default(true)
+  runStorageScan Boolean   @default(true)
+  runNetworkTest Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@map("diagnostic_config")
+}
+
+model DiagnosticSchedule {
+  id          String         @id @default(cuid())
+  type        DiagnosticType
+  scheduledAt DateTime
+  isRecurring Boolean        @default(false)
+  interval    Int?
+  status      ScheduleStatus @default(PENDING)
+  executedAt  DateTime?
+  resultId    String?
+  createdAt   DateTime       @default(now())
+  createdBy   String?
+
+  @@map("diagnostic_schedule")
+}
+
 enum ContactStatus {
   PENDING
   PROCESSED
@@ -118,348 +310,38 @@ enum AdminRole {
   MODERATOR
 }
 
-/**
- * Hero Slides - Dynamic content for homepage hero section
- * Allows admin to manage carousel slides with custom content
- */
-model HeroSlide {
-  id          String   @id @default(cuid())
-  titleLine1   String
-  titleLine2   String
-  tagline     String
-  description String
-  imageUrl    String   // URL to the slide image
-  gradient    String   // Tailwind gradient classes for title
-  buttonGradient String // Tailwind gradient classes for primary button
-  buttonBorder String  // Tailwind border classes for secondary button
-  buttonText  String   // Tailwind text color classes for secondary button
-  buttonHover String   // Tailwind hover classes for secondary button
-
-  // Admin management
-  isActive    Boolean  @default(true)
-  sortOrder   Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  createdBy   String?  // Future: link to admin user
-
-  // Metadata
-  altText     String?  // Alt text for accessibility
-  projectTitle String? // Title for the project overlay
-  projectDesc String?  // Description for the project overlay
-
-  @@map("hero_slides")
-}
-
-/**
- * Hero Slideshow Configuration - Global settings for hero carousel behavior
- * Controls auto-play, transitions, indicators, and timing
- */
-model HeroSlideshowConfig {
-  id              String   @id @default(cuid())
-
-  // Auto-play settings
-  autoPlayEnabled Boolean  @default(true)
-  autoPlayInterval Int     @default(7000) // milliseconds
-
-  // Visual settings
-  showIndicators  Boolean  @default(true)
-  transitionEffect String  @default("fade") // 'fade', 'slide', 'zoom'
-
-  // Transition timing
-  transitionDuration Int   @default(700) // milliseconds
-
-  // Admin management
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  createdBy       String?  // Future: link to admin user
-
-  @@map("hero_slideshow_config")
-}
-
-/**
- * Admin Vault - File Storage System
- * Comprehensive file management with local/cloud storage and Google Drive integration
- */
-
-// Users table (for future multi-user support)
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  picture   String?
-  workosId  String?  @unique
-  tier      UserTier @default(GUEST)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Storage quota
-  storageQuota Int    @default(1073741824) // 1GB in bytes
-  storageUsed  Int    @default(0)
-
-  // Relations
-  files       File[]
-  folders     Folder[]
-  fileShares  FileShare[] @relation("SharedByUser")
-  receivedShares FileShare[] @relation("SharedWithUser")
-  googleDriveConfig GoogleDriveConfig?
-
-  @@map("users")
-}
-
-// Files table - Core file storage
-model File {
-  id          String   @id @default(cuid())
-  name        String
-  originalName String
-  mimeType    String
-  size        Int
-  path        String   // Local file system path or cloud URL
-  folderId    String?
-  ownerId     String
-
-  // Storage provider
-  storageProvider String @default("local") // 'local', 'cloud', 'google-drive'
-  storagePath String?  // Provider-specific path/URL
-
-  // File integrity
-  checksum    String?  // MD5 or SHA256 hash
-  metadata    Json?    // Additional file metadata
-
-  // Access control
-  isPublic    Boolean  @default(false)
-
-  // Timestamps
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  owner       User     @relation(fields: [ownerId], references: [id])
-  folder      Folder?  @relation(fields: [folderId], references: [id])
-  shares      FileShare[]
-  versions    FileVersion[]
-
-  @@map("files")
-}
-
-// Folders table - Hierarchical organization
-model Folder {
-  id          String   @id @default(cuid())
-  name        String
-  path        String   // Full path for quick access
-  parentId    String?
-  ownerId     String
-
-  // Visual customization
-  color       String?
-  icon        String?
-
-  // Sharing
-  isShared    Boolean  @default(false)
-
-  // Timestamps
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  owner       User     @relation(fields: [ownerId], references: [id])
-  parent      Folder?  @relation("FolderHierarchy", fields: [parentId], references: [id])
-  children    Folder[] @relation("FolderHierarchy")
-  files       File[]
-
-  @@map("folders")
-}
-
-// File sharing and permissions
-model FileShare {
-  id          String   @id @default(cuid())
-  fileId      String
-  sharedById  String
-  sharedWithId String?
-
-  // Share type and permissions
-  shareType   ShareType @default(USER) // USER, PUBLIC, TEAM
-  permissions PermissionLevel @default(READ) // READ, WRITE, ADMIN
-
-  // Expiration
-  expiresAt   DateTime?
-
-  // Timestamps
-  createdAt   DateTime @default(now())
-
-  // Relations
-  file        File     @relation(fields: [fileId], references: [id])
-  sharedBy    User     @relation("SharedByUser", fields: [sharedById], references: [id])
-  sharedWith  User?    @relation("SharedWithUser", fields: [sharedWithId], references: [id])
-
-  @@map("file_shares")
-}
-
-// File versions (for future version control)
-model FileVersion {
-  id          String   @id @default(cuid())
-  fileId      String
-  version     Int
-  size        Int
-  checksum    String
-  storagePath String
-  createdAt   DateTime @default(now())
-
-  // Relations
-  file        File     @relation(fields: [fileId], references: [id])
-
-  @@map("file_versions")
-}
-
-// Storage analytics
-model StorageAnalytics {
-  id          String   @id @default(cuid())
-  userId      String?
-  date        DateTime @default(now())
-
-  // Usage metrics
-  uploads     Int      @default(0)
-  downloads   Int      @default(0)
-  storageUsed Int      @default(0)
-  bandwidthUsed Int    @default(0)
-
-  // File type breakdown
-  fileTypes   Json?    // JSON object with file type counts
-
-  @@unique([userId, date])
-  @@map("storage_analytics")
-}
-
-// Google Drive sync configuration
-model GoogleDriveConfig {
-  id          String   @id @default(cuid())
-  userId      String   @unique
-
-  // OAuth tokens
-  accessToken String
-  refreshToken String
-  tokenExpiry DateTime
-
-  // Sync settings
-  enabled     Boolean  @default(false)
-  syncDirection SyncDirection @default(BIDIRECTIONAL)
-  conflictResolution ConflictResolution @default(LOCAL_WINS)
-  syncInterval Int     @default(60) // minutes
-
-  // Folder mappings
-  folderMappings Json? // JSON object mapping local to remote folders
-
-  // Timestamps
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  lastSync    DateTime?
-
-  // Relations
-  user        User     @relation(fields: [userId], references: [id])
-
-  @@map("google_drive_configs")
-}
-
-// Enums for storage system
 enum UserTier {
-  ADMIN     // Unlimited storage
-  TIER3     // 100GB
-  TIER2     // 50GB
-  TIER1     // 10GB
-  GUEST     // 1GB temporary
+  ADMIN
+  TIER3
+  TIER2
+  TIER1
+  GUEST
 }
 
 enum ShareType {
-  USER      // Share with specific user
-  PUBLIC    // Public link
-  TEAM      // Share with team (future)
+  USER
+  PUBLIC
+  TEAM
 }
 
 enum PermissionLevel {
-  READ      // View/download only
-  WRITE     // Read + upload/modify
-  ADMIN     // Full control + sharing management
+  READ
+  WRITE
+  ADMIN
 }
 
 enum SyncDirection {
-  UPLOAD        // Local to Google Drive only
-  DOWNLOAD      // Google Drive to local only
-  BIDIRECTIONAL // Sync both ways
+  UPLOAD
+  DOWNLOAD
+  BIDIRECTIONAL
 }
 
 enum ConflictResolution {
-  LOCAL_WINS    // Keep local version
-  REMOTE_WINS   // Keep Google Drive version
-  MANUAL        // Ask user to choose
+  LOCAL_WINS
+  REMOTE_WINS
+  MANUAL
 }
 
-// Add relations to existing User model
-// Note: Relations will be added when User model is implemented
-
-// System Diagnostics History - Tracks all diagnostic runs and benchmarks
-model DiagnosticHistory {
-  id          String   @id @default(cuid())
-  type        DiagnosticType
-  status      DiagnosticStatus
-  timestamp   DateTime @default(now())
-  duration    Int? // milliseconds
-
-  // Quick display data
-  title       String
-  summary     String
-
-  // Full detailed results (JSON)
-  results     Json
-
-  // Issue tracking
-  warnings    Int @default(0)
-  errors      Int @default(0)
-
-  @@map("diagnostic_history")
-}
-
-// Diagnostic configuration and scheduling
-model DiagnosticConfig {
-  id              String   @id @default(cuid())
-
-  // Automation settings
-  autoEnabled     Boolean  @default(true)
-  autoInterval    Int      @default(3600000) // 1 hour in milliseconds
-  lastRun         DateTime?
-
-  // Types to run automatically
-  runFullSystem   Boolean  @default(true)
-  runAIBenchmark  Boolean  @default(true)
-  runStorageScan  Boolean  @default(true)
-  runNetworkTest  Boolean  @default(false) // Network tests can be slow
-
-  // Admin management
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  @@map("diagnostic_config")
-}
-
-// Scheduled diagnostic runs
-model DiagnosticSchedule {
-  id          String   @id @default(cuid())
-  type        DiagnosticType
-  scheduledAt DateTime
-  isRecurring Boolean  @default(false)
-  interval    Int? // For recurring schedules (milliseconds)
-
-  // Status
-  status      ScheduleStatus @default(PENDING)
-  executedAt  DateTime?
-  resultId    String? // Link to DiagnosticHistory record
-
-  // Admin management
-  createdAt   DateTime @default(now())
-  createdBy   String? // Future: link to admin user
-
-  @@map("diagnostic_schedule")
-}
-
-// Enums for diagnostics system
 enum DiagnosticType {
   FULL_SYSTEM
   AI_BENCHMARK
@@ -481,20 +363,3 @@ enum ScheduleStatus {
   FAILED
   CANCELLED
 }
-
-// Indexes for performance
-// Note: SQLite doesn't support all index types, but these are defined for future PostgreSQL migration
-// @@index([email])
-// @@index([submittedAt])
-// @@index([status])
-// @@index([service])
-// @@index([isActive])
-// @@index([sortOrder])
-// @@index([ownerId])
-// @@index([folderId])
-// @@index([path])
-// @@index([storageProvider])
-// @@index([createdAt])
-// @@index([timestamp])
-// @@index([type])
-// @@index([status])
