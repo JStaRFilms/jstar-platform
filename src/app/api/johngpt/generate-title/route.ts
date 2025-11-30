@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateText } from 'ai';
+import { generateText, convertToModelMessages } from 'ai';
 import { getFastModel } from '@/lib/ai-providers';
 import { withAuth } from '@workos-inc/authkit-nextjs';
 
@@ -20,6 +20,9 @@ export async function POST(req: NextRequest) {
         // Use the fast model for title generation
         const model = getFastModel();
 
+        // Convert UIMessage[] to ModelMessage[] for generateText
+        const modelMessages = convertToModelMessages(messages);
+
         const { text } = await generateText({
             model,
             system: `You are a helpful assistant that generates concise and relevant titles for chat conversations.
@@ -28,7 +31,7 @@ export async function POST(req: NextRequest) {
       Do not use quotes.
       Do not use "Title:" prefix.
       Just return the title text.`,
-            messages,
+            messages: modelMessages,
         });
 
         return NextResponse.json({ title: text.trim() });

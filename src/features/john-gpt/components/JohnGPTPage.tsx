@@ -12,6 +12,7 @@ type JohnGPTPageProps = {
     isDriveConnected: boolean;
     signInUrl: string;
     signUpUrl: string;
+    conversationId?: string; // NEW: Optional conversation ID from URL
 };
 
 /**
@@ -21,7 +22,7 @@ type JohnGPTPageProps = {
  * - GUEST: Signup prompt with clear messaging
  * - TIER1+: Full JohnGPT interface
  */
-export function JohnGPTPage({ user, isDriveConnected, signInUrl, signUpUrl }: JohnGPTPageProps) {
+export function JohnGPTPage({ user, isDriveConnected, signInUrl, signUpUrl, conversationId }: JohnGPTPageProps) {
     // If no user, show signup prompt (not a generic error!)
     if (!user) {
         return (
@@ -71,12 +72,17 @@ export function JohnGPTPage({ user, isDriveConnected, signInUrl, signUpUrl }: Jo
         <div className="flex h-full bg-background">
             {/* Sidebar - Desktop only */}
             <aside className="hidden md:flex w-72 flex-col border-r border-border">
-                <ConversationSidebar user={user} isDriveConnected={isDriveConnected} className="w-full" />
+                <ConversationSidebar
+                    user={user}
+                    isDriveConnected={isDriveConnected}
+                    activeConversationId={conversationId}
+                    className="w-full"
+                />
             </aside>
 
             {/* Main Content Area */}
             <main className="flex-1 flex flex-col bg-background min-w-0">
-                <ChatView user={user} className="w-full" />
+                <ChatView user={user} conversationId={conversationId} className="w-full" />
             </main>
         </div>
     );

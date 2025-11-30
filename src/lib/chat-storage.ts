@@ -24,43 +24,90 @@ const DB_NAME = 'johngpt-db';
 const DB_VERSION = 1;
 
 class ChatStorageService {
-    private dbPromise: Promise<IDBPDatabase<ChatDB>>;
+    private _dbPromise: Promise<IDBPDatabase<ChatDB>> | null = null;
 
-    constructor() {
-        this.dbPromise = openDB<ChatDB>(DB_NAME, DB_VERSION, {
-            upgrade(db) {
-                const store = db.createObjectStore('conversations', { keyPath: 'id' });
-                store.createIndex('by-date', 'updatedAt');
-            },
-        });
+    private get dbPromise(): Promise<IDBPDatabase<ChatDB>> {
+        if (!this._dbPromise) {
+            if (typeof window === 'undefined') {
+                // Return a never-resolving promise or reject if accessed on server
+                return Promise.reject(new Error("ChatStorageService cannot be used on the server"));
+            }
+            this._dbPromise = openDB<ChatDB>(DB_NAME, DB_VERSION, {
+                upgrade(db) {
+                    const store = db.createObjectStore('conversations', { keyPath: 'id' });
+                    store.createIndex('by-date', 'updatedAt');
+                },
+            });
+        }
+        return this._dbPromise;
     }
 
     async saveConversation(conversation: Conversation): Promise<void> {
+        if (typeof window === 'undefined') return;
         const db = await this.dbPromise;
         await db.put('conversations', conversation);
     }
 
     async getConversation(id: string): Promise<Conversation | undefined> {
+        if (typeof window === 'undefined') return undefined;
         const db = await this.dbPromise;
         return db.get('conversations', id);
     }
 
     async getAllConversations(): Promise<Conversation[]> {
+        if (typeof window === 'undefined') return [];
         const db = await this.dbPromise;
         return db.getAllFromIndex('conversations', 'by-date');
     }
 
     async deleteConversation(id: string): Promise<void> {
+        if (typeof window === 'undefined') return;
         const db = await this.dbPromise;
         await db.delete('conversations', id);
     }
 
+    async updateConversationTitle(id: string, title: string): Promise<void> {
+        if (typeof window === 'undefined') return;
+        const conversation = await this.getConversation(id);
+        if (!conversation) return;
+
+        conversation.title = title;
+        conversation.updatedAt = Date.now();
+        conversation.syncedToDrive = false; // Mark for re-sync
+        await this.saveConversation(conversation);
+    }
+
+    async deleteConversationAndSync(id: string): Promise<void> {
+        if (typeof window === 'undefined') return;
+
+        // Get conversation to check if synced to Drive
+        const conversation = await this.getConversation(id);
+
+        // Delete locally
+        await this.deleteConversation(id);
+
+        // Delete from Drive if it was synced
+        if (conversation?.driveFileId) {
+            try {
+                await fetch('/api/johngpt/sync/delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fileId: conversation.driveFileId }),
+                });
+            } catch (error) {
+                console.error('Failed to delete from Drive:', error);
+            }
+        }
+    }
+
     async clearAll(): Promise<void> {
+        if (typeof window === 'undefined') return;
         const db = await this.dbPromise;
         await db.clear('conversations');
     }
 
     async syncConversations(userId: string): Promise<void> {
+        if (typeof window === 'undefined') return;
         try {
             // 1. Get all local conversations
             const localConversations = await this.getAllConversations();

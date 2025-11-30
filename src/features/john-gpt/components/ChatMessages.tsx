@@ -98,6 +98,9 @@ const parseMessageContent = (content: string) => {
  */
 const UserMessageContent = ({ content }: { content: string }) => {
   const [isExpanded, setIsExpanded] = React.useState(false);
+
+  if (!content) return null;
+
   const maxLength = 300;
   const shouldCollapse = content.length > maxLength;
 
@@ -170,9 +173,9 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
   return (
     <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 md:space-y-8 scroll-smooth" ref={scrollContainerRef}>
       {messages.map((message) => {
-        const textContent = message.parts
+        const textContent = (message.parts
           ? message.parts.filter(part => part.type === 'text').map(part => part.text).join('')
-          : (message as any).content;
+          : (message as any).content) || '';
 
         const parsedParts = parseMessageContent(textContent);
 

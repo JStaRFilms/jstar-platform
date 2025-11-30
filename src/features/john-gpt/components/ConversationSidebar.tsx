@@ -28,9 +28,10 @@ type ConversationSidebarProps = {
     user: WorkOSUser;
     isDriveConnected: boolean;
     className?: string;
+    activeConversationId?: string; // Highlight active conversation
 };
 
-export function ConversationSidebar({ user, isDriveConnected, className }: ConversationSidebarProps) {
+export function ConversationSidebar({ user, isDriveConnected, className, activeConversationId }: ConversationSidebarProps) {
     const [searchQuery, setSearchQuery] = useState('');
     const [conversations, setConversations] = useState<Conversation[]>([]);
 

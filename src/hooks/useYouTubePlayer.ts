@@ -47,7 +47,7 @@ export const useYouTubePlayer = ({
 
     useEffect(() => {
         // Load YouTube IFrame API if not already loaded
-        if (!window.YT) {
+        if (!window.YT?.Player) {
             const tag = document.createElement('script');
             tag.src = 'https://www.youtube.com/iframe_api';
             const firstScriptTag = document.getElementsByTagName('script')[0];
@@ -62,6 +62,12 @@ export const useYouTubePlayer = ({
 
         function initializePlayer() {
             if (playerRef.current) return; // Already initialized
+
+            // Double-check that the Player constructor is available
+            if (!window.YT?.Player) {
+                console.error('YouTube Player API not ready yet');
+                return;
+            }
 
             playerRef.current = new window.YT.Player(elementId, {
                 videoId: videoId,
