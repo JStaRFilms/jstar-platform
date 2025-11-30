@@ -5,9 +5,10 @@ import { prisma } from '@/lib/prisma';
 export default async function ConversationPage({
     params,
 }: {
-    params: { conversationId: string };
+    params: Promise<{ conversationId: string }>;
 }) {
     const { user } = await withAuth();
+    const { conversationId } = await params;
 
     let isDriveConnected = false;
 
@@ -22,5 +23,5 @@ export default async function ConversationPage({
     const signInUrl = await getSignInUrl();
     const signUpUrl = await getSignUpUrl();
 
-    return <JohnGPTPage user={user} isDriveConnected={isDriveConnected} signInUrl={signInUrl} signUpUrl={signUpUrl} conversationId={params.conversationId} />;
+    return <JohnGPTPage user={user} isDriveConnected={isDriveConnected} signInUrl={signInUrl} signUpUrl={signUpUrl} conversationId={conversationId} />;
 }

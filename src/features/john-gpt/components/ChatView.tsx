@@ -32,7 +32,7 @@ export function ChatView({ user, className, conversationId }: ChatViewProps) {
         conversationIdRef,
         deduplicateMessages,
         getOrCreateConversationId,
-    } = useConversationManagement(conversationId, user.id);
+    } = useConversationManagement(conversationId);
 
     // Local state
     const [isPersonaSelectorOpen, setIsPersonaSelectorOpen] = React.useState(false);

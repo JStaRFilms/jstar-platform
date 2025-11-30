@@ -13,8 +13,7 @@ import type { UIMessage } from '@ai-sdk/react';
  * - Deduplication of messages
  */
 export function useConversationManagement(
-    conversationId?: string,
-    userId?: string
+    conversationId?: string
 ) {
     const router = useRouter();
     const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
