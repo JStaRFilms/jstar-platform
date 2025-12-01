@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { chatStorage } from '@/lib/chat-storage';
 import type { UIMessage } from '@ai-sdk/react';
@@ -20,14 +20,14 @@ export function useConversationManagement(
     const conversationIdRef = useRef<string | null>(null);
 
     // Helper to deduplicate messages
-    const deduplicateMessages = (msgs: any[]) => {
+    const deduplicateMessages = useCallback((msgs: any[]) => {
         const seen = new Set();
         return msgs.filter(m => {
             if (seen.has(m.id)) return false;
             seen.add(m.id);
             return true;
         });
-    };
+    }, []);
 
     // One-time cleanup: deduplicate all conversations in storage
     useEffect(() => {

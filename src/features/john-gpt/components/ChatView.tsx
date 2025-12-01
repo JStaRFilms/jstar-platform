@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
 import { chatStorage } from '@/lib/chat-storage';
 import { usePersonas } from '../hooks/usePersonas';
 import { useConversationManagement } from '../hooks/useConversationManagement';
+import { useRouter } from 'next/navigation';
 
 type ChatViewProps = {
     user: WorkOSUser;
@@ -26,12 +27,13 @@ type ChatViewProps = {
  * Manages conversation flow, persona selection, and message display
  */
 export function ChatView({ user, className, conversationId }: ChatViewProps) {
+    const router = useRouter();
+
     // Hooks
     const { personas, activePersona, setActivePersona, isLoadingPersonas } = usePersonas();
     const {
         conversationIdRef,
         deduplicateMessages,
-        getOrCreateConversationId,
     } = useConversationManagement(conversationId);
 
     // Local state
@@ -41,7 +43,13 @@ export function ChatView({ user, className, conversationId }: ChatViewProps) {
     // Initialize useChat with persistence
     const { messages, sendMessage, status, stop, setMessages } = useChat({
         onFinish: async ({ message, messages: finalMessages }) => {
-            const convId = getOrCreateConversationId();
+            // Create the ID only if it doesn't exist
+            let convId = conversationIdRef.current;
+            if (!convId) {
+                convId = crypto.randomUUID();
+                conversationIdRef.current = convId;
+            }
+
             const updatedMessages = deduplicateMessages(finalMessages);
 
             // Generate title
@@ -76,6 +84,7 @@ export function ChatView({ user, className, conversationId }: ChatViewProps) {
                 }
             }
 
+            // Save conversation FIRST
             await chatStorage.saveConversation({
                 id: convId,
                 title,
@@ -86,6 +95,12 @@ export function ChatView({ user, className, conversationId }: ChatViewProps) {
                 syncedToDrive: false,
             });
 
+            // THEN navigate ONLY if we don't have a conversationId in the URL
+            if (!conversationId) {
+                router.push(`/john-gpt/${convId}`);
+            }
+
+            // Background sync
             if (user) {
                 chatStorage.syncConversations(user.id);
             }
@@ -104,14 +119,10 @@ export function ChatView({ user, className, conversationId }: ChatViewProps) {
                     setMessages(deduplicateMessages(conv.messages) as any);
                     return;
                 }
-            }
-
-            // Load latest conversation if no specific ID
-            const conversations = await chatStorage.getAllConversations();
-            if (conversations.length > 0) {
-                const lastConv = conversations.sort((a, b) => b.updatedAt - a.updatedAt)[0];
-                conversationIdRef.current = lastConv.id;
-                setMessages(deduplicateMessages(lastConv.messages) as any);
+            } else {
+                // New Chat: Reset to empty state
+                conversationIdRef.current = null;
+                setMessages([]);
             }
 
             // Sync on load

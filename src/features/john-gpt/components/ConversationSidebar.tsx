@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
     MessageSquare,
     Search,
@@ -32,8 +33,12 @@ type ConversationSidebarProps = {
 };
 
 export function ConversationSidebar({ user, isDriveConnected, className, activeConversationId }: ConversationSidebarProps) {
+    const router = useRouter();
     const [searchQuery, setSearchQuery] = useState('');
     const [conversations, setConversations] = useState<Conversation[]>([]);
+    const [editingId, setEditingId] = useState<string | null>(null);
+    const [editTitle, setEditTitle] = useState('');
+    const [deletingId, setDeletingId] = useState<string | null>(null);
 
     // Fetch conversations on mount
     React.useEffect(() => {
@@ -116,6 +121,94 @@ export function ConversationSidebar({ user, isDriveConnected, className, activeC
         return filtered;
     }, [groupedConversations, searchQuery]);
 
+    // Handle new chat
+    const handleNewChat = () => {
+        router.push('/john-gpt');
+    };
+
+    // Handle conversation click
+    const handleConversationClick = (convId: string) => {
+        router.push(`/john-gpt/${convId}`);
+    };
+
+    // Handle edit
+    const handleStartEdit = (e: React.MouseEvent, conv: Conversation) => {
+        e.stopPropagation();
+        setEditingId(conv.id);
+        setEditTitle(conv.title);
+    };
+
+    // Handle delete
+    const handleDeleteClick = (e: React.MouseEvent, convId: string) => {
+        e.stopPropagation();
+        setDeletingId(convId);
+    };
+
+    const handleSaveEdit = async (e: React.FormEvent, convId: string) => {
+        e.preventDefault();
+        if (!editTitle.trim()) return;
+
+        await chatStorage.updateConversationTitle(convId, editTitle);
+        setEditingId(null);
+
+        // Reload conversations
+        const stored = await chatStorage.getAllConversations();
+        const formatted = stored.map(c => {
+            const lastMsg = c.messages[c.messages.length - 1];
+            let preview = 'No messages';
+            if (lastMsg?.parts) {
+                const textPart = lastMsg.parts.find((p: any) => p.type === 'text') as any;
+                preview = textPart?.text?.slice(0, 60) || 'No messages';
+            }
+            return {
+                id: c.id,
+                title: c.title,
+                date: new Date(c.updatedAt).toISOString(),
+                preview
+            };
+        });
+        setConversations(formatted.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+    };
+
+    const handleCancelEdit = () => {
+        setEditingId(null);
+        setEditTitle('');
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!deletingId) return;
+
+        await chatStorage.deleteConversationAndSync(deletingId);
+        setDeletingId(null);
+
+        // If deleting active conversation, navigate home
+        if (deletingId === activeConversationId) {
+            router.push('/john-gpt');
+        }
+
+        // Reload conversations
+        const stored = await chatStorage.getAllConversations();
+        const formatted = stored.map(c => {
+            const lastMsg = c.messages[c.messages.length - 1];
+            let preview = 'No messages';
+            if (lastMsg?.parts) {
+                const textPart = lastMsg.parts.find((p: any) => p.type === 'text') as any;
+                preview = textPart?.text?.slice(0, 60) || 'No messages';
+            }
+            return {
+                id: c.id,
+                title: c.title,
+                date: new Date(c.updatedAt).toISOString(),
+                preview
+            };
+        });
+        setConversations(formatted.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+    };
+
+    const handleCancelDelete = () => {
+        setDeletingId(null);
+    };
+
     return (
         <div className={cn("flex flex-col h-full bg-card/50 backdrop-blur-xl border-r border-border", className)}>
             {/* Header */}
@@ -140,6 +233,7 @@ export function ConversationSidebar({ user, isDriveConnected, className, activeC
                 </div>
 
                 <button
+                    onClick={handleNewChat}
                     className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white px-3 py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
                 >
                     <Plus className="w-4 h-4" />
@@ -199,26 +293,63 @@ export function ConversationSidebar({ user, isDriveConnected, className, activeC
                                 {groupConversations.map(conv => (
                                     <div
                                         key={conv.id}
-                                        className="group flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-accent/50 cursor-pointer transition-all border border-transparent hover:border-border/50"
+                                        onClick={() => handleConversationClick(conv.id)}
+                                        className={cn(
+                                            "group flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-accent/50 cursor-pointer transition-all border",
+                                            activeConversationId === conv.id
+                                                ? "bg-accent/70 border-primary/50"
+                                                : "border-transparent hover:border-border/50"
+                                        )}
                                     >
-                                        <MessageSquare className="w-4 h-4 shrink-0 text-muted-foreground group-hover:text-primary transition-colors" />
+                                        <MessageSquare className={cn(
+                                            "w-4 h-4 shrink-0 transition-colors",
+                                            activeConversationId === conv.id
+                                                ? "text-primary"
+                                                : "text-muted-foreground group-hover:text-primary"
+                                        )} />
                                         <div className="flex-1 min-w-0">
-                                            <div className="text-sm font-medium truncate text-foreground/90 group-hover:text-foreground">
-                                                {conv.title}
-                                            </div>
-                                            <div className="text-xs text-muted-foreground truncate group-hover:text-muted-foreground/80">
-                                                {conv.preview}
-                                            </div>
+                                            {editingId === conv.id ? (
+                                                <form onSubmit={(e) => handleSaveEdit(e, conv.id)} onClick={(e) => e.stopPropagation()}>
+                                                    <input
+                                                        type="text"
+                                                        value={editTitle}
+                                                        onChange={(e) => setEditTitle(e.target.value)}
+                                                        onBlur={(e) => handleSaveEdit(e as any, conv.id)}
+                                                        onKeyDown={(e) => e.key === 'Escape' && handleCancelEdit()}
+                                                        className="w-full text-sm font-medium bg-background border border-primary rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary/50"
+                                                        autoFocus
+                                                    />
+                                                </form>
+                                            ) : (
+                                                <>
+                                                    <div className="text-sm font-medium truncate text-foreground/90 group-hover:text-foreground">
+                                                        {conv.title}
+                                                    </div>
+                                                    <div className="text-xs text-muted-foreground truncate group-hover:text-muted-foreground/80">
+                                                        {conv.preview}
+                                                    </div>
+                                                </>
+                                            )}
                                         </div>
                                         {/* Hover Actions */}
-                                        <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-opacity">
-                                            <button className="p-1.5 hover:bg-background rounded-lg text-muted-foreground hover:text-foreground transition-colors" title="Rename">
-                                                <Edit2 className="w-3 h-3" />
-                                            </button>
-                                            <button className="p-1.5 hover:bg-red-500/10 rounded-lg text-muted-foreground hover:text-red-500 transition-colors" title="Delete">
-                                                <Trash2 className="w-3 h-3" />
-                                            </button>
-                                        </div>
+                                        {editingId !== conv.id && (
+                                            <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-opacity">
+                                                <button
+                                                    onClick={(e) => handleStartEdit(e, conv)}
+                                                    className="p-1.5 hover:bg-background rounded-lg text-muted-foreground hover:text-foreground transition-colors"
+                                                    title="Rename"
+                                                >
+                                                    <Edit2 className="w-3 h-3" />
+                                                </button>
+                                                <button
+                                                    onClick={(e) => handleDeleteClick(e, conv.id)}
+                                                    className="p-1.5 hover:bg-red-500/10 rounded-lg text-muted-foreground hover:text-red-500 transition-colors"
+                                                    title="Delete"
+                                                >
+                                                    <Trash2 className="w-3 h-3" />
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 ))}
                             </div>
@@ -255,6 +386,42 @@ export function ConversationSidebar({ user, isDriveConnected, className, activeC
                     <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
                 </div>
             </div>
+
+            {/* Delete Confirmation Modal */}
+            {deletingId && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-background border border-border rounded-2xl shadow-2xl max-w-md w-full p-6 animate-in zoom-in-95 duration-200">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center">
+                                <Trash2 className="w-5 h-5 text-red-500" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-semibold text-foreground">Delete Conversation?</h3>
+                                <p className="text-sm text-muted-foreground">This action cannot be undone</p>
+                            </div>
+                        </div>
+
+                        <p className="text-sm text-muted-foreground mb-6">
+                            This will permanently delete the conversation and all its messages from both local storage and Google Drive.
+                        </p>
+
+                        <div className="flex gap-3">
+                            <button
+                                onClick={handleCancelDelete}
+                                className="flex-1 px-4 py-2.5 bg-secondary hover:bg-secondary/80 text-foreground rounded-xl text-sm font-medium transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleConfirmDelete}
+                                className="flex-1 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-medium transition-colors"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
