@@ -42,7 +42,7 @@ export function JohnGPTDialog({ open, onOpenChange, user }: JohnGPTDialogProps) 
 
     if (toolInvocations) {
       for (const toolInvocation of toolInvocations) {
-        if (toolInvocation.toolName === 'navigate' && toolInvocation.state === 'call') {
+        if (toolInvocation.toolName === 'navigate' && toolInvocation.state === 'input-available') {
           const { path } = toolInvocation.args;
           // Execute navigation
           router.push(path);

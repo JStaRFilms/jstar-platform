@@ -12,13 +12,14 @@
  * Route: POST /api/chat
  * Runtime: Node.js (required for Prisma/SQLite)
  */
-import { streamText, tool } from 'ai';
+import { streamText, tool, stepCountIs } from 'ai';
 import { getAIModel } from '../../../lib/ai-providers';
 import { withAuth } from '@workos-inc/authkit-nextjs';
 import { prisma } from '../../../lib/prisma';
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { getRoutesDescription } from '../../../lib/routes-config';
+import { searchKnowledgeBase, formatSearchResults } from '../../../lib/ai/rag-utils';
 
 export const runtime = 'nodejs';
 
@@ -59,6 +60,25 @@ Analyze the user's intent and adapt your mode automatically:
 
 # AVAILABLE ROUTES
 ${getRoutesDescription()}
+
+# KNOWLEDGE BASE
+You have access to a searchable knowledge base containing information **specifically about J StaR's business**: services, portfolio, pricing, and company information.
+
+**When to use the knowledge base:**
+ONLY use the \`searchKnowledge\` tool when the user asks about:
+- J StaR's services, offerings, or what J StaR does
+- Pricing or rates
+- Portfolio or past projects  
+- Company capabilities or team
+
+**When NOT to use the knowledge base:**
+DO NOT search the knowledge base for:
+- General programming/coding questions
+- Technical how-to questions unrelated to J StaR
+- General knowledge or advice
+- Questions about other companies or topics
+
+For general questions, use your training data. For J StaR-specific questions, search first, then answer.
 
 # RESPONSE GUIDELINES
 * **Be Concise:** Use bullet points and bold text for readability.
@@ -163,6 +183,7 @@ export async function POST(req: NextRequest) {
     model: getAIModel(),
     messages: modelMessages,
     system: systemPrompt,
+    stopWhen: stepCountIs(5), // Allow AI to continue after tool execution for up to 5 steps
     tools: {
       navigate: tool({
         description: 'Navigate the user to a specific page. Use this when the user asks to go somewhere or asks about something that is best answered by showing them a specific page (e.g. "pricing" -> /services or /store).',
@@ -170,6 +191,21 @@ export async function POST(req: NextRequest) {
           path: z.string().describe('The path to navigate to (e.g. /about, /portfolio)'),
           reason: z.string().describe('Short reason for navigation to show to the user'),
         }),
+      }),
+      searchKnowledge: tool({
+        description: 'Search the knowledge base for information about services, portfolio, pricing, past work, or any site content. Use this BEFORE answering questions about what J StaR offers.',
+        inputSchema: z.object({
+          query: z.string().describe('What to search for in the knowledge base'),
+        }),
+        execute: async ({ query }) => {
+          try {
+            const results = await searchKnowledgeBase(query, 5, 0.5);
+            return formatSearchResults(results);
+          } catch (error) {
+            console.error('Error searching knowledge base:', error);
+            return 'Sorry, I encountered an error searching my knowledge base.';
+          }
+        },
       }),
     },
   });

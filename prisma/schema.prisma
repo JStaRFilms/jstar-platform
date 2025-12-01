@@ -426,3 +426,21 @@ enum ScheduleStatus {
   FAILED
   CANCELLED
 }
+
+/// *
+///  * Site Embeddings - RAG knowledge base for JohnGPT
+///  * Stores embedded chunks of site content for semantic search
+model SiteEmbedding {
+  id           String   @id @default(cuid())
+  pageUrl      String   @map("page_url")
+  pageTitle    String   @map("page_title")
+  contentChunk String   @map("content_chunk") @db.Text
+  embedding    Unsupported("vector(768)")
+  metadata     Json?
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@index([pageUrl], map: "site_embeddings_page_url_idx")
+  @@map("site_embeddings")
+}
+
