@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Dialog,
   DialogContent,
@@ -9,6 +10,7 @@ import { useScrollBlur } from '@/hooks/useScrollBlur';
 import { AnimatedCloseIcon } from '@/components/icons/animated-icons';
 import { MessageCircle, AlertCircle, Sparkles, Send, Paperclip, X, Maximize2, Minimize2 } from 'lucide-react';
 import { ChatMessages } from './ChatMessages';
+import { EmptyState } from './EmptyState';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import TextareaAutosize from 'react-textarea-autosize';
 import { cn } from '@/lib/utils';
@@ -27,9 +29,34 @@ type JohnGPTDialogProps = {
 };
 
 export function JohnGPTDialog({ open, onOpenChange, user }: JohnGPTDialogProps) {
+  const router = useRouter();
   // Initialize useChat - works seamlessly with toUIMessageStreamResponse()
   const chatHelpers = useChat();
-  const { messages, sendMessage, status, stop, error: chatError } = chatHelpers;
+  const { messages, sendMessage, status, stop, error: chatError, addToolResult } = chatHelpers;
+
+  // Handle tool calls (Navigation)
+  React.useEffect(() => {
+    const lastMessage = messages[messages.length - 1];
+    // Cast to any to avoid type errors if types are outdated
+    const toolInvocations = (lastMessage as any)?.toolInvocations;
+
+    if (toolInvocations) {
+      for (const toolInvocation of toolInvocations) {
+        if (toolInvocation.toolName === 'navigate' && toolInvocation.state === 'call') {
+          const { path } = toolInvocation.args;
+          // Execute navigation
+          router.push(path);
+
+          // Confirm to AI that we navigated
+          addToolResult({
+            toolCallId: toolInvocation.toolCallId,
+            tool: toolInvocation.toolName, // Add tool name
+            output: { success: true, message: `Navigated to ${path}` },
+          });
+        }
+      }
+    }
+  }, [messages, router, addToolResult]);
 
   const [input, setInput] = useState('');
 
@@ -46,10 +73,6 @@ export function JohnGPTDialog({ open, onOpenChange, user }: JohnGPTDialogProps) 
 
     await sendMessage({
       text: userMessage,
-    }, {
-      body: {
-        personaId: selectedPersona,
-      }
     });
   };
 
@@ -86,13 +109,18 @@ export function JohnGPTDialog({ open, onOpenChange, user }: JohnGPTDialogProps) 
   const modalHeight = isMobile ? 'h-full' : isExpanded ? 'h-[80vh]' : 'h-[600px]';
   const modalWidth = isMobile ? 'w-full' : isExpanded ? 'max-w-4xl' : 'max-w-[450px]';
 
-  const [selectedPersona, setSelectedPersona] = useState('Creative Director');
-  const [isPersonaDropdownOpen, setIsPersonaDropdownOpen] = useState(false);
-
   // DialogContent is now the main flex container with full background coverage
   const dialogClasses = isMobile
     ? 'fixed inset-x-0 top-0 bottom-16 z-[60] w-full border-0 shadow-none rounded-none flex flex-col bg-background/90 backdrop-blur-2xl'
     : `fixed right-6 bottom-24 ${modalWidth} ${modalHeight} border border-border/40 shadow-2xl rounded-3xl flex flex-col bg-background/60 backdrop-blur-2xl transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] origin-bottom-right z-50 ring-1 ring-white/10`;
+
+  // Suggestions for empty state
+  const suggestions = [
+    "Brainstorm video ideas",
+    "Refine my brand voice",
+    "Create a content calendar",
+    "Biblical perspective on creativity",
+  ];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -118,21 +146,9 @@ export function JohnGPTDialog({ open, onOpenChange, user }: JohnGPTDialogProps) 
                   BETA
                 </span>
               </h2>
-              <button
-                onClick={() => setIsPersonaDropdownOpen(!isPersonaDropdownOpen)}
-                className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 group"
-              >
-                {selectedPersona}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className={`h-3 w-3 transition-transform duration-300 ${isPersonaDropdownOpen ? 'rotate-180' : ''} group-hover:text-primary`}
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
+              <p className="text-xs text-muted-foreground">
+                AI Creative Partner
+              </p>
             </div>
           </div>
 
@@ -156,34 +172,20 @@ export function JohnGPTDialog({ open, onOpenChange, user }: JohnGPTDialogProps) 
           </div>
         </div>
 
-        {/* Persona Dropdown Overlay */}
-        {isPersonaDropdownOpen && (
-          <div className="absolute top-[70px] left-4 z-20 bg-background/95 backdrop-blur-2xl border border-border/50 rounded-2xl shadow-xl w-56 animate-in fade-in zoom-in-95 duration-200 ring-1 ring-white/10">
-            <div className="p-1.5 space-y-0.5">
-              {['Creative Director', 'Technical Advisor', 'Project Manager', 'Faith Guide'].map((persona) => (
-                <button
-                  key={persona}
-                  onClick={() => {
-                    setSelectedPersona(persona);
-                    setIsPersonaDropdownOpen(false);
-                  }}
-                  className={cn(
-                    "w-full text-left px-3 py-2.5 text-sm rounded-xl transition-all duration-200",
-                    selectedPersona === persona
-                      ? "bg-primary/10 text-primary font-medium"
-                      : "text-foreground hover:bg-secondary/50"
-                  )}
-                >
-                  {persona}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Messages area */}
         <div className="flex-1 flex flex-col overflow-hidden relative bg-transparent min-h-0">
-          <ChatMessages messages={messages} isLoading={isLoading} user={user} />
+          {messages.length === 0 ? (
+            <div className="flex-1 overflow-y-auto">
+              <EmptyState
+                suggestions={suggestions}
+                onSuggestionClick={(text) => setInput(text)}
+                user={user}
+                isLocked={true}
+              />
+            </div>
+          ) : (
+            <ChatMessages messages={messages} isLoading={isLoading} user={user} />
+          )}
         </div>
 
         {/* Error */}
@@ -209,7 +211,7 @@ export function JohnGPTDialog({ open, onOpenChange, user }: JohnGPTDialogProps) 
             <TextareaAutosize
               value={input}
               onChange={handleInputChange}
-              placeholder={`Message ${selectedPersona}...`}
+              placeholder="Message JohnGPT..."
               className="w-full bg-transparent border-none resize-none py-2 px-1 text-sm text-foreground focus:ring-0 focus:outline-none placeholder:text-muted-foreground/60"
               minRows={1}
               maxRows={4}

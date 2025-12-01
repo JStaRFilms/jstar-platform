@@ -14,9 +14,15 @@ export async function POST(req: NextRequest) {
         const conversation = await req.json();
 
         // Get internal user ID
-        const dbUser = await prisma.user.findUnique({
-            where: { workosId: user.id },
-        });
+        let dbUser;
+        try {
+            dbUser = await prisma.user.findUnique({
+                where: { workosId: user.id },
+            });
+        } catch (dbError) {
+            console.error('[Drive Sync] Database connection error:', dbError);
+            return NextResponse.json({ error: 'Database temporarily unavailable' }, { status: 503 });
+        }
 
         if (!dbUser) {
             return NextResponse.json({ error: 'User not found' }, { status: 404 });

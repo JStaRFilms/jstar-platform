@@ -20,13 +20,20 @@ export default async function JohnGPTRoute() {
     let isDriveConnected = false;
 
     if (user) {
-        // Find internal user by WorkOS ID
-        const dbUser = await prisma.user.findUnique({
-            where: { workosId: user.id },
-            include: { googleDriveConfig: true },
-        });
+        try {
+            // Find internal user by WorkOS ID
+            const dbUser = await prisma.user.findUnique({
+                where: { workosId: user.id },
+                include: { googleDriveConfig: true },
+            });
 
-        isDriveConnected = !!dbUser?.googleDriveConfig?.accessToken;
+            isDriveConnected = !!dbUser?.googleDriveConfig?.accessToken;
+        } catch (error) {
+            // Gracefully handle database connection errors
+            // App continues to function with Drive features disabled
+            console.error('[JohnGPT] Database connection error:', error);
+            // isDriveConnected remains false
+        }
     }
 
     const signInUrl = await getSignInUrl();

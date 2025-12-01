@@ -48,11 +48,10 @@ export function ChatView({ user, className, conversationId, onMobileMenuClick }:
                 conversationIdRef.current = convId;
             }
 
-            // Ensure all messages have timestamps and correct structure
+            // Ensure all messages have timestamps (don't modify structure)
             const timestampedMessages = finalMessages.map(msg => ({
                 ...msg,
                 timestamp: (msg as any).timestamp || Date.now(),
-                parts: (msg as any).parts || [{ type: 'text', text: (msg as any).content }]
             }));
 
             const updatedMessages = deduplicateMessages(timestampedMessages);
@@ -67,9 +66,16 @@ export function ChatView({ user, className, conversationId, onMobileMenuClick }:
                 title = currentConv.title;
             } else if (updatedMessages[0]) {
                 const firstMessage = updatedMessages[0];
-                const textPart = firstMessage.parts?.find((p: any) => p.type === 'text');
-                if (textPart && textPart.type === 'text') {
-                    title = textPart.text.slice(0, 50);
+                // Get text from parts or content
+                let text = '';
+                if ((firstMessage as any).parts) {
+                    const textPart = (firstMessage as any).parts.find((p: any) => p.type === 'text');
+                    text = textPart?.text || '';
+                } else {
+                    text = (firstMessage as any).content || '';
+                }
+                if (text) {
+                    title = text.slice(0, 50);
                 }
             }
 
@@ -90,7 +96,7 @@ export function ChatView({ user, className, conversationId, onMobileMenuClick }:
                 }
             }
 
-            // Save conversation FIRST
+            // Save conversation FIRST and AWAIT completion
             await chatStorage.saveConversation({
                 id: convId,
                 title,
@@ -101,14 +107,19 @@ export function ChatView({ user, className, conversationId, onMobileMenuClick }:
                 syncedToDrive: false,
             });
 
+            console.log('[ChatView] Conversation saved to IndexedDB:', convId);
+
             // THEN navigate ONLY if we don't have a conversationId in the URL
+            // Navigation now happens AFTER save is complete
             if (!conversationId) {
                 router.push(`/john-gpt/${convId}`);
             }
 
-            // Background sync
+            // Background sync (non-blocking)
             if (user) {
-                chatStorage.syncConversations(user.id);
+                chatStorage.syncConversations(user.id).catch(err =>
+                    console.warn('[ChatView] Background sync failed:', err)
+                );
             }
         },
     });
@@ -119,21 +130,38 @@ export function ChatView({ user, className, conversationId, onMobileMenuClick }:
     React.useEffect(() => {
         async function loadConversation() {
             if (conversationId) {
+                // Try to load from local storage first
                 const conv = await chatStorage.getConversation(conversationId);
                 if (conv) {
+                    console.log('[ChatView] Loaded conversation from local storage:', conversationId);
                     conversationIdRef.current = conv.id;
                     setMessages(deduplicateMessages(conv.messages) as any);
+
+                    // Sync in background to get any updates from Drive
+                    if (user) {
+                        chatStorage.syncConversations(user.id).catch(err =>
+                            console.warn('[ChatView] Background sync failed:', err)
+                        );
+                    }
                     return;
+                } else {
+                    // Conversation not in local storage, trigger sync to fetch from Drive
+                    console.log('[ChatView] Conversation not found locally, syncing from Drive...');
+                    if (user) {
+                        await chatStorage.syncConversations(user.id);
+                        // Try loading again after sync
+                        const syncedConv = await chatStorage.getConversation(conversationId);
+                        if (syncedConv) {
+                            conversationIdRef.current = syncedConv.id;
+                            setMessages(deduplicateMessages(syncedConv.messages) as any);
+                            return;
+                        }
+                    }
                 }
             } else {
                 // New Chat: Reset to empty state
                 conversationIdRef.current = null;
                 setMessages([]);
-            }
-
-            // Sync on load
-            if (user) {
-                chatStorage.syncConversations(user.id);
             }
         }
         loadConversation();

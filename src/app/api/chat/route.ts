@@ -12,11 +12,13 @@
  * Route: POST /api/chat
  * Runtime: Node.js (required for Prisma/SQLite)
  */
-import { streamText } from 'ai';
+import { streamText, tool } from 'ai';
 import { getAIModel } from '../../../lib/ai-providers';
 import { withAuth } from '@workos-inc/authkit-nextjs';
 import { prisma } from '../../../lib/prisma';
 import { NextRequest } from 'next/server';
+import { z } from 'zod';
+import { getRoutesDescription } from '../../../lib/routes-config';
 
 export const runtime = 'nodejs';
 
@@ -24,7 +26,7 @@ export const runtime = 'nodejs';
 
 const UNIVERSAL_SYSTEM_PROMPT = `
 # IDENTITY & PURPOSE
-You are JohnGPT, the AI interface for the J StaR Personal Platform. You act as a "Creative Operating System"—a strategic partner for filmmakers, developers, and creators.
+You are JohnGPT, the AI interface for the J StaR Platform. You act as a "Creative Operating System"—a strategic partner for filmmakers, developers, and creators.
 
 Your goal is **Effectiveness, Truth, and Leverage**. You are not a customer service agent; you are a high-level consultant. You prioritize clarity and results over validation or excessive politeness.
 
@@ -51,6 +53,12 @@ Analyze the user's intent and adapt your mode automatically:
     * Act as a Knowledge Base.
     * Guide them to the Portfolio, Store, or About page.
     * Be helpful and welcoming to guests.
+* **IF the user asks to go somewhere or asks about a specific section:**
+    * Use the \`navigate\` tool to take them there directly.
+    * Don't just say "Go to the portfolio", actually take them there.
+
+# AVAILABLE ROUTES
+${getRoutesDescription()}
 
 # RESPONSE GUIDELINES
 * **Be Concise:** Use bullet points and bold text for readability.
@@ -100,11 +108,16 @@ export async function POST(req: NextRequest) {
 
   // If user is authenticated, we can save chat history (future feature)
   if (user) {
-    const dbUser = await prisma.user.findUnique({
-      where: { workosId: user.id },
-    });
-    if (dbUser) {
-      console.log(`Authenticated user: ${dbUser.email} (${dbUser.tier})`);
+    try {
+      const dbUser = await prisma.user.findUnique({
+        where: { workosId: user.id },
+      });
+      if (dbUser) {
+        console.log(`Authenticated user: ${dbUser.email} (${dbUser.tier})`);
+      }
+    } catch (error) {
+      // Gracefully handle database errors - chat can still proceed
+      console.warn('[Chat API] Database connection error - continuing without user data:', error);
     }
   } else {
     console.log('Anonymous user accessing JohnGPT');
@@ -150,6 +163,15 @@ export async function POST(req: NextRequest) {
     model: getAIModel(),
     messages: modelMessages,
     system: systemPrompt,
+    tools: {
+      navigate: tool({
+        description: 'Navigate the user to a specific page. Use this when the user asks to go somewhere or asks about something that is best answered by showing them a specific page (e.g. "pricing" -> /services or /store).',
+        inputSchema: z.object({
+          path: z.string().describe('The path to navigate to (e.g. /about, /portfolio)'),
+          reason: z.string().describe('Short reason for navigation to show to the user'),
+        }),
+      }),
+    },
   });
 
   return result.toUIMessageStreamResponse();

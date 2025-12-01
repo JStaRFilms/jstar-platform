@@ -45,19 +45,7 @@ export function MarkdownRenderer({ content, className, variant = 'default' }: Ma
               />
             );
           },
-          p: ({ children, node }) => {
-            // Check if paragraph contains block-level elements (like code blocks)
-            // If so, render as div to avoid invalid HTML nesting
-            const hasBlockElement = node?.children?.some((child: any) =>
-              child.tagName === 'code' && child.properties?.className?.some((c: string) => c.startsWith('language-'))
-            );
-
-            if (hasBlockElement) {
-              return <div className="mb-4 last:mb-0">{children}</div>;
-            }
-
-            return <p className="mb-4 last:mb-0">{children}</p>;
-          },
+          p: ({ children }) => <div className="mb-4 last:mb-0">{children}</div>,
           ul: ({ children }) => <ul className="list-disc pl-6 mb-4 space-y-1">{children}</ul>,
           ol: ({ children }) => <ol className="list-decimal pl-6 mb-4 space-y-1">{children}</ol>,
           li: ({ children }) => <li className="pl-1">{children}</li>,

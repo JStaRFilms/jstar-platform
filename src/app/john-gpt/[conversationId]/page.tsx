@@ -13,11 +13,17 @@ export default async function ConversationPage({
     let isDriveConnected = false;
 
     if (user) {
-        const dbUser = await prisma.user.findUnique({
-            where: { workosId: user.id },
-            include: { googleDriveConfig: true },
-        });
-        isDriveConnected = !!dbUser?.googleDriveConfig?.accessToken;
+        try {
+            const dbUser = await prisma.user.findUnique({
+                where: { workosId: user.id },
+                include: { googleDriveConfig: true },
+            });
+            isDriveConnected = !!dbUser?.googleDriveConfig?.accessToken;
+        } catch (error) {
+            // Gracefully handle database connection errors
+            console.error('[JohnGPT] Database connection error:', error);
+            // isDriveConnected remains false
+        }
     }
 
     const signInUrl = await getSignInUrl();

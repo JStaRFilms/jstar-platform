@@ -10,7 +10,7 @@ import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useRouter, usePathname } from 'next/navigation';
 import type { User as WorkOSUser } from '@workos-inc/node';
 import { ExtendedMessage } from '@/lib/chat-storage';
-import { Check, ChevronDown, Edit2, Copy } from 'lucide-react';
+import { Check, ChevronDown, Edit2, Copy, Compass } from 'lucide-react';
 
 /**
  * Props for the ChatMessages component
@@ -147,8 +147,8 @@ const UserMessageContent = ({
     >
       <div
         className={`text-[15px] leading-relaxed break-words transition-all duration-300 text-white relative ${!isExpanded && isLong
-            ? 'max-h-[160px] overflow-hidden mask-linear-gradient'
-            : ''
+          ? 'max-h-[160px] overflow-hidden mask-linear-gradient'
+          : ''
           }`}
       >
         <MarkdownRenderer content={content} className="text-white" variant="ghost" />
@@ -156,8 +156,8 @@ const UserMessageContent = ({
 
       {/* Actions Toolbar */}
       <div className={`flex items-center gap-1 mt-0.5 justify-end transition-all duration-200 ${isMobile
-          ? (showActions ? 'opacity-100 max-h-10' : 'opacity-0 max-h-0 overflow-hidden')
-          : 'opacity-0 group-hover/user-msg:opacity-100'
+        ? (showActions ? 'opacity-100 max-h-10' : 'opacity-0 max-h-0 overflow-hidden')
+        : 'opacity-0 group-hover/user-msg:opacity-100'
         }`}>
 
         {/* Edit Button (Only for last 2 messages) */}
@@ -340,38 +340,53 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
                       onEdit={onEdit}
                     />
                   ) : (
-                    parsedParts.map((part, index) => {
-                      switch (part.type) {
-                        case 'text':
-                          return <MarkdownRenderer key={index} content={part.content} />;
-                        case 'color-palette':
-                          return (
-                            <ColorPalette
-                              key={index}
-                              colors={part.content}
-                              className="max-w-sm my-2"
-                            />
-                          );
-                        case 'code-block':
-                          return (
-                            <CodeBlock
-                              key={index}
-                              code={part.content.code}
-                              language={part.content.language}
-                              className="max-w-full my-2 shadow-sm border border-border/50"
-                            />
-                          );
-                        case 'file-attachment':
-                          return (
-                            <FileAttachment
-                              key={index}
-                              file={part.content}
-                            />
-                          );
-                        default:
-                          return null;
-                      }
-                    })
+                    <>
+                      {parsedParts.map((part, index) => {
+                        switch (part.type) {
+                          case 'text':
+                            return <MarkdownRenderer key={index} content={part.content} />;
+                          case 'color-palette':
+                            return (
+                              <ColorPalette
+                                key={index}
+                                colors={part.content}
+                                className="max-w-sm my-2"
+                              />
+                            );
+                          case 'code-block':
+                            return (
+                              <CodeBlock
+                                key={index}
+                                code={part.content.code}
+                                language={part.content.language}
+                                className="max-w-full my-2 shadow-sm border border-border/50"
+                              />
+                            );
+                          case 'file-attachment':
+                            return (
+                              <FileAttachment
+                                key={index}
+                                file={part.content}
+                              />
+                            );
+                          default:
+                            return null;
+                        }
+                      })}
+                      {(message as any).toolInvocations?.map((toolInvocation: any) => (
+                        <div key={toolInvocation.toolCallId} className="mt-3 p-3 bg-secondary/30 rounded-xl border border-border/40 flex items-center gap-3 text-sm animate-in fade-in slide-in-from-bottom-2">
+                          <div className="w-8 h-8 bg-blue-500/10 text-blue-500 rounded-lg flex items-center justify-center border border-blue-500/20">
+                            <Compass className="w-4 h-4 animate-[spin_3s_linear_infinite]" />
+                          </div>
+                          <div className="flex-1">
+                            <div className="font-medium text-foreground text-[10px] uppercase tracking-wider opacity-70 mb-0.5">Action</div>
+                            <div className="text-foreground/90 font-medium">
+                              {toolInvocation.toolName === 'navigate' ? `Navigating to ${toolInvocation.args.path}...` : `Calling ${toolInvocation.toolName}...`}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </>
                   )}
                 </div>
 
