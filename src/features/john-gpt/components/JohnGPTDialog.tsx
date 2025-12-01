@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Dialog,
   DialogContent,
@@ -7,10 +8,13 @@ import {
 import { useChat } from '@ai-sdk/react';
 import { useScrollBlur } from '@/hooks/useScrollBlur';
 import { AnimatedCloseIcon } from '@/components/icons/animated-icons';
-import { MessageCircle, AlertCircle } from 'lucide-react';
+import { MessageCircle, AlertCircle, Sparkles, Send, Paperclip, X, Maximize2, Minimize2 } from 'lucide-react';
 import { ChatMessages } from './ChatMessages';
-import { ChatInput } from './ChatInput';
+import { EmptyState } from './EmptyState';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
+import TextareaAutosize from 'react-textarea-autosize';
+import { cn } from '@/lib/utils';
+import type { User as WorkOSUser } from '@workos-inc/node';
 
 /**
  * Props for the JohnGPT dialog component
@@ -20,12 +24,60 @@ type JohnGPTDialogProps = {
   open: boolean;
   /** Callback when the dialog open state changes */
   onOpenChange: (open: boolean) => void;
+  /** The current user */
+  user?: WorkOSUser | null;
 };
 
-export function JohnGPTDialog({ open, onOpenChange }: JohnGPTDialogProps) {
-  const { messages, status, sendMessage, error: chatError } = useChat();
+export function JohnGPTDialog({ open, onOpenChange, user }: JohnGPTDialogProps) {
+  const router = useRouter();
+  // Initialize useChat - works seamlessly with toUIMessageStreamResponse()
+  const chatHelpers = useChat();
+  const { messages, sendMessage, status, stop, error: chatError, addToolResult } = chatHelpers;
+
+  // Handle tool calls (Navigation)
+  React.useEffect(() => {
+    const lastMessage = messages[messages.length - 1];
+    // Cast to any to avoid type errors if types are outdated
+    const toolInvocations = (lastMessage as any)?.toolInvocations;
+
+    if (toolInvocations) {
+      for (const toolInvocation of toolInvocations) {
+        if (toolInvocation.toolName === 'navigate' && toolInvocation.state === 'input-available') {
+          const { path } = toolInvocation.args;
+          // Execute navigation
+          router.push(path);
+
+          // Confirm to AI that we navigated
+          addToolResult({
+            toolCallId: toolInvocation.toolCallId,
+            tool: toolInvocation.toolName, // Add tool name
+            output: { success: true, message: `Navigated to ${path}` },
+          });
+        }
+      }
+    }
+  }, [messages, router, addToolResult]);
+
   const [input, setInput] = useState('');
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement> | React.ChangeEvent<HTMLInputElement>) => {
+    setInput(e.target.value);
+  };
+
+  const handleSubmit = async (e?: React.FormEvent<HTMLFormElement>) => {
+    e?.preventDefault();
+    if (!input.trim()) return;
+
+    const userMessage = input;
+    setInput('');
+
+    await sendMessage({
+      text: userMessage,
+    });
+  };
+
   const [error, setError] = useState<string | null>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   // Handle errors from chat
   React.useEffect(() => {
@@ -36,27 +88,7 @@ export function JohnGPTDialog({ open, onOpenChange }: JohnGPTDialogProps) {
     }
   }, [chatError]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setInput(e.target.value);
-    // Clear error when user starts typing
-    if (error) setError(null);
-  };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!input.trim()) return;
-    sendMessage({ text: input });
-    setInput('');
-  };
-
-  const handleRetry = () => {
-    const retryText = input.trim() || 'Retry last message';
-    sendMessage({ text: retryText });
-    setInput('');
-    setError(null);
-  };
-
-  const isLoading = status === 'streaming' || status === 'submitted';
+  const isLoading = status === 'submitted' || status === 'streaming';
 
   // Mobile detection
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -73,157 +105,148 @@ export function JohnGPTDialog({ open, onOpenChange }: JohnGPTDialogProps) {
     }
   }, [open, startScrollBlur]);
 
-  // Fixed height for consistent sizing on both mobile and desktop
-  const fixedModalHeight = isMobile ? 'h-full' : 'h-[500px]';
-
-  const [selectedPersona, setSelectedPersona] = useState('Creative Director');
-  const [isPersonaDropdownOpen, setIsPersonaDropdownOpen] = useState(false);
+  // Dynamic height based on expansion state
+  const modalHeight = isMobile ? 'h-full' : isExpanded ? 'h-[80vh]' : 'h-[600px]';
+  const modalWidth = isMobile ? 'w-full' : isExpanded ? 'max-w-4xl' : 'max-w-[450px]';
 
   // DialogContent is now the main flex container with full background coverage
   const dialogClasses = isMobile
-    ? 'fixed inset-0 z-50 w-full h-full border-0 shadow-none rounded-none flex flex-col bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'
-    : `fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-full max-w-2xl ${fixedModalHeight} border border-border shadow-2xl rounded-lg flex flex-col bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]`;
+    ? 'fixed inset-x-0 top-0 bottom-16 z-[60] w-full border-0 shadow-none rounded-none flex flex-col bg-background/90 backdrop-blur-2xl'
+    : `fixed right-6 bottom-24 ${modalWidth} ${modalHeight} border border-border/40 shadow-2xl rounded-3xl flex flex-col bg-background/60 backdrop-blur-2xl transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] origin-bottom-right z-50 ring-1 ring-white/10`;
+
+  // Suggestions for empty state
+  const suggestions = [
+    "Brainstorm video ideas",
+    "Refine my brand voice",
+    "Create a content calendar",
+    "Biblical perspective on creativity",
+  ];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className={dialogClasses}
         hideDefaultClose={true}
+        overlayClassName="bg-transparent md:bg-black/20 backdrop-blur-[2px] transition-all duration-500"
+        onInteractOutside={(e) => e.preventDefault()} // Prevent closing when clicking outside on desktop to allow multitasking
       >
         {/* Screen reader title for accessibility */}
         <DialogTitle className="sr-only">JohnGPT Chat Assistant</DialogTitle>
 
-        {/* Header - flex-shrink-0 keeps it from shrinking */}
-        <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-border">
-          {isMobile ? (
-            /* Mobile Header */
-            <div className="flex items-center justify-between w-full">
-              {/* Back-to-Content Button */}
+        {/* Header */}
+        <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-border/40 bg-background/40 backdrop-blur-xl rounded-t-3xl transition-all duration-300">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/20 ring-1 ring-white/20">
+              <Sparkles className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                JohnGPT
+                <span className="px-1.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-medium border border-primary/20">
+                  BETA
+                </span>
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                AI Creative Partner
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1">
+            {!isMobile && (
               <button
-                onClick={() => {
-                  onOpenChange(false);
-                  // Optional: scroll to top or back to previous content
-                }}
-                className="p-2 -ml-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted"
-                aria-label="Return to main content"
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="p-2 rounded-xl text-muted-foreground hover:bg-secondary/50 hover:text-foreground transition-all duration-200"
+                title={isExpanded ? "Minimize" : "Maximize"}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                </svg>
+                {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
               </button>
-              <div className="absolute left-1/2 transform -translate-x-1/2 text-center">
-                {/* Contextual Awareness Badge */}
-                <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground mb-1">
-                  <span>⚡</span>
-                  <span>AI Assistant Mode</span>
-                </div>
-                <h1 className="font-semibold text-foreground">JohnGPT</h1>
-                <p className="text-xs text-muted-foreground">
-                  {status === 'streaming' ? 'JOHNGPT is generating...' :
-                    status === 'ready' ? 'Ready to help' : 'Processing...'}
-                </p>
-              </div>
-              {/* Keep X for quick close, but Back button is primary */}
-              <button
-                onClick={() => onOpenChange(false)}
-                className="p-2 -mr-2 text-muted-foreground hover:text-foreground transition-colors"
-                aria-label="Close chat"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+            )}
+            <button
+              onClick={() => onOpenChange(false)}
+              className="p-2 rounded-xl text-muted-foreground hover:bg-red-500/10 hover:text-red-500 transition-all duration-200"
+              aria-label="Close chat"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Messages area */}
+        <div className="flex-1 flex flex-col overflow-hidden relative bg-transparent min-h-0">
+          {messages.length === 0 ? (
+            <div className="flex-1 overflow-y-auto">
+              <EmptyState
+                suggestions={suggestions}
+                onSuggestionClick={(text) => setInput(text)}
+                user={user}
+                isLocked={true}
+              />
             </div>
           ) : (
-            /* Desktop Header */
-            <div className="flex items-center justify-between w-full">
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setIsPersonaDropdownOpen(!isPersonaDropdownOpen)}
-                  className="flex items-center gap-2 text-foreground bg-background/60 border border-border px-3 py-1.5 rounded-lg hover:bg-background/80 transition-colors"
-                >
-                  <div className="w-5 h-5 rounded bg-gradient-to-br from-accent-blue to-accent-purple"></div>
-                  <span className="font-medium">{selectedPersona}</span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className={`h-4 w-4 text-muted-foreground transition-transform ${isPersonaDropdownOpen ? 'rotate-180' : ''
-                      }`}
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-
-                {/* Persona dropdown */}
-                {isPersonaDropdownOpen && (
-                  <div className="absolute top-full mt-1 left-0 bg-background border border-border rounded-lg shadow-lg min-w-[200px] z-10">
-                    {['Creative Director', 'Technical Advisor', 'Project Manager'].map((persona) => (
-                      <button
-                        key={persona}
-                        onClick={() => {
-                          setSelectedPersona(persona);
-                          setIsPersonaDropdownOpen(false);
-                        }}
-                        className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-muted first:rounded-t-lg last:rounded-b-lg"
-                      >
-                        {persona}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  className="p-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                  title="Share Chat"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
-                    <polyline points="16 6 12 2 8 6"></polyline>
-                    <line x1="12" y1="2" x2="12" y2="15"></line>
-                  </svg>
-                </button>
-
-                <AnimatedCloseIcon
-                  onClick={() => onOpenChange(false)}
-                  className="cursor-pointer text-muted-foreground hover:text-foreground"
-                />
-              </div>
-            </div>
+            <ChatMessages messages={messages} isLoading={isLoading} user={user} />
           )}
         </div>
 
-        {/* Messages area - flex-1 makes it expand to fill remaining space */}
-        <ChatMessages messages={messages} isLoading={isLoading} />
-
-        {/* Error - flex-shrink-0 keeps it from shrinking */}
+        {/* Error */}
         {error && (
-          <div className="flex-shrink-0 mx-4 mb-3 p-3 rounded-lg border border-destructive/20 bg-destructive/10 text-destructive">
-            <div className="flex items-center gap-2 mb-2">
+          <div className="flex-shrink-0 mx-4 mb-2 p-3 rounded-xl border border-red-500/20 bg-red-500/10 text-red-600 dark:text-red-400 animate-in slide-in-from-bottom-2 duration-300 backdrop-blur-sm">
+            <div className="flex items-center gap-2">
               <AlertCircle className="w-4 h-4 flex-shrink-0" />
-              <span className="text-sm font-medium">{error}</span>
+              <span className="text-xs font-medium">{error}</span>
             </div>
-            <button
-              onClick={handleRetry}
-              className="text-xs text-destructive hover:underline focus:outline-none focus:underline"
-            >
-              Retry last message
-            </button>
           </div>
         )}
 
-        {/* Input - flex-shrink-0 keeps it at bottom */}
-        <ChatInput
-          input={input}
-          handleInputChange={handleInputChange}
-          handleSubmit={handleSubmit}
-          isLoading={isLoading}
-        />
+        {/* Input Area */}
+        <div className="flex-shrink-0 p-4 bg-background/40 backdrop-blur-xl border-t border-border/40 rounded-b-3xl transition-all duration-300">
+          <form onSubmit={handleSubmit} className="relative flex items-end gap-2 bg-secondary/40 hover:bg-secondary/60 border border-border/40 hover:border-primary/20 rounded-2xl p-2 transition-all duration-300 shadow-sm focus-within:shadow-md focus-within:border-primary/30 focus-within:bg-background/60">
+            <button
+              type="button"
+              className="flex-shrink-0 w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-background/50 rounded-xl transition-all duration-200"
+            >
+              <Paperclip className="w-4 h-4" />
+            </button>
+
+            <TextareaAutosize
+              value={input}
+              onChange={handleInputChange}
+              placeholder="Message JohnGPT..."
+              className="w-full bg-transparent border-none resize-none py-2 px-1 text-sm text-foreground focus:ring-0 focus:outline-none placeholder:text-muted-foreground/60"
+              minRows={1}
+              maxRows={4}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  if (input.trim() && !isLoading) {
+                    handleSubmit(e as any);
+                  }
+                }
+              }}
+            />
+
+            {isLoading ? (
+              <button
+                type="button"
+                onClick={stop}
+                className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-foreground text-background rounded-xl hover:opacity-90 transition-all shadow-sm"
+              >
+                <div className="w-2 h-2 bg-current rounded-sm animate-pulse" />
+              </button>
+            ) : (
+              <button
+                type="submit"
+                disabled={!input.trim()}
+                className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all shadow-sm disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed disabled:shadow-none transform active:scale-95 duration-200"
+              >
+                <Send className="w-4 h-4" />
+              </button>
+            )}
+          </form>
+          <div className="text-[10px] text-center text-muted-foreground mt-2 opacity-50 hover:opacity-100 transition-opacity duration-300">
+            Powered by Gemini Family of models
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );

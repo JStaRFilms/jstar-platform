@@ -7,18 +7,25 @@ import { CodeBlock } from '@/components/ui/code-block';
 import { FileAttachment } from '@/components/ui/file-attachment';
 import { MarkdownRenderer } from '@/components/ui/MarkdownRenderer';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
+import type { User as WorkOSUser } from '@workos-inc/node';
+import { ExtendedMessage } from '@/lib/chat-storage';
+import { Check, ChevronDown, Edit2, Copy, Compass } from 'lucide-react';
 
 /**
  * Props for the ChatMessages component
  */
 interface ChatMessagesProps {
   /** The array of chat messages from the AI SDK */
-  messages: UIMessage[];
+  messages: ExtendedMessage[] | UIMessage[];
   /** Whether the AI is currently loading/generating a response */
   isLoading: boolean;
   /** Whether auto-scroll is enabled */
   autoScrollEnabled?: boolean;
+  /** The current user, used for avatar */
+  user?: WorkOSUser | null;
+  /** Handler for editing a message */
+  onEdit?: (content: string) => void;
 }
 
 /**
@@ -90,15 +97,141 @@ const parseMessageContent = (content: string) => {
   return parts.filter(part => part.content !== '');
 };
 
+/**
+ * Component for rendering user message content with collapsible functionality
+ */
+const UserMessageContent = ({
+  content,
+  isMobile,
+  isEditable,
+  onEdit
+}: {
+  content: string;
+  isMobile: boolean;
+  isEditable: boolean;
+  onEdit?: (content: string) => void;
+}) => {
+  const [isExpanded, setIsExpanded] = React.useState(false);
+  const [showCopy, setShowCopy] = React.useState(false);
+  const [showActions, setShowActions] = React.useState(false); // For mobile toggle
+
+  if (!content) return null;
+
+  // Lower threshold to encourage collapsing for multi-line inputs
+  const maxLength = 300; // Increased slightly as 5 lines allows more text
+  const isLong = content.length > maxLength || content.split('\n').length > 5;
+
+  const handleCopy = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    await navigator.clipboard.writeText(content);
+
+    setShowCopy(true);
+    setTimeout(() => setShowCopy(false), 2000);
+  };
+
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onEdit) onEdit(content);
+  };
+
+  const handleMessageClick = () => {
+    if (isMobile) {
+      setShowActions(!showActions);
+    }
+  };
+
+  return (
+    <div
+      className={`relative group/user-msg transition-all duration-300 ${!isExpanded ? 'max-w-[600px]' : 'max-w-full'} cursor-pointer md:cursor-auto`}
+      onClick={handleMessageClick}
+    >
+      <div
+        className={`text-[15px] leading-relaxed break-words transition-all duration-300 text-white relative ${!isExpanded && isLong
+          ? 'max-h-[160px] overflow-hidden mask-linear-gradient'
+          : ''
+          }`}
+      >
+        <MarkdownRenderer content={content} className="text-white" variant="ghost" />
+      </div>
+
+      {/* Actions Toolbar */}
+      <div className={`flex items-center gap-1 mt-0.5 justify-end transition-all duration-200 ${isMobile
+        ? (showActions ? 'opacity-100 max-h-10' : 'opacity-0 max-h-0 overflow-hidden')
+        : 'opacity-0 group-hover/user-msg:opacity-100'
+        }`}>
+
+        {/* Edit Button (Only for last 2 messages) */}
+        {isEditable && (
+          <button
+            onClick={handleEdit}
+            className="p-1.5 hover:bg-white/10 rounded-lg text-white/70 hover:text-white transition-colors"
+            title="Edit message"
+          >
+            <Edit2 className="w-3.5 h-3.5" />
+          </button>
+        )}
+
+        {/* Copy Button */}
+        <button
+          onClick={handleCopy}
+          className="p-1.5 hover:bg-white/10 rounded-lg text-white/70 hover:text-white transition-colors"
+          title="Copy"
+        >
+          {showCopy ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+        </button>
+
+        {/* Expand/Collapse Button */}
+        {isLong && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsExpanded(!isExpanded);
+            }}
+            className={`p-1.5 hover:bg-white/10 rounded-lg transition-colors text-white/70 hover:text-white ${isMobile ? 'opacity-100' : ''}`}
+            aria-label={isExpanded ? "Collapse" : "Expand"}
+            title={isExpanded ? "Show less" : "Show more"}
+          >
+            <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
+          </button>
+        )}
+      </div>
+
+      {/* Mobile-only always visible expand button if actions are hidden and it is long */}
+      {isMobile && isLong && !showActions && (
+        <div className="absolute bottom-0 right-0 p-1">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsExpanded(!isExpanded);
+            }}
+            className="p-1.5 bg-black/20 backdrop-blur-sm rounded-full text-white/80 hover:text-white transition-colors shadow-sm border border-white/10"
+            aria-label={isExpanded ? "Collapse" : "Expand"}
+          >
+            <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
 export const ChatMessages: React.FC<ChatMessagesProps> = ({
   messages,
   isLoading,
-  autoScrollEnabled = true
+  autoScrollEnabled = true,
+  user,
+  onEdit
 }) => {
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const pathname = usePathname();
   const isMobile = useMediaQuery('(max-width: 768px)');
+
+  // Scroll to bottom on mount
+  React.useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+  }, []);
 
   // Smooth auto-scroll logic - only scroll if user is within 100px of bottom
   React.useEffect(() => {
@@ -131,154 +264,247 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
     );
   }
 
+  // Calculate user message indices for editability (last 2)
+  const userMessages = messages.filter(m => m.role === 'user');
+  const lastTwoUserIds = userMessages.slice(-2).map(m => m.id);
+
   return (
-    <div className="flex-1 overflow-y-auto p-6 space-y-8" ref={scrollContainerRef}>
+    <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 md:space-y-8 scroll-smooth" ref={scrollContainerRef}>
       {messages.map((message) => {
-        const textContent = message.parts.filter(part => part.type === 'text').map(part => part.text).join('');
-        const parsedParts = parseMessageContent(textContent);
+        // Handle both UIMessage and ExtendedMessage structures
+        const parts = (message as any).parts || [];
+        const textParts = parts.filter((p: any) => p.type === 'text');
+        const textContent = textParts.length > 0
+          ? textParts.map((p: any) => p.text).join('')
+          : (message as any).content || '';
+
+
+
+        // Extract media attachments
+        const mediaParts = parts.filter((p: any) => p.type === 'image_link');
+
+        // For user messages, we render the entire content in one block to handle compression correctly
+        // For assistant messages, we parse it to handle special components like color palettes
+        const isUser = message.role === 'user';
+        const parsedParts = isUser ? [] : parseMessageContent(textContent);
+        const isEditable = isUser && lastTwoUserIds.includes(message.id);
 
         return (
           <div
             key={message.id}
-            className={`flex items-start gap-4 group ${
-              message.role === 'user' ? 'justify-end' : 'justify-start'
-            }`}
+            className={`flex items-start gap-3 md:gap-4 group animate-in fade-in slide-in-from-bottom-4 duration-500 ${message.role === 'user' ? 'justify-end' : 'justify-start'
+              }`}
           >
             {/* AI Avatar (left side) */}
             {message.role === 'assistant' && (
-              <div className="w-9 h-9 flex-shrink-0 rounded-lg bg-gradient-to-br from-accent-blue to-accent-purple flex items-center justify-center">
-                <BrainIcon size={20} />
+              <div className="hidden md:flex w-8 h-8 md:w-9 md:h-9 flex-shrink-0 rounded-xl bg-gradient-to-br from-primary/80 to-purple-600/80 items-center justify-center shadow-md shadow-primary/10 ring-1 ring-white/10">
+                <BrainIcon size={18} className="text-white" />
               </div>
             )}
 
             {/* Message Content & Actions */}
-            <div className="space-y-4">
+            <div className={`space-y-2 ${message.role === 'user' ? 'max-w-[90%] md:max-w-3xl items-end flex flex-col' : 'max-w-full md:max-w-5xl items-start flex flex-col w-full'}`}>
               {/* Message bubble */}
               <div
-                className={`px-4 py-3 rounded-xl group/bubble relative w-fit max-w-md backdrop-blur-sm ${
-                  message.role === 'user'
-                    ? 'bg-accent-blue/90 text-white rounded-br-none text-right'
-                    : 'bg-neutral-800/50 text-neutral-300 rounded-tl-none'
-                }`}
+                className={`px-5 py-3.5 shadow-sm relative backdrop-blur-md transition-all duration-300 max-w-full ${message.role === 'user'
+                  ? 'bg-primary text-primary-foreground rounded-2xl rounded-br-sm overflow-hidden w-fit'
+                  : 'md:bg-background/60 md:border md:border-border/40 text-foreground rounded-2xl rounded-tl-sm md:hover:bg-background/80 md:hover:shadow-md md:hover:border-border/60 w-full md:w-auto bg-transparent border-none shadow-none p-0 md:px-5 md:py-3.5'
+                  }`}
               >
                 {/* Message content */}
                 <div className="space-y-3">
-                  {parsedParts.map((part, index) => {
-                    switch (part.type) {
-                      case 'text':
-                        return message.role === 'assistant' ? (
-                          <MarkdownRenderer key={index} content={part.content} />
-                        ) : (
-                          <p key={index} className="text-sm leading-relaxed text-foreground">
-                            {part.content}
-                          </p>
-                        );
-                      case 'color-palette':
-                        return (
-                          <ColorPalette
-                            key={index}
-                            colors={part.content}
-                            className="max-w-sm"
-                          />
-                        );
-                      case 'code-block':
-                        return (
-                          <CodeBlock
-                            key={index}
-                            code={part.content.code}
-                            language={part.content.language}
-                            className="max-w-full"
-                          />
-                        );
-                      case 'file-attachment':
-                        return (
-                          <FileAttachment
-                            key={index}
-                            file={part.content}
-                          />
-                        );
-                      default:
-                        return null;
-                    }
-                  })}
+                  {/* Render Media Attachments first */}
+                  {mediaParts.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {mediaParts.map((part: any, i: number) => (
+                        <div key={i} className="relative group rounded-lg overflow-hidden border border-border/50 bg-background/50">
+                          <div className="flex items-center gap-2 p-2">
+                            <div className="w-8 h-8 bg-primary/10 rounded flex items-center justify-center text-primary">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /></svg>
+                            </div>
+                            <div className="text-xs">
+                              <p className="font-medium truncate max-w-[150px]">Image Attachment</p>
+                              <p className="text-muted-foreground text-[10px]">ID: {part.driveFileId?.slice(0, 8)}...</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {isUser ? (
+                    <UserMessageContent
+                      content={textContent}
+                      isMobile={isMobile}
+                      isEditable={isEditable}
+                      onEdit={onEdit}
+                    />
+                  ) : (
+                    <>
+                      {parsedParts.map((part, index) => {
+                        switch (part.type) {
+                          case 'text':
+                            return <MarkdownRenderer key={index} content={part.content} />;
+                          case 'color-palette':
+                            return (
+                              <ColorPalette
+                                key={index}
+                                colors={part.content}
+                                className="max-w-sm my-2"
+                              />
+                            );
+                          case 'code-block':
+                            return (
+                              <CodeBlock
+                                key={index}
+                                code={part.content.code}
+                                language={part.content.language}
+                                className="max-w-full my-2 shadow-sm border border-border/50"
+                              />
+                            );
+                          case 'file-attachment':
+                            return (
+                              <FileAttachment
+                                key={index}
+                                file={part.content}
+                              />
+                            );
+                          default:
+                            return null;
+                        }
+                      })}
+                      {(message as any).toolInvocations?.map((toolInvocation: any) => (
+                        <div key={toolInvocation.toolCallId} className="mt-3 p-3 bg-secondary/30 rounded-xl border border-border/40 flex items-center gap-3 text-sm animate-in fade-in slide-in-from-bottom-2">
+                          <div className="w-8 h-8 bg-blue-500/10 text-blue-500 rounded-lg flex items-center justify-center border border-blue-500/20">
+                            <Compass className="w-4 h-4 animate-[spin_3s_linear_infinite]" />
+                          </div>
+                          <div className="flex-1">
+                            <div className="font-medium text-foreground text-[10px] uppercase tracking-wider opacity-70 mb-0.5">Action</div>
+                            <div className="text-foreground/90 font-medium">
+                              {toolInvocation.toolName === 'navigate' ? `Navigating to ${toolInvocation.args.path}...` : `Calling ${toolInvocation.toolName}...`}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </>
+                  )}
                 </div>
 
-                {/* Timestamp */}
-                {(message as any).createdAt && (
-                  <time
-                    dateTime={new Date((message as any).createdAt).toISOString()}
-                    className="block text-xs text-neutral-400 mt-2 md:opacity-60 md:group-hover:opacity-100 transition-opacity"
-                  >
-                    {formatTime(new Date((message as any).createdAt))}
-                  </time>
-                )}
-
-                {/* Message actions for AI messages - desktop hover, mobile always */}
-                {message.role === 'assistant' && (
-                  <div className="absolute top-3 right-3 md:opacity-0 md:group-hover/bubble:opacity-100 transition-opacity flex items-center gap-1">
-                    <button
-                      className="p-1.5 text-neutral-500 hover:text-white hover:bg-neutral-700/50 rounded-md transition-colors"
-                      title="Copy message"
+                {/* Timestamp - Absolute positioned for cleaner look or inline if preferred, keeping inline for now but subtle */}
+                {((message as any).createdAt || (message as any).timestamp) && (
+                  <div className={`flex items-center mt-1.5 gap-1.5 ${message.role === 'user' ? 'justify-end text-primary-foreground/70' : 'justify-start text-muted-foreground/70'}`}>
+                    <time
+                      dateTime={new Date((message as any).timestamp || (message as any).createdAt).toISOString()}
+                      className="text-[10px] font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                      </svg>
-                    </button>
+                      {formatTime(new Date((message as any).timestamp || (message as any).createdAt))}
+                    </time>
                   </div>
                 )}
-              </div>
+
+                {/* Message actions for AI messages */}
+                {message.role === 'assistant' && (
+                  <>
+                    {/* Top Right Copy */}
+                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-300 scale-90 group-hover:scale-100">
+                      <div className="bg-background/80 backdrop-blur-sm border border-border shadow-sm rounded-lg p-0.5 flex items-center">
+                        <button
+                          className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md transition-colors"
+                          title="Copy message"
+                          onClick={() => navigator.clipboard.writeText(textContent)}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Bottom Right Copy - Only for long messages */}
+                    {textContent.length > 500 && (
+                      <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-300 scale-90 group-hover:scale-100">
+                        <div className="bg-background/80 backdrop-blur-sm border border-border shadow-sm rounded-lg p-0.5 flex items-center">
+                          <button
+                            className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md transition-colors"
+                            title="Copy message"
+                            onClick={() => navigator.clipboard.writeText(textContent)}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div >
 
               {/* AI message actions (expandable suggestions) */}
-              {message.role === 'assistant' && (
-                <div className="flex flex-wrap gap-2">
-                  <button className="text-sm bg-neutral-800/40 backdrop-blur-sm border border-neutral-700/60 px-3 py-1.5 rounded-lg hover:bg-neutral-700/60 transition-colors">
-                    Expand on colors
-                  </button>
-                  <button className="text-sm bg-neutral-800/40 backdrop-blur-sm border border-neutral-700/60 px-3 py-1.5 rounded-lg hover:bg-neutral-700/60 transition-colors">
-                    CSS variables
-                  </button>
-                </div>
-              )}
-            </div>
+              {
+                message.role === 'assistant' && (
+                  <div className={`flex flex-wrap gap-2 px-1 transition-opacity duration-500 delay-100 ${isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                    }`}>
+                    <button className="text-xs bg-background/40 backdrop-blur-sm border border-border/40 px-2.5 py-1 rounded-full hover:bg-background/80 hover:border-primary/30 transition-all text-muted-foreground hover:text-foreground">
+                      Expand on colors
+                    </button>
+                    <button className="text-xs bg-background/40 backdrop-blur-sm border border-border/40 px-2.5 py-1 rounded-full hover:bg-background/80 hover:border-primary/30 transition-all text-muted-foreground hover:text-foreground">
+                      CSS variables
+                    </button>
+                  </div>
+                )
+              }
+            </div >
 
             {/* User Avatar (right side) */}
-            {message.role === 'user' && (
-              <div className="w-9 h-9 flex-shrink-0 rounded-full bg-neutral-700 flex items-center justify-center font-bold text-sm">
-                U
-              </div>
-            )}
-          </div>
+            {
+              message.role === 'user' && (
+                <div className="w-8 h-8 md:w-9 md:h-9 flex-shrink-0 rounded-full bg-gradient-to-br from-neutral-200 to-neutral-300 dark:from-neutral-700 dark:to-neutral-800 flex items-center justify-center font-bold text-xs text-muted-foreground shadow-sm overflow-hidden ring-2 ring-background">
+                  {user?.profilePictureUrl ? (
+                    <img src={user.profilePictureUrl} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <span>{user?.firstName?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}</span>
+                  )}
+                </div>
+              )
+            }
+          </div >
         );
       })}
 
-      {isLoading && (
-        <div className="flex justify-start">
-          <div className="flex items-center gap-2 p-3 text-muted-foreground">
-            <div className="h-2 w-2 animate-pulse rounded-full bg-primary"></div>
-            <div className="h-2 w-2 animate-pulse rounded-full bg-primary animation-delay-200"></div>
-            <div className="h-2 w-2 animate-pulse rounded-full bg-primary animation-delay-400"></div>
-            <span className="text-sm">JohnGPT is thinking...</span>
+      {
+        isLoading && (
+          <div className="flex justify-start animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-muted/30 border border-border/30 text-muted-foreground">
+              <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary/60 [animation-delay:-0.3s]"></div>
+              <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary/60 [animation-delay:-0.15s]"></div>
+              <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary/60"></div>
+              <span className="text-xs font-medium ml-1">Thinking...</span>
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
-      {/* Teaser CTA for /john-gpt dashboard - only on mobile and when there are messages */}
-      {isMobile && messages.length > 0 && !isLoading && (
-        <div className="mx-4 my-3 p-3 rounded-lg bg-primary/5 border border-primary/20 text-center">
-          <p className="text-sm text-primary">
-            Want more?
-            <button
-              onClick={() => router.push('/john-gpt')}
-              className="ml-1 text-sm underline hover:text-primary/80 transition-colors"
-            >
-              Explore the full dashboard
-            </button>
-          </p>
-        </div>
-      )}
+      {/* Teaser CTA for /john-gpt dashboard - only on mobile and when there are messages AND not already on the dashboard */}
+      {
+        isMobile && messages.length > 0 && !isLoading && !pathname?.startsWith('/john-gpt') && (
+          <div className="mx-4 my-3 p-4 rounded-xl bg-gradient-to-r from-primary/5 via-purple-500/5 to-primary/5 border border-primary/10 text-center animate-in fade-in zoom-in-95 duration-500">
+            <p className="text-sm text-primary font-medium">
+              Want more capabilities?
+              <button
+                onClick={() => router.push('/john-gpt')}
+                className="ml-2 text-sm underline decoration-primary/30 underline-offset-4 hover:text-primary/80 transition-colors"
+              >
+                Open Dashboard
+              </button>
+            </p>
+          </div>
+        )
+      }
 
       <div ref={messagesEndRef} />
-    </div>
+    </div >
   );
 };

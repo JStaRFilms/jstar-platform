@@ -136,6 +136,8 @@ model User {
   files             File[]
   folders           Folder[]
   googleDriveConfig GoogleDriveConfig?
+  publicPrompts     PublicPrompt[]
+  conversations     Conversation[]
 
   @@map("users")
 }
@@ -237,12 +239,73 @@ model GoogleDriveConfig {
   conflictResolution ConflictResolution @default(LOCAL_WINS)
   syncInterval       Int                @default(60)
   folderMappings     Json?
+  johnGPTFolderId    String? // Google Drive folder ID for JohnGPT data
+  quotaUsed          BigInt? // Bytes used in Google Drive
+  quotaLimit         BigInt? // Total Google Drive quota
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
   lastSync           DateTime?
   user               User               @relation(fields: [userId], references: [id])
 
   @@map("google_drive_configs")
+}
+
+/// *
+///  * JohnGPT Persona - AI personality/mode configurations
+///  * Defines different AI assistant personas with unique system prompts and characteristics
+model Persona {
+  id           String   @id @default(cuid())
+  name         String   @unique
+  role         String   // e.g., "Creative Partner", "Strategist", "Biblical Counselor"
+  description  String
+  systemPrompt String   @db.Text
+  icon         String   // Emoji or icon identifier
+  color        String   // Hex color for UI theming
+  isDefault    Boolean  @default(false)
+  isActive     Boolean  @default(true)
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("personas")
+}
+
+/// *
+///  * JohnGPT Public Prompt - Community-shared prompt templates
+///  * Users can publish their best prompts to share with the community
+model PublicPrompt {
+  id          String   @id @default(cuid())
+  title       String
+  content     String   @db.Text
+  description String?
+  category    String   // e.g., "Content Creation", "Video Script", "Brand Voice"
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id])
+  likes       Int      @default(0)
+  uses        Int      @default(0)
+  isVerified  Boolean  @default(false) // Admin-verified quality prompts
+  isActive    Boolean  @default(true)
+  tags        String[] // For searching/filtering
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("public_prompts")
+}
+
+/// *
+///  * JohnGPT Conversation - Optional PostgreSQL storage for TIER3+ users
+///  * Most users store conversations in Google Drive; this is for unlimited DB storage
+model Conversation {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  title     String?  // Auto-generated from first message
+  personaId String?
+  messages  Json     // Array of {role, content, timestamp, metadata}
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("conversations")
 }
 
 model DiagnosticHistory {
@@ -363,3 +426,21 @@ enum ScheduleStatus {
   FAILED
   CANCELLED
 }
+
+/// *
+///  * Site Embeddings - RAG knowledge base for JohnGPT
+///  * Stores embedded chunks of site content for semantic search
+model SiteEmbedding {
+  id           String   @id @default(cuid())
+  pageUrl      String   @map("page_url")
+  pageTitle    String   @map("page_title")
+  contentChunk String   @map("content_chunk") @db.Text
+  embedding    Unsupported("vector(768)")
+  metadata     Json?
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@index([pageUrl], map: "site_embeddings_page_url_idx")
+  @@map("site_embeddings")
+}
+

@@ -1,21 +1,44 @@
-// JohnGPT Dashboard - Phase 3 placeholder
-// Coming soon: Conversation history, settings, and more.
+import { withAuth, getSignInUrl, getSignUpUrl } from '@workos-inc/authkit-nextjs';
+import { redirect } from 'next/navigation';
+import { JohnGPTPage } from '@/features/john-gpt/components/JohnGPTPage';
+import { prisma } from '@/lib/prisma';
 
-import { BrainIcon } from '@/components/ui/BrainIcon';
+/**
+ * JohnGPT Full Interface Page
+ * 
+ * Main route for comprehensive AI assistant features including:
+ * - Conversation history
+ * - Persona switching
+ * - Prompt library
+ * - Advanced features (A/B testing, Obsidian export, etc.)
+ * 
+ * Access: TIER1+ only (guests see signup prompt)
+ */
+export default async function JohnGPTRoute() {
+    const { user } = await withAuth();
 
-export default function JohnGPTPage() {
-  return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-4">
-      <div className="text-center max-w-md mx-auto">
-        <BrainIcon size={80} className="text-primary opacity-80 mx-auto mb-6" />
-        <h1 className="text-2xl font-bold text-foreground mb-2">JohnGPT Dashboard</h1>
-        <p className="text-muted-foreground text-sm leading-relaxed">
-          Coming soon: Conversation history, settings, and more.
-        </p>
-        <p className="text-muted-foreground text-xs mt-4 italic">
-          Tap the JohnGPT tab below to start a conversation.
-        </p>
-      </div>
-    </div>
-  );
+    let isDriveConnected = false;
+
+    if (user) {
+        try {
+            // Find internal user by WorkOS ID
+            const dbUser = await prisma.user.findUnique({
+                where: { workosId: user.id },
+                include: { googleDriveConfig: true },
+            });
+
+            isDriveConnected = !!dbUser?.googleDriveConfig?.accessToken;
+        } catch (error) {
+            // Gracefully handle database connection errors
+            // App continues to function with Drive features disabled
+            console.error('[JohnGPT] Database connection error:', error);
+            // isDriveConnected remains false
+        }
+    }
+
+    const signInUrl = await getSignInUrl();
+    const signUpUrl = await getSignUpUrl();
+
+    // TIER1+ only - guests will see signup prompt in component
+    return <JohnGPTPage user={user} isDriveConnected={isDriveConnected} signInUrl={signInUrl} signUpUrl={signUpUrl} />;
 }

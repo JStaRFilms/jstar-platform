@@ -110,17 +110,7 @@ const Header: React.FC<HeaderProps> = ({ authButton }) => {
     }
   }, [theme]);
 
-  /**
-   * Handle JohnGPT button click with error handling
-   */
-  const handleJohnGPTClick = useCallback(() => {
-    try {
-      // TODO: Replace with actual JohnGPT interface opening logic
-      alert('JohnGPT interface would open here (FR013)');
-    } catch (error) {
-      console.error('Failed to open JohnGPT:', error);
-    }
-  }, []);
+
 
   /**
    * Toggle mobile menu with animation state
@@ -295,13 +285,13 @@ const Header: React.FC<HeaderProps> = ({ authButton }) => {
               {authButton}
 
               {/* JohnGPT Button - Desktop Only */}
-              <button
-                onClick={handleJohnGPTClick}
-                className="hidden md:flex btn-enhanced px-3 py-1.5 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10"
+              <Link
+                href="/john-gpt"
+                className="hidden md:flex btn-enhanced px-3 py-1.5 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10 items-center justify-center"
                 aria-label="Open JohnGPT assistant interface"
               >
                 Meet JohnGPT
-              </button>
+              </Link>
 
               {/* Mobile Menu Toggle */}
               <button
@@ -416,16 +406,16 @@ const Header: React.FC<HeaderProps> = ({ authButton }) => {
 
           {/* Animated JohnGPT CTA Section */}
           <div className="p-6 border-t border-white/10 dark:border-white/5 animate-fade-in-up">
-            <button
-              onClick={handleJohnGPTClick}
-              className="w-full btn-enhanced px-6 py-3 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-xl font-semibold text-base hover:opacity-90 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10 shadow-lg hover:shadow-xl hover:scale-[1.02] animate-fade-in-up"
+            <Link
+              href="/john-gpt"
+              className="w-full btn-enhanced px-6 py-3 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-xl font-semibold text-base hover:opacity-90 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10 shadow-lg hover:shadow-xl hover:scale-[1.02] animate-fade-in-up flex items-center justify-center"
               aria-label="Open JohnGPT assistant interface"
             >
               <span className="flex items-center justify-center space-x-2">
                 <span>Meet JohnGPT</span>
                 <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
               </span>
-            </button>
+            </Link>
           </div>
         </div>
       </div>
