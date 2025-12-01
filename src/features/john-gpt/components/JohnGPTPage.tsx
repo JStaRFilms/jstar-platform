@@ -6,6 +6,7 @@ import Link from 'next/link';
 import type { User as WorkOSUser } from '@workos-inc/node';
 import { ConversationSidebar } from './ConversationSidebar';
 import { ChatView } from './ChatView';
+import { MobileSidebar } from './MobileSidebar';
 
 type JohnGPTPageProps = {
     user: WorkOSUser | null;
@@ -23,6 +24,8 @@ type JohnGPTPageProps = {
  * - TIER1+: Full JohnGPT interface
  */
 export function JohnGPTPage({ user, isDriveConnected, signInUrl, signUpUrl, conversationId }: JohnGPTPageProps) {
+    const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+
     // If no user, show signup prompt (not a generic error!)
     if (!user) {
         return (
@@ -69,9 +72,18 @@ export function JohnGPTPage({ user, isDriveConnected, signInUrl, signUpUrl, conv
 
     // Authenticated user - show full interface
     return (
-        <div className="flex h-full bg-background">
+        <div className="flex h-full bg-background relative overflow-hidden">
+            {/* Mobile Sidebar */}
+            <MobileSidebar
+                isOpen={isSidebarOpen}
+                onClose={() => setIsSidebarOpen(false)}
+                user={user}
+                isDriveConnected={isDriveConnected}
+                activeConversationId={conversationId}
+            />
+
             {/* Sidebar - Desktop only */}
-            <aside className="hidden md:flex w-72 flex-col border-r border-border">
+            <aside className="hidden md:flex w-72 flex-col border-r border-border shrink-0">
                 <ConversationSidebar
                     user={user}
                     isDriveConnected={isDriveConnected}
@@ -81,8 +93,15 @@ export function JohnGPTPage({ user, isDriveConnected, signInUrl, signUpUrl, conv
             </aside>
 
             {/* Main Content Area */}
-            <main className="flex-1 flex flex-col bg-background min-w-0">
-                <ChatView user={user} conversationId={conversationId} className="w-full" />
+            <main className="flex-1 flex flex-col bg-background min-w-0 h-full relative">
+                <div className="flex-1 relative h-full overflow-hidden">
+                    <ChatView
+                        user={user}
+                        conversationId={conversationId}
+                        className="w-full h-full absolute inset-0"
+                        onMobileMenuClick={() => setIsSidebarOpen(true)}
+                    />
+                </div>
             </main>
         </div>
     );

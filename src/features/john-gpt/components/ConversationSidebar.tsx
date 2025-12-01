@@ -10,7 +10,9 @@ import {
     Trash2,
     Edit2,
     LogOut,
-    Home
+    Home,
+    Sun,
+    Moon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -39,6 +41,28 @@ export function ConversationSidebar({ user, isDriveConnected, className, activeC
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editTitle, setEditTitle] = useState('');
     const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+
+    // Initialize theme
+    React.useEffect(() => {
+        // Check local storage or system preference
+        const savedTheme = localStorage.getItem('theme') as 'dark' | 'light' | null;
+        if (savedTheme) {
+            setTheme(savedTheme);
+            document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+        } else {
+            // Default to dark if no preference
+            setTheme('dark');
+            document.documentElement.classList.add('dark');
+        }
+    }, []);
+
+    const toggleTheme = () => {
+        const newTheme = theme === 'dark' ? 'light' : 'dark';
+        setTheme(newTheme);
+        document.documentElement.classList.toggle('dark', newTheme === 'dark');
+        localStorage.setItem('theme', newTheme);
+    };
 
     // Fetch conversations on mount
     React.useEffect(() => {
@@ -51,7 +75,7 @@ export function ConversationSidebar({ user, isDriveConnected, className, activeC
                 );
                 let preview = 'No messages';
                 if (lastMsg) {
-                    const textPart = lastMsg.parts.find(p => p.type === 'text');
+                    const textPart = lastMsg.parts?.find(p => p.type === 'text');
                     if (textPart && textPart.type === 'text') {
                         preview = textPart.text.slice(0, 60) + '...';
                     }
@@ -71,7 +95,15 @@ export function ConversationSidebar({ user, isDriveConnected, className, activeC
 
         // Refresh every 5 seconds to catch updates (simple polling)
         const interval = setInterval(loadConversations, 5000);
-        return () => clearInterval(interval);
+
+        // Listen for storage updates
+        const handleStorageUpdate = () => loadConversations();
+        window.addEventListener('chat-storage-update', handleStorageUpdate);
+
+        return () => {
+            clearInterval(interval);
+            window.removeEventListener('chat-storage-update', handleStorageUpdate);
+        };
     }, []);
 
     // Group conversations by date (Today, Yesterday, Previous 7 Days, Older)
@@ -192,7 +224,7 @@ export function ConversationSidebar({ user, isDriveConnected, className, activeC
             const lastMsg = c.messages[c.messages.length - 1];
             let preview = 'No messages';
             if (lastMsg?.parts) {
-                const textPart = lastMsg.parts.find((p: any) => p.type === 'text') as any;
+                const textPart = lastMsg.parts?.find((p: any) => p.type === 'text') as any;
                 preview = textPart?.text?.slice(0, 60) || 'No messages';
             }
             return {
@@ -367,23 +399,37 @@ export function ConversationSidebar({ user, isDriveConnected, className, activeC
                 )}
             </div>
 
-            {/* User Profile */}
+            {/* User Profile & Theme Toggle */}
             <div className="p-4 border-t border-border bg-background/30">
-                <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-accent/50 cursor-pointer transition-colors border border-transparent hover:border-border/50">
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gray-100 to-gray-300 dark:from-gray-700 dark:to-gray-900 flex items-center justify-center font-bold text-sm text-foreground overflow-hidden ring-2 ring-background shadow-sm">
-                        {user.profilePictureUrl ? (
-                            <img src={user.profilePictureUrl} alt="Profile" className="w-full h-full object-cover" />
-                        ) : (
-                            <span>{user.firstName?.[0] || user.email[0].toUpperCase()}</span>
-                        )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                        <div className="font-medium text-sm text-foreground truncate">
-                            {user.firstName} {user.lastName}
+                <div className="flex items-center gap-2">
+                    <div className="flex-1 flex items-center gap-3 p-2 rounded-xl hover:bg-accent/50 cursor-pointer transition-colors border border-transparent hover:border-border/50">
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gray-100 to-gray-300 dark:from-gray-700 dark:to-gray-900 flex items-center justify-center font-bold text-sm text-foreground overflow-hidden ring-2 ring-background shadow-sm">
+                            {user.profilePictureUrl ? (
+                                <img src={user.profilePictureUrl} alt="Profile" className="w-full h-full object-cover" />
+                            ) : (
+                                <span>{user.firstName?.[0] || user.email[0].toUpperCase()}</span>
+                            )}
                         </div>
-                        <div className="text-xs text-muted-foreground truncate">{user.email}</div>
+                        <div className="flex-1 min-w-0">
+                            <div className="font-medium text-sm text-foreground truncate">
+                                {user.firstName} {user.lastName}
+                            </div>
+                            <div className="text-xs text-muted-foreground truncate">{user.email}</div>
+                        </div>
                     </div>
-                    <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
+
+                    {/* Theme Toggle */}
+                    <button
+                        onClick={toggleTheme}
+                        className="p-2.5 rounded-xl hover:bg-accent/50 text-muted-foreground hover:text-foreground transition-all border border-transparent hover:border-border/50"
+                        title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+                    >
+                        {theme === 'dark' ? (
+                            <Moon className="w-5 h-5" />
+                        ) : (
+                            <Sun className="w-5 h-5" />
+                        )}
+                    </button>
                 </div>
             </div>
 

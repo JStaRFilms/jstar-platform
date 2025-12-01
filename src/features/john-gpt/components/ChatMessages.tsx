@@ -7,15 +7,16 @@ import { CodeBlock } from '@/components/ui/code-block';
 import { FileAttachment } from '@/components/ui/file-attachment';
 import { MarkdownRenderer } from '@/components/ui/MarkdownRenderer';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import type { User as WorkOSUser } from '@workos-inc/node';
+import { ExtendedMessage } from '@/lib/chat-storage';
 
 /**
  * Props for the ChatMessages component
  */
 interface ChatMessagesProps {
   /** The array of chat messages from the AI SDK */
-  messages: UIMessage[];
+  messages: ExtendedMessage[] | UIMessage[];
   /** Whether the AI is currently loading/generating a response */
   isLoading: boolean;
   /** Whether auto-scroll is enabled */
@@ -132,6 +133,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const pathname = usePathname();
   const isMobile = useMediaQuery('(max-width: 768px)');
 
   // Scroll to bottom on mount
@@ -173,11 +175,17 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
   return (
     <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 md:space-y-8 scroll-smooth" ref={scrollContainerRef}>
       {messages.map((message) => {
-        const textContent = (message.parts
-          ? message.parts.filter(part => part.type === 'text').map(part => part.text).join('')
-          : (message as any).content) || '';
+        // Handle both UIMessage and ExtendedMessage structures
+        const parts = (message as any).parts || [];
+        const textParts = parts.filter((p: any) => p.type === 'text');
+        const textContent = textParts.length > 0
+          ? textParts.map((p: any) => p.text).join('')
+          : (message as any).content || '';
 
         const parsedParts = parseMessageContent(textContent);
+
+        // Extract media attachments
+        const mediaParts = parts.filter((p: any) => p.type === 'image_link');
 
         return (
           <div
@@ -193,7 +201,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
             )}
 
             {/* Message Content & Actions */}
-            <div className={`space-y-2 ${message.role === 'user' ? 'max-w-[85%] md:max-w-2xl items-end flex flex-col' : 'max-w-full md:max-w-4xl items-start flex flex-col w-full'}`}>
+            <div className={`space-y-2 ${message.role === 'user' ? 'max-w-[90%] md:max-w-3xl items-end flex flex-col' : 'max-w-full md:max-w-5xl items-start flex flex-col w-full'}`}>
               {/* Message bubble */}
               <div
                 className={`px-5 py-3.5 shadow-sm relative backdrop-blur-md transition-all duration-300 ${message.role === 'user'
@@ -203,6 +211,25 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
               >
                 {/* Message content */}
                 <div className="space-y-3">
+                  {/* Render Media Attachments first */}
+                  {mediaParts.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {mediaParts.map((part: any, i: number) => (
+                        <div key={i} className="relative group rounded-lg overflow-hidden border border-border/50 bg-background/50">
+                          <div className="flex items-center gap-2 p-2">
+                            <div className="w-8 h-8 bg-primary/10 rounded flex items-center justify-center text-primary">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /></svg>
+                            </div>
+                            <div className="text-xs">
+                              <p className="font-medium truncate max-w-[150px]">Image Attachment</p>
+                              <p className="text-muted-foreground text-[10px]">ID: {part.driveFileId?.slice(0, 8)}...</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
                   {parsedParts.map((part, index) => {
                     switch (part.type) {
                       case 'text':
@@ -242,13 +269,13 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
                 </div>
 
                 {/* Timestamp - Absolute positioned for cleaner look or inline if preferred, keeping inline for now but subtle */}
-                {(message as any).createdAt && (
+                {((message as any).createdAt || (message as any).timestamp) && (
                   <div className={`flex items-center mt-1.5 gap-1.5 ${message.role === 'user' ? 'justify-end text-primary-foreground/70' : 'justify-start text-muted-foreground/70'}`}>
                     <time
-                      dateTime={new Date((message as any).createdAt).toISOString()}
+                      dateTime={new Date((message as any).timestamp || (message as any).createdAt).toISOString()}
                       className="text-[10px] font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                     >
-                      {formatTime(new Date((message as any).createdAt))}
+                      {formatTime(new Date((message as any).timestamp || (message as any).createdAt))}
                     </time>
                   </div>
                 )}
@@ -310,8 +337,8 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
         </div>
       )}
 
-      {/* Teaser CTA for /john-gpt dashboard - only on mobile and when there are messages */}
-      {isMobile && messages.length > 0 && !isLoading && (
+      {/* Teaser CTA for /john-gpt dashboard - only on mobile and when there are messages AND not already on the dashboard */}
+      {isMobile && messages.length > 0 && !isLoading && !pathname?.startsWith('/john-gpt') && (
         <div className="mx-4 my-3 p-4 rounded-xl bg-gradient-to-r from-primary/5 via-purple-500/5 to-primary/5 border border-primary/10 text-center animate-in fade-in zoom-in-95 duration-500">
           <p className="text-sm text-primary font-medium">
             Want more capabilities?

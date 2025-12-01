@@ -18,6 +18,7 @@ type ChatViewProps = {
     user: WorkOSUser;
     className?: string;
     conversationId?: string;
+    onMobileMenuClick?: () => void;
 };
 
 /**
@@ -26,7 +27,7 @@ type ChatViewProps = {
  * Main container for the JohnGPT chat interface
  * Manages conversation flow, persona selection, and message display
  */
-export function ChatView({ user, className, conversationId }: ChatViewProps) {
+export function ChatView({ user, className, conversationId, onMobileMenuClick }: ChatViewProps) {
     const router = useRouter();
 
     // Hooks
@@ -50,24 +51,32 @@ export function ChatView({ user, className, conversationId }: ChatViewProps) {
                 conversationIdRef.current = convId;
             }
 
-            const updatedMessages = deduplicateMessages(finalMessages);
+            // Ensure all messages have timestamps and correct structure
+            const timestampedMessages = finalMessages.map(msg => ({
+                ...msg,
+                timestamp: (msg as any).timestamp || Date.now(),
+                parts: (msg as any).parts || [{ type: 'text', text: (msg as any).content }]
+            }));
+
+            const updatedMessages = deduplicateMessages(timestampedMessages);
 
             // Generate title
             let title = 'New Conversation';
             const currentConv = await chatStorage.getConversation(convId);
+            const msgCount = updatedMessages.length;
 
-            if (currentConv && currentConv.title !== 'New Conversation') {
+            // Keep existing title unless it's "New Conversation" OR we're at the 3rd exchange (re-generate)
+            if (currentConv && currentConv.title !== 'New Conversation' && msgCount !== 6) {
                 title = currentConv.title;
             } else if (updatedMessages[0]) {
                 const firstMessage = updatedMessages[0];
-                const textPart = firstMessage.parts.find((p: any) => p.type === 'text');
+                const textPart = firstMessage.parts?.find((p: any) => p.type === 'text');
                 if (textPart && textPart.type === 'text') {
                     title = textPart.text.slice(0, 50);
                 }
             }
 
             // Intelligent title generation (1st and 3rd exchange)
-            const msgCount = updatedMessages.length;
             if (msgCount === 2 || msgCount === 6) {
                 try {
                     const res = await fetch('/api/johngpt/generate-title', {
@@ -181,11 +190,12 @@ export function ChatView({ user, className, conversationId }: ChatViewProps) {
                 isOpen={isPersonaSelectorOpen}
                 onToggle={() => setIsPersonaSelectorOpen(!isPersonaSelectorOpen)}
                 onSelect={setActivePersona}
+                onMenuClick={onMobileMenuClick}
             />
 
             {/* Messages Area */}
             <div
-                className="flex-1 overflow-y-auto pt-20 pb-4 px-4 scroll-smooth min-h-0"
+                className="flex-1 overflow-y-auto pt-20 pb-4 px-0 scroll-smooth min-h-0"
                 onClick={() => setIsPersonaSelectorOpen(false)}
             >
                 <div className="max-w-5xl mx-auto space-y-6 h-full">

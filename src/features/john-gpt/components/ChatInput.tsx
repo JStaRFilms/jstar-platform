@@ -45,25 +45,25 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   const safeInput = input || '';
 
   return (
-    <div className="w-full">
+    <div className="w-full max-w-3xl mx-auto">
       <form onSubmit={handleSubmit} className="relative group">
-        <div className="relative flex items-end gap-2 bg-secondary/30 hover:bg-secondary/40 border border-border/50 hover:border-primary/20 rounded-2xl p-2 transition-all shadow-sm focus-within:shadow-md focus-within:border-primary/30 focus-within:bg-background">
+        <div className="relative flex items-end gap-2 bg-secondary/50 hover:bg-secondary/70 border border-transparent focus-within:border-border/50 rounded-[26px] p-2 pl-4 transition-all shadow-sm focus-within:shadow-md focus-within:bg-background">
           {/* File attachment button */}
           <button
             type="button"
             onClick={handleFileAttach}
-            className="flex-shrink-0 w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-background rounded-xl transition-all"
+            className="flex-shrink-0 w-8 h-8 mb-1 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-background/50 rounded-full transition-all"
             aria-label="Attach file"
           >
-            <Paperclip className="w-4 h-4" />
+            <Paperclip className="w-5 h-5" />
           </button>
 
           {/* Text input */}
           <TextareaAutosize
             value={safeInput}
             onChange={handleInputChange}
-            placeholder="Message JohnGPT..."
-            className="w-full bg-transparent border-none resize-none py-2.5 px-2 text-sm text-foreground focus:ring-0 focus:outline-none placeholder:text-muted-foreground/70"
+            placeholder="Ask anything"
+            className="w-full bg-transparent border-none resize-none py-3 px-2 text-base text-foreground focus:ring-0 focus:outline-none placeholder:text-muted-foreground/60"
             disabled={isLoading}
             minRows={1}
             maxRows={5}
@@ -82,7 +82,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
             <button
               type="button"
               onClick={stop}
-              className="flex-shrink-0 w-9 h-9 flex items-center justify-center bg-foreground text-background rounded-xl hover:opacity-90 transition-all shadow-sm"
+              className="flex-shrink-0 w-8 h-8 mb-1 flex items-center justify-center bg-foreground text-background rounded-full hover:opacity-90 transition-all shadow-sm"
             >
               <div className="w-2.5 h-2.5 bg-current rounded-sm" />
             </button>
@@ -90,7 +90,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
             <button
               type="submit"
               disabled={!safeInput.trim()}
-              className="flex-shrink-0 w-9 h-9 flex items-center justify-center bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all shadow-sm disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed disabled:shadow-none"
+              className="flex-shrink-0 w-8 h-8 mb-1 flex items-center justify-center bg-foreground text-background rounded-full hover:opacity-90 transition-all shadow-sm disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed disabled:shadow-none"
             >
               <Send className="w-4 h-4 ml-0.5" />
             </button>

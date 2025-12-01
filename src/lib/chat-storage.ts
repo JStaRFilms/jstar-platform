@@ -9,10 +9,19 @@ interface ChatDB extends DBSchema {
     };
 }
 
+export type ExtendedMessagePart =
+    | { type: 'text'; text: string }
+    | { type: 'image_link'; driveFileId: string; mimeType: string };
+
+export interface ExtendedMessage extends Omit<UIMessage, 'parts'> {
+    timestamp: number;
+    parts?: ExtendedMessagePart[];
+}
+
 export interface Conversation {
     id: string;
     title: string;
-    messages: UIMessage[];
+    messages: ExtendedMessage[];
     createdAt: number;
     updatedAt: number;
     personaId: string;
@@ -44,8 +53,21 @@ class ChatStorageService {
 
     async saveConversation(conversation: Conversation): Promise<void> {
         if (typeof window === 'undefined') return;
+
+        // Ensure all messages have timestamps
+        const messagesWithTimestamps = conversation.messages.map(msg => ({
+            ...msg,
+            timestamp: msg.timestamp || Date.now()
+        }));
+
+        const updatedConversation = {
+            ...conversation,
+            messages: messagesWithTimestamps
+        };
+
         const db = await this.dbPromise;
-        await db.put('conversations', conversation);
+        await db.put('conversations', updatedConversation);
+        window.dispatchEvent(new Event('chat-storage-update'));
     }
 
     async getConversation(id: string): Promise<Conversation | undefined> {
@@ -64,6 +86,7 @@ class ChatStorageService {
         if (typeof window === 'undefined') return;
         const db = await this.dbPromise;
         await db.delete('conversations', id);
+        window.dispatchEvent(new Event('chat-storage-update'));
     }
 
     async updateConversationTitle(id: string, title: string): Promise<void> {
@@ -121,13 +144,16 @@ class ChatStorageService {
             // 3. Upload unsynced local changes
             for (const local of localConversations) {
                 if (!local.syncedToDrive) {
+                    // Create a copy for upload that excludes sync state
+                    const { syncedToDrive, ...uploadData } = local;
+
                     await fetch('/api/johngpt/sync/save', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(local),
+                        body: JSON.stringify(uploadData),
                     });
 
-                    // Mark as synced
+                    // Mark as synced locally
                     local.syncedToDrive = true;
                     await this.saveConversation(local);
                 }
@@ -142,9 +168,13 @@ class ChatStorageService {
                     const contentRes = await fetch(`/api/johngpt/sync/get?fileId=${remote.id}`);
                     if (contentRes.ok) {
                         const content = await contentRes.json();
-                        content.syncedToDrive = true;
-                        content.driveFileId = remote.id;
-                        await this.saveConversation(content);
+                        // Add sync state back when saving locally
+                        const localContent: Conversation = {
+                            ...content,
+                            syncedToDrive: true,
+                            driveFileId: remote.id
+                        };
+                        await this.saveConversation(localContent);
                     }
                 }
             }
@@ -155,3 +185,4 @@ class ChatStorageService {
 }
 
 export const chatStorage = new ChatStorageService();
+
