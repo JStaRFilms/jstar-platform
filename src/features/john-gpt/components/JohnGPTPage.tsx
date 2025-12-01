@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Lock } from 'lucide-react';
+import { BrainIcon } from '@/components/ui/BrainIcon';
 import Link from 'next/link';
 import type { User as WorkOSUser } from '@workos-inc/node';
 import { ConversationSidebar } from './ConversationSidebar';
@@ -29,40 +29,50 @@ export function JohnGPTPage({ user, isDriveConnected, signInUrl, signUpUrl, conv
     // If no user, show signup prompt (not a generic error!)
     if (!user) {
         return (
-            <div className="flex h-full items-center justify-center p-6 bg-background">
-                <div className="max-w-md text-center space-y-6">
-                    <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-accent-blue to-accent-purple flex items-center justify-center">
-                        <Lock className="w-10 h-10 text-white" />
+            <div className="flex h-full items-center justify-center p-6 bg-background relative overflow-hidden">
+                {/* Background Gradients */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-accent-blue/10 rounded-full blur-[100px] pointer-events-none" />
+                <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-accent-purple/10 rounded-full blur-[80px] pointer-events-none" />
+
+                <div className="max-w-md text-center space-y-8 relative z-10 animate-in fade-in zoom-in-95 duration-700">
+                    <div className="flex justify-center">
+                        <div className="relative">
+                            <div className="absolute inset-0 bg-gradient-to-tr from-accent-blue to-accent-purple blur-xl opacity-30 animate-pulse" />
+                            <BrainIcon size={80} className="text-foreground relative z-10" />
+                        </div>
                     </div>
 
-                    <div className="space-y-2">
-                        <h1 className="text-3xl font-bold text-foreground">
-                            Sign Up to Save Your Chats
+                    <div className="space-y-3">
+                        <h1 className="text-4xl font-bold tracking-tight">
+                            Unlock <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent-blue to-accent-purple">JohnGPT</span>
                         </h1>
-                        <p className="text-muted-foreground text-lg">
-                            Create a free account to access the full JohnGPT interface, save your conversations to Google Drive, and unlock advanced AI features.
+                        <p className="text-muted-foreground text-lg leading-relaxed">
+                            Experience the full power of AI. Sign up to save your conversations, access advanced modes, and sync with Google Drive.
                         </p>
                     </div>
 
-                    <div className="space-y-3 pt-4">
+                    <div className="space-y-4 pt-2">
                         <Link
                             href={signUpUrl}
-                            className="block w-full bg-gradient-to-r from-accent-blue to-accent-purple text-white font-medium px-6 py-3 rounded-lg hover:opacity-90 transition-opacity"
+                            className="group relative block w-full overflow-hidden rounded-xl bg-gradient-to-r from-accent-blue to-accent-purple p-[1px] transition-all hover:shadow-[0_0_20px_rgba(59,130,246,0.5)]"
                         >
-                            Sign Up for Free
+                            <div className="relative flex items-center justify-center rounded-xl bg-background/10 backdrop-blur-sm px-6 py-3.5 transition-all group-hover:bg-transparent">
+                                <span className="font-semibold text-white">Sign Up for Free</span>
+                            </div>
                         </Link>
+
                         <Link
                             href={signInUrl}
-                            className="block w-full bg-muted border border-border text-foreground font-medium px-6 py-3 rounded-lg hover:bg-muted/80 transition-colors"
+                            className="block w-full px-6 py-3.5 rounded-xl border border-border/50 bg-background/50 hover:bg-accent/50 text-foreground font-medium transition-colors backdrop-blur-sm"
                         >
                             Already have an account? Sign In
                         </Link>
                     </div>
 
-                    <p className="text-sm text-muted-foreground pt-4">
-                        Want to try the quick chat?{' '}
-                        <span className="text-accent-purple">
-                            Use the floating JohnGPT button on any page
+                    <p className="text-sm text-muted-foreground/60 pt-4">
+                        Just want to chat?{' '}
+                        <span className="text-foreground/80 font-medium">
+                            Use the floating button on any page
                         </span>
                     </p>
                 </div>

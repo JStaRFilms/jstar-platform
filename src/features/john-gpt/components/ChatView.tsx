@@ -4,15 +4,14 @@ import React from 'react';
 import { useChat } from '@ai-sdk/react';
 import { ChatInput } from './ChatInput';
 import { ChatMessages } from './ChatMessages';
-import { PersonaSelector } from './PersonaSelector';
 import { EmptyState } from './EmptyState';
 import { Loader2 } from 'lucide-react';
 import type { User as WorkOSUser } from '@workos-inc/node';
 import { cn } from '@/lib/utils';
 import { chatStorage } from '@/lib/chat-storage';
-import { usePersonas } from '../hooks/usePersonas';
 import { useConversationManagement } from '../hooks/useConversationManagement';
 import { useRouter } from 'next/navigation';
+import { ChatHeader } from './ChatHeader';
 
 type ChatViewProps = {
     user: WorkOSUser;
@@ -25,20 +24,18 @@ type ChatViewProps = {
  * ChatView Component
  * 
  * Main container for the JohnGPT chat interface
- * Manages conversation flow, persona selection, and message display
+ * Manages conversation flow and message display
  */
 export function ChatView({ user, className, conversationId, onMobileMenuClick }: ChatViewProps) {
     const router = useRouter();
 
     // Hooks
-    const { personas, activePersona, setActivePersona, isLoadingPersonas } = usePersonas();
     const {
         conversationIdRef,
         deduplicateMessages,
     } = useConversationManagement(conversationId);
 
     // Local state
-    const [isPersonaSelectorOpen, setIsPersonaSelectorOpen] = React.useState(false);
     const [input, setInput] = React.useState('');
 
     // Initialize useChat with persistence
@@ -100,7 +97,7 @@ export function ChatView({ user, className, conversationId, onMobileMenuClick }:
                 messages: updatedMessages as any,
                 createdAt: currentConv?.createdAt || Date.now(),
                 updatedAt: Date.now(),
-                personaId: activePersona?.id || 'default',
+                personaId: 'default', // Always default now
                 syncedToDrive: false,
             });
 
@@ -156,10 +153,6 @@ export function ChatView({ user, className, conversationId, onMobileMenuClick }:
 
         await sendMessage({
             text: userMessage,
-        }, {
-            body: {
-                personaId: activePersona?.id,
-            },
         });
     };
 
@@ -170,46 +163,31 @@ export function ChatView({ user, className, conversationId, onMobileMenuClick }:
         "Biblical perspective on creativity",
     ];
 
-    if (isLoadingPersonas) {
-        return (
-            <div className="flex h-full items-center justify-center bg-background">
-                <div className="flex flex-col items-center gap-4">
-                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                    <p className="text-muted-foreground text-sm animate-pulse">Initializing JohnGPT...</p>
-                </div>
-            </div>
-        );
-    }
-
     return (
         <div className={cn("flex flex-col h-full bg-background/50 relative", className)}>
-            {/* Persona Selector Header */}
-            <PersonaSelector
-                personas={personas}
-                activePersona={activePersona}
-                isOpen={isPersonaSelectorOpen}
-                onToggle={() => setIsPersonaSelectorOpen(!isPersonaSelectorOpen)}
-                onSelect={setActivePersona}
-                onMenuClick={onMobileMenuClick}
+            {/* Header with Mobile Menu & Mode Display */}
+            <ChatHeader
+                onMobileMenuClick={onMobileMenuClick}
+                messages={messages as any}
             />
 
             {/* Messages Area */}
             <div
-                className="flex-1 overflow-y-auto pt-20 pb-4 px-0 scroll-smooth min-h-0"
-                onClick={() => setIsPersonaSelectorOpen(false)}
+                className="flex-1 overflow-y-auto pt-4 pb-4 px-0 scroll-smooth min-h-0"
             >
                 <div className="max-w-5xl mx-auto space-y-6 h-full">
                     {messages.length === 0 ? (
                         <EmptyState
-                            activePersona={activePersona}
                             suggestions={suggestions}
-                            onSuggestionClick={(text) => setInput(text)}
+                            onSuggestionClick={(text: string) => setInput(text)}
+                            user={user}
                         />
                     ) : (
                         <ChatMessages
                             messages={messages}
                             isLoading={isLoading}
                             user={user}
+                            onEdit={(content) => setInput(content)}
                         />
                     )}
                 </div>

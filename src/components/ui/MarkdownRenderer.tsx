@@ -6,13 +6,17 @@ import rehypeRaw from 'rehype-raw';
 import { CodeBlock } from './code-block';
 import 'katex/dist/katex.min.css'; // Import KaTeX CSS
 
+import { cn } from '@/lib/utils';
+
 interface MarkdownRendererProps {
   content: string;
+  className?: string;
+  variant?: 'default' | 'ghost';
 }
 
-export function MarkdownRenderer({ content }: MarkdownRendererProps) {
+export function MarkdownRenderer({ content, className, variant = 'default' }: MarkdownRendererProps) {
   return (
-    <div className="markdown-content text-foreground leading-relaxed break-words">
+    <div className={cn("markdown-content text-foreground leading-relaxed break-words", className)}>
       <ReactMarkdown
         remarkPlugins={[remarkMath, remarkGfm]}
         rehypePlugins={[rehypeKatex, rehypeRaw]}
@@ -37,6 +41,7 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
                 code={String(children).replace(/\n$/, '')}
                 language={match ? match[1] : 'text'}
                 className="my-4"
+                variant={variant}
               />
             );
           },

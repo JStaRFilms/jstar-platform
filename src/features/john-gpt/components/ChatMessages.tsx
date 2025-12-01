@@ -10,6 +10,7 @@ import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useRouter, usePathname } from 'next/navigation';
 import type { User as WorkOSUser } from '@workos-inc/node';
 import { ExtendedMessage } from '@/lib/chat-storage';
+import { Check, ChevronDown, Edit2, Copy } from 'lucide-react';
 
 /**
  * Props for the ChatMessages component
@@ -23,6 +24,8 @@ interface ChatMessagesProps {
   autoScrollEnabled?: boolean;
   /** The current user, used for avatar */
   user?: WorkOSUser | null;
+  /** Handler for editing a message */
+  onEdit?: (content: string) => void;
 }
 
 /**
@@ -97,29 +100,117 @@ const parseMessageContent = (content: string) => {
 /**
  * Component for rendering user message content with collapsible functionality
  */
-const UserMessageContent = ({ content }: { content: string }) => {
+const UserMessageContent = ({
+  content,
+  isMobile,
+  isEditable,
+  onEdit
+}: {
+  content: string;
+  isMobile: boolean;
+  isEditable: boolean;
+  onEdit?: (content: string) => void;
+}) => {
   const [isExpanded, setIsExpanded] = React.useState(false);
+  const [showCopy, setShowCopy] = React.useState(false);
+  const [showActions, setShowActions] = React.useState(false); // For mobile toggle
 
   if (!content) return null;
 
-  const maxLength = 300;
-  const shouldCollapse = content.length > maxLength;
+  // Lower threshold to encourage collapsing for multi-line inputs
+  const maxLength = 300; // Increased slightly as 5 lines allows more text
+  const isLong = content.length > maxLength || content.split('\n').length > 5;
 
-  if (!shouldCollapse) {
-    return <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{content}</p>;
-  }
+  const handleCopy = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    await navigator.clipboard.writeText(content);
+
+    setShowCopy(true);
+    setTimeout(() => setShowCopy(false), 2000);
+  };
+
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onEdit) onEdit(content);
+  };
+
+  const handleMessageClick = () => {
+    if (isMobile) {
+      setShowActions(!showActions);
+    }
+  };
 
   return (
-    <div className="relative">
-      <p className={`text-[15px] leading-relaxed whitespace-pre-wrap ${!isExpanded ? 'line-clamp-3' : ''}`}>
-        {content}
-      </p>
-      <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="text-xs font-medium mt-1 hover:underline opacity-80 hover:opacity-100 transition-opacity"
+    <div
+      className={`relative group/user-msg transition-all duration-300 ${!isExpanded ? 'max-w-[600px]' : 'max-w-full'} cursor-pointer md:cursor-auto`}
+      onClick={handleMessageClick}
+    >
+      <div
+        className={`text-[15px] leading-relaxed break-words transition-all duration-300 text-white relative ${!isExpanded && isLong
+            ? 'max-h-[160px] overflow-hidden mask-linear-gradient'
+            : ''
+          }`}
       >
-        {isExpanded ? 'Show less' : 'Show more'}
-      </button>
+        <MarkdownRenderer content={content} className="text-white" variant="ghost" />
+      </div>
+
+      {/* Actions Toolbar */}
+      <div className={`flex items-center gap-1 mt-0.5 justify-end transition-all duration-200 ${isMobile
+          ? (showActions ? 'opacity-100 max-h-10' : 'opacity-0 max-h-0 overflow-hidden')
+          : 'opacity-0 group-hover/user-msg:opacity-100'
+        }`}>
+
+        {/* Edit Button (Only for last 2 messages) */}
+        {isEditable && (
+          <button
+            onClick={handleEdit}
+            className="p-1.5 hover:bg-white/10 rounded-lg text-white/70 hover:text-white transition-colors"
+            title="Edit message"
+          >
+            <Edit2 className="w-3.5 h-3.5" />
+          </button>
+        )}
+
+        {/* Copy Button */}
+        <button
+          onClick={handleCopy}
+          className="p-1.5 hover:bg-white/10 rounded-lg text-white/70 hover:text-white transition-colors"
+          title="Copy"
+        >
+          {showCopy ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+        </button>
+
+        {/* Expand/Collapse Button */}
+        {isLong && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsExpanded(!isExpanded);
+            }}
+            className={`p-1.5 hover:bg-white/10 rounded-lg transition-colors text-white/70 hover:text-white ${isMobile ? 'opacity-100' : ''}`}
+            aria-label={isExpanded ? "Collapse" : "Expand"}
+            title={isExpanded ? "Show less" : "Show more"}
+          >
+            <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
+          </button>
+        )}
+      </div>
+
+      {/* Mobile-only always visible expand button if actions are hidden and it is long */}
+      {isMobile && isLong && !showActions && (
+        <div className="absolute bottom-0 right-0 p-1">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsExpanded(!isExpanded);
+            }}
+            className="p-1.5 bg-black/20 backdrop-blur-sm rounded-full text-white/80 hover:text-white transition-colors shadow-sm border border-white/10"
+            aria-label={isExpanded ? "Collapse" : "Expand"}
+          >
+            <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
+          </button>
+        </div>
+      )}
     </div>
   );
 };
@@ -128,7 +219,8 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
   messages,
   isLoading,
   autoScrollEnabled = true,
-  user
+  user,
+  onEdit
 }) => {
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
@@ -172,6 +264,10 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
     );
   }
 
+  // Calculate user message indices for editability (last 2)
+  const userMessages = messages.filter(m => m.role === 'user');
+  const lastTwoUserIds = userMessages.slice(-2).map(m => m.id);
+
   return (
     <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 md:space-y-8 scroll-smooth" ref={scrollContainerRef}>
       {messages.map((message) => {
@@ -182,10 +278,16 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
           ? textParts.map((p: any) => p.text).join('')
           : (message as any).content || '';
 
-        const parsedParts = parseMessageContent(textContent);
+
 
         // Extract media attachments
         const mediaParts = parts.filter((p: any) => p.type === 'image_link');
+
+        // For user messages, we render the entire content in one block to handle compression correctly
+        // For assistant messages, we parse it to handle special components like color palettes
+        const isUser = message.role === 'user';
+        const parsedParts = isUser ? [] : parseMessageContent(textContent);
+        const isEditable = isUser && lastTwoUserIds.includes(message.id);
 
         return (
           <div
@@ -204,8 +306,8 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
             <div className={`space-y-2 ${message.role === 'user' ? 'max-w-[90%] md:max-w-3xl items-end flex flex-col' : 'max-w-full md:max-w-5xl items-start flex flex-col w-full'}`}>
               {/* Message bubble */}
               <div
-                className={`px-5 py-3.5 shadow-sm relative backdrop-blur-md transition-all duration-300 ${message.role === 'user'
-                  ? 'bg-primary text-primary-foreground rounded-2xl rounded-br-sm'
+                className={`px-5 py-3.5 shadow-sm relative backdrop-blur-md transition-all duration-300 max-w-full ${message.role === 'user'
+                  ? 'bg-primary text-primary-foreground rounded-2xl rounded-br-sm overflow-hidden w-fit'
                   : 'md:bg-background/60 md:border md:border-border/40 text-foreground rounded-2xl rounded-tl-sm md:hover:bg-background/80 md:hover:shadow-md md:hover:border-border/60 w-full md:w-auto bg-transparent border-none shadow-none p-0 md:px-5 md:py-3.5'
                   }`}
               >
@@ -230,42 +332,47 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
                     </div>
                   )}
 
-                  {parsedParts.map((part, index) => {
-                    switch (part.type) {
-                      case 'text':
-                        return message.role === 'assistant' ? (
-                          <MarkdownRenderer key={index} content={part.content} />
-                        ) : (
-                          <UserMessageContent key={index} content={part.content} />
-                        );
-                      case 'color-palette':
-                        return (
-                          <ColorPalette
-                            key={index}
-                            colors={part.content}
-                            className="max-w-sm my-2"
-                          />
-                        );
-                      case 'code-block':
-                        return (
-                          <CodeBlock
-                            key={index}
-                            code={part.content.code}
-                            language={part.content.language}
-                            className="max-w-full my-2 shadow-sm border border-border/50"
-                          />
-                        );
-                      case 'file-attachment':
-                        return (
-                          <FileAttachment
-                            key={index}
-                            file={part.content}
-                          />
-                        );
-                      default:
-                        return null;
-                    }
-                  })}
+                  {isUser ? (
+                    <UserMessageContent
+                      content={textContent}
+                      isMobile={isMobile}
+                      isEditable={isEditable}
+                      onEdit={onEdit}
+                    />
+                  ) : (
+                    parsedParts.map((part, index) => {
+                      switch (part.type) {
+                        case 'text':
+                          return <MarkdownRenderer key={index} content={part.content} />;
+                        case 'color-palette':
+                          return (
+                            <ColorPalette
+                              key={index}
+                              colors={part.content}
+                              className="max-w-sm my-2"
+                            />
+                          );
+                        case 'code-block':
+                          return (
+                            <CodeBlock
+                              key={index}
+                              code={part.content.code}
+                              language={part.content.language}
+                              className="max-w-full my-2 shadow-sm border border-border/50"
+                            />
+                          );
+                        case 'file-attachment':
+                          return (
+                            <FileAttachment
+                              key={index}
+                              file={part.content}
+                            />
+                          );
+                        default:
+                          return null;
+                      }
+                    })
+                  )}
                 </div>
 
                 {/* Timestamp - Absolute positioned for cleaner look or inline if preferred, keeping inline for now but subtle */}
@@ -282,77 +389,107 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
 
                 {/* Message actions for AI messages */}
                 {message.role === 'assistant' && (
-                  <div className="absolute -top-3 -right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 scale-90 group-hover:scale-100">
-                    <div className="bg-background border border-border shadow-sm rounded-lg p-0.5 flex items-center">
-                      <button
-                        className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md transition-colors"
-                        title="Copy message"
-                        onClick={() => navigator.clipboard.writeText(textContent)}
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                        </svg>
-                      </button>
+                  <>
+                    {/* Top Right Copy */}
+                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-300 scale-90 group-hover:scale-100">
+                      <div className="bg-background/80 backdrop-blur-sm border border-border shadow-sm rounded-lg p-0.5 flex items-center">
+                        <button
+                          className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md transition-colors"
+                          title="Copy message"
+                          onClick={() => navigator.clipboard.writeText(textContent)}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                          </svg>
+                        </button>
+                      </div>
                     </div>
-                  </div>
+
+                    {/* Bottom Right Copy - Only for long messages */}
+                    {textContent.length > 500 && (
+                      <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-300 scale-90 group-hover:scale-100">
+                        <div className="bg-background/80 backdrop-blur-sm border border-border shadow-sm rounded-lg p-0.5 flex items-center">
+                          <button
+                            className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md transition-colors"
+                            title="Copy message"
+                            onClick={() => navigator.clipboard.writeText(textContent)}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
-              </div>
+              </div >
 
               {/* AI message actions (expandable suggestions) */}
-              {message.role === 'assistant' && (
-                <div className="flex flex-wrap gap-2 px-1 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
-                  <button className="text-xs bg-background/40 backdrop-blur-sm border border-border/40 px-2.5 py-1 rounded-full hover:bg-background/80 hover:border-primary/30 transition-all text-muted-foreground hover:text-foreground">
-                    Expand on colors
-                  </button>
-                  <button className="text-xs bg-background/40 backdrop-blur-sm border border-border/40 px-2.5 py-1 rounded-full hover:bg-background/80 hover:border-primary/30 transition-all text-muted-foreground hover:text-foreground">
-                    CSS variables
-                  </button>
-                </div>
-              )}
-            </div>
+              {
+                message.role === 'assistant' && (
+                  <div className={`flex flex-wrap gap-2 px-1 transition-opacity duration-500 delay-100 ${isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                    }`}>
+                    <button className="text-xs bg-background/40 backdrop-blur-sm border border-border/40 px-2.5 py-1 rounded-full hover:bg-background/80 hover:border-primary/30 transition-all text-muted-foreground hover:text-foreground">
+                      Expand on colors
+                    </button>
+                    <button className="text-xs bg-background/40 backdrop-blur-sm border border-border/40 px-2.5 py-1 rounded-full hover:bg-background/80 hover:border-primary/30 transition-all text-muted-foreground hover:text-foreground">
+                      CSS variables
+                    </button>
+                  </div>
+                )
+              }
+            </div >
 
             {/* User Avatar (right side) */}
-            {message.role === 'user' && (
-              <div className="w-8 h-8 md:w-9 md:h-9 flex-shrink-0 rounded-full bg-gradient-to-br from-neutral-200 to-neutral-300 dark:from-neutral-700 dark:to-neutral-800 flex items-center justify-center font-bold text-xs text-muted-foreground shadow-sm overflow-hidden ring-2 ring-background">
-                {user?.profilePictureUrl ? (
-                  <img src={user.profilePictureUrl} alt="Profile" className="w-full h-full object-cover" />
-                ) : (
-                  <span>{user?.firstName?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}</span>
-                )}
-              </div>
-            )}
-          </div>
+            {
+              message.role === 'user' && (
+                <div className="w-8 h-8 md:w-9 md:h-9 flex-shrink-0 rounded-full bg-gradient-to-br from-neutral-200 to-neutral-300 dark:from-neutral-700 dark:to-neutral-800 flex items-center justify-center font-bold text-xs text-muted-foreground shadow-sm overflow-hidden ring-2 ring-background">
+                  {user?.profilePictureUrl ? (
+                    <img src={user.profilePictureUrl} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <span>{user?.firstName?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}</span>
+                  )}
+                </div>
+              )
+            }
+          </div >
         );
       })}
 
-      {isLoading && (
-        <div className="flex justify-start animate-in fade-in slide-in-from-bottom-2 duration-300">
-          <div className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-muted/30 border border-border/30 text-muted-foreground">
-            <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary/60 [animation-delay:-0.3s]"></div>
-            <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary/60 [animation-delay:-0.15s]"></div>
-            <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary/60"></div>
-            <span className="text-xs font-medium ml-1">Thinking...</span>
+      {
+        isLoading && (
+          <div className="flex justify-start animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-muted/30 border border-border/30 text-muted-foreground">
+              <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary/60 [animation-delay:-0.3s]"></div>
+              <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary/60 [animation-delay:-0.15s]"></div>
+              <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary/60"></div>
+              <span className="text-xs font-medium ml-1">Thinking...</span>
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Teaser CTA for /john-gpt dashboard - only on mobile and when there are messages AND not already on the dashboard */}
-      {isMobile && messages.length > 0 && !isLoading && !pathname?.startsWith('/john-gpt') && (
-        <div className="mx-4 my-3 p-4 rounded-xl bg-gradient-to-r from-primary/5 via-purple-500/5 to-primary/5 border border-primary/10 text-center animate-in fade-in zoom-in-95 duration-500">
-          <p className="text-sm text-primary font-medium">
-            Want more capabilities?
-            <button
-              onClick={() => router.push('/john-gpt')}
-              className="ml-2 text-sm underline decoration-primary/30 underline-offset-4 hover:text-primary/80 transition-colors"
-            >
-              Open Dashboard
-            </button>
-          </p>
-        </div>
-      )}
+      {
+        isMobile && messages.length > 0 && !isLoading && !pathname?.startsWith('/john-gpt') && (
+          <div className="mx-4 my-3 p-4 rounded-xl bg-gradient-to-r from-primary/5 via-purple-500/5 to-primary/5 border border-primary/10 text-center animate-in fade-in zoom-in-95 duration-500">
+            <p className="text-sm text-primary font-medium">
+              Want more capabilities?
+              <button
+                onClick={() => router.push('/john-gpt')}
+                className="ml-2 text-sm underline decoration-primary/30 underline-offset-4 hover:text-primary/80 transition-colors"
+              >
+                Open Dashboard
+              </button>
+            </p>
+          </div>
+        )
+      }
 
       <div ref={messagesEndRef} />
-    </div>
+    </div >
   );
 };
