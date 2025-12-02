@@ -122,6 +122,8 @@ export function ChatView({ user, className, conversationId, onMobileMenuClick }:
                 );
             }
         },
+        // @ts-ignore - api option is valid in runtime but types might be outdated
+        api: '/api/chat?context=full-page',
     });
 
     const isLoading = status === 'submitted' || status === 'streaming';

@@ -40,36 +40,40 @@ import { streamText, convertToModelMessages } from 'ai';
 import { getAIModel } from '../../../lib/ai-providers';
 import { withAuth } from '@workos-inc/authkit-nextjs';
 import { prisma } from '../../../lib/prisma';
+import { PromptManager, ChatContext } from '../../../lib/ai/prompt-manager';
 
 export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
-  const { messages } = await req.json();
+  const body = await req.json();
+  const searchParams = req.nextUrl.searchParams;
+  const queryContext = searchParams.get('context');
+  const { messages, context = queryContext || 'widget' } = body;
 
   // Optional authentication - allows anonymous users
   const { user } = await withAuth();
 
+  let dbUser = null;
   if (user) {
     // User is authenticated - fetch their tier
-    const dbUser = await prisma.user.findUnique({
+    dbUser = await prisma.user.findUnique({
       where: { workosId: user.id },
     });
-
-    if (dbUser) {
-      console.log(`Authenticated user: ${dbUser.email} (${dbUser.tier})`);
-      // TODO: Save chat history for TIER1+ users
-    }
-  } else {
-    // Anonymous user (GUEST)
-    console.log('Anonymous user accessing JohnGPT');
-    // No chat history saved
   }
 
-  // Convert and stream response (available to ALL users)
+  // Generate System Prompt via PromptManager (Handles Context & Tiers)
+  const systemPrompt = await PromptManager.getSystemPrompt({
+    role: 'Universal', // Default role, or determined by slash commands
+    context: context as ChatContext,
+    user: dbUser,
+  });
+
+  // Convert and stream response
   const modelMessages = convertToModelMessages(messages);
   const result = await streamText({
     model: getAIModel(),
     messages: modelMessages,
+    system: systemPrompt,
   });
 
   return result.toUIMessageStreamResponse();

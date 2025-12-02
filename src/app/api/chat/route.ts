@@ -19,13 +19,16 @@ import { prisma } from '../../../lib/prisma';
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { searchKnowledgeBase, formatSearchResults } from '../../../lib/ai/rag-utils';
+import { PromptManager, ChatContext } from '../../../lib/ai/prompt-manager';
 
 export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { messages } = body;
-  console.log('API /api/chat received body:', JSON.stringify(body, null, 2));
+  const searchParams = req.nextUrl.searchParams;
+  const queryContext = searchParams.get('context');
+  const { messages, context = queryContext || 'widget' } = body; // Default to widget if not specified
+  console.log('API /api/chat received body:', JSON.stringify({ ...body, messages: messages.length }, null, 2));
 
   // 🔓 Optional Authentication - Allow anonymous users
   const { user } = await withAuth();
@@ -64,6 +67,7 @@ export async function POST(req: NextRequest) {
   const lastMessage = modelMessages[modelMessages.length - 1];
   let targetRole = 'Universal'; // Default to JohnGPT
 
+  // Check for slash commands first - they override context
   if (lastMessage && lastMessage.role === 'user') {
     const content = lastMessage.content.trim();
 
@@ -78,27 +82,24 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  console.log(`Routing to Persona Role: ${targetRole}`);
+  console.log(`Routing to Persona Role: ${targetRole} (Context: ${context})`);
 
-  // 2. Fetch the appropriate System Prompt from the Database
-  let systemPrompt = '';
-  try {
-    const persona = await prisma.persona.findFirst({
-      where: { role: targetRole },
-      select: { systemPrompt: true },
+  console.log(`Routing to Persona Role: ${targetRole} (Context: ${context})`);
+
+  // 2. Fetch the appropriate System Prompt using PromptManager
+  // We need to fetch the full user from DB if authenticated to get the tier
+  let dbUser = null;
+  if (user) {
+    dbUser = await prisma.user.findUnique({
+      where: { workosId: user.id },
     });
-
-    if (persona) {
-      systemPrompt = persona.systemPrompt;
-    } else {
-      console.warn(`Persona with role '${targetRole}' not found. Falling back to hardcoded default.`);
-      // Fallback if DB is empty or connection fails (Minimal Universal Prompt)
-      systemPrompt = `You are JohnGPT, a creative strategic partner. Prioritize effectiveness and truth.`;
-    }
-  } catch (error) {
-    console.error('Error fetching persona from DB:', error);
-    systemPrompt = `You are JohnGPT, a creative strategic partner. Prioritize effectiveness and truth.`;
   }
+
+  const systemPrompt = await PromptManager.getSystemPrompt({
+    role: targetRole,
+    context: context as ChatContext,
+    user: dbUser, // Pass full DB user object (includes tier)
+  });
 
   // 🌐 Stream response from selected provider
   const result = await streamText({

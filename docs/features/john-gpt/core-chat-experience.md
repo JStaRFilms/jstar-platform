@@ -798,10 +798,48 @@ Power users can force specific modes using slash commands. These prompts are sto
 | Command | Persona Name | Role | Description |
 | :--- | :--- | :--- | :--- |
 | **(Default)** | JohnGPT | `Universal` | The default "Truth-Teller" mode. Strategic, objective, and creative. |
-| `/code` | Senior Engineer | `code` | Pure code output. No fluff. Modern stack (Next.js, Tailwind, Prisma). |
-| `/roast` | Ruthless Critic | `roast` | Finds every flaw in an idea. Harsh but constructive. |
-| `/simplify` | Master Teacher | `simplify` | Explains complex topics as if the user is 12 years old. |
-| `/bible` | Biblical Counselor | `bible` | Provides wisdom and answers strictly backed by scripture. |
+| `/code` | The Architect | `code` | Senior Full-Stack Engineer. Focuses on Next.js, Tailwind, and best practices. |
+| `/roast` | The Critic | `roast` | Brutally honest design critic. Tears apart UI/UX flaws with wit. |
+| `/simplify` | The Teacher | `simplify` | Explains complex concepts simply. Uses analogies and clear language. |
+| `/bible` | The Shepherd | `bible` | Biblical counselor. Provides wisdom and scripture-based advice. |
+
+### **3. Context Awareness & PromptManager**
+
+To further enhance the "Invisible" experience, JohnGPT now adapts its behavior based on **where** it is being used (Context) and **who** is using it (Tier). This logic is centralized in the `PromptManager`.
+
+**File Location**: `src/lib/ai/prompt-manager.ts`
+
+#### **Contexts**
+-   **Widget (`context='widget'`)**: The floating chat bubble found on the website.
+-   **Full Page (`context='full-page'`)**: The dedicated chat interface at `/john-gpt`.
+
+#### **Tier-Based Logic**
+The `PromptManager` dynamically appends instructions to the "Universal" system prompt based on the user's tier:
+
+1.  **Guest (Widget)**
+    *   **Behavior**: 80% Brand Ambassador / 20% General Assistant.
+    *   **Goal**: Help visitors navigate J StaR Films, answer service questions, and convert leads.
+    *   **Instruction**: "Your PRIMARY goal is to be a helpful BRAND AMBASSADOR... If the user asks general questions, answer briefly but try to pivot back..."
+
+2.  **Tier 1+ User (Widget)**
+    *   **Behavior**: 40% Brand Focus / 60% General Assistant.
+    *   **Goal**: Provide a helpful utility for registered users while keeping the brand present.
+    *   **Instruction**: "Your PRIMARY goal is to be a helpful assistant... engage FREELY and intelligently."
+
+3.  **Full Page (All Tiers)**
+    *   **Behavior**: 5% Brand Focus / 95% General Assistant.
+    *   **Goal**: A powerful, unrestricted AI companion for deep work and conversation.
+    *   **Instruction**: "Do NOT aggressively push the J StaR brand... Engage deeply with the user's topics..."
+
+### **4. Implementation Details**
+
+-   **Frontend**:
+    -   `JohnGPTDialog.tsx` passes `api: '/api/chat?context=widget'` to `useChat`.
+    -   `ChatView.tsx` passes `api: '/api/chat?context=full-page'` to `useChat`.
+-   **Backend**:
+    -   `route.ts` extracts the `context` from the query parameters.
+    -   It fetches the authenticated user (if any) to determine the `tier`.
+    -   It calls `PromptManager.getSystemPrompt({ role, context, user })` to generate the final prompt.
 
 ### **3. Database Schema Integration**
 
