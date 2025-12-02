@@ -777,51 +777,56 @@ This comprehensive layout overhaul transforms JohnGPT from a layout-conflicted d
 
 This implementation establishes a solid foundation for conversational AI in the J StaR Films platform, with enterprise-grade architecture, mobile-first design, and room for future expansion.
 
-## 📋 Phase 3: Step-by-Step Implementation Plan
+## 📋 Phase 3: "Invisible Agents" Architecture (Completed)
 
-### **Step 1: Animated Icons Setup**
-- Run `npx shadcn-ui@latest add brain send close copy attachment palette`
-- Verify installation in `src/components/ui/`
-- Update `docs/AnimatedIconsList.md` if needed
+We have successfully pivoted from a manual "Persona Selector" UI to a frictionless, intelligent **"Invisible Router"** architecture. This aligns with the "Creative Operating System" vision where the AI adapts to the user's intent automatically.
 
-### **Step 2: Create Rich Component Library**
-- Create `ColorPalette.tsx` (3x3/3x2 grid with clipboard functionality)
-- Create `CodeBlock.tsx` (syntax-highlighted with copy button)
-- Create `FileAttachment.tsx` (preview with download)
-- All using Tailwind v4 `@theme` tokens
+### **1. The "Invisible Router" Logic**
 
-### **Step 3: Enhance ChatMessages Component**
-- Add content parsing for color codes and code blocks
-- Implement message actions (copy, regenerate) with hover states
-- Add timestamp display (hover/desktop, always/mobile)
-- Update message bubble styling per mockups
-- Integrate rich components into message rendering
+Instead of forcing users to select a mode (e.g., "Coding Mode" vs. "Creative Mode") from a dropdown, the system now analyzes the user's input to determine the best persona.
 
-### **Step 4: Update ChatInput Component**
-- Add persona selector on mobile (above textarea)
-- Implement file attachment button with file picker
-- Style send button with purple accent
-- Maintain auto-resize textarea functionality
+**Mechanism:**
+1.  **Input Analysis:** The backend (`src/app/api/chat/route.ts`) inspects the user's last message.
+2.  **Slash Command Detection:** It checks for specific slash commands that trigger specialized modes.
+3.  **Database Fetch:** It dynamically fetches the corresponding System Prompt from the `Persona` table in the database.
+4.  **Fallback:** If no command is found, it defaults to the **"Universal"** JohnGPT persona (Role: `Universal`).
 
-### **Step 5: Modify JohnGPTDialog Layout**
-- Add persona selector to desktop header
-- Adjust dialog sizing (fixed 500px desktop, full screen mobile)
-- Update mobile header (hamburger, title, menu buttons)
-- Ensure proper flex layout preservation
+### **2. Supported Modes (Slash Commands)**
 
-### **Step 6: Theme & Responsiveness Testing**
-- Test dark/light theme switching with all components
-- Verify mobile layout (393px - 428px) matches new_mobile-chat.html
-- Verify desktop layout matches new_chat-interface.html
-- Check accessibility (screen readers, keyboard nav, focus management)
+Power users can force specific modes using slash commands. These prompts are stored in the database and can be updated without code changes.
 
-### **Step 7: Integration & Polish**
-- Add loading dots animation for streaming states
-- Implement smooth animations respecting `prefers-reduced-motion`
-- Update message parsing for file attachments
-- Final accessibility audit and performance testing
+| Command | Persona Name | Role | Description |
+| :--- | :--- | :--- | :--- |
+| **(Default)** | JohnGPT | `Universal` | The default "Truth-Teller" mode. Strategic, objective, and creative. |
+| `/code` | Senior Engineer | `code` | Pure code output. No fluff. Modern stack (Next.js, Tailwind, Prisma). |
+| `/roast` | Ruthless Critic | `roast` | Finds every flaw in an idea. Harsh but constructive. |
+| `/simplify` | Master Teacher | `simplify` | Explains complex topics as if the user is 12 years old. |
+| `/bible` | Biblical Counselor | `bible` | Provides wisdom and answers strictly backed by scripture. |
 
-### **Step 8: Documentation Updates**
-- Update component props and usage examples in docs
-- Add troubleshooting section for rich components
-- Document theme token usage and customizations
+### **3. Database Schema Integration**
+
+The `Persona` model in `prisma/schema.prisma` stores these configurations:
+
+```prisma
+model Persona {
+  id           String   @id @default(cuid())
+  name         String   @unique
+  role         String   // e.g., "Universal", "code", "roast"
+  description  String
+  systemPrompt String   @db.Text
+  // ... other fields
+}
+```
+
+### **4. Benefits of this Architecture**
+
+*   **Frictionless UX:** Users just type. No setup required.
+*   **Dynamic Updates:** System prompts can be tweaked in the database instantly without redeploying the app.
+*   **Extensibility:** New modes (e.g., `/marketing`, `/legal`) can be added simply by inserting a row into the `Persona` table.
+*   **Power User Speed:** Typing `/c` is faster than clicking a dropdown menu.
+
+### **5. Implementation Details**
+
+*   **Frontend:** The `PersonaSelector` component has been removed. The UI is now cleaner and focused purely on the chat.
+*   **Backend:** `src/app/api/chat/route.ts` now contains the routing logic and Prisma queries to fetch prompts.
+*   **Seeding:** `prisma/seed.ts` includes the default prompts for all supported modes to ensure the database is populated on fresh installs.
