@@ -33,7 +33,6 @@ export function JohnGPTDialog({ open, onOpenChange, user }: JohnGPTDialogProps) 
   const router = useRouter();
   // Initialize useChat - works seamlessly with toUIMessageStreamResponse()
   const chatHelpers = useBranchingChat({
-    // @ts-ignore - api option is valid in runtime but types might be outdated
     api: '/api/chat?context=widget',
   });
   const { messages, sendMessage, status, stop, error: chatError, addToolResult, editMessage, navigateBranch } = chatHelpers;

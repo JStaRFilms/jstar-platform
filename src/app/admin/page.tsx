@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { AdminHeader } from '@/features/AdminDashboard/components/AdminHeader';
 import { SystemStatus } from '@/features/AdminDashboard/components/SystemStatus';
 import { QuickStats } from '@/features/AdminDashboard/components/QuickStats';
 import { QuickActions } from '@/features/AdminDashboard/components/QuickActions';

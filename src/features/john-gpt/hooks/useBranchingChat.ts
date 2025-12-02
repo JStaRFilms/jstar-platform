@@ -43,7 +43,7 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
         },
     }) as any;
 
-    const { messages, setMessages, reload, append } = chatHelpers;
+    const { messages, setMessages, append } = chatHelpers;
 
     // Listen for message updates to set the mode from metadata
     useEffect(() => {
@@ -183,7 +183,7 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
         const currentIndex = parent.childrenIds.indexOf(nodeId);
         if (currentIndex === -1) return;
 
-        let nextIndex = direction === 'prev' ? currentIndex - 1 : currentIndex + 1;
+        const nextIndex = direction === 'prev' ? currentIndex - 1 : currentIndex + 1;
 
         if (nextIndex < 0 || nextIndex >= parent.childrenIds.length) return;
 

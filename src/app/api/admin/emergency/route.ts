@@ -95,7 +95,7 @@ async function checkServiceRunning(serviceName: string, port: number): Promise<b
       return response.ok;
     }
     return false;
-  } catch (error) {
+  } catch {
     return false;
   }
 }
@@ -320,7 +320,7 @@ async function restartAIServices() {
         if (unloadResponse.ok) {
           console.log('Ollama models unloaded gracefully');
         }
-      } catch (unloadError) {
+      } catch {
         console.log('Graceful Ollama shutdown failed, proceeding to force kill');
       }
     }
@@ -353,7 +353,7 @@ async function restartAIServices() {
         console.log('Killed processes on Ollama port (11434)');
         killResults.push({ service: 'Ollama', method: 'port_kill' });
       }
-    } catch (error) {
+    } catch {
       console.log('Ollama port killing failed or no processes found');
     }
 
@@ -381,7 +381,7 @@ async function restartAIServices() {
         console.log('Killed processes on LM Studio port (1234)');
         killResults.push({ service: 'LM Studio', method: 'port_kill' });
       }
-    } catch (error) {
+    } catch {
       console.log('LM Studio port killing failed or no processes found');
     }
 
@@ -710,7 +710,7 @@ async function optimizeForLowResources() {
 
         // If system is under heavy load, suggest lighter models
         if (metrics.cpu.usage > 80 || (metrics.memory.percentage > 80) ||
-            (metrics.aiHealth.gpu?.utilization && metrics.aiHealth.gpu.utilization > 85)) {
+          (metrics.aiHealth.gpu?.utilization && metrics.aiHealth.gpu.utilization > 85)) {
 
           optimizationResults.warnings.push('System under heavy load - consider using lighter AI models');
 
@@ -723,7 +723,7 @@ async function optimizeForLowResources() {
           }
         }
       }
-    } catch (aiError) {
+    } catch {
       console.log('AI model check completed');
     }
 

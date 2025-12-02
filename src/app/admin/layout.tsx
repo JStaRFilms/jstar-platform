@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import type { Metadata } from "next";
 import { usePathname } from 'next/navigation';
 import { AdminSidebar } from '@/features/AdminDashboard/components/AdminSidebar';
 import { AdminSubNavigation } from '@/features/AdminDashboard/components/AdminSubNavigation';
