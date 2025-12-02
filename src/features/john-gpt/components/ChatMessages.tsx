@@ -120,9 +120,15 @@ const UserMessageContent = ({
   const [showCopy, setShowCopy] = React.useState(false);
   const [showActions, setShowActions] = React.useState(false); // For mobile toggle
   const [isEditing, setIsEditing] = React.useState(false);
-  const [editContent, setEditContent] = React.useState(message.content || '');
 
-  const content = message.content || '';
+  // Extract content from parts or fallback to content
+  const parts = (message as any).parts || [];
+  const textParts = parts.filter((p: any) => p.type === 'text');
+  const content = textParts.length > 0
+    ? textParts.map((p: any) => p.text).join('')
+    : (message as any).content || '';
+
+  const [editContent, setEditContent] = React.useState(content);
 
   if (!content) return null;
 

@@ -145,7 +145,7 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
         // 4. Append new message
         await append({
             role: 'user',
-            content: newContent,
+            parts: [{ type: 'text', text: newContent }],
         });
 
     }, [tree, setMessages, append]);

@@ -197,7 +197,8 @@ export function ChatView({ user, className, conversationId, onMobileMenuClick }:
         setInput('');
 
         await sendMessage({
-            text: userMessage,
+            role: 'user',
+            parts: [{ type: 'text', text: userMessage }],
         });
     };
 
