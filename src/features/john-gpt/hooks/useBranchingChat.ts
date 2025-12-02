@@ -35,8 +35,11 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
 
     const chatHelpers = useChat({
         ...options,
-        onFinish: (message: any, options: any) => {
-            options?.onFinish?.(message, options);
+        onFinish: (message: any, finishOptions: any) => {
+            // Call the original onFinish from ChatView.tsx options
+            if (options.onFinish) {
+                options.onFinish(message, finishOptions);
+            }
         },
         onResponse: (response: Response) => {
             console.log('[useBranchingChat] onResponse', response);
@@ -46,7 +49,10 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
             if (mode) {
                 setCurrentMode(mode);
             }
-            options?.onResponse?.(response);
+            // Call the original onResponse from ChatView.tsx options
+            if (options.onResponse) {
+                options.onResponse(response);
+            }
         },
     }) as any;
 

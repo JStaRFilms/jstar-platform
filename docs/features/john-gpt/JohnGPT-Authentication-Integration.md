@@ -20,190 +20,127 @@
 
 | User Type | Can Access JohnGPT? | Chat History Saved? | Authentication Required? |
 |-----------|---------------------|---------------------|-------------------------|
-| **GUEST** (Anonymous) | ✅ Yes | ❌ No | ❌ No |
-| **TIER1** (Free login) | ✅ Yes | 🔜 Future | ✅ Yes |
-| **TIER2+** (Paid) | ✅ Yes | 🔜 Future | ✅ Yes |
-| **ADMIN** | ✅ Yes | 🔜 Future | ✅ Yes |
+| **GUEST** (Anonymous) | ✅ Yes | ❌ No (widget only) | ❌ No |
+| **TIER1** (Free login) | ✅ Yes | ✅ Yes (full-page) | ✅ Yes |
+| **TIER2+** (Paid) | ✅ Yes | ✅ Yes (full-page) | ✅ Yes |
+| **ADMIN** | ✅ Yes | ✅ Yes (full-page) | ✅ Yes |
 
 ---
 
-## 1. Updated API Route Architecture
+## 4. **IMPLEMENTED**: Chat History & Storage
 
-### File: `src/app/api/chat/route.ts`
+### Current Storage Architecture
 
-**Runtime**: `nodejs` (changed from `edge` for Prisma support)
+**Status**: ✅ **Fully Implemented** (as of 2025-11-30)
 
-**Authentication**: Optional - allows anonymous users
+JohnGPT uses a **hybrid local-first architecture** with cloud backup:
 
-```typescript
-import { streamText, convertToModelMessages } from 'ai';
-import { getAIModel } from '../../../lib/ai-providers';
-import { withAuth } from '@workos-inc/authkit-nextjs';
-import { prisma } from '../../../lib/prisma';
-import { PromptManager, ChatContext } from '../../../lib/ai/prompt-manager';
+#### **Primary Layer: IndexedDB**
 
-export const runtime = 'nodejs';
+**File**: `src/lib/chat-storage.ts`
 
-export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const searchParams = req.nextUrl.searchParams;
-  const queryContext = searchParams.get('context');
-  const { messages, context = queryContext || 'widget' } = body;
-
-  // Optional authentication - allows anonymous users
-  const { user } = await withAuth();
-
-  let dbUser = null;
-  if (user) {
-    // User is authenticated - fetch their tier
-    dbUser = await prisma.user.findUnique({
-      where: { workosId: user.id },
-    });
+- **Browser Database**: `johngpt-db` using IndexedDB via `idb` library
+- **Offline-First**: Conversations saved locally for instant access
+- **Structure**:
+  ```typescript
+  interface Conversation {
+    id: string;
+    title: string;
+    messages: ExtendedMessage[];
+    createdAt: number;
+    updatedAt: number;
+    personaId: string;
+    syncedToDrive: boolean;
+    driveFileId?: string;
   }
+  ```
 
-  // Generate System Prompt via PromptManager (Handles Context & Tiers)
-  const systemPrompt = await PromptManager.getSystemPrompt({
-    role: 'Universal', // Default role, or determined by slash commands
-    context: context as ChatContext,
-    user: dbUser,
-  });
+#### **Secondary Layer: Google Drive Sync**
 
-  // Convert and stream response
-  const modelMessages = convertToModelMessages(messages);
-  const result = await streamText({
-    model: getAIModel(),
-    messages: modelMessages,
-    system: systemPrompt,
-  });
+**API Routes**: 
+- `POST /api/johngpt/sync/save` - Upload conversation to Drive
+- `GET /api/johngpt/sync/list` - List remote conversations
+- `GET /api/johngpt/sync/get?fileId=...` - Download conversation
+- `POST /api/johngpt/sync/delete` - Delete from Drive
 
-  return result.toUIMessageStreamResponse();
-}
-```
+**Sync Behavior**:
+1. **Upload**: Unsynced local conversations uploaded to user's Google Drive
+2. **Download**: Remote changes pulled and merged into IndexedDB
+3. **Bidirectional**: Keeps local and cloud in sync automatically
+4. **Background**: Syncs on conversation save and load
 
-### Key Changes from Previous Version
+#### **Context-Aware Saving**
 
-| Aspect | Before (v1.0) | After (v2.0) |
-|--------|---------------|--------------|
-| **Runtime** | `edge` | `nodejs` |
-| **Auth** | Required (`requireAdmin()`) | Optional (`withAuth()`) |
-| **Access** | Admin only | Open to all |
-| **Session** | Bearer token | WorkOS cookies |
-| **Chat History** | Not implemented | Prepared for TIER1+ |
+| Context | Saves to IndexedDB? | Syncs to Drive? | Use Case |
+|---------|-------------------|----------------|----------|
+| `widget` | ❌ No | ❌ No | Guest mode, ephemeral chats |
+| `full-page` | ✅ Yes | ✅ Yes (if authenticated) | Logged-in users on `/john-gpt` |
 
----
+**Implementation**: The context detection (fixed in Phase 5) determines whether the `onFinish` handler in `ChatView.tsx` saves the conversation.
 
-## 2. Frontend Components (No Changes Required)
+#### **Storage Workflow**
 
-### JohnGPTDialog.tsx
-
-The frontend component remains unchanged. Key features:
+**File**: `src/features/john-gpt/components/ChatView.tsx`
 
 ```typescript
-const { messages, status, sendMessage, error } = useChat();
-```
-
-**No explicit API configuration needed** - The Vercel AI SDK defaults to `/api/chat` and automatically sends cookies with requests.
-
-**Access:**
-- Anonymous users: Can open dialog and chat
-- Authenticated users: Same experience (chat history coming soon)
-
----
-
-## 3. User Access Flow
-
-### Anonymous User (GUEST) Flow
-
-```
-1. User visits site (not logged in)
-   ↓
-2. Clicks "JohnGPT" button
-   ↓
-3. Modal opens → sends message
-   ↓
-4. API receives request (no auth cookie)
-   ↓
-5. withAuth() returns { user: null }
-   ↓
-6. API logs "Anonymous user accessing JohnGPT"
-   ↓
-7. Streams AI response normally
-   ↓
-8. Chat session is ephemeral (lost on page refresh)
-```
-
-### Authenticated User (TIER1+) Flow
-
-```
-1. User logs in via WorkOS
-   ↓
-2. Session cookie set automatically
-   ↓
-3. Clicks "JohnGPT" button
-   ↓
-4. Modal opens → sends message
-   ↓
-5. API receives request WITH auth cookie
-   ↓
-6. withAuth() returns { user: WorkOSUser }
-   ↓
-7. API queries database for user tier
-   ↓
-8. API logs user email and tier
-   ↓
-9. Streams AI response normally
-   ↓
-10. [FUTURE] Chat history saved to database
-```
-
----
-
-## 4. Future Implementation: Chat History
-
-### Database Schema (Already Prepared)
-
-When implementing chat history, add a new `Conversation` model:
-
-```prisma
-model Conversation {
-  id        String   @id @default(cuid())
-  userId    String
-  title     String?  // Auto-generated from first message
-  messages  Json     // Stored as JSON array
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+// onFinish callback (runs when AI response completes)
+onFinish: async (message: any) => {
+  // Only runs in full-page context
+  const convId = conversationIdRef.current || crypto.randomUUID();
   
-  user User @relation(fields: [userId], references: [id])
+  // Generate title (1st or 3rd exchange)
+  const title = await generateTitle(messages);
   
-  @@map("conversations")
+  // Save to IndexedDB
+  await chatStorage.saveConversation({
+    id: convId,
+    title,
+    messages: updatedMessages,
+    createdAt: currentConv?.createdAt || Date.now(),
+    updatedAt: Date.now(),
+    personaId: 'default',
+    syncedToDrive: false, // Mark for sync
+  });
+  
+  // Background sync to Drive (if authenticated)
+  if (user) {
+    chatStorage.syncConversations(user.id);
+  }
 }
 ```
 
-### Implementation Steps
+### Key Features
 
-1. **Create Conversation on First Message**:
-   - After first message from authenticated user
-   - Generate title from message content
-   - Store conversation ID in client state
+✅ **Automatic Syncing**: Conversations sync in background after save  
+✅ **Offline Access**: All chats available offline via IndexedDB  
+✅ **Multi-Device**: Google Drive enables cross-device access  
+✅ **Title Generation**: AI-generated titles at 1st and 3rd message exchange  
+✅ **Conversation Management**: Edit, delete, load previous chats  
+✅ **Race Condition Prevention**: Saves before navigation to prevent blank screens
 
-2. **Save Each Message**:
-   - Append to `messages` JSON array
-   - Update `updatedAt` timestamp
+### Storage Limits
 
-3. **Load Conversation History**:
-   - Add API endpoint: `GET /api/chat/history`
-   - Return list of user's conversations
-   - Add "Load Previous Chat" UI in dialog
+**Current Implementation**: No hard limits enforced (IndexedDB typically 50MB-10GB per origin)
 
-### Tier-Based History Limits
+**Recommended Future Limits** (not yet implemented):
 
 | Tier | Max Conversations | Max Messages Per Conversation |
 |------|------------------|-------------------------------|
 | GUEST | 0 (ephemeral) | N/A |
-| TIER1 | 10 | 100 |
-| TIER2 | 50 | 500 |
+| TIER1 | 100 | 500 |
+| TIER2 | 500 | 1000 |
 | TIER3 | Unlimited | Unlimited |
 | ADMIN | Unlimited | Unlimited |
+
+### Files Implementing Storage
+
+| File | Purpose |
+|------|---------|
+| `src/lib/chat-storage.ts` | Core storage service (IndexedDB + sync logic) |
+| `src/features/john-gpt/components/ChatView.tsx` | Saves conversations on message completion |
+| `src/features/john-gpt/components/ConversationSidebar.tsx` | Displays and manages conversation list |
+| `src/features/john-gpt/hooks/useConversationManagement.ts` | React hooks for conversation state |
+| `src/app/api/johngpt/sync/*` | Google Drive sync API routes |
 
 ---
 
