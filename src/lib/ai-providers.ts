@@ -54,3 +54,12 @@ export function getFastModel(): LanguageModel {
   }
   return getAIModel();
 }
+
+export function getClassifierModel(): LanguageModel {
+  // Use Groq with Llama model for intent classification as requested
+  if (process.env.GROQ_API_KEY) {
+    return groq('meta-llama/llama-4-scout-17b-16e-instruct');
+  }
+  // Fallback to fast model if Groq is not configured
+  return getFastModel();
+}

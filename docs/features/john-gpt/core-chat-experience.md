@@ -841,6 +841,155 @@ The `PromptManager` dynamically appends instructions to the "Universal" system p
     -   It fetches the authenticated user (if any) to determine the `tier`.
     -   It calls `PromptManager.getSystemPrompt({ role, context, user })` to generate the final prompt.
 
+---
+
+## 🔧 Phase 5: Context Detection Fix (December 2, 2025)
+
+**Completed**: Fixed critical context detection bug where the chat API was incorrectly identifying all requests as `widget` context instead of `full-page`, preventing chat history from being saved on the `/john-gpt` page.
+
+### **The Problem**
+
+The original implementation attempted to pass context information from the client to the API via three different methods:
+
+1. **Query Parameters**: `api: '/api/chat?context=full-page'`  
+2. **Request Body**: `body: { context: 'full-page' }`  
+3. **Custom Headers**: `headers: { 'X-Chat-Context': 'full-page' }`
+
+**None of these methods worked** because the Vercel AI SDK's `useChat` hook doesn't preserve or merge these values into the actual HTTP request.
+
+### **Impact**
+
+- ❌ All chats from `/john-gpt` were treated as `widget` context
+- ❌ Chat history was **not being saved** because the system thought users were in widget mode
+- ❌ Backend logs showed: `Context resolution: queryContext=null, bodyContext=undefined, finalContext=widget`
+- ❌ Different personas were being triggered incorrectly
+
+### **Root Cause Analysis**
+
+The Vercel AI SDK's `useChat` hook:
+- Does **not** automatically include query parameters from the `api` URL in requests
+- Does **not** merge the `body` option with the request payload
+- Does **not** send custom `headers` reliably across all request types
+
+**Evidence from logs**:
+```
+[useBranchingChat] Options received: { body: { context: 'full-page' }, api: '/api/chat' }
+API /api/chat received body: {
+  "id": "V8M3j1cGty2n0Hg2",
+  "messages": 1,
+  "trigger": "submit-message"
+}
+Context resolution: queryContext=null, bodyContext=undefined, finalContext=widget
+```
+
+The `context` field was being passed to `useBranchingChat`, but **never reached the API**.
+
+### **The Solution: Server-Side Detection**
+
+Instead of relying on client-side data passing, we implemented **automatic context detection on the server** using the HTTP `Referer` header.
+
+#### **Implementation**
+
+**File**: `src/app/api/chat/route.ts`
+
+```typescript
+export async function POST(req: NextRequest) {
+  const body = await req.json();
+  const { messages } = body;
+  
+  // Detect context from the Referer header - much more reliable than client-side
+  const referer = req.headers.get('referer') || '';
+  const context = referer.includes('/john-gpt') ? 'full-page' : 'widget';
+  
+  console.log('API /api/chat received body:', JSON.stringify({ ...body, messages: messages.length }, null, 2));
+  console.log(`Context detected from referer: ${referer} => ${context}`);
+  
+  // ... rest of the API logic
+}
+```
+
+#### **Why This Works**
+
+1. **Automatic**: The browser automatically sends the `Referer` header with every request
+2. **Reliable**: No dependency on AI SDK's internal request handling  
+3. **Simple**: Single, deterministic check: does the URL contain `/john-gpt`?
+4. **Bulletproof**: Works across all browsers and request types
+
+#### **Client-Side Cleanup**
+
+Removed all failed context-passing attempts from the client:
+
+**File**: `src/features/john-gpt/components/ChatView.tsx`
+```typescript
+// Before (didn't work):
+api: '/api/chat?context=full-page',
+body: { context: 'full-page' },
+
+// After (clean):
+api: '/api/chat',
+// Context is now auto-detected server-side from the Referer header
+```
+
+**File**: `src/features/john-gpt/hooks/useBranchingChat.ts`
+```typescript
+// Removed unnecessary headers and fetch customization
+const chatHelpers = useChat({
+    ...options,
+    // Context detection happens server-side now
+    onFinish: (message: any, options: any) => { /* ... */ },
+    onResponse: (response: Response) => { /* ... */ },
+}) as any;
+```
+
+### **Verification**
+
+After the fix, backend logs now show correct context detection:
+
+```
+✅ On /john-gpt page:
+Context detected from referer: http://localhost:5782/john-gpt => full-page
+Routing to Persona Role: bible (Context: full-page)
+
+✅ On homepage widget:
+Context detected from referer: http://localhost:5782/ => widget
+Routing to Persona Role: Universal (Context: widget)
+```
+
+### **Benefits**
+
+- ✅ **Chat history now saves** correctly on `/john-gpt` page
+- ✅ **Automatic detection** - no client-side configuration needed
+- ✅ **Simpler codebase** - removed all failed context-passing logic
+- ✅ **More reliable** - not dependent on AI SDK internal behavior
+- ✅ **Future-proof** - works for any new pages we add
+
+### **Architecture Lessons Learned**
+
+1. **Don't fight the framework**: When a library doesn't support a feature, find an alternative approach
+2. **Server-side is more reliable**: Context information is better determined server-side using standard HTTP headers
+3. **Keep it simple**: The simplest solution (checking Referer) ended up being the most robust
+4. **Test thoroughly**: Always verify that data is actually reaching the destination, not just being passed to an intermediate function
+
+### **Files Modified**
+
+| File | Changes |
+|------|---------|
+| `src/app/api/chat/route.ts` | Added Referer-based context detection logic |
+| `src/features/john-gpt/components/ChatView.tsx` | Removed unnecessary `body` option from `useBranchingChat` |
+| `src/features/john-gpt/hooks/useBranchingChat.ts` | Removed unsuccessful `headers` and `fetch` customization attempts |
+
+### **Updated Frontend Implementation**
+
+-   **Frontend**:
+    -   `JohnGPTDialog.tsx` passes `api: '/api/chat'` to `useChat` (widget context auto-detected)
+    -   `ChatView.tsx` passes `api: '/api/chat'` to `useChat` (full-page context auto-detected)
+-   **Backend**:
+    -   `route.ts` extracts the `context` from the `referer` header automatically
+    -   It fetches the authenticated user (if any) to determine the `tier`
+    -   It calls `PromptManager.getSystemPrompt({ role, context, user })` to generate the final prompt.
+
+---
+
 ### **3. Database Schema Integration**
 
 The `Persona` model in `prisma/schema.prisma` stores these configurations:

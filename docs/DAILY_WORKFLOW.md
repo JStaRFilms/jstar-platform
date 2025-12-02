@@ -41,6 +41,21 @@ You don't need to manage the board manually. You just talk to the Agent, and the
 When the user initiates work, ALWAYS run the `start_feature` workflow.
 When the user completes work, ALWAYS run the `complete_feature` workflow.
 
-**Commands:**
--   Start: `gh project item-edit --id <ID> --field-id <StatusFieldID> --single-select-option-id <InProgressID>`
--   Finish: `gh project item-edit --id <ID> --field-id <StatusFieldID> --single-select-option-id <DoneID>`
+### 1. Start a Feature (IMMEDIATELY)
+**CRITICAL:** Run this *before* writing any code or plans. This sets the "Start Date" and ensures accurate time tracking.
+
+1.  **Check for existing issue:** `gh issue list --state all --search "Feature Name"`
+2.  **Create Issue (if none):** `gh issue create --title "Feature Name" --body "Description..."`
+3.  **Add to Project Board:**
+    *   Use the **Project Number** (e.g., `3` for Roadmap).
+    *   Command: `gh project item-add <PROJECT_NUMBER> --owner JStaRFilms --url <ISSUE_URL> --format json`
+    *   *Note: Get the Issue URL from the create command output.*
+
+### 2. Complete a Feature
+1.  **Use the Script (Preferred):**
+    *   `powershell -ExecutionPolicy Bypass -File .agent/scripts/complete_feature.ps1 -title "Feature Name"`
+    *   This script handles moving the item to "Done" and closing the issue.
+
+2.  **Manual Fallback:**
+    *   **Close Issue:** `gh issue close <ISSUE_NUMBER>`
+    *   **Move to Done:** Requires getting the `itemId` and `fieldId` which is complex manually. **Use the script.**

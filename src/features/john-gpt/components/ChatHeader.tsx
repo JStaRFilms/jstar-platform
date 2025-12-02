@@ -7,11 +7,48 @@ import { cn } from '@/lib/utils';
 type ChatHeaderProps = {
     onMobileMenuClick?: () => void;
     messages: any[];
+    currentMode?: string | null;
 };
 
-export function ChatHeader({ onMobileMenuClick, messages }: ChatHeaderProps) {
+export function ChatHeader({ onMobileMenuClick, messages, currentMode }: ChatHeaderProps) {
     // Determine the current mode based on the last user message
     const getMode = () => {
+        // 1. Backend Detected Mode (Highest Priority)
+        if (currentMode) {
+            switch (currentMode) {
+                case 'code': return {
+                    label: 'Engineering Mode',
+                    icon: Terminal,
+                    color: 'text-green-500',
+                    bg: 'bg-green-500/10',
+                    border: 'border-green-500/20'
+                };
+                case 'roast': return {
+                    label: 'Roast Mode',
+                    icon: Flame,
+                    color: 'text-orange-500',
+                    bg: 'bg-orange-500/10',
+                    border: 'border-orange-500/20'
+                };
+                case 'simplify': return {
+                    label: 'Simplify Mode',
+                    icon: Zap,
+                    color: 'text-yellow-500',
+                    bg: 'bg-yellow-500/10',
+                    border: 'border-yellow-500/20'
+                };
+                case 'bible': return {
+                    label: 'Biblical Mode',
+                    icon: Book,
+                    color: 'text-blue-500',
+                    bg: 'bg-blue-500/10',
+                    border: 'border-blue-500/20'
+                };
+                case 'Universal': return null; // Default
+            }
+        }
+
+        // 2. Fallback: Client-side Heuristics (for optimistic updates or legacy)
         // Find the last user message
         const lastUserMessage = [...messages].reverse().find(m => m.role === 'user');
 
@@ -31,7 +68,7 @@ export function ChatHeader({ onMobileMenuClick, messages }: ChatHeaderProps) {
         content = content.trim();
         const lowerContent = content.toLowerCase();
 
-        // 1. Explicit Slash Commands (Overrides everything)
+        // Explicit Slash Commands (Overrides everything)
         if (content.startsWith('/code')) return {
             label: 'Engineering Mode',
             icon: Terminal,
@@ -61,7 +98,7 @@ export function ChatHeader({ onMobileMenuClick, messages }: ChatHeaderProps) {
             border: 'border-blue-500/20'
         };
 
-        // 2. Implicit Context Detection (Smart Switching)
+        // Implicit Context Detection (Smart Switching)
         // Only show if the user hasn't explicitly set a mode, to show "we figured it out"
         if (lowerContent.includes('function') || lowerContent.includes('const ') || lowerContent.includes('react') || lowerContent.includes('bug') || lowerContent.includes('error')) {
             return {
@@ -119,6 +156,10 @@ export function ChatHeader({ onMobileMenuClick, messages }: ChatHeaderProps) {
                             <span>J StaR Prime</span>
                         </div>
                     )}
+                    {/* DEBUG BADGE - REMOVE LATER */}
+                    <span className="text-[10px] text-red-500 font-mono opacity-50">
+                        (Debug: {currentMode || 'NULL'})
+                    </span>
                 </div>
             </div>
         </div>

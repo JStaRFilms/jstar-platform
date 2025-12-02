@@ -28,11 +28,25 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
     // Track the "active" child for each node to restore history correctly when navigating back
     const [activePathMap, setActivePathMap] = useState<Record<string, string>>({});
 
+    const [currentMode, setCurrentMode] = useState<string | null>(null);
+
     // 2. Initialize useChat
+    console.log('[useBranchingChat] Options received:', { body: options.body, api: options.api });
+
     const chatHelpers = useChat({
         ...options,
         onFinish: (message: any, options: any) => {
             options?.onFinish?.(message, options);
+        },
+        onResponse: (response: Response) => {
+            console.log('[useBranchingChat] onResponse', response);
+            response.headers.forEach((val, key) => console.log(`[Header] ${key}: ${val}`));
+            const mode = response.headers.get('X-JohnGPT-Mode');
+            console.log('[useBranchingChat] Mode from header:', mode);
+            if (mode) {
+                setCurrentMode(mode);
+            }
+            options?.onResponse?.(response);
         },
     }) as any;
 
@@ -212,5 +226,6 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
         messages: messagesWithBranches,
         editMessage,
         navigateBranch,
+        currentMode, // Expose current mode
     };
 }

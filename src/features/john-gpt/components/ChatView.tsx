@@ -41,7 +41,7 @@ export function ChatView({ user, className, conversationId, onMobileMenuClick }:
     const messagesRef = React.useRef<any[]>([]);
 
     // Initialize useChat with persistence
-    const { messages, sendMessage, status, stop, setMessages, addToolResult, editMessage, navigateBranch } = useBranchingChat({
+    const { messages, sendMessage, status, stop, setMessages, addToolResult, editMessage, navigateBranch, currentMode } = useBranchingChat({
         onFinish: async (message: any) => {
             // Construct final messages from ref + new message
             // Note: useChat messages might already include the new message if it was optimistic?
@@ -138,8 +138,8 @@ export function ChatView({ user, className, conversationId, onMobileMenuClick }:
                 );
             }
         },
-        // @ts-ignore - api option is valid in runtime but types might be outdated
-        api: '/api/chat?context=full-page',
+        api: '/api/chat',
+        // Context is now auto-detected server-side from the Referer header
     });
 
     const isLoading = status === 'submitted' || status === 'streaming';
@@ -218,6 +218,7 @@ export function ChatView({ user, className, conversationId, onMobileMenuClick }:
             <ChatHeader
                 onMobileMenuClick={onMobileMenuClick}
                 messages={messages as any}
+                currentMode={currentMode}
             />
 
             {/* Messages Area */}
