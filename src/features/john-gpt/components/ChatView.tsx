@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { chatStorage } from '@/lib/chat-storage';
 import { useConversationManagement } from '../hooks/useConversationManagement';
 import { useRouter } from 'next/navigation';
+import { useToolNavigation } from '../hooks/useToolNavigation';
 import { ChatHeader } from './ChatHeader';
 
 type ChatViewProps = {
@@ -40,7 +41,7 @@ export function ChatView({ user, className, conversationId, onMobileMenuClick }:
     const messagesRef = React.useRef<any[]>([]);
 
     // Initialize useChat with persistence
-    const { messages, sendMessage, status, stop, setMessages, editMessage, navigateBranch } = useBranchingChat({
+    const { messages, sendMessage, status, stop, setMessages, addToolResult, editMessage, navigateBranch } = useBranchingChat({
         onFinish: async (message: any) => {
             // Construct final messages from ref + new message
             // Note: useChat messages might already include the new message if it was optimistic?
@@ -183,6 +184,8 @@ export function ChatView({ user, className, conversationId, onMobileMenuClick }:
         }
         loadConversation();
     }, [conversationId, user, setMessages, conversationIdRef, deduplicateMessages]);
+    // Handle tool calls (Navigation)
+    useToolNavigation(messages, addToolResult);
 
     // Handlers
     const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement> | React.ChangeEvent<HTMLInputElement>) => {

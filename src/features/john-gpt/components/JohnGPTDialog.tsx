@@ -6,6 +6,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useBranchingChat } from '../hooks/useBranchingChat';
+import { useToolNavigation } from '../hooks/useToolNavigation';
 import { useScrollBlur } from '@/hooks/useScrollBlur';
 import { AnimatedCloseIcon } from '@/components/icons/animated-icons';
 import { MessageCircle, AlertCircle, Sparkles, Send, Paperclip, X, Maximize2, Minimize2 } from 'lucide-react';
@@ -38,28 +39,7 @@ export function JohnGPTDialog({ open, onOpenChange, user }: JohnGPTDialogProps) 
   const { messages, sendMessage, status, stop, error: chatError, addToolResult, editMessage, navigateBranch } = chatHelpers;
 
   // Handle tool calls (Navigation)
-  React.useEffect(() => {
-    const lastMessage = messages[messages.length - 1];
-    // Cast to any to avoid type errors if types are outdated
-    const toolInvocations = (lastMessage as any)?.toolInvocations;
-
-    if (toolInvocations) {
-      for (const toolInvocation of toolInvocations) {
-        if (toolInvocation.toolName === 'navigate' && toolInvocation.state === 'input-available') {
-          const { path } = toolInvocation.args;
-          // Execute navigation
-          router.push(path);
-
-          // Confirm to AI that we navigated
-          addToolResult({
-            toolCallId: toolInvocation.toolCallId,
-            tool: toolInvocation.toolName, // Add tool name
-            output: { success: true, message: `Navigated to ${path}` },
-          });
-        }
-      }
-    }
-  }, [messages, router, addToolResult]);
+  useToolNavigation(messages, addToolResult);
 
   const [input, setInput] = useState('');
 
