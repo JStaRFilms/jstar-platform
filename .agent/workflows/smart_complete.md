@@ -15,13 +15,22 @@ User: "Use /smart_complete. I finished [describe what you did]."
 
 ## Agent Steps
 
-### 1. Scan Current "In Progress" Issues
+### 1. Scan Current Work (Issues + Project Board)
 
+**Get GitHub Issues:**
 ```bash
-# Get all items currently in progress
-gh project item-list 3 --owner JStaRFilms --format json --limit 50
-# Filter for status = "In Progress"
+# Get all open issues with "In Progress" label
+gh issue list --repo JStaRFilms/jstar-platform --state open --json number,title,labels
 ```
+
+**Get Project Board "In Progress" Items:**
+```bash
+# Get all items currently in progress on the board
+gh project item-list 3 --owner JStaRFilms --format json --limit 50
+# Filter for items with status = "In Progress"
+```
+
+**Combine both** to show complete picture of active work.
 
 ### 2. Match Work to Issues
 

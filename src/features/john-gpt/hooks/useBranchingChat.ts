@@ -41,22 +41,24 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
                 options.onFinish(message, finishOptions);
             }
         },
-        onResponse: (response: Response) => {
-            console.log('[useBranchingChat] onResponse', response);
-            response.headers.forEach((val, key) => console.log(`[Header] ${key}: ${val}`));
-            const mode = response.headers.get('X-JohnGPT-Mode');
-            console.log('[useBranchingChat] Mode from header:', mode);
-            if (mode) {
-                setCurrentMode(mode);
-            }
-            // Call the original onResponse from ChatView.tsx options
-            if (options.onResponse) {
-                options.onResponse(response);
-            }
-        },
     }) as any;
 
     const { messages, setMessages, reload, append } = chatHelpers;
+
+    // Listen for message updates to set the mode from metadata
+    useEffect(() => {
+        if (!messages || messages.length === 0) return;
+
+        const lastMessage = messages[messages.length - 1];
+        // Check if it's an assistant message and has metadata
+        if (lastMessage.role === 'assistant' && (lastMessage as any).metadata) {
+            const mode = (lastMessage as any).metadata.mode;
+            if (mode) {
+                console.log('[useBranchingChat] Found mode in metadata:', mode);
+                setCurrentMode(mode);
+            }
+        }
+    }, [messages]);
 
     // Helper to reconstruct path from a given leaf/head ID
     const getPathToNode = useCallback((leafId: string, currentTree: MessageTree): UIMessage[] => {

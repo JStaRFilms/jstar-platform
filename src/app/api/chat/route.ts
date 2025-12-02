@@ -132,11 +132,10 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  // 5. Return the stream with the detected mode in headers
+  // 5. Return the stream with the detected mode in message metadata
+  console.log(`[API] Returning response with mode in metadata: ${targetRole}`);
+
   return result.toUIMessageStreamResponse({
-    headers: {
-      'X-JohnGPT-Mode': targetRole,
-      'Access-Control-Expose-Headers': 'X-JohnGPT-Mode', // Ensure client can see it
-    },
+    messageMetadata: () => ({ mode: targetRole }),
   });
 }
