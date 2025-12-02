@@ -5,7 +5,7 @@ import {
   DialogContent,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { useChat } from '@ai-sdk/react';
+import { useBranchingChat } from '../hooks/useBranchingChat';
 import { useScrollBlur } from '@/hooks/useScrollBlur';
 import { AnimatedCloseIcon } from '@/components/icons/animated-icons';
 import { MessageCircle, AlertCircle, Sparkles, Send, Paperclip, X, Maximize2, Minimize2 } from 'lucide-react';
@@ -31,11 +31,11 @@ type JohnGPTDialogProps = {
 export function JohnGPTDialog({ open, onOpenChange, user }: JohnGPTDialogProps) {
   const router = useRouter();
   // Initialize useChat - works seamlessly with toUIMessageStreamResponse()
-  const chatHelpers = useChat({
+  const chatHelpers = useBranchingChat({
     // @ts-ignore - api option is valid in runtime but types might be outdated
     api: '/api/chat?context=widget',
   });
-  const { messages, sendMessage, status, stop, error: chatError, addToolResult } = chatHelpers;
+  const { messages, sendMessage, status, stop, error: chatError, addToolResult, editMessage, navigateBranch } = chatHelpers;
 
   // Handle tool calls (Navigation)
   React.useEffect(() => {
@@ -187,7 +187,13 @@ export function JohnGPTDialog({ open, onOpenChange, user }: JohnGPTDialogProps) 
               />
             </div>
           ) : (
-            <ChatMessages messages={messages} isLoading={isLoading} user={user} />
+            <ChatMessages
+              messages={messages}
+              isLoading={isLoading}
+              user={user}
+              onEdit={editMessage}
+              onNavigateBranch={navigateBranch}
+            />
           )}
         </div>
 

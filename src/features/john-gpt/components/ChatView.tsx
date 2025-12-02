@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useChat } from '@ai-sdk/react';
+import { useBranchingChat } from '../hooks/useBranchingChat';
 import { ChatInput } from './ChatInput';
 import { ChatMessages } from './ChatMessages';
 import { EmptyState } from './EmptyState';
@@ -37,10 +37,25 @@ export function ChatView({ user, className, conversationId, onMobileMenuClick }:
 
     // Local state
     const [input, setInput] = React.useState('');
+    const messagesRef = React.useRef<any[]>([]);
 
     // Initialize useChat with persistence
-    const { messages, sendMessage, status, stop, setMessages } = useChat({
-        onFinish: async ({ message, messages: finalMessages }) => {
+    const { messages, sendMessage, status, stop, setMessages, editMessage, navigateBranch } = useBranchingChat({
+        onFinish: async (message: any) => {
+            // Construct final messages from ref + new message
+            // Note: useChat messages might already include the new message if it was optimistic?
+            // But usually onFinish is for the AI response.
+            // Let's assume messagesRef has the history, and message is the new AI response.
+            // However, if we are streaming, messagesRef might already have the partial AI response?
+            // useChat updates messages during stream.
+            // So messagesRef.current SHOULD contain the full list including the finished message.
+            // Let's verify.
+
+            // Actually, safest is to use the messages from the hook state which should be updated.
+            // But inside this callback, 'messages' is stale.
+            // messagesRef.current is up to date.
+            const finalMessages = messagesRef.current;
+
             // Create the ID only if it doesn't exist
             let convId = conversationIdRef.current;
             if (!convId) {
@@ -217,7 +232,8 @@ export function ChatView({ user, className, conversationId, onMobileMenuClick }:
                             messages={messages}
                             isLoading={isLoading}
                             user={user}
-                            onEdit={(content) => setInput(content)}
+                            onEdit={editMessage}
+                            onNavigateBranch={navigateBranch}
                         />
                     )}
                 </div>

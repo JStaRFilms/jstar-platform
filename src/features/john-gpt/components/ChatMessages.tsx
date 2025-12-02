@@ -10,14 +10,15 @@ import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useRouter, usePathname } from 'next/navigation';
 import type { User as WorkOSUser } from '@workos-inc/node';
 import { ExtendedMessage } from '@/lib/chat-storage';
-import { Check, ChevronDown, Edit2, Copy, Compass } from 'lucide-react';
+import { Check, ChevronDown, Edit2, Copy, Compass, ChevronLeft, ChevronRight, Save, X } from 'lucide-react';
+import { BranchingMessage } from '../hooks/useBranchingChat';
 
 /**
  * Props for the ChatMessages component
  */
 interface ChatMessagesProps {
   /** The array of chat messages from the AI SDK */
-  messages: ExtendedMessage[] | UIMessage[];
+  messages: ExtendedMessage[] | UIMessage[] | BranchingMessage[];
   /** Whether the AI is currently loading/generating a response */
   isLoading: boolean;
   /** Whether auto-scroll is enabled */
@@ -25,7 +26,9 @@ interface ChatMessagesProps {
   /** The current user, used for avatar */
   user?: WorkOSUser | null;
   /** Handler for editing a message */
-  onEdit?: (content: string) => void;
+  onEdit?: (messageId: string, content: string) => void;
+  /** Handler for navigating branches */
+  onNavigateBranch?: (messageId: string, direction: 'prev' | 'next') => void;
 }
 
 /**
@@ -101,19 +104,25 @@ const parseMessageContent = (content: string) => {
  * Component for rendering user message content with collapsible functionality
  */
 const UserMessageContent = ({
-  content,
+  message,
   isMobile,
   isEditable,
-  onEdit
+  onEdit,
+  onNavigateBranch
 }: {
-  content: string;
+  message: BranchingMessage | any;
   isMobile: boolean;
   isEditable: boolean;
-  onEdit?: (content: string) => void;
+  onEdit?: (messageId: string, content: string) => void;
+  onNavigateBranch?: (messageId: string, direction: 'prev' | 'next') => void;
 }) => {
   const [isExpanded, setIsExpanded] = React.useState(false);
   const [showCopy, setShowCopy] = React.useState(false);
   const [showActions, setShowActions] = React.useState(false); // For mobile toggle
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [editContent, setEditContent] = React.useState(message.content || '');
+
+  const content = message.content || '';
 
   if (!content) return null;
 
@@ -129,16 +138,66 @@ const UserMessageContent = ({
     setTimeout(() => setShowCopy(false), 2000);
   };
 
-  const handleEdit = (e: React.MouseEvent) => {
+  const handleEditStart = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (onEdit) onEdit(content);
+    setIsEditing(true);
+    setEditContent(content);
+  };
+
+  const handleSaveEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onEdit && editContent.trim() !== content) {
+      onEdit(message.id, editContent);
+    }
+    setIsEditing(false);
+  };
+
+  const handleCancelEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsEditing(false);
+    setEditContent(content);
   };
 
   const handleMessageClick = () => {
-    if (isMobile) {
+    if (isMobile && !isEditing) {
       setShowActions(!showActions);
     }
   };
+
+  // Branch Navigation
+  const showBranchNav = message.branchCount && message.branchCount > 1;
+  const currentBranch = (message.branchIndex || 0) + 1;
+  const totalBranches = message.branchCount || 1;
+
+  if (isEditing) {
+    return (
+      <div className="w-full min-w-[300px] max-w-full bg-background/20 rounded-lg p-2 backdrop-blur-sm border border-white/20">
+        <textarea
+          value={editContent}
+          onChange={(e) => setEditContent(e.target.value)}
+          className="w-full bg-transparent text-white text-[15px] leading-relaxed resize-none focus:outline-none min-h-[80px]"
+          autoFocus
+        />
+        <div className="flex justify-end gap-2 mt-2">
+          <button
+            onClick={handleCancelEdit}
+            className="p-1.5 rounded-md hover:bg-white/10 text-white/70 hover:text-white transition-colors"
+            title="Cancel"
+          >
+            <X className="w-4 h-4" />
+          </button>
+          <button
+            onClick={handleSaveEdit}
+            className="px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded-md text-white text-xs font-medium transition-colors flex items-center gap-1.5"
+            title="Save & Regenerate"
+          >
+            <Save className="w-3.5 h-3.5" />
+            Save & Run
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -154,16 +213,44 @@ const UserMessageContent = ({
         <MarkdownRenderer content={content} className="text-white" variant="ghost" />
       </div>
 
+      {/* Branch Navigation (Visible on Hover or if multiple branches exist) */}
+      {showBranchNav && (
+        <div className="flex items-center gap-1 mt-2 text-white/60 select-none">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onNavigateBranch?.(message.id, 'prev');
+            }}
+            className="p-0.5 hover:text-white hover:bg-white/10 rounded transition-colors"
+            disabled={currentBranch === 1} // Optional: loop or disable
+          >
+            <ChevronLeft className="w-3 h-3" />
+          </button>
+          <span className="text-[10px] font-medium font-mono">
+            {currentBranch} / {totalBranches}
+          </span>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onNavigateBranch?.(message.id, 'next');
+            }}
+            className="p-0.5 hover:text-white hover:bg-white/10 rounded transition-colors"
+          >
+            <ChevronRight className="w-3 h-3" />
+          </button>
+        </div>
+      )}
+
       {/* Actions Toolbar */}
       <div className={`flex items-center gap-1 mt-0.5 justify-end transition-all duration-200 ${isMobile
         ? (showActions ? 'opacity-100 max-h-10' : 'opacity-0 max-h-0 overflow-hidden')
         : 'opacity-0 group-hover/user-msg:opacity-100'
         }`}>
 
-        {/* Edit Button (Only for last 2 messages) */}
+        {/* Edit Button */}
         {isEditable && (
           <button
-            onClick={handleEdit}
+            onClick={handleEditStart}
             className="p-1.5 hover:bg-white/10 rounded-lg text-white/70 hover:text-white transition-colors"
             title="Edit message"
           >
@@ -220,7 +307,8 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
   isLoading,
   autoScrollEnabled = true,
   user,
-  onEdit
+  onEdit,
+  onNavigateBranch
 }) => {
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
@@ -264,9 +352,11 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
     );
   }
 
-  // Calculate user message indices for editability (last 2)
-  const userMessages = messages.filter(m => m.role === 'user');
-  const lastTwoUserIds = userMessages.slice(-2).map(m => m.id);
+  // Calculate user message indices for editability (ALL user messages are now editable in branching mode)
+  // But we might want to keep the "last 2" rule? No, branching allows editing ANY past message.
+  // So we'll make all user messages editable.
+  const isBranchingMode = true; // Always true now with new hook
+
 
   return (
     <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 md:space-y-8 scroll-smooth" ref={scrollContainerRef}>
@@ -287,7 +377,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
         // For assistant messages, we parse it to handle special components like color palettes
         const isUser = message.role === 'user';
         const parsedParts = isUser ? [] : parseMessageContent(textContent);
-        const isEditable = isUser && lastTwoUserIds.includes(message.id);
+        const isEditable = isUser;
 
         return (
           <div
@@ -334,10 +424,11 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
 
                   {isUser ? (
                     <UserMessageContent
-                      content={textContent}
+                      message={message}
                       isMobile={isMobile}
-                      isEditable={isEditable}
+                      isEditable={true} // All user messages are editable in branching mode
                       onEdit={onEdit}
+                      onNavigateBranch={onNavigateBranch}
                     />
                   ) : (
                     <>
