@@ -12,10 +12,16 @@ async function main() {
 
     try {
         // 1. Check if embeddings exist
-        const count = await prisma.$queryRaw`SELECT count(*) FROM site_embeddings`;
-        console.log(`📊 Total Embeddings in DB: ${Number(count[0].count)}`);
+        const countResult = await prisma.$queryRaw<{ count: string }[]>`SELECT count(*) FROM site_embeddings`;
 
-        if (Number(count[0].count) === 0) {
+        // Safely extract count with proper error handling
+        const embeddingsCount = countResult.length > 0 && countResult[0]?.count
+            ? Number(countResult[0].count)
+            : 0;
+
+        console.log(`📊 Total Embeddings in DB: ${embeddingsCount}`);
+
+        if (embeddingsCount === 0) {
             console.warn('⚠️  No embeddings found! You might need to run "npm run embed-site" first.');
             return;
         }
