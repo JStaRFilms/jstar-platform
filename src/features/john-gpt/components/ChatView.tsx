@@ -27,20 +27,30 @@ type ChatViewProps = {
  * Main container for the JohnGPT chat interface
  * Manages conversation flow and message display
  */
-export function ChatView({ user, className, conversationId, onMobileMenuClick }: ChatViewProps) {
+export function ChatView({ user, className, conversationId: conversationIdProp, onMobileMenuClick }: ChatViewProps) {
     const router = useRouter();
+
+    // Internal conversation ID state - generate on first message if not provided
+    const [internalConversationId, setInternalConversationId] = React.useState<string | undefined>(conversationIdProp);
+
+    // Update internal ID when prop changes (e.g., navigating to existing conversation)
+    React.useEffect(() => {
+        if (conversationIdProp) {
+            setInternalConversationId(conversationIdProp);
+        }
+    }, [conversationIdProp]);
 
     // Hooks
     const {
         conversationIdRef,
         deduplicateMessages,
-    } = useConversationManagement(conversationId);
+    } = useConversationManagement(conversationIdProp);
 
     const {
         loadConversation,
         isLoading: isLoadingConversation,
         syncStatus,
-    } = useConversationPersistence(conversationId);
+    } = useConversationPersistence(internalConversationId);
 
     // Local state
     const [input, setInput] = React.useState('');
@@ -49,23 +59,23 @@ export function ChatView({ user, className, conversationId, onMobileMenuClick }:
     // Initialize useChat with persistence
     const { messages, sendMessage, status, stop, setMessages, addToolResult, editMessage, navigateBranch, currentMode } = useBranchingChat({
         api: '/api/chat',
-        conversationId: conversationId, // Enable persistence
+        conversationId: internalConversationId, // Use internal state
         userId: user.id, // User ID for storage
         // Context is now auto-detected server-side from the Referer header
     });
 
     // Load conversation on mount if conversationId exists
     useEffect(() => {
-        if (!conversationId || messages.length > 0) return;
+        if (!internalConversationId || messages.length > 0) return;
 
         const loadExistingConversation = async () => {
             try {
-                const conversation = await loadConversation(conversationId);
+                const conversation = await loadConversation(internalConversationId);
 
                 if (conversation && conversation.messages.length > 0) {
                     // Hydrate messages into chat
                     setMessages(conversation.messages as any);
-                    console.log('[ChatView] Loaded conversation:', conversationId, conversation.messages.length, 'messages');
+                    console.log('[ChatView] Loaded conversation:', internalConversationId, conversation.messages.length, 'messages');
                 }
             } catch (error) {
                 console.error('[ChatView] Failed to load conversation:', error);
@@ -73,7 +83,7 @@ export function ChatView({ user, className, conversationId, onMobileMenuClick }:
         };
 
         loadExistingConversation();
-    }, [conversationId, loadConversation, setMessages, messages.length]);
+    }, [internalConversationId, loadConversation, setMessages, messages.length]);
 
     const isLoading = status === 'submitted' || status === 'streaming';
 
@@ -92,10 +102,25 @@ export function ChatView({ user, className, conversationId, onMobileMenuClick }:
         const userMessage = input;
         setInput('');
 
+        // Generate conversation ID on first message (but don't navigate yet)
+        let currentConversationId = internalConversationId;
+        if (!internalConversationId) {
+            const newId = crypto.randomUUID();
+            setInternalConversationId(newId);
+            currentConversationId = newId;
+            console.log('[ChatView] Generated new conversation ID:', newId);
+        }
+
+        // Send message first (don't block on navigation)
         await sendMessage({
             role: 'user',
             parts: [{ type: 'text', text: userMessage }],
         });
+
+        // Update URL after message is sent (if we just created a new conversation)
+        if (!conversationIdProp && currentConversationId) {
+            router.replace(`/john-gpt/${currentConversationId}`);
+        }
     };
 
     const suggestions = [

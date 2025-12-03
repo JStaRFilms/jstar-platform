@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
     MessageSquare,
@@ -41,6 +41,7 @@ export function ConversationSidebar({ user, isDriveConnected, className, activeC
     const [editTitle, setEditTitle] = useState('');
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+    const [isLoading, setIsLoading] = useState(true);
 
     // Initialize theme
     React.useEffect(() => {
@@ -54,6 +55,52 @@ export function ConversationSidebar({ user, isDriveConnected, className, activeC
             setTheme('dark');
             document.documentElement.classList.add('dark');
         }
+    }, []);
+
+    // Fetch conversations from API
+    useEffect(() => {
+        const fetchConversations = async () => {
+            try {
+                const res = await fetch('/api/conversations');
+                if (!res.ok) throw new Error('Failed to fetch conversations');
+
+                const data = await res.json();
+
+                // Transform API response to match UI format
+                const transformed = data.conversations.map((conv: any) => ({
+                    id: conv.id,
+                    title: conv.title || 'New Chat',
+                    date: conv.updatedAt,
+                    preview: conv.title || 'No preview',
+                }));
+
+                setConversations(transformed);
+            } catch (error) {
+                console.error('[ConversationSidebar] Failed to load conversations:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchConversations();
+    }, []);
+
+    // Listen for conversation updates (title changes)
+    useEffect(() => {
+        const handleConversationUpdate = (event: any) => {
+            const { conversationId: updatedId, title: newTitle } = event.detail;
+
+            setConversations(prev => prev.map(conv =>
+                conv.id === updatedId
+                    ? { ...conv, title: newTitle, preview: newTitle }
+                    : conv
+            ));
+
+            console.log('[ConversationSidebar] Title updated in real-time:', newTitle);
+        };
+
+        window.addEventListener('conversation-updated', handleConversationUpdate);
+        return () => window.removeEventListener('conversation-updated', handleConversationUpdate);
     }, []);
 
     const toggleTheme = () => {
@@ -150,12 +197,26 @@ export function ConversationSidebar({ user, isDriveConnected, className, activeC
     const handleConfirmDelete = async () => {
         if (!deletingId) return;
 
-        // Storage logic removed - placeholder for new implementation
-        setDeletingId(null);
+        try {
+            const res = await fetch(`/api/conversations/${deletingId}`, {
+                method: 'DELETE',
+            });
 
-        // If deleting active conversation, navigate home
-        if (deletingId === activeConversationId) {
-            router.push('/john-gpt');
+            if (!res.ok) throw new Error('Failed to delete conversation');
+
+            // Remove from local state
+            setConversations(prev => prev.filter(c => c.id !== deletingId));
+
+            console.log('[ConversationSidebar] Deleted conversation:', deletingId);
+        } catch (error) {
+            console.error('[ConversationSidebar] Delete failed:', error);
+        } finally {
+            setDeletingId(null);
+
+            // If deleting active conversation, navigate home
+            if (deletingId === activeConversationId) {
+                router.push('/john-gpt');
+            }
         }
     };
 
@@ -212,11 +273,25 @@ export function ConversationSidebar({ user, isDriveConnected, className, activeC
                 </div>
             ) : (
                 <div className="px-4 pt-4">
-                    <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-xl flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                        <p className="text-xs text-green-600 dark:text-green-400 font-medium">
-                            Google Drive Connected
-                        </p>
+                    <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-xl">
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                                <p className="text-xs text-green-600 dark:text-green-400 font-medium">
+                                    Google Drive Connected
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => {
+                                if (confirm('Disconnect from Google Drive? You can reconnect anytime.')) {
+                                    window.location.href = '/api/auth/google/disconnect';
+                                }
+                            }}
+                            className="w-full py-1.5 bg-background hover:bg-red-500/10 text-muted-foreground hover:text-red-600 border border-border hover:border-red-500/50 text-xs font-medium rounded-lg transition-colors"
+                        >
+                            Disconnect
+                        </button>
                     </div>
                 </div>
             )}
@@ -237,7 +312,20 @@ export function ConversationSidebar({ user, isDriveConnected, className, activeC
 
             {/* Conversation List */}
             <div className="flex-1 overflow-y-auto px-2 py-2 space-y-6 custom-scrollbar">
-                {Object.entries(filteredGroups).map(([groupName, groupConversations]) => (
+                {isLoading ? (
+                    <div className="text-center py-12 px-4">
+                        <div className="w-12 h-12 rounded-full border-4 border-primary/20 border-t-primary animate-spin mx-auto mb-3" />
+                        <p className="text-sm text-muted-foreground">Loading conversations...</p>
+                    </div>
+                ) : conversations.length === 0 ? (
+                    <div className="text-center py-12 px-4">
+                        <div className="w-12 h-12 rounded-full bg-muted/30 flex items-center justify-center mx-auto mb-3">
+                            <MessageSquare className="w-5 h-5 text-muted-foreground" />
+                        </div>
+                        <p className="text-sm font-medium text-foreground mb-1">No conversations yet</p>
+                        <p className="text-xs text-muted-foreground">Start a new chat to get going!</p>
+                    </div>
+                ) : Object.entries(filteredGroups).map(([groupName, groupConversations]) => (
                     groupConversations.length > 0 && (
                         <div key={groupName}>
                             <div className="px-3 mb-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider opacity-70">

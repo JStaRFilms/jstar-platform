@@ -188,7 +188,7 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
                     messagesToSave
                 );
 
-                console.log('[useBranchingChat] Conversation saved:', conversationId);
+                console.log('[useBranchingChat] Conversation saved to IndexedDB:', conversationId);
             } catch (error) {
                 console.error('[useBranchingChat] Save failed:', error);
             }
@@ -196,6 +196,110 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
 
         saveConversation();
     }, [messages, tree, conversationId, userId]);
+
+    // 3.6. Debounced Neon DB Metadata Sync
+    // This runs LESS frequently to avoid spamming the API
+    useEffect(() => {
+        if (!conversationId || !userId || messages.length === 0) return;
+
+        // Skip generic title save if we have 6+ messages (AI title will be generated)
+        if (messages.length >= 6) {
+            console.log('[useBranchingChat] Skipping generic title save - AI title will handle this');
+            return;
+        }
+
+        // Debounce timer: only save to DB after 2 seconds of no changes
+        const timer = setTimeout(async () => {
+            try {
+                // Auto-generate title from first 2 messages (only for < 6 messages)
+                let title = 'New Chat';
+                if (messages.length >= 2) {
+                    const firstUserMsg = messages.find((m: any) => m.role === 'user');
+                    if (firstUserMsg && firstUserMsg.parts) {
+                        const textPart = firstUserMsg.parts.find((p: any) => p.type === 'text');
+                        if (textPart && 'text' in textPart) {
+                            title = textPart.text.slice(0, 50);
+                            if (textPart.text.length > 50) title += '...';
+                        }
+                    }
+                }
+
+                // Save metadata to Neon DB (debounced, generic title only)
+                await fetch('/api/conversations', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        conversationId,
+                        title,
+                        driveFileId: null, // Will be updated when Drive sync completes
+                        driveVersion: 1,
+                    }),
+                });
+
+                console.log('[useBranchingChat] Metadata saved to Neon DB (generic title):', conversationId);
+            } catch (dbError) {
+                // Non-critical: metadata save failed, but conversation is still saved to IndexedDB/Drive
+                console.warn('[useBranchingChat] DB metadata save failed:', dbError);
+            }
+        }, 2000); // Wait 2 seconds after last change
+
+        return () => clearTimeout(timer);
+    }, [messages, conversationId, userId]);
+
+    // 3.7. Auto-generate AI title after 6 messages (3 exchanges)
+    useEffect(() => {
+        if (!conversationId || messages.length !== 6) return;
+
+        const generateTitle = async () => {
+            try {
+                console.log('[useBranchingChat] Generating AI title after 6 messages...');
+
+                // Convert messages to API format
+                const messagesToSend = messages.map((msg: any) => ({
+                    role: msg.role,
+                    content: msg.content,
+                    parts: msg.parts,
+                }));
+
+                const res = await fetch(`/api/conversations/${conversationId}/title`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ messages: messagesToSend }),
+                });
+
+                if (!res.ok) {
+                    console.warn('[useBranchingChat] Title generation failed:', res.statusText);
+                    return;
+                }
+
+                const { title } = await res.json();
+                console.log('[useBranchingChat] AI-generated title:', title);
+
+                // Update Neon DB with new title
+                await fetch('/api/conversations', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        conversationId,
+                        title,
+                        driveFileId: null,
+                        driveVersion: 1,
+                    }),
+                });
+
+                // Trigger sidebar refresh
+                window.dispatchEvent(new CustomEvent('conversation-updated', {
+                    detail: { conversationId, title }
+                }));
+            } catch (error) {
+                console.error('[useBranchingChat] Title generation error:', error);
+            }
+        };
+
+        // Debounce to ensure streaming is complete
+        const timer = setTimeout(generateTitle, 3000);
+        return () => clearTimeout(timer);
+    }, [messages.length, conversationId]);
 
 
     // 4. Branching Logic
