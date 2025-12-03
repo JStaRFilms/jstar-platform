@@ -293,18 +293,22 @@ model PublicPrompt {
 }
 
 /// *
-///  * JohnGPT Conversation - Optional PostgreSQL storage for TIER3+ users
-///  * Most users store conversations in Google Drive; this is for unlimited DB storage
+///  * JohnGPT Conversation - Hybrid storage model
+///  * TIER1-2: Metadata in DB, full messages in Google Drive
+///  * TIER3+: Full messages can be stored in DB (messages field)
 model Conversation {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  title     String?  // Auto-generated from first message
-  personaId String?
-  messages  Json     // Array of {role, content, timestamp, metadata}
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  title         String   @default("New Chat") // Auto-generated from first message
+  driveFileId   String?  // Google Drive file ID for cloud storage
+  driveVersion  Int      @default(1) // Version number for conflict resolution
+  personaId     String?
+  messages      Json?    // Optional: Array of {role, content, timestamp, metadata}
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
+  @@index([userId, updatedAt])
   @@map("conversations")
 }
 

@@ -1,7 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useBranchingChat } from '../hooks/useBranchingChat';
+import { useConversationPersistence } from '../hooks/useConversationPersistence';
 import { ChatInput } from './ChatInput';
 import { ChatMessages } from './ChatMessages';
 import { EmptyState } from './EmptyState';
@@ -35,15 +36,44 @@ export function ChatView({ user, className, conversationId, onMobileMenuClick }:
         deduplicateMessages,
     } = useConversationManagement(conversationId);
 
+    const {
+        loadConversation,
+        isLoading: isLoadingConversation,
+        syncStatus,
+    } = useConversationPersistence(conversationId);
+
     // Local state
     const [input, setInput] = React.useState('');
     const messagesRef = React.useRef<any[]>([]);
 
-    // Initialize useChat without persistence
+    // Initialize useChat with persistence
     const { messages, sendMessage, status, stop, setMessages, addToolResult, editMessage, navigateBranch, currentMode } = useBranchingChat({
         api: '/api/chat',
+        conversationId: conversationId, // Enable persistence
+        userId: user.id, // User ID for storage
         // Context is now auto-detected server-side from the Referer header
     });
+
+    // Load conversation on mount if conversationId exists
+    useEffect(() => {
+        if (!conversationId || messages.length > 0) return;
+
+        const loadExistingConversation = async () => {
+            try {
+                const conversation = await loadConversation(conversationId);
+
+                if (conversation && conversation.messages.length > 0) {
+                    // Hydrate messages into chat
+                    setMessages(conversation.messages as any);
+                    console.log('[ChatView] Loaded conversation:', conversationId, conversation.messages.length, 'messages');
+                }
+            } catch (error) {
+                console.error('[ChatView] Failed to load conversation:', error);
+            }
+        };
+
+        loadExistingConversation();
+    }, [conversationId, loadConversation, setMessages, messages.length]);
 
     const isLoading = status === 'submitted' || status === 'streaming';
 

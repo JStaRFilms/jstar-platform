@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useChat, UIMessage } from '@ai-sdk/react';
+import { syncManager } from '@/lib/storage/sync-manager';
 
 export type BranchingMessage = UIMessage & {
     parentId?: string | null;
@@ -18,9 +19,16 @@ type TreeNode = {
 
 type MessageTree = Record<string, TreeNode>;
 
-export type UseBranchingChatOptions = any;
+export type UseBranchingChatOptions = {
+    conversationId?: string;
+    userId?: string;
+    api?: string;
+    body?: any;
+    onFinish?: any; // Let TypeScript infer from useChat
+};
 
 export function useBranchingChat(options: UseBranchingChatOptions = {}) {
+    const { conversationId, userId } = options;
     // 1. Internal Tree State
     const [tree, setTree] = useState<MessageTree>({});
     const [headId, setHeadId] = useState<string | null>(null);
@@ -35,10 +43,10 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
 
     const chatHelpers = useChat({
         ...options,
-        onFinish: (message: any, finishOptions: any) => {
+        onFinish: (message: any, ...args: any[]) => {
             // Call the original onFinish from ChatView.tsx options
             if (options.onFinish) {
-                options.onFinish(message, finishOptions);
+                options.onFinish(message, ...args);
             }
         },
     }) as any;
@@ -138,6 +146,56 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
         }
 
     }, [messages, headId]);
+
+    // 3.5. Persistence: Save to IndexedDB + queue Drive sync
+    useEffect(() => {
+        // Only save if we have a conversation ID and user ID and messages
+        if (!conversationId || !userId || messages.length === 0) return;
+
+        // Debounce: Only save after streaming completes (when status is 'idle')
+        // This prevents saving on every token during streaming
+        const saveConversation = async () => {
+            try {
+                // Convert tree to flat message array with branching metadata
+                const messagesToSave = messages.map((msg: any) => {
+                    const node = tree[msg.id];
+                    return {
+                        ...msg,
+                        parentId: node?.parentId || null,
+                        childrenIds: node?.childrenIds || [],
+                        createdAt: new Date(node?.createdAt || Date.now()).toISOString(),
+                    };
+                });
+
+                // Auto-generate title from first 2 messages
+                let title = 'New Chat';
+                if (messages.length >= 2) {
+                    const firstUserMsg = messages.find((m: any) => m.role === 'user');
+                    if (firstUserMsg && firstUserMsg.parts) {
+                        const textPart = firstUserMsg.parts.find((p: any) => p.type === 'text');
+                        if (textPart && 'text' in textPart) {
+                            title = textPart.text.slice(0, 50);
+                            if (textPart.text.length > 50) title += '...';
+                        }
+                    }
+                }
+
+                // Save to IndexedDB immediately + queue Drive sync
+                await syncManager.saveConversation(
+                    conversationId,
+                    userId,
+                    title,
+                    messagesToSave
+                );
+
+                console.log('[useBranchingChat] Conversation saved:', conversationId);
+            } catch (error) {
+                console.error('[useBranchingChat] Save failed:', error);
+            }
+        };
+
+        saveConversation();
+    }, [messages, tree, conversationId, userId]);
 
 
     // 4. Branching Logic
