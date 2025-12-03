@@ -2,7 +2,20 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENERATIVE_AI_API_KEY!);
+
+// Lazy initialization to ensure env vars are loaded
+let genAI: GoogleGenerativeAI | null = null;
+
+function getGenAI() {
+    if (!genAI) {
+        const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+        if (!apiKey) {
+            throw new Error('GOOGLE_GENERATIVE_AI_API_KEY is not set in environment variables');
+        }
+        genAI = new GoogleGenerativeAI(apiKey);
+    }
+    return genAI;
+}
 
 interface SearchResult {
     pageUrl: string;
@@ -15,7 +28,7 @@ interface SearchResult {
  * Generate embedding for a query using Gemini
  */
 export async function generateQueryEmbedding(query: string): Promise<number[]> {
-    const model = genAI.getGenerativeModel({ model: 'text-embedding-004' });
+    const model = getGenAI().getGenerativeModel({ model: 'text-embedding-004' });
     const result = await model.embedContent(query);
     return Array.from(result.embedding.values);
 }
@@ -27,7 +40,7 @@ export async function generateQueryEmbedding(query: string): Promise<number[]> {
 export async function searchKnowledgeBase(
     query: string,
     limit: number = 5,
-    similarityThreshold: number = 0.5
+    similarityThreshold: number = 0.3
 ): Promise<SearchResult[]> {
     try {
         // Generate embedding for the query

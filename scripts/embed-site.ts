@@ -61,6 +61,13 @@ async function crawlSite(baseUrl: string): Promise<PageContent[]> {
                 .replace(/\s+/g, ' ')
                 .trim();
 
+            // DEBUG: Write to file to inspect what we actually see
+            if (page.path === '/') {
+                const fs = await import('fs');
+                fs.writeFileSync('debug-crawl.txt', cleaned);
+                console.log('  🐛 Dumped Home page content to debug-crawl.txt');
+            }
+
             // Chunk by sentences (smart chunking)
             const chunks = chunkText(cleaned, 500); // ~500 chars per chunk
 
@@ -83,7 +90,7 @@ async function crawlSite(baseUrl: string): Promise<PageContent[]> {
  * Chunk text into smaller pieces (by sentence boundaries)
  */
 function chunkText(text: string, maxChunkSize: number): string[] {
-    const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+    const sentences = text.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [text];
     const chunks: string[] = [];
     let currentChunk = '';
 
