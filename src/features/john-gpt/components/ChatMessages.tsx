@@ -9,7 +9,7 @@ import { MarkdownRenderer } from '@/components/ui/MarkdownRenderer';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useRouter, usePathname } from 'next/navigation';
 import type { User as WorkOSUser } from '@workos-inc/node';
-import { ExtendedMessage } from '@/lib/chat-storage';
+import { ExtendedMessage } from '@/lib/chat-types';
 import { Check, ChevronDown, Edit2, Copy, Compass, ChevronLeft, ChevronRight, Save, X } from 'lucide-react';
 import { BranchingMessage } from '../hooks/useBranchingChat';
 

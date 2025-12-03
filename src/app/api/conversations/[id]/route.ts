@@ -3,9 +3,9 @@ import { prisma } from '@/lib/prisma';
 import { withAuth } from '@workos-inc/authkit-nextjs';
 
 type RouteContext = {
-    params: {
+    params: Promise<{
         id: string;
-    };
+    }>;
 };
 
 /**
@@ -17,6 +17,7 @@ export async function GET(
     request: NextRequest,
     context: RouteContext
 ) {
+    let conversationId = 'unknown';
     try {
         const { user } = await withAuth();
 
@@ -41,7 +42,7 @@ export async function GET(
 
         // Await params (Next.js 15 requirement)
         const params = await context.params;
-        const conversationId = params.id;
+        conversationId = params.id;
 
         const conversation = await prisma.conversation.findUnique({
             where: {
@@ -67,7 +68,7 @@ export async function GET(
 
         return NextResponse.json({ conversation });
     } catch (error) {
-        console.error(`[GET /api/conversations/${context.params.id}] Error:`, error);
+        console.error(`[GET /api/conversations/${conversationId}] Error:`, error);
         return NextResponse.json(
             { error: 'Internal server error' },
             { status: 500 }
@@ -85,6 +86,7 @@ export async function DELETE(
     request: NextRequest,
     context: RouteContext
 ) {
+    let conversationId = 'unknown';
     try {
         const { user } = await withAuth();
 
@@ -109,7 +111,7 @@ export async function DELETE(
 
         // Await params (Next.js 15 requirement)
         const params = await context.params;
-        const conversationId = params.id;
+        conversationId = params.id;
 
         // Delete conversation (only if user owns it)
         const deleted = await prisma.conversation.deleteMany({
@@ -131,7 +133,7 @@ export async function DELETE(
             message: 'Conversation deleted',
         });
     } catch (error) {
-        console.error(`[DELETE /api/conversations/${context.params.id}] Error:`, error);
+        console.error(`[DELETE /api/conversations/${conversationId}] Error:`, error);
         return NextResponse.json(
             { error: 'Internal server error' },
             { status: 500 }

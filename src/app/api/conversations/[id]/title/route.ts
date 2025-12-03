@@ -4,9 +4,9 @@ import { generateText } from 'ai';
 import { createGroq } from '@ai-sdk/groq';
 
 type RouteContext = {
-    params: {
+    params: Promise<{
         id: string;
-    };
+    }>;
 };
 
 /**
