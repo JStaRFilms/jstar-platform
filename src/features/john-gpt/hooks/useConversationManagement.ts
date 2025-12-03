@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { chatStorage } from '@/lib/chat-storage';
 import type { UIMessage } from '@ai-sdk/react';
 
 /**
@@ -29,22 +28,6 @@ export function useConversationManagement(
         });
     }, []);
 
-    // One-time cleanup: deduplicate all conversations in storage
-    useEffect(() => {
-        async function cleanupAllConversations() {
-            const conversations = await chatStorage.getAllConversations();
-            for (const conv of conversations) {
-                const dedupedMessages = deduplicateMessages(conv.messages);
-                if (dedupedMessages.length !== conv.messages.length) {
-                    await chatStorage.saveConversation({
-                        ...conv,
-                        messages: dedupedMessages as any,
-                    });
-                }
-            }
-        }
-        cleanupAllConversations();
-    }, []);
 
     // Create a new conversation
     const createNewConversation = () => {

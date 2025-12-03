@@ -18,7 +18,6 @@ import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import type { User as WorkOSUser } from '@workos-inc/node';
 
-import { chatStorage, Conversation as StoredConversation } from '@/lib/chat-storage';
 
 type Conversation = {
     id: string;
@@ -64,47 +63,6 @@ export function ConversationSidebar({ user, isDriveConnected, className, activeC
         localStorage.setItem('theme', newTheme);
     };
 
-    // Fetch conversations on mount
-    React.useEffect(() => {
-        async function loadConversations() {
-            const stored = await chatStorage.getAllConversations();
-            const formatted = stored.map(c => {
-                // Find last text message for preview
-                const lastMsg = [...c.messages].reverse().find(m =>
-                    m.parts?.some(p => p.type === 'text')
-                );
-                let preview = 'No messages';
-                if (lastMsg) {
-                    const textPart = lastMsg.parts?.find(p => p.type === 'text');
-                    if (textPart && textPart.type === 'text') {
-                        preview = textPart.text.slice(0, 60) + '...';
-                    }
-                }
-
-                return {
-                    id: c.id,
-                    title: c.title,
-                    date: new Date(c.updatedAt).toISOString(),
-                    preview
-                };
-            });
-            // Sort by date desc
-            setConversations(formatted.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
-        }
-        loadConversations();
-
-        // Refresh every 5 seconds to catch updates (simple polling)
-        const interval = setInterval(loadConversations, 5000);
-
-        // Listen for storage updates
-        const handleStorageUpdate = () => loadConversations();
-        window.addEventListener('chat-storage-update', handleStorageUpdate);
-
-        return () => {
-            clearInterval(interval);
-            window.removeEventListener('chat-storage-update', handleStorageUpdate);
-        };
-    }, []);
 
     // Group conversations by date (Today, Yesterday, Previous 7 Days, Older)
     const groupedConversations = React.useMemo(() => {
@@ -180,26 +138,8 @@ export function ConversationSidebar({ user, isDriveConnected, className, activeC
         e.preventDefault();
         if (!editTitle.trim()) return;
 
-        await chatStorage.updateConversationTitle(convId, editTitle);
+        // Storage logic removed - placeholder for new implementation
         setEditingId(null);
-
-        // Reload conversations
-        const stored = await chatStorage.getAllConversations();
-        const formatted = stored.map(c => {
-            const lastMsg = c.messages[c.messages.length - 1];
-            let preview = 'No messages';
-            if (lastMsg?.parts) {
-                const textPart = lastMsg.parts.find((p: any) => p.type === 'text') as any;
-                preview = textPart?.text?.slice(0, 60) || 'No messages';
-            }
-            return {
-                id: c.id,
-                title: c.title,
-                date: new Date(c.updatedAt).toISOString(),
-                preview
-            };
-        });
-        setConversations(formatted.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
     };
 
     const handleCancelEdit = () => {
@@ -210,31 +150,13 @@ export function ConversationSidebar({ user, isDriveConnected, className, activeC
     const handleConfirmDelete = async () => {
         if (!deletingId) return;
 
-        await chatStorage.deleteConversationAndSync(deletingId);
+        // Storage logic removed - placeholder for new implementation
         setDeletingId(null);
 
         // If deleting active conversation, navigate home
         if (deletingId === activeConversationId) {
             router.push('/john-gpt');
         }
-
-        // Reload conversations
-        const stored = await chatStorage.getAllConversations();
-        const formatted = stored.map(c => {
-            const lastMsg = c.messages[c.messages.length - 1];
-            let preview = 'No messages';
-            if (lastMsg?.parts) {
-                const textPart = lastMsg.parts?.find((p: any) => p.type === 'text') as any;
-                preview = textPart?.text?.slice(0, 60) || 'No messages';
-            }
-            return {
-                id: c.id,
-                title: c.title,
-                date: new Date(c.updatedAt).toISOString(),
-                preview
-            };
-        });
-        setConversations(formatted.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
     };
 
     const handleCancelDelete = () => {
