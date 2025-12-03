@@ -8,7 +8,6 @@ import { EmptyState } from './EmptyState';
 import { Loader2 } from 'lucide-react';
 import type { User as WorkOSUser } from '@workos-inc/node';
 import { cn } from '@/lib/utils';
-import { chatStorage } from '@/lib/chat-storage';
 import { useConversationManagement } from '../hooks/useConversationManagement';
 import { useRouter } from 'next/navigation';
 import { useToolNavigation } from '../hooks/useToolNavigation';
@@ -40,150 +39,14 @@ export function ChatView({ user, className, conversationId, onMobileMenuClick }:
     const [input, setInput] = React.useState('');
     const messagesRef = React.useRef<any[]>([]);
 
-    // Initialize useChat with persistence
+    // Initialize useChat without persistence
     const { messages, sendMessage, status, stop, setMessages, addToolResult, editMessage, navigateBranch, currentMode } = useBranchingChat({
-        onFinish: async (message: any) => {
-            // Construct final messages from ref + new message
-            // Note: useChat messages might already include the new message if it was optimistic?
-            // But usually onFinish is for the AI response.
-            // Let's assume messagesRef has the history, and message is the new AI response.
-            // However, if we are streaming, messagesRef might already have the partial AI response?
-            // useChat updates messages during stream.
-            // So messagesRef.current SHOULD contain the full list including the finished message.
-            // Let's verify.
-
-            // Actually, safest is to use the messages from the hook state which should be updated.
-            // But inside this callback, 'messages' is stale.
-            // messagesRef.current is up to date.
-            const finalMessages = messagesRef.current;
-
-            // Create the ID only if it doesn't exist
-            let convId = conversationIdRef.current;
-            if (!convId) {
-                convId = crypto.randomUUID();
-                conversationIdRef.current = convId;
-            }
-
-            // Ensure all messages have timestamps (don't modify structure)
-            const timestampedMessages = finalMessages.map(msg => ({
-                ...msg,
-                timestamp: (msg as any).timestamp || Date.now(),
-            }));
-
-            const updatedMessages = deduplicateMessages(timestampedMessages);
-
-            // Generate title
-            let title = 'New Conversation';
-            const currentConv = await chatStorage.getConversation(convId);
-            const msgCount = updatedMessages.length;
-
-            // Keep existing title unless it's "New Conversation" OR we're at the 3rd exchange (re-generate)
-            if (currentConv && currentConv.title !== 'New Conversation' && msgCount !== 6) {
-                title = currentConv.title;
-            } else if (updatedMessages[0]) {
-                const firstMessage = updatedMessages[0];
-                // Get text from parts or content
-                let text = '';
-                if ((firstMessage as any).parts) {
-                    const textPart = (firstMessage as any).parts.find((p: any) => p.type === 'text');
-                    text = textPart?.text || '';
-                } else {
-                    text = (firstMessage as any).content || '';
-                }
-                if (text) {
-                    title = text.slice(0, 50);
-                }
-            }
-
-            // Intelligent title generation (1st and 3rd exchange)
-            if (msgCount === 2 || msgCount === 6) {
-                try {
-                    const res = await fetch('/api/johngpt/generate-title', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ messages: updatedMessages }),
-                    });
-                    if (res.ok) {
-                        const data = await res.json();
-                        if (data.title) title = data.title;
-                    }
-                } catch (err) {
-                    console.error('Failed to generate title:', err);
-                }
-            }
-
-            // Save conversation FIRST and AWAIT completion
-            await chatStorage.saveConversation({
-                id: convId,
-                title,
-                messages: updatedMessages as any,
-                createdAt: currentConv?.createdAt || Date.now(),
-                updatedAt: Date.now(),
-                personaId: 'default', // Always default now
-                syncedToDrive: false,
-            });
-
-            console.log('[ChatView] Conversation saved to IndexedDB:', convId);
-
-            // THEN navigate ONLY if we don't have a conversationId in the URL
-            // Navigation now happens AFTER save is complete
-            if (!conversationId) {
-                router.push(`/john-gpt/${convId}`);
-            }
-
-            // Background sync (non-blocking)
-            if (user) {
-                chatStorage.syncConversations(user.id).catch(err =>
-                    console.warn('[ChatView] Background sync failed:', err)
-                );
-            }
-        },
         api: '/api/chat',
         // Context is now auto-detected server-side from the Referer header
     });
 
     const isLoading = status === 'submitted' || status === 'streaming';
 
-    // Load conversation on mount or when conversationId changes
-    React.useEffect(() => {
-        async function loadConversation() {
-            if (conversationId) {
-                // Try to load from local storage first
-                const conv = await chatStorage.getConversation(conversationId);
-                if (conv) {
-                    console.log('[ChatView] Loaded conversation from local storage:', conversationId);
-                    conversationIdRef.current = conv.id;
-                    setMessages(deduplicateMessages(conv.messages) as any);
-
-                    // Sync in background to get any updates from Drive
-                    if (user) {
-                        chatStorage.syncConversations(user.id).catch(err =>
-                            console.warn('[ChatView] Background sync failed:', err)
-                        );
-                    }
-                    return;
-                } else {
-                    // Conversation not in local storage, trigger sync to fetch from Drive
-                    console.log('[ChatView] Conversation not found locally, syncing from Drive...');
-                    if (user) {
-                        await chatStorage.syncConversations(user.id);
-                        // Try loading again after sync
-                        const syncedConv = await chatStorage.getConversation(conversationId);
-                        if (syncedConv) {
-                            conversationIdRef.current = syncedConv.id;
-                            setMessages(deduplicateMessages(syncedConv.messages) as any);
-                            return;
-                        }
-                    }
-                }
-            } else {
-                // New Chat: Reset to empty state
-                conversationIdRef.current = null;
-                setMessages([]);
-            }
-        }
-        loadConversation();
-    }, [conversationId, user, setMessages, conversationIdRef, deduplicateMessages]);
     // Handle tool calls (Navigation)
     useToolNavigation(messages, addToolResult);
 
