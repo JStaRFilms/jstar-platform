@@ -198,6 +198,7 @@ export class GoogleDriveClient {
   /**
    * Save a conversation to Google Drive
    * Creates a new file or updates existing one
+   * Filename format: "[AI Title] - [conversationId-8chars].json"
    */
   async saveConversation(
     conversationData: Omit<ConversationFile, 'version'>
@@ -205,27 +206,67 @@ export class GoogleDriveClient {
     this.ensureAuthenticated();
 
     const folderId = await this.ensureFolderStructure();
-    const fileName = `${conversationData.conversationId}.json`;
 
-    // Prepare data with version
+    // Generate human-readable filename with AI title
+    const shortId = conversationData.conversationId.slice(0, 8);
+    const sanitizedTitle = this.sanitizeFilename(conversationData.title);
+    const fileName = `${sanitizedTitle} - ${shortId}.json`;
+
+    console.log('[GoogleDrive] Saving conversation with filename:', fileName);
+
+    // Prepare data with version (conversationId already in conversationData)
     const fileData: ConversationFile = {
       version: FILE_VERSION,
       ...conversationData,
       updatedAt: new Date().toISOString(),
     };
 
-    // Check if file exists
-    const existingFileId = await this.findFileByName(fileName, folderId);
+    // Check if file exists (search by conversationId pattern)
+    const existingFileId = await this.findFileByConversationId(
+      conversationData.conversationId,
+      folderId
+    );
 
     if (existingFileId) {
-      // Update existing file
-      await this.updateFile(existingFileId, fileData);
+      // Update existing file (and rename if title changed)
+      await this.updateFile(existingFileId, fileData, fileName);
       return { fileId: existingFileId, updatedAt: fileData.updatedAt };
     } else {
       // Create new file
       const fileId = await this.createFile(fileName, folderId, fileData);
       return { fileId, updatedAt: fileData.updatedAt };
     }
+  }
+
+  /**
+   * Sanitize title for use in filename
+   * Removes invalid characters and limits length
+   */
+  private sanitizeFilename(title: string): string {
+    return title
+      .replace(/[<>:"/\\|?*]/g, '') // Remove invalid filename chars
+      .replace(/\s+/g, ' ') // Normalize whitespace
+      .trim()
+      .slice(0, 50); // Limit length
+  }
+
+  /**
+   * Find a file by conversationId pattern in filename
+   */
+  private async findFileByConversationId(
+    conversationId: string,
+    parentId: string
+  ): Promise<string | null> {
+    const shortId = conversationId.slice(0, 8);
+    // Search for files ending with " - [shortId].json"
+    const searchQuery = `name contains '- ${shortId}.json' and '${parentId}' in parents and trashed=false`;
+    const response = await this.makeRequest(
+      `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(searchQuery)}&fields=files(id)`,
+      { method: 'GET' }
+    );
+
+    const data = await response.json();
+    return data.files && data.files.length > 0 ? data.files[0].id : null;
   }
 
   /**
@@ -367,11 +408,14 @@ export class GoogleDriveClient {
 
   /**
    * Update an existing file in Google Drive
+   * Also updates filename if it has changed (e.g., title was regenerated)
    */
   private async updateFile(
     fileId: string,
-    content: ConversationFile
+    content: ConversationFile,
+    newFileName?: string
   ): Promise<void> {
+    // Update file content
     await this.makeRequest(
       `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`,
       {
@@ -380,6 +424,18 @@ export class GoogleDriveClient {
         body: JSON.stringify(content, null, 2),
       }
     );
+
+    // Rename file if new filename provided
+    if (newFileName) {
+      await this.makeRequest(
+        `https://www.googleapis.com/drive/v3/files/${fileId}`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: newFileName }),
+        }
+      );
+    }
   }
 
   /**

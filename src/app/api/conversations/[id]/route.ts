@@ -39,11 +39,13 @@ export async function GET(
             );
         }
 
-        const { id } = context.params;
+        // Await params (Next.js 15 requirement)
+        const params = await context.params;
+        const conversationId = params.id;
 
         const conversation = await prisma.conversation.findUnique({
             where: {
-                id,
+                id: conversationId,
                 userId: dbUser.id, // Ensure user owns this conversation
             },
             select: {
@@ -105,12 +107,14 @@ export async function DELETE(
             );
         }
 
-        const { id } = context.params;
+        // Await params (Next.js 15 requirement)
+        const params = await context.params;
+        const conversationId = params.id;
 
         // Delete conversation (only if user owns it)
         const deleted = await prisma.conversation.deleteMany({
             where: {
-                id,
+                id: conversationId,
                 userId: dbUser.id, // Use internal database user ID
             },
         });

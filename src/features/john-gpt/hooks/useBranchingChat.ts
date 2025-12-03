@@ -248,7 +248,7 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
 
     // 3.7. Auto-generate AI title after 6 messages (3 exchanges)
     useEffect(() => {
-        if (!conversationId || messages.length !== 6) return;
+        if (!conversationId || !userId || messages.length !== 6) return;
 
         const generateTitle = async () => {
             try {
@@ -291,6 +291,45 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
                 window.dispatchEvent(new CustomEvent('conversation-updated', {
                     detail: { conversationId, title }
                 }));
+
+                // 🚀 Trigger Google Drive backup with AI-generated title
+                console.log('[useBranchingChat] Triggering Google Drive backup...');
+                try {
+                    // Initialize Drive client first
+                    const driveReady = await syncManager.initializeGoogleDrive(userId);
+
+                    if (!driveReady) {
+                        console.warn('[useBranchingChat] Google Drive not connected - skipping backup');
+                        return;
+                    }
+
+                    // Convert tree to flat message array
+                    const messagesToSave = messages.map((msg: any) => {
+                        const node = tree[msg.id];
+                        return {
+                            ...msg,
+                            parentId: node?.parentId || null,
+                            childrenIds: node?.childrenIds || [],
+                            createdAt: new Date(node?.createdAt || Date.now()).toISOString(),
+                        };
+                    });
+
+                    // Backup to Google Drive (will use AI title in filename)
+                    // 1. Update IndexedDB with new title & tree data
+                    await syncManager.saveConversation(
+                        conversationId,
+                        userId,
+                        title,
+                        messagesToSave as any
+                    );
+
+                    // 2. Force immediate sync to Drive
+                    await syncManager.forceSyncConversation(conversationId);
+
+                    console.log('[useBranchingChat] ✅ Google Drive backup complete!');
+                } catch (driveError) {
+                    console.warn('[useBranchingChat] Drive backup failed (non-critical):', driveError);
+                }
             } catch (error) {
                 console.error('[useBranchingChat] Title generation error:', error);
             }

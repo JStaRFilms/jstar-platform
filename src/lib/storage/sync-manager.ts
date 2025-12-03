@@ -74,6 +74,37 @@ export class SyncManager {
     // ==========================================================================
 
     /**
+     * Initialize Google Drive client with user's access token
+     * Must be called before any Drive sync operations
+     */
+    async initializeGoogleDrive(userId: string): Promise<boolean> {
+        try {
+            // Fetch user's Google Drive config from database via API
+            const res = await fetch(`/api/user/drive-config?userId=${userId}`);
+
+            if (!res.ok) {
+                console.warn('[SyncManager] No Drive config found for user');
+                return false;
+            }
+
+            const { accessToken } = await res.json();
+
+            if (!accessToken) {
+                console.warn('[SyncManager] No access token available');
+                return false;
+            }
+
+            // Initialize Drive client
+            googleDriveClient.setAccessToken(accessToken);
+            console.log('[SyncManager] ✅ Google Drive client authenticated');
+            return true;
+        } catch (error) {
+            console.error('[SyncManager] Drive initialization failed:', error);
+            return false;
+        }
+    }
+
+    /**
      * Save a conversation with debouncing
      * Updates IndexedDB immediately, queues Drive sync for later
      */
