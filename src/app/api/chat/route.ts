@@ -107,13 +107,6 @@ export async function POST(req: NextRequest) {
     system: systemPrompt,
     stopWhen: stepCountIs(5), // Allow AI to continue after tool execution for up to 5 steps
     tools: {
-      navigate: tool({
-        description: 'Navigate the user to a specific page. Use this when the user asks to go somewhere or asks about something that is best answered by showing them a specific page (e.g. "pricing" -> /services or /store).',
-        inputSchema: z.object({
-          path: z.string().describe('The path to navigate to (e.g. /about, /portfolio)'),
-          reason: z.string().describe('Short reason for navigation to show to the user'),
-        }),
-      }),
       searchKnowledge: tool({
         description: 'Search the knowledge base for ANY information related to J StaR, including services, portfolio, team members, testimonials, pricing, or specific details found on the website. Use this whenever the user asks a question that might be answered by content on the site, even if it seems like a specific detail.',
         inputSchema: z.object({

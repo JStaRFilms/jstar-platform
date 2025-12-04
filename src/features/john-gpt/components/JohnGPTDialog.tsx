@@ -6,7 +6,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useBranchingChat } from '../hooks/useBranchingChat';
-import { useToolNavigation } from '../hooks/useToolNavigation';
 import { useScrollBlur } from '@/hooks/useScrollBlur';
 import { AnimatedCloseIcon } from '@/components/icons/animated-icons';
 import { MessageCircle, AlertCircle, Sparkles, Send, Paperclip, X, Maximize2, Minimize2 } from 'lucide-react';
@@ -37,8 +36,6 @@ export function JohnGPTDialog({ open, onOpenChange, user }: JohnGPTDialogProps) 
   });
   const { messages, sendMessage, status, stop, error: chatError, addToolResult, editMessage, navigateBranch } = chatHelpers;
 
-  // Handle tool calls (Navigation)
-  useToolNavigation(messages, addToolResult);
 
   const [input, setInput] = useState('');
 

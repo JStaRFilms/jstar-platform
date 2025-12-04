@@ -11,7 +11,6 @@ import type { User as WorkOSUser } from '@workos-inc/node';
 import { cn } from '@/lib/utils';
 import { useConversationManagement } from '../hooks/useConversationManagement';
 import { useRouter } from 'next/navigation';
-import { useToolNavigation } from '../hooks/useToolNavigation';
 import { ChatHeader } from './ChatHeader';
 
 type ChatViewProps = {
@@ -87,8 +86,6 @@ export function ChatView({ user, className, conversationId: conversationIdProp, 
 
     const isLoading = status === 'submitted' || status === 'streaming';
 
-    // Handle tool calls (Navigation)
-    useToolNavigation(messages, addToolResult);
 
     // Handlers
     const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement> | React.ChangeEvent<HTMLInputElement>) => {

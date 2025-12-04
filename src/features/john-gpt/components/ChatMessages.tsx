@@ -478,7 +478,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
                           <div className="flex-1">
                             <div className="font-medium text-foreground text-[10px] uppercase tracking-wider opacity-70 mb-0.5">Action</div>
                             <div className="text-foreground/90 font-medium">
-                              {toolInvocation.toolName === 'navigate' ? `Navigating to ${toolInvocation.args.path}...` : `Calling ${toolInvocation.toolName}...`}
+                              {`Calling ${toolInvocation.toolName}...`}
                             </div>
                           </div>
                         </div>
