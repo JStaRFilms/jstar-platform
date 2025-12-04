@@ -614,190 +614,26 @@ This enhancement transforms JohnGPT into a truly mobile-first AI experience wher
 
 ---
 
-## 📦 Phase 6: Chat History & Persistent Storage (Implemented)
+## 📦 Phase 6: Chat History & Persistent Storage
 
 **Completed**: Hybrid local-first storage architecture with cloud backup for conversation persistence.
 
-### **Storage Architecture Overview**
+For full technical details, architecture diagrams, and API documentation, please refer to:
+👉 **[JohnGPT Storage & Persistence](./StorageAndPersistence.md)**
 
-JohnGPT uses a **two-tier hybrid storage system**:
-1. **Primary**: IndexedDB for instant local access
-2. **Secondary**: Google Drive for cloud backup and cross-device sync
+### **High-Level Overview**
 
-### **1. IndexedDB Layer (Primary Storage)**
+JohnGPT uses a **three-tier hybrid storage system**:
+1.  **IndexedDB (Local)**: Instant load times and offline support.
+2.  **Google Drive (Cloud)**: JSON backup for cross-device sync and data ownership.
+3.  **Neon DB (Metadata)**: Lightweight indexing for the conversation sidebar.
 
-**File**: `src/lib/chat-storage.ts`
+### **Key Features**
+- **Auto-Save**: Conversations save locally immediately and sync to cloud in background.
+- **AI Titles**: Automatically generates descriptive titles after 6 messages using Groq Llama 3.3.
+- **Smart Sync**: Debounced uploads (5s) to prevent API rate limiting.
+- **Privacy**: User owns their data in their personal Google Drive.
 
-#### **Database Structure**
-
-```typescript
-interface ChatDB extends DBSchema {
-    conversations: {
-        key: string;
-        value: Conversation;
-        indexes: { 'by-date': number };
-    };
-}
-
-interface Conversation {
-    id: string;
-    title: string;
-    messages: ExtendedMessage[];
-    createdAt: number;
-    updatedAt: number;
-    personaId: string;
-    syncedToDrive: boolean;
-    driveFileId?: string;
-}
-```
-
-#### **Key Features**
-
-- **Offline-First**: All conversations available instantly, even without internet
-- **Browser-Native**: Uses browser's IndexedDB via `idb` library
-- **Auto-Indexing**: Sorted by `updatedAt` for chronological display
-- **Type-Safe**: Full TypeScript support with strict interfaces
-
-#### **Core Operations**
-
-| Operation | Method | Purpose |
-|-----------|--------|---------|
-| Save | `saveConversation(conv)` | Create or update conversation |
-| Load | `getConversation(id)` | Retrieve single conversation |
-| List | `getAllConversations()` | Get all conversations sorted by date |
-| Delete | `deleteConversation(id)` | Remove locally |
-| Update Title | `updateConversationTitle(id, title)` | Edit conversation name |
-| Clear | `clearAll()` | Wipe all local data |
-
-### **2. Google Drive Sync Layer (Cloud Backup)**
-
-**API Routes**: `src/app/api/johngpt/sync/*`
-
-#### **Sync Endpoints**
-
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/api/johngpt/sync/save` | POST | Upload conversation to user's Drive |
-| `/api/johngpt/sync/list` | GET | List remote conversation files |
-| `/api/johngpt/sync/get` | GET | Download conversation by fileId |
-| `/api/johngpt/sync/delete` | POST | Delete from Drive |
-
-#### **Sync Workflow**
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│ BIDIRECTIONAL SYNC PROCESS                                  │
-└─────────────────────────────────────────────────────────────┘
-
-1. GET LOCAL CONVERSATIONS
-   └─> chatStorage.getAllConversations()
-
-2. FETCH REMOTE LIST
-   └─> GET /api/johngpt/sync/list
-       └─> Returns Drive file metadata
-
-3. UPLOAD UNSYNCED (Local → Drive)
-   └─> For each conversation where syncedToDrive = false:
-       └─> POST /api/johngpt/sync/save
-           └─> Creates/updates Drive file
-           └─> Mark syncedToDrive = true locally
-
-4. DOWNLOAD UPDATES (Drive → Local)
-   └─> For each remote file:
-       └─> If local missing OR remote newer:
-           └─> GET /api/johngpt/sync/get?fileId=...
-               └─> Save to IndexedDB with syncedToDrive = true
-```
-
-#### **Sync Triggers**
-
-- **On Conversation Save**: Background sync after saving to IndexedDB
-- **On Load**: Check for remote updates when loading conversations
-- **On Delete**: Sync deletion to Drive if file was synced
-
-### **3. Context-Aware Saving Logic**
-
-**File**: `src/features/john-gpt/components/ChatView.tsx`
-
-#### **Save Conditions**
-
-| Context | Location | Authenticated? | Saves? | Syncs? |
-|---------|----------|---------------|--------|--------|
-| `widget` | Any page | N/A | ❌ No | ❌ No |
-| `full-page` | `/john-gpt` | ❌ No | ✅ Yes (local only) | ❌ No |
-| `full-page` | `/john-gpt` | ✅ Yes | ✅ Yes | ✅ Yes |
-
-**Why Widget Doesn't Save**: 
-- Intended for quick queries, not persistent conversations
-- Prevents clutter from casual browsing
-- Guest users get full chat experience without requiring authentication
-
-#### **Save Implementation**
-
-```typescript
-// In ChatView.tsx - onFinish callback
-const { messages, sendMessage, setMessages } = useBranchingChat({
-    onFinish: async (message: any) => {
-        // Only saves if called from /john-gpt page (context = 'full-page')
-        
-        // 1. Generate or retrieve conversation ID
-        let convId = conversationIdRef.current;
-        if (!convId) {
-            convId = crypto.randomUUID();
-            conversationIdRef.current = convId;
-        }
-
-        // 2. Generate title (on 1st or 3rd exchange)
-        let title = 'New Conversation';
-        const currentConv = await chatStorage.getConversation(convId);
-        const msgCount = updatedMessages.length;
-
-        if (msgCount === 2 || msgCount === 6) {
-            // Call AI to generate descriptive title
-            const res = await fetch('/api/johngpt/generate-title', {
-                method: 'POST',
-                body: JSON.stringify({ messages: updatedMessages }),
-            });
-            if (res.ok) {
-                const data = await res.json();
-                title = data.title;
-            }
-        }
-
-        // 3. Save to IndexedDB
-        await chatStorage.saveConversation({
-            id: convId,
-            title,
-            messages: updatedMessages,
-            createdAt: currentConv?.createdAt || Date.now(),
-            updatedAt: Date.now(),
-            personaId: 'default',
-            syncedToDrive: false, // Mark for sync
-        });
-
-        // 4. Navigate to conversation URL (if new)
-        if (!conversationId) {
-            router.push(`/john-gpt/${convId}`);
-        }
-
-        // 5. Background sync to Drive (if authenticated)
-        if (user) {
-            chatStorage.syncConversations(user.id).catch(err =>
-                console.warn('[ChatView] Background sync failed:', err)
-            );
-        }
-    },
-    api: '/api/chat',
-});
-```
-
-### **4. Conversation Management UI**
-
-**File**: `src/features/john-gpt/components/ConversationSidebar.tsx`
-
-#### **Features**
-
-- **List Display**: Shows all conversations sorted by last updated
 - **Title Editing**: Inline edit with auto-save
 - **Delete with Sync**: Deletes locally and from Drive
 - **Load Previous**: Click to load conversation into chat view

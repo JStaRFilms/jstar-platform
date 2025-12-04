@@ -115,13 +115,13 @@ export async function POST(req: NextRequest) {
         }),
       }),
       searchKnowledge: tool({
-        description: 'Search the knowledge base for information about services, portfolio, pricing, past work, or any site content. Use this BEFORE answering questions about what J StaR offers.',
+        description: 'Search the knowledge base for ANY information related to J StaR, including services, portfolio, team members, testimonials, pricing, or specific details found on the website. Use this whenever the user asks a question that might be answered by content on the site, even if it seems like a specific detail.',
         inputSchema: z.object({
           query: z.string().describe('What to search for in the knowledge base'),
         }),
         execute: async ({ query }) => {
           try {
-            const results = await searchKnowledgeBase(query, 5, 0.5);
+            const results = await searchKnowledgeBase(query, 5);
             return formatSearchResults(results);
           } catch (error) {
             console.error('Error searching knowledge base:', error);

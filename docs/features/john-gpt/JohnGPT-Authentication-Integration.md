@@ -27,120 +27,23 @@
 
 ---
 
-## 4. **IMPLEMENTED**: Chat History & Storage
+## 4. Chat History & Storage
 
-### Current Storage Architecture
+**Status**: ✅ **Fully Implemented** (Hybrid Architecture)
 
-**Status**: ✅ **Fully Implemented** (as of 2025-11-30)
+For detailed technical documentation on the storage system, please refer to:
+👉 **[JohnGPT Storage & Persistence](./StorageAndPersistence.md)**
 
-JohnGPT uses a **hybrid local-first architecture** with cloud backup:
+### Summary
+- **Primary Storage**: IndexedDB (Local-first, offline capable)
+- **Cloud Backup**: Google Drive (User-owned data)
+- **Metadata**: Neon DB (Sidebar indexing)
+- **Sync**: Automatic background syncing with debouncing
 
-#### **Primary Layer: IndexedDB**
+### Context-Aware Saving
+- **Guest (Widget)**: Ephemeral, no storage.
+- **Authenticated (Full Page)**: Auto-saves locally and syncs to Drive.
 
-**File**: `src/lib/chat-storage.ts`
-
-- **Browser Database**: `johngpt-db` using IndexedDB via `idb` library
-- **Offline-First**: Conversations saved locally for instant access
-- **Structure**:
-  ```typescript
-  interface Conversation {
-    id: string;
-    title: string;
-    messages: ExtendedMessage[];
-    createdAt: number;
-    updatedAt: number;
-    personaId: string;
-    syncedToDrive: boolean;
-    driveFileId?: string;
-  }
-  ```
-
-#### **Secondary Layer: Google Drive Sync**
-
-**API Routes**: 
-- `POST /api/johngpt/sync/save` - Upload conversation to Drive
-- `GET /api/johngpt/sync/list` - List remote conversations
-- `GET /api/johngpt/sync/get?fileId=...` - Download conversation
-- `POST /api/johngpt/sync/delete` - Delete from Drive
-
-**Sync Behavior**:
-1. **Upload**: Unsynced local conversations uploaded to user's Google Drive
-2. **Download**: Remote changes pulled and merged into IndexedDB
-3. **Bidirectional**: Keeps local and cloud in sync automatically
-4. **Background**: Syncs on conversation save and load
-
-#### **Context-Aware Saving**
-
-| Context | Saves to IndexedDB? | Syncs to Drive? | Use Case |
-|---------|-------------------|----------------|----------|
-| `widget` | ❌ No | ❌ No | Guest mode, ephemeral chats |
-| `full-page` | ✅ Yes | ✅ Yes (if authenticated) | Logged-in users on `/john-gpt` |
-
-**Implementation**: The context detection (fixed in Phase 5) determines whether the `onFinish` handler in `ChatView.tsx` saves the conversation.
-
-#### **Storage Workflow**
-
-**File**: `src/features/john-gpt/components/ChatView.tsx`
-
-```typescript
-// onFinish callback (runs when AI response completes)
-onFinish: async (message: any) => {
-  // Only runs in full-page context
-  const convId = conversationIdRef.current || crypto.randomUUID();
-  
-  // Generate title (1st or 3rd exchange)
-  const title = await generateTitle(messages);
-  
-  // Save to IndexedDB
-  await chatStorage.saveConversation({
-    id: convId,
-    title,
-    messages: updatedMessages,
-    createdAt: currentConv?.createdAt || Date.now(),
-    updatedAt: Date.now(),
-    personaId: 'default',
-    syncedToDrive: false, // Mark for sync
-  });
-  
-  // Background sync to Drive (if authenticated)
-  if (user) {
-    chatStorage.syncConversations(user.id);
-  }
-}
-```
-
-### Key Features
-
-✅ **Automatic Syncing**: Conversations sync in background after save  
-✅ **Offline Access**: All chats available offline via IndexedDB  
-✅ **Multi-Device**: Google Drive enables cross-device access  
-✅ **Title Generation**: AI-generated titles at 1st and 3rd message exchange  
-✅ **Conversation Management**: Edit, delete, load previous chats  
-✅ **Race Condition Prevention**: Saves before navigation to prevent blank screens
-
-### Storage Limits
-
-**Current Implementation**: No hard limits enforced (IndexedDB typically 50MB-10GB per origin)
-
-**Recommended Future Limits** (not yet implemented):
-
-| Tier | Max Conversations | Max Messages Per Conversation |
-|------|------------------|-------------------------------|
-| GUEST | 0 (ephemeral) | N/A |
-| TIER1 | 100 | 500 |
-| TIER2 | 500 | 1000 |
-| TIER3 | Unlimited | Unlimited |
-| ADMIN | Unlimited | Unlimited |
-
-### Files Implementing Storage
-
-| File | Purpose |
-|------|---------|
-| `src/lib/chat-storage.ts` | Core storage service (IndexedDB + sync logic) |
-| `src/features/john-gpt/components/ChatView.tsx` | Saves conversations on message completion |
-| `src/features/john-gpt/components/ConversationSidebar.tsx` | Displays and manages conversation list |
-| `src/features/john-gpt/hooks/useConversationManagement.ts` | React hooks for conversation state |
-| `src/app/api/johngpt/sync/*` | Google Drive sync API routes |
 
 ---
 

@@ -156,10 +156,6 @@ export function ChatHeader({ onMobileMenuClick, messages, currentMode }: ChatHea
                             <span>J StaR Prime</span>
                         </div>
                     )}
-                    {/* DEBUG BADGE - REMOVE LATER */}
-                    <span className="text-[10px] text-red-500 font-mono opacity-50">
-                        (Debug: {currentMode || 'NULL'})
-                    </span>
                 </div>
             </div>
         </div>

@@ -22,49 +22,30 @@ export function JohnGPTPage({ user, isDriveConnected, signInUrl, signUpUrl, conv
     // If no user, show signup prompt
     if (!user) {
         return (
-            <div className="flex h-full items-center justify-center p-6 relative overflow-hidden"
-                style={{
-                    background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%)'
-                }}>
-                {/* Animated Background Orbs */}
-                <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse"
-                    style={{ animationDuration: '4s' }} />
-                <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl animate-pulse"
-                    style={{ animationDuration: '6s', animationDelay: '1s' }} />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-3xl" />
-
-                <div className="max-w-lg w-full space-y-8 relative z-10 px-6 py-12 rounded-3xl backdrop-blur-xl bg-white/5 border border-white/10 shadow-2xl"
-                    style={{
-                        animation: 'fadeIn 0.8s ease-out, scaleIn 0.8s ease-out'
-                    }}>
-                    {/* Brain Icon with Glow */}
+            <div className="flex h-full items-center justify-center p-6 bg-gray-900">
+                <div className="max-w-lg w-full space-y-8 px-6 py-12 rounded-xl bg-white/5 border border-white/10 shadow-lg backdrop-blur-sm">
+                    {/* Simple Brain Icon */}
                     <div className="flex justify-center">
-                        <div className="relative group">
-                            <div className="absolute inset-0 bg-gradient-to-tr from-blue-500 to-purple-600 rounded-full blur-2xl opacity-50 group-hover:opacity-70 transition-opacity" />
-                            <div className="relative p-6 rounded-full bg-gradient-to-br from-blue-600 to-purple-700 shadow-xl">
-                                <BrainIcon size={64} className="text-white" />
-                            </div>
+                        <div className="p-4 rounded-full bg-blue-600">
+                            <BrainIcon size={48} className="text-white" />
                         </div>
                     </div>
 
                     {/* Title Section */}
                     <div className="space-y-4 text-center">
-                        <h1 className="text-5xl font-bold tracking-tight leading-tight">
-                            Unlock{' '}
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 animate-gradient">
-                                JohnGPT
-                            </span>
+                        <h1 className="text-3xl font-bold tracking-tight leading-tight text-white">
+                            Unlock JohnGPT
                         </h1>
-                        <p className="text-gray-300 text-lg leading-relaxed max-w-md mx-auto">
+                        <p className="text-gray-300 text-base leading-relaxed">
                             Experience the full power of AI. Save conversations, access advanced modes, and sync with Google Drive.
                         </p>
                     </div>
 
                     {/* Features Grid */}
-                    <div className="grid grid-cols-3 gap-4 py-4">
-                        {['💾 Auto-Save', '🧠 Smart AI', '☁️ Cloud Sync'].map((feature, i) => (
-                            <div key={i} className="text-center p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors">
-                                <div className="text-sm font-medium text-gray-200">{feature}</div>
+                    <div className="grid grid-cols-3 gap-3 py-4">
+                        {['Auto-Save', 'Smart AI', 'Cloud Sync'].map((feature, i) => (
+                            <div key={i} className="text-center p-2 rounded-lg bg-white/5 border border-white/10 text-sm text-gray-200">
+                                {feature}
                             </div>
                         ))}
                     </div>
@@ -73,17 +54,14 @@ export function JohnGPTPage({ user, isDriveConnected, signInUrl, signUpUrl, conv
                     <div className="space-y-3 pt-2">
                         <Link
                             href={signUpUrl}
-                            className="group relative block w-full overflow-hidden rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98]"
+                            className="block w-full px-6 py-3 rounded-lg bg-blue-600 text-white font-semibold text-center hover:bg-blue-700 transition-colors"
                         >
-                            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 opacity-100 group-hover:opacity-90 transition-opacity" />
-                            <div className="relative flex items-center justify-center px-8 py-4">
-                                <span className="font-bold text-white text-lg tracking-wide">Sign Up for Free →</span>
-                            </div>
+                            Sign Up for Free
                         </Link>
 
                         <Link
                             href={signInUrl}
-                            className="block w-full px-8 py-4 rounded-xl border-2 border-white/20 bg-white/5 hover:bg-white/10 hover:border-white/30 text-white font-semibold transition-all text-center backdrop-blur-sm"
+                            className="block w-full px-6 py-3 rounded-lg border border-white/20 bg-white/5 text-white font-medium text-center hover:bg-white/10 transition-colors"
                         >
                             Already have an account? Sign In
                         </Link>
@@ -92,31 +70,11 @@ export function JohnGPTPage({ user, isDriveConnected, signInUrl, signUpUrl, conv
                     {/* Footer Note */}
                     <p className="text-sm text-gray-400 text-center pt-2">
                         Just want to chat?{' '}
-                        <span className="text-blue-400 font-semibold">
+                        <span className="text-blue-400 font-medium">
                             Use the floating button on any page
                         </span>
                     </p>
                 </div>
-
-                {/* Inline Keyframes */}
-                <style jsx>{`
-                    @keyframes fadeIn {
-                        from { opacity: 0; }
-                        to { opacity: 1; }
-                    }
-                    @keyframes scaleIn {
-                        from { transform: scale(0.95); }
-                        to { transform: scale(1); }
-                    }
-                    @keyframes gradient {
-                        0%, 100% { background-position: 0% 50%; }
-                        50% { background-position: 100% 50%; }
-                    }
-                    .animate-gradient {
-                        background-size: 200% 200%;
-                        animation: gradient 3s ease infinite;
-                    }
-                `}</style>
             </div>
         );
     }
