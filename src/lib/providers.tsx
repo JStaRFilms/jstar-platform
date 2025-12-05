@@ -1,6 +1,7 @@
 'use client';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ActiveChatProvider } from '@/features/john-gpt/context/ActiveChatContext';
 
 
 // Create a client
@@ -54,7 +55,10 @@ export default function Providers({ children }: ProvidersProps) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
+      <ActiveChatProvider>
+        {children}
+      </ActiveChatProvider>
     </QueryClientProvider>
   );
 }
+

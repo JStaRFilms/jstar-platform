@@ -7,6 +7,7 @@ import type { User as WorkOSUser } from '@workos-inc/node';
 import { ConversationSidebar } from './ConversationSidebar';
 import { ChatView } from './ChatView';
 import { MobileSidebar } from './MobileSidebar';
+import { useSearchParams } from 'next/navigation';
 
 type JohnGPTPageProps = {
     user: WorkOSUser | null;
@@ -18,6 +19,8 @@ type JohnGPTPageProps = {
 
 export function JohnGPTPage({ user, isDriveConnected, signInUrl, signUpUrl, conversationId }: JohnGPTPageProps) {
     const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+    const searchParams = useSearchParams();
+    const importSessionId = searchParams.get('import');
 
     // If no user, show signup prompt
     if (!user) {
@@ -107,6 +110,7 @@ export function JohnGPTPage({ user, isDriveConnected, signInUrl, signUpUrl, conv
                     <ChatView
                         user={user}
                         conversationId={conversationId}
+                        importSessionId={importSessionId}
                         className="w-full h-full absolute inset-0"
                         onMobileMenuClick={() => setIsSidebarOpen(true)}
                     />

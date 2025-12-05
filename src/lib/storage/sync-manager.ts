@@ -36,6 +36,7 @@ type DebouncedSave = {
     conversationId: string;
     timeoutId: NodeJS.Timeout;
     scheduledAt: number;
+    isWidget?: boolean;
 };
 
 // ============================================================================
@@ -112,11 +113,11 @@ export class SyncManager {
         conversationId: string,
         userId: string,
         title: string,
-        messages: UIMessage[]
+        messages: UIMessage[],
+        options?: { isWidget?: boolean }
     ): Promise<void> {
         // Convert UIMessage[] to StoredMessage[]
         const storedMessages = messages.map((msg) => ({
-            ...msg,
             ...msg,
             createdAt: new Date().toISOString(),
             metadata: msg.metadata as any,
@@ -138,21 +139,21 @@ export class SyncManager {
         await indexedDBClient.saveConversation(cachedConversation);
 
         // 2. Queue debounced sync to Drive
-        this.queueDebouncedSync(conversationId);
+        this.queueDebouncedSync(conversationId, options?.isWidget);
     }
 
     /**
      * Load a conversation (IndexedDB first, Drive as fallback)
      * Implements "stale-while-revalidate" pattern
      */
-    async loadConversation(conversationId: string): Promise<ConversationFile | null> {
+    async loadConversation(conversationId: string, options?: { isWidget?: boolean }): Promise<ConversationFile | null> {
         // 1. Try IndexedDB first (instant)
         const cached = await indexedDBClient.getConversation(conversationId);
 
         if (cached) {
             // Return cached data immediately
             // Background: fetch from Drive and update cache if newer
-            this.revalidateFromDrive(conversationId, cached.updatedAt).catch((error) => {
+            this.revalidateFromDrive(conversationId, cached.updatedAt, options?.isWidget).catch((error) => {
                 console.warn('[SyncManager] Background revalidation failed:', error);
             });
 
@@ -165,7 +166,12 @@ export class SyncManager {
         }
 
         try {
-            const conversation = await googleDriveClient.loadConversation(conversationId);
+            let conversation;
+            if (options?.isWidget) {
+                conversation = await googleDriveClient.loadWidgetSession(conversationId);
+            } else {
+                conversation = await googleDriveClient.loadConversation(conversationId);
+            }
 
             if (conversation) {
                 // Save to cache for future use
@@ -225,8 +231,26 @@ export class SyncManager {
     }
 
     /**
+     * Delete a widget session from both IndexedDB and Drive
+     */
+    async deleteWidgetSession(sessionId: string): Promise<void> {
+        // 1. Delete from IndexedDB
+        await indexedDBClient.deleteConversation(sessionId);
+
+        // 2. Delete from Drive widget folder
+        if (this.isOnline) {
+            try {
+                await googleDriveClient.deleteWidgetSession(sessionId);
+            } catch (error) {
+                console.warn('[SyncManager] Failed to delete widget session from Drive:', error);
+                // Don't throw, local delete is sufficient for UI
+            }
+        }
+    }
+
+    /**
      * Force immediate sync (no debounce)
-     * Used for "Sync Now" button
+     * Used for "Sync Now" button and promotion
      */
     async forceSyncConversation(conversationId: string): Promise<void> {
         // Cancel any pending debounced save
@@ -235,6 +259,7 @@ export class SyncManager {
         // Sync immediately
         await this.syncConversationToDrive(conversationId);
     }
+
 
     /**
      * Process offline queue
@@ -329,14 +354,14 @@ export class SyncManager {
      * Queue a debounced sync to Drive
      * If called multiple times, resets the timer
      */
-    private queueDebouncedSync(conversationId: string): void {
+    private queueDebouncedSync(conversationId: string, isWidget?: boolean): void {
         // Cancel existing debounced save
         this.cancelDebouncedSync(conversationId);
 
         // Schedule new save
         const timeoutId = setTimeout(() => {
             this.debouncedSaves.delete(conversationId);
-            this.syncConversationToDrive(conversationId).catch((error) => {
+            this.syncConversationToDrive(conversationId, isWidget).catch((error) => {
                 console.error('[SyncManager] Debounced sync failed:', error);
             });
         }, DEBOUNCE_DELAY_MS);
@@ -345,6 +370,7 @@ export class SyncManager {
             conversationId,
             timeoutId,
             scheduledAt: Date.now(),
+            isWidget,
         });
     }
 
@@ -366,7 +392,7 @@ export class SyncManager {
     /**
      * Sync a conversation to Google Drive
      */
-    private async syncConversationToDrive(conversationId: string): Promise<void> {
+    private async syncConversationToDrive(conversationId: string, isWidget?: boolean): Promise<void> {
         if (!this.isOnline) {
             // Add to offline queue
             await indexedDBClient.addToSyncQueue(conversationId);
@@ -385,14 +411,28 @@ export class SyncManager {
             }
 
             // 2. Upload to Drive
-            const { fileId, updatedAt } = await googleDriveClient.saveConversation({
-                conversationId: cached.conversationId,
-                userId: cached.userId,
-                title: cached.title,
-                createdAt: cached.createdAt,
-                updatedAt: cached.updatedAt,
-                messages: cached.messages,
-            });
+            let result;
+            if (isWidget) {
+                result = await googleDriveClient.saveWidgetSession({
+                    conversationId: cached.conversationId,
+                    userId: cached.userId,
+                    title: cached.title,
+                    createdAt: cached.createdAt,
+                    updatedAt: cached.updatedAt,
+                    messages: cached.messages,
+                });
+            } else {
+                result = await googleDriveClient.saveConversation({
+                    conversationId: cached.conversationId,
+                    userId: cached.userId,
+                    title: cached.title,
+                    createdAt: cached.createdAt,
+                    updatedAt: cached.updatedAt,
+                    messages: cached.messages,
+                });
+            }
+
+            const { fileId } = result;
 
             // 3. Update cache with Drive metadata
             await indexedDBClient.markConversationClean(
@@ -424,14 +464,20 @@ export class SyncManager {
      */
     private async revalidateFromDrive(
         conversationId: string,
-        cachedUpdatedAt: string
+        cachedUpdatedAt: string,
+        isWidget?: boolean
     ): Promise<void> {
         if (!this.isOnline) {
             return;
         }
 
         try {
-            const driveConversation = await googleDriveClient.loadConversation(conversationId);
+            let driveConversation;
+            if (isWidget) {
+                driveConversation = await googleDriveClient.loadWidgetSession(conversationId);
+            } else {
+                driveConversation = await googleDriveClient.loadConversation(conversationId);
+            }
 
             if (!driveConversation) {
                 return;
@@ -447,7 +493,7 @@ export class SyncManager {
             }
             // Cache is newer - upload to Drive
             else if (cachedTime > driveTime) {
-                await this.syncConversationToDrive(conversationId);
+                await this.syncConversationToDrive(conversationId, isWidget);
             }
         } catch (error) {
             console.warn('[SyncManager] Revalidation failed:', error);

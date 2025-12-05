@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useChat, UIMessage } from '@ai-sdk/react';
+import { useRouter } from 'next/navigation';
 import { syncManager } from '@/lib/storage/sync-manager';
 
 export type BranchingMessage = UIMessage & {
@@ -25,10 +26,13 @@ export type UseBranchingChatOptions = {
     api?: string;
     body?: any;
     onFinish?: any; // Let TypeScript infer from useChat
+    isWidget?: boolean;
 };
 
 export function useBranchingChat(options: UseBranchingChatOptions = {}) {
     const { conversationId, userId } = options;
+    const router = useRouter();
+
     // 1. Internal Tree State
     const [tree, setTree] = useState<MessageTree>({});
     const [headId, setHeadId] = useState<string | null>(null);
@@ -43,10 +47,31 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
 
     const chatHelpers = useChat({
         ...options,
-        onFinish: (message: any, ...args: any[]) => {
+        onFinish: (response: any) => {
+            // 🚀 Handle navigation tool results HERE (not in UI component)
+            // This ensures navigation only happens ONCE when streaming completes
+            // Note: onFinish receives {message, messages, isAbort, ...} - must access response.message
+            const msg = response.message || response;
+
+            if (msg?.parts) {
+                for (const part of msg.parts) {
+                    if (part.type === 'tool-navigate' && part.state === 'output-available') {
+                        const result = part.output;
+                        if (result?.action === 'navigate' && result?.url) {
+                            // Delay slightly to let UI update first
+                            setTimeout(() => {
+                                console.log('[Navigation] Executing:', result.url);
+                                router.push(result.url);
+                            }, 1500);
+                            break; // Only navigate once
+                        }
+                    }
+                }
+            }
+
             // Call the original onFinish from ChatView.tsx options
             if (options.onFinish) {
-                options.onFinish(message, ...args);
+                options.onFinish(response);
             }
         },
     }) as any;
@@ -185,7 +210,8 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
                     conversationId,
                     userId,
                     title,
-                    messagesToSave
+                    messagesToSave,
+                    { isWidget: options.isWidget }
                 );
 
                 console.log('[useBranchingChat] Conversation saved to IndexedDB:', conversationId);
@@ -225,16 +251,21 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
                 }
 
                 // Save metadata to Neon DB (debounced, generic title only)
-                await fetch('/api/conversations', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        conversationId,
-                        title,
-                        driveFileId: null, // Will be updated when Drive sync completes
-                        driveVersion: 1,
-                    }),
-                });
+                if (!options.isWidget) {
+                    await fetch('/api/conversations', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            conversationId,
+                            title,
+                            driveFileId: null, // Will be updated when Drive sync completes
+                            driveVersion: 1,
+                        }),
+                    });
+                    console.log('[useBranchingChat] Metadata saved to Neon DB (generic title):', conversationId);
+                } else {
+                    console.log('[useBranchingChat] Skipping DB save for widget session');
+                }
 
                 console.log('[useBranchingChat] Metadata saved to Neon DB (generic title):', conversationId);
             } catch (dbError) {
@@ -275,17 +306,19 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
                 const { title } = await res.json();
                 console.log('[useBranchingChat] AI-generated title:', title);
 
-                // Update Neon DB with new title
-                await fetch('/api/conversations', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        conversationId,
-                        title,
-                        driveFileId: null,
-                        driveVersion: 1,
-                    }),
-                });
+                // Update Neon DB with new title (skip for widgets)
+                if (!options.isWidget) {
+                    await fetch('/api/conversations', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            conversationId,
+                            title,
+                            driveFileId: null,
+                            driveVersion: 1,
+                        }),
+                    });
+                }
 
                 // Trigger sidebar refresh
                 window.dispatchEvent(new CustomEvent('conversation-updated', {
@@ -320,7 +353,8 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
                         conversationId,
                         userId,
                         title,
-                        messagesToSave as any
+                        messagesToSave as any,
+                        { isWidget: options.isWidget }
                     );
 
                     // 2. Force immediate sync to Drive

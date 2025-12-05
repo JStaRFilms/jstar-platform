@@ -12,6 +12,7 @@ import type { User as WorkOSUser } from '@workos-inc/node';
 import { ExtendedMessage } from '@/lib/chat-types';
 import { Check, ChevronDown, Edit2, Copy, Compass, ChevronLeft, ChevronRight, Save, X } from 'lucide-react';
 import { BranchingMessage } from '../hooks/useBranchingChat';
+import { LoginActionComponent, NavigationPreview } from './ChatActionComponents';
 
 /**
  * Props for the ChatMessages component
@@ -470,19 +471,101 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
                             return null;
                         }
                       })}
-                      {(message as any).toolInvocations?.map((toolInvocation: any) => (
-                        <div key={toolInvocation.toolCallId} className="mt-3 p-3 bg-secondary/30 rounded-xl border border-border/40 flex items-center gap-3 text-sm animate-in fade-in slide-in-from-bottom-2">
-                          <div className="w-8 h-8 bg-blue-500/10 text-blue-500 rounded-lg flex items-center justify-center border border-blue-500/20">
-                            <Compass className="w-4 h-4 animate-[spin_3s_linear_infinite]" />
-                          </div>
-                          <div className="flex-1">
-                            <div className="font-medium text-foreground text-[10px] uppercase tracking-wider opacity-70 mb-0.5">Action</div>
-                            <div className="text-foreground/90 font-medium">
-                              {`Calling ${toolInvocation.toolName}...`}
+                      {/* Handle tool results from message.parts (AI SDK format) */}
+                      {message.parts?.map((part: any, index: number) => {
+                        // AI SDK returns tool calls as parts with type 'tool-{toolName}'
+                        if (part.type === 'tool-navigate' && part.state === 'output-available') {
+                          console.log('🚀 [ChatMessages] Found tool-navigate part:', part);
+                          const result = part.output;
+
+                          if (result.action === 'showLoginComponent') {
+                            return (
+                              <LoginActionComponent
+                                key={`tool-nav-${index}`}
+                                requiredTier={result.requiredTier}
+                                targetUrl={result.targetUrl}
+                                pageTitle={result.pageTitle}
+                                message={result.message}
+                              />
+                            );
+                          }
+
+                          if (result.action === 'navigate') {
+                            // Pass timestamp=0 to mark as "not fresh" - navigation only triggers
+                            // when the message is first streamed (handled by the hook's onFinish)
+                            return (
+                              <NavigationPreview
+                                key={`tool-nav-${index}`}
+                                url={result.url}
+                                title={result.title}
+                                message={result.message}
+                                timestamp={0}
+                              />
+                            );
+                          }
+
+                          // Fallback for text messages or errors
+                          if (typeof result === 'string') {
+                            return (
+                              <div key={`tool-nav-${index}`} className="text-sm text-muted-foreground italic my-2">
+                                {result}
+                              </div>
+                            );
+                          }
+                        }
+                        return null;
+                      })}
+                      {/* Legacy toolInvocations handling (kept for compatibility) */}
+                      {(message as any).toolInvocations?.map((toolInvocation: any) => {
+                        // Special handling for navigation tool results
+                        if (toolInvocation.toolName === 'navigate' && toolInvocation.state === 'result') {
+                          const result = toolInvocation.result;
+                          if (result.action === 'showLoginComponent') {
+                            return (
+                              <LoginActionComponent
+                                key={toolInvocation.toolCallId}
+                                requiredTier={result.requiredTier}
+                                targetUrl={result.targetUrl}
+                                pageTitle={result.pageTitle}
+                                message={result.message}
+                              />
+                            );
+                          }
+                          if (result.action === 'navigate') {
+                            return (
+                              <NavigationPreview
+                                key={toolInvocation.toolCallId}
+                                url={result.url}
+                                title={result.title}
+                                message={result.message}
+                              />
+                            );
+                          }
+                          // Fallback for text messages or errors
+                          if (typeof result === 'string') {
+                            return (
+                              <div key={toolInvocation.toolCallId} className="text-sm text-muted-foreground italic my-2">
+                                {result}
+                              </div>
+                            );
+                          }
+                        }
+
+                        // Default tool invocation display
+                        return (
+                          <div key={toolInvocation.toolCallId} className="mt-3 p-3 bg-secondary/30 rounded-xl border border-border/40 flex items-center gap-3 text-sm animate-in fade-in slide-in-from-bottom-2">
+                            <div className="w-8 h-8 bg-blue-500/10 text-blue-500 rounded-lg flex items-center justify-center border border-blue-500/20">
+                              <Compass className="w-4 h-4 animate-[spin_3s_linear_infinite]" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="font-medium text-foreground text-[10px] uppercase tracking-wider opacity-70 mb-0.5">Action</div>
+                              <div className="text-foreground/90 font-medium">
+                                {`Calling ${toolInvocation.toolName}...`}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        )
+                      })}
                     </>
                   )}
                 </div>

@@ -35,15 +35,23 @@ const providerMap = {
   groq,
 } as const;
 
-export function getAISetup(): { provider: keyof typeof providerMap; model: string } {
+export function getAISetup(context?: 'widget' | 'full-page'): { provider: keyof typeof providerMap; model: string } {
+  // Allow different models for widget vs full-page
+  if (context === 'widget') {
+    return {
+      provider: (process.env.WIDGET_AI_PROVIDER as keyof typeof providerMap) || (process.env.AI_PROVIDER as keyof typeof providerMap) || 'gemini',
+      model: process.env.WIDGET_AI_MODEL || process.env.AI_MODEL || 'gemini-2.5-flash',
+    };
+  }
+
   return {
     provider: (process.env.AI_PROVIDER as keyof typeof providerMap) || 'gemini',
     model: process.env.AI_MODEL || 'gemini-2.5-flash',
   };
 }
 
-export function getAIModel(): LanguageModel {
-  const { provider, model } = getAISetup();
+export function getAIModel(context?: 'widget' | 'full-page'): LanguageModel {
+  const { provider, model } = getAISetup(context);
   return providerMap[provider](model);
 }
 

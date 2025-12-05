@@ -448,3 +448,22 @@ model SiteEmbedding {
   @@map("site_embeddings")
 }
 
+/// Page Navigation - Dedicated table for AI-powered site navigation
+model PageNavigation {
+  id           String   @id @default(cuid())
+  url          String   @unique // e.g., "/services", "/contact", "/dashboard"
+  title        String   // e.g., "Services", "Contact Us", "Your Dashboard"
+  description  String   // Semantic description for vector search
+  category     String   // e.g., "public", "dashboard", "admin"
+  requiredTier UserTier @default(GUEST) // Minimum tier needed to access
+  isActive     Boolean  @default(true) // Can toggle on/off without deleting
+  priority     Int      @default(0) // Higher priority = preferred in search results
+  embedding    Unsupported("vector(768)")
+  metadata     Json?    // Extra info: { icon: "📧", keywords: ["email", "reach out"] }
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@index([category])
+  @@index([requiredTier])
+  @@map("page_navigation")
+}

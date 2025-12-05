@@ -1,16 +1,32 @@
 'use client';
 
 import React from 'react';
-import { Menu, Terminal, Flame, Zap, Book, Sparkles } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Menu, Terminal, Flame, Zap, Book, Sparkles, Minimize2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useActiveChat } from '../context/ActiveChatContext';
 
 type ChatHeaderProps = {
     onMobileMenuClick?: () => void;
     messages: any[];
     currentMode?: string | null;
+    conversationId?: string;
+    userId?: string;
 };
 
-export function ChatHeader({ onMobileMenuClick, messages, currentMode }: ChatHeaderProps) {
+export function ChatHeader({ onMobileMenuClick, messages, currentMode, conversationId, userId }: ChatHeaderProps) {
+    const router = useRouter();
+    const { activateFollowMe } = useActiveChat();
+
+    // Handler for minimizing to widget
+    const handleMinimize = () => {
+        if (conversationId && userId) {
+            activateFollowMe(conversationId, userId);
+            // Navigate to home or previous page
+            router.push('/');
+        }
+    };
+
     // Determine the current mode based on the last user message
     const getMode = () => {
         // 1. Backend Detected Mode (Highest Priority)
@@ -158,6 +174,21 @@ export function ChatHeader({ onMobileMenuClick, messages, currentMode }: ChatHea
                     )}
                 </div>
             </div>
+
+            {/* Right side actions */}
+            <div className="flex items-center gap-2">
+                {/* Minimize Button - Only show if conversation is active */}
+                {conversationId && userId && (
+                    <button
+                        onClick={handleMinimize}
+                        className="p-2 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
+                        title="Minimize to widget"
+                    >
+                        <Minimize2 className="w-4 h-4" />
+                    </button>
+                )}
+            </div>
         </div>
     );
 }
+

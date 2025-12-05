@@ -35,8 +35,9 @@ const DialogContent = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
     hideDefaultClose?: boolean;
     overlayClassName?: string;
+    hideOverlay?: boolean;
   }
->(({ className, children, hideDefaultClose = false, overlayClassName, ...props }, ref) => {
+>(({ className, children, hideDefaultClose = false, overlayClassName, hideOverlay = false, ...props }, ref) => {
   // Separate className into positioning classes and visual classes
   const defaultClasses = "z-50 border bg-background shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 sm:rounded-lg";
   const defaultGridClasses = "grid w-full max-w-lg gap-4 p-6";
@@ -44,7 +45,7 @@ const DialogContent = React.forwardRef<
 
   return (
     <DialogPortal>
-      <DialogOverlay className={overlayClassName} />
+      {!hideOverlay && <DialogOverlay className={overlayClassName} />}
       <DialogPrimitive.Content
         ref={ref}
         className={cn(

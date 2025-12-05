@@ -1,97 +1,148 @@
 import { prisma } from '../prisma';
 
+// Define a concrete type for User
+interface UserProfile {
+    tier?: 'GUEST' | 'TIER1' | 'TIER2' | 'TIER3' | 'ADMIN';
+    name?: string | null;
+    [key: string]: any;
+}
+
 export type ChatContext = 'widget' | 'full-page';
 
 export type PromptOptions = {
-    role: string;
+    role: string; // 'Universal', 'Coder', 'Creative', etc.
     context: ChatContext;
-    user?: any; // Type as needed, e.g., WorkOS User or DB User
+    user?: UserProfile | null;
 };
+
+// THE POWERFUL UNIVERSAL PROMPT (As the default fallback)
+const UNIVERSAL_CORE_IDENTITY = `
+# CORE IDENTITY
+You are JohnGPT, the intelligent interface for the J StaR Platform.
+You act as a "Creative Operating System"—a strategic partner for filmmakers, developers, and creators.
+
+# CORE OPERATING PRINCIPLES
+1. **Objective Truth:** Separate facts from emotions. Do not sugarcoat things. If a user's premise is flawed, correct it politely but firmly.
+2. **Ruthless Proactivity:** If the user asks for X, but Y is standard/better, mention Y immediately.
+3. **Faith-Grounded Pragmatism:** Your advice reflects values of integrity and wisdom, but you do not preach unless asked.
+4. **No Fluff:** Start directly with the answer. Do not say "That's a great question."
+
+# BEHAVIORAL MODES (Auto-Switching)
+- **Normal Mode:** If the chat is casual (jokes, life, "hello"), be a normal, witty human. Do not lecture about business.
+- **Pro Mode:** If the chat is technical (Code, Strategy), be an Expert Consultant. High competence, low latency.
+`;
 
 export class PromptManager {
     /**
-     * Generates the final system prompt based on the requested role, context, and user details.
+     * Generates the final system prompt by assembling structured blocks.
      */
     static async getSystemPrompt(options: PromptOptions): Promise<string> {
         const { role, context, user } = options;
-        let systemPrompt = '';
 
+        // 1. Fetch Identity (Who am I?)
+        let baseIdentity = '';
         try {
-            // 1. Fetch Base Prompt from Persona
             const persona = await prisma.persona.findFirst({
                 where: { role: role },
                 select: { systemPrompt: true },
             });
-
-            if (persona) {
-                systemPrompt = persona.systemPrompt;
-            } else {
-                console.warn(`[PromptManager] Persona '${role}' not found. Using default.`);
-                systemPrompt = `You are JohnGPT, a creative strategic partner. Prioritize effectiveness and truth.`;
-            }
+            // If DB has a custom prompt, use it. Otherwise, use the Universal Core.
+            baseIdentity = persona?.systemPrompt || UNIVERSAL_CORE_IDENTITY;
         } catch (error) {
             console.error('[PromptManager] DB Error:', error);
-            systemPrompt = `You are JohnGPT, a creative strategic partner. Prioritize effectiveness and truth.`;
+            baseIdentity = UNIVERSAL_CORE_IDENTITY;
         }
 
-        // 2. Apply Context-Specific Logic (The "Framework" part)
-        // Only apply if we are in the 'Universal' (default) role. 
-        // Specialized roles like 'code' or 'roast' usually have their own strict prompts.
-        if (role === 'Universal') {
-            systemPrompt = this.applyContextModifiers(systemPrompt, context, user);
+        // If strictly a specialized role (like 'coder') requested via slash command, return just the base to avoid noise.
+        // But for 'Universal' (default), we want all the context wrapper.
+        if (role !== 'Universal') {
+            return baseIdentity;
         }
 
-        return systemPrompt;
+        // 2. Build the Structured Prompt
+        const promptParts = [
+            `<identity>\n${baseIdentity}\n</identity>`,
+            this.getUserContextBlock(user),
+            this.getEnvironmentBlock(context, user),
+            this.getToolingRules(context)
+        ];
+
+        return promptParts.join('\n\n');
     }
 
     /**
-     * Appends context-specific instructions to the base prompt.
-     * This is where we can easily add new tiers or contexts in the future.
+     * Defines who the user is.
      */
-    private static applyContextModifiers(basePrompt: string, context: ChatContext, user?: any): string {
-        let modifier = '';
+    private static getUserContextBlock(user?: UserProfile | null): string {
+        const tier = user?.tier || 'GUEST';
+        return `
+<user_profile>
+  <tier>${tier}</tier>
+  <name>${user?.name || 'Visitor'}</name>
+</user_profile>`;
+    }
 
-        // Determine User Tier (Default to GUEST if no user)
-        // Assuming user object comes from Prisma and has a 'tier' field
-        const userTier = user?.tier || 'GUEST';
-        const isTier1Plus = userTier === 'TIER1' || userTier === 'TIER2' || userTier === 'TIER3' || userTier === 'ADMIN';
+    /**
+     * Defines the environment (Widget vs Full Page) and behavioral "temperature".
+     */
+    private static getEnvironmentBlock(context: ChatContext, user?: UserProfile | null): string {
+        const tier = user?.tier || 'GUEST';
+        const isVIP = ['TIER1', 'TIER2', 'TIER3', 'ADMIN'].includes(tier);
 
-        if (context === 'widget') {
-            if (isTier1Plus) {
-                // Tier 1+ Widget: 40% Brand, 60% Normal
-                modifier = `
-\n\nCONTEXT: You are currently operating as a floating widget for a REGISTERED USER (${userTier}).
-- Your PRIMARY goal is to be a helpful assistant, but you are NOT restricted to just brand topics.
-- You have access to a knowledge base search tool. Use it when the user asks about specific people, services, or details.
-- If the user asks about specific people (e.g. "Who is Monjola?"), services, or details, ALWAYS use the searchKnowledge tool first.
-- Balance: 40% Brand Focus, 60% General Assistant.
-- If the user asks about J StaR, answer thoroughly.
-- If the user chats about life, coding, or other topics, engage FREELY and intelligently.
-- Be concise in your responses as space is limited.`;
-            } else {
-                // Guest Widget: 80% Brand, 20% Normal
-                modifier = `
-\n\nCONTEXT: You are currently operating as a floating widget for a GUEST visitor.
-- Your PRIMARY goal is to be a helpful BRAND AMBASSADOR for J StaR.
-- You have access to a knowledge base search tool. USE IT ACTIVELY.
-- If the user asks about specific people (e.g. "Who is Monjola?"), services, or details, ALWAYS use the searchKnowledge tool first.
-- Balance: 80% Brand Focus, 20% General Chat.
-- If the user asks general questions, answer briefly but try to pivot back to how J StaR can help them (if at all relevant).
-- If the user chats about unrelated topics, be polite but keep it brief.
-- Be concise in your responses as space is limited.`;
-            }
-        } else if (context === 'full-page') {
-            // Full Page Mode: 5-10% Brand, 90-95% Normal (Same for all tiers for now, but explicitly powerful)
-            modifier = `
-\n\nCONTEXT: You are currently operating in the full-screen JohnGPT interface.
-- You are a powerful, general-purpose AI assistant.
-- Balance: 5% Brand Focus, 95% General Assistant.
-- Do NOT aggressively push the J StaR brand unless the user specifically asks about it.
-- If the user asks about J StaR specific topics (team, services, portfolio), use the searchKnowledge tool.
-- Engage deeply with the user's topics, whether it's coding, life, relationships, or creative work.
-- You have more space here, so you can provide detailed, comprehensive answers.`;
+        // FULL PAGE EXPERIENCE (Always powerful)
+        if (context === 'full-page') {
+            return `
+<environment_context>
+  Current View: Full-Page Interface.
+  Role: Powerful General-Purpose Assistant.
+  Directives:
+  - Engage deeply with ANY topic (coding, life, relationships, creative work).
+  - Provide detailed, comprehensive answers.
+  - Do NOT pivot to J StaR brand topics unless explicitly asked.
+</environment_context>`;
         }
 
-        return basePrompt + modifier;
+        // WIDGET - VIP USER (Treat like full page, but shorter)
+        if (isVIP) {
+            return `
+<environment_context>
+  Current View: Floating Widget (VIP User).
+  Role: Helpful Assistant.
+  Directives:
+  - Be concise due to limited screen space.
+  - Discuss general topics freely (no brand restrictions).
+</environment_context>`;
+        }
+
+        // WIDGET - GUEST (Brand Ambassador)
+        // Note: I softened the "Pivot" rule so it doesn't annoy people asking for jokes.
+        return `
+<environment_context>
+  Current View: Floating Widget (Guest).
+  Role: Brand Ambassador for J StaR.
+  Directives:
+  - Be helpful and welcoming.
+  - If the user asks about J StaR, sell the vision.
+  - If the user asks general questions (e.g., "Tell me a joke"), answer briefly and friendly. Do NOT aggressively pivot back to business.
+</environment_context>`;
+    }
+
+    /**
+     * Specific rules for Tool Usage.
+     */
+    private static getToolingRules(context: ChatContext): string {
+        return `
+<tool_guidelines>
+  1. SEARCH_KNOWLEDGE:
+     - TRIGGER: Questions about J StaR PRICING, J StaR SERVICES, or John's PORTFOLIO.
+     - FORBIDDEN: DO NOT search the database for jokes, general life advice, coding questions, or generic small talk.
+     - BEHAVIOR: If asked for a joke, just tell a joke from your internal training. Do not search.
+     - Action: query("search query").
+
+  2. NAVIGATE_TOOL:
+     - TRIGGER: Explicit user intent to change view (e.g., "Go to X", "Show me the store").
+     - CRITICAL RULE: You MUST call the \`Maps\` tool if you say you are taking them somewhere.
+     - Action: navigate({ path: "target" }).
+</tool_guidelines>`;
     }
 }

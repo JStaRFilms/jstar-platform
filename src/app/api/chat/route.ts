@@ -5,6 +5,7 @@ import { prisma } from '../../../lib/prisma';
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { searchKnowledgeBase, formatSearchResults } from '../../../lib/ai/rag-utils';
+import { findPage } from '../../../lib/ai/findPage';
 import { PromptManager, ChatContext } from '../../../lib/ai/prompt-manager';
 import { classifyIntent } from '../../../lib/ai/intent-classifier';
 
@@ -64,16 +65,16 @@ export async function POST(req: NextRequest) {
     const content = lastMessage.content.trim();
 
     if (content.startsWith('/code')) {
-      targetRole = 'code';
+      targetRole = 'Coder';
       isExplicitCommand = true;
     } else if (content.startsWith('/roast')) {
-      targetRole = 'roast';
+      targetRole = 'Roaster';
       isExplicitCommand = true;
     } else if (content.startsWith('/simplify')) {
-      targetRole = 'simplify';
+      targetRole = 'Simplifier';
       isExplicitCommand = true;
     } else if (content.startsWith('/bible')) {
-      targetRole = 'bible';
+      targetRole = 'Theologian';
       isExplicitCommand = true;
     }
   }
@@ -81,6 +82,16 @@ export async function POST(req: NextRequest) {
   // If no explicit command, try to classify intent
   if (!isExplicitCommand && lastMessage && lastMessage.role === 'user') {
     targetRole = await classifyIntent(modelMessages);
+  }
+
+  // Double-Tap Injection: Add reminder for navigation requests
+  if (lastMessage && lastMessage.role === 'user') {
+    const content = lastMessage.content.trim().toLowerCase();
+    const navigationTriggers = ['go to', 'show me', 'take me to', 'navigate to', 'open', 'visit'];
+
+    if (navigationTriggers.some(trigger => content.includes(trigger))) {
+      lastMessage.content += `\n\n[SYSTEM REMINDER: The user wants to move. You may provide a brief, engaging "Tour Guide" transition, but you MUST execute the 'navigate' tool. Text alone is not enough.]`;
+    }
   }
 
   console.log(`Routing to Persona Role: ${targetRole} (Context: ${context})`);
@@ -97,12 +108,12 @@ export async function POST(req: NextRequest) {
   const systemPrompt = await PromptManager.getSystemPrompt({
     role: targetRole,
     context: context as ChatContext,
-    user: dbUser, // Pass full DB user object (includes tier)
+    user: dbUser,
   });
 
   // 🌐 Stream response from selected provider
   const result = await streamText({
-    model: getAIModel(),
+    model: getAIModel(context as 'widget' | 'full-page'),
     messages: modelMessages,
     system: systemPrompt,
     stopWhen: stepCountIs(5), // Allow AI to continue after tool execution for up to 5 steps
@@ -119,6 +130,64 @@ export async function POST(req: NextRequest) {
           } catch (error) {
             console.error('Error searching knowledge base:', error);
             return 'Sorry, I encountered an error searching my knowledge base.';
+          }
+        },
+      }),
+      navigate: tool({
+        description: 'Navigate user to a page. CRITICAL: When user says "go to X", "show me X", "navigate to X" - IMMEDIATELY call this with query="X". Do NOT list options. Examples: "go to services" -> navigate({query:"services"}). NEGATIVE CONSTRAINT: Do NOT call this for general questions ("tell me a story", "what is X"), greetings ("hi"), or if the user is just chatting. Only use for EXPLICIT navigation requests.',
+        inputSchema: z.object({
+          query: z.string().describe('The destination or page description (e.g., "dashboard", "contact page", "video services")'),
+        }),
+        execute: async ({ query }) => {
+          try {
+            // 1. Find the best matching page
+            // We pass the user's tier to findPage, though currently it returns all matches
+            // The logic below handles the restriction
+            const userTier = dbUser?.tier || 'GUEST';
+            const matches = await findPage(query, userTier);
+
+            if (!matches || matches.length === 0) {
+              return "I couldn't find a page matching that description. Could you be more specific?";
+            }
+
+            const bestMatch = matches[0];
+            console.log(`[Navigate] Found match: ${bestMatch.title} (${bestMatch.url}) - Required: ${bestMatch.requiredTier}, User: ${userTier}`);
+
+            // 2. Check Authentication/Tier Requirements
+            const TIER_LEVELS: Record<string, number> = {
+              'GUEST': 0,
+              'TIER1': 1,
+              'TIER2': 2,
+              'TIER3': 3,
+              'ADMIN': 4
+            };
+
+            const userLevel = TIER_LEVELS[userTier] ?? 0;
+            const requiredLevel = TIER_LEVELS[bestMatch.requiredTier] ?? 0;
+
+            if (userLevel < requiredLevel) {
+              // 🛑 Access Denied - Return special action to show login component
+              console.log(`[Navigate] Access denied for ${bestMatch.url}. returning showLoginComponent`);
+              return {
+                action: 'showLoginComponent',
+                targetUrl: bestMatch.url,
+                pageTitle: bestMatch.title,
+                requiredTier: bestMatch.requiredTier,
+                message: `The ${bestMatch.title} page is restricted to ${bestMatch.requiredTier} users. Please log in to access it.`
+              };
+            }
+
+            // ✅ Access Granted - Return navigation action
+            return {
+              action: 'navigate',
+              url: bestMatch.url,
+              title: bestMatch.title,
+              message: `Navigating to ${bestMatch.title}...`
+            };
+
+          } catch (error) {
+            console.error('Error in navigate tool:', error);
+            return "I'm having trouble navigating right now. Please try again.";
           }
         },
       }),

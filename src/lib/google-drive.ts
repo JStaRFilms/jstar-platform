@@ -101,12 +101,12 @@ export class GoogleDriveService {
         return google.drive({ version: 'v3', auth: this.oauth2Client });
     }
     /**
-     * Ensures the "JohnGPT Data" folder exists and returns its ID
+     * Ensures the "J StaR Platform" folder exists and returns its ID
      */
     async ensureRootFolder(drive: any) {
         // Check if root folder exists
         const res = await drive.files.list({
-            q: "mimeType='application/vnd.google-apps.folder' and name='JohnGPT Data' and trashed=false",
+            q: "mimeType='application/vnd.google-apps.folder' and name='J StaR Platform' and trashed=false",
             fields: 'files(id, name)',
         });
 
@@ -116,7 +116,7 @@ export class GoogleDriveService {
 
         // Create root folder
         const folderMetadata = {
-            name: 'JohnGPT Data',
+            name: 'J StaR Platform',
             mimeType: 'application/vnd.google-apps.folder',
         };
 
@@ -146,6 +146,36 @@ export class GoogleDriveService {
 
         const folderMetadata = {
             name: 'conversations',
+            mimeType: 'application/vnd.google-apps.folder',
+            parents: [rootFolderId],
+        };
+
+        const folder = await drive.files.create({
+            requestBody: folderMetadata,
+            fields: 'id',
+        });
+
+        return folder.data.id;
+    }
+
+    /**
+     * Ensures the "widget-sessions" subfolder exists
+     */
+    async ensureWidgetSessionsFolder(userId: string) {
+        const drive = await this.getDriveClient(userId);
+        const rootFolderId = await this.ensureRootFolder(drive);
+
+        const res = await drive.files.list({
+            q: `mimeType='application/vnd.google-apps.folder' and name='widget-sessions' and '${rootFolderId}' in parents and trashed=false`,
+            fields: 'files(id, name)',
+        });
+
+        if (res.data.files && res.data.files.length > 0) {
+            return res.data.files[0].id;
+        }
+
+        const folderMetadata = {
+            name: 'widget-sessions',
             mimeType: 'application/vnd.google-apps.folder',
             parents: [rootFolderId],
         };
@@ -240,6 +270,64 @@ export class GoogleDriveService {
         await drive.files.delete({
             fileId: fileId,
         });
+    }
+
+    /**
+     * Saves a widget session to Google Drive
+     */
+    async saveWidgetSession(userId: string, session: any) {
+        const drive = await this.getDriveClient(userId);
+        const folderId = await this.ensureWidgetSessionsFolder(userId);
+        const fileName = `${session.id || session.conversationId}.json`;
+
+        // Check if file exists
+        const res = await drive.files.list({
+            q: `name='${fileName}' and '${folderId}' in parents and trashed=false`,
+            fields: 'files(id)',
+        });
+
+        const media = {
+            mimeType: 'application/json',
+            body: JSON.stringify(session, null, 2),
+        };
+
+        if (res.data.files && res.data.files.length > 0) {
+            // Update existing file
+            const fileId = res.data.files[0].id!;
+            await drive.files.update({
+                fileId: fileId,
+                requestBody: { modifiedTime: new Date().toISOString() },
+                media: media,
+            });
+            return fileId;
+        } else {
+            // Create new file
+            const file = await drive.files.create({
+                requestBody: {
+                    name: fileName,
+                    parents: [folderId],
+                } as any,
+                media: media,
+                fields: 'id',
+            });
+            return file.data.id!;
+        }
+    }
+
+    /**
+     * Lists all widget sessions from Google Drive
+     */
+    async listWidgetSessions(userId: string) {
+        const drive = await this.getDriveClient(userId);
+        const folderId = await this.ensureWidgetSessionsFolder(userId);
+
+        const res = await drive.files.list({
+            q: `'${folderId}' in parents and trashed=false and mimeType='application/json'`,
+            fields: 'files(id, name, modifiedTime)',
+            orderBy: 'modifiedTime desc',
+        });
+
+        return res.data.files || [];
     }
 }
 

@@ -66,6 +66,7 @@ export type UseConversationPersistenceReturn = {
 // ============================================================================
 
 export function useConversationPersistence(
+    userId: string,
     conversationId?: string
 ): UseConversationPersistenceReturn {
     // State
@@ -77,6 +78,20 @@ export function useConversationPersistence(
 
     // Refs
     const syncUnsubscribeRef = useRef<(() => void) | null>(null);
+
+    // ========================================================================
+    // Initialization
+    // ========================================================================
+
+    useEffect(() => {
+        if (userId) {
+            // Initialize Google Drive client with user's token
+            // This ensures we can sync/load from Drive immediately
+            syncManager.initializeGoogleDrive(userId).catch(err => {
+                console.error('[useConversationPersistence] Failed to init Drive:', err);
+            });
+        }
+    }, [userId]);
 
     // ========================================================================
     // Sync Event Listener

@@ -72,6 +72,28 @@ export type GoogleDriveError = {
   details?: any;
 };
 
+export class GoogleDriveAuthError extends Error {
+  constructor(message: string, public authContext?: {
+    hasAccessToken: boolean;
+    hasRefreshToken: boolean;
+    lastAuthAttempt?: Date;
+  }) {
+    super(message);
+    this.name = 'GoogleDriveAuthError';
+  }
+}
+
+export class GoogleDriveQuotaError extends Error {
+  constructor(message: string, public quotaInfo?: {
+    limit: number;
+    usage: number;
+    usageInDrive: number;
+  }) {
+    super(message);
+    this.name = 'GoogleDriveQuotaError';
+  }
+}
+
 type FolderCache = {
   rootFolderId: string | null;
   conversationsFolderId: string | null;
@@ -84,6 +106,7 @@ type FolderCache = {
 
 const ROOT_FOLDER_NAME = 'J StaR Platform';
 const CONVERSATIONS_FOLDER_NAME = 'conversations';
+const WIDGET_SESSIONS_FOLDER_NAME = 'widget-sessions';
 const FILE_VERSION = 1;
 const MIME_TYPE_FOLDER = 'application/vnd.google-apps.folder';
 const MIME_TYPE_JSON = 'application/json';
@@ -100,6 +123,9 @@ export class GoogleDriveClient {
     conversationsFolderId: null,
     lastChecked: 0,
   };
+  private widgetFolderId: string | null = null;
+  private _authState: 'unauthenticated' | 'authenticated' | 'authenticating' = 'unauthenticated';
+  private authChangeListeners: Array<(state: string) => void> = [];
 
   /**
    * Initialize the client with a Google OAuth access token
@@ -113,6 +139,27 @@ export class GoogleDriveClient {
    */
   isAuthenticated(): boolean {
     return this.accessToken !== null;
+  }
+
+  /**
+   * Add listener for authentication state changes
+   */
+  onAuthStateChange(callback: (state: string) => void): void {
+    this.authChangeListeners.push(callback);
+  }
+
+  /**
+   * Remove authentication state change listener
+   */
+  offAuthStateChange(callback: (state: string) => void): void {
+    this.authChangeListeners = this.authChangeListeners.filter(cb => cb !== callback);
+  }
+
+  /**
+   * Get current authentication state
+   */
+  getAuthState(): string {
+    return this._authState;
   }
 
   // ==========================================================================
@@ -143,6 +190,15 @@ export class GoogleDriveClient {
       rootFolderId
     );
 
+    // Step 3: Get or create widget sessions subfolder
+    // Let's cache it now to ensure structure
+    if (!this.widgetFolderId) {
+      this.widgetFolderId = await this.getOrCreateFolder(
+        WIDGET_SESSIONS_FOLDER_NAME,
+        rootFolderId
+      );
+    }
+
     // Update cache
     this.folderCache = {
       rootFolderId,
@@ -151,6 +207,20 @@ export class GoogleDriveClient {
     };
 
     return conversationsFolderId;
+  }
+
+  /**
+   * Ensures the widget sessions folder exists
+   */
+  private async ensureWidgetFolder(): Promise<string> {
+    await this.ensureFolderStructure(); // Ensures root and conversations, and populates widgetFolderId if we added it above
+    // But purely relies on the side-effect of ensureFolderStructure updating widgetFolderId
+    if (this.widgetFolderId) return this.widgetFolderId;
+
+    // Fallback if not set
+    const rootId = this.folderCache.rootFolderId!; // Should be set by ensureFolderStructure
+    this.widgetFolderId = await this.getOrCreateFolder(WIDGET_SESSIONS_FOLDER_NAME, rootId);
+    return this.widgetFolderId;
   }
 
   /**
@@ -203,7 +273,7 @@ export class GoogleDriveClient {
   async saveConversation(
     conversationData: Omit<ConversationFile, 'version'>
   ): Promise<{ fileId: string; updatedAt: string }> {
-    this.ensureAuthenticated();
+    await this.ensureAuthenticated();
 
     const folderId = await this.ensureFolderStructure();
 
@@ -233,6 +303,42 @@ export class GoogleDriveClient {
       return { fileId: existingFileId, updatedAt: fileData.updatedAt };
     } else {
       // Create new file
+      const fileId = await this.createFile(fileName, folderId, fileData);
+      return { fileId, updatedAt: fileData.updatedAt };
+    }
+  }
+
+  /**
+   * Save a widget session to "widget-sessions" folder
+   */
+  async saveWidgetSession(
+    conversationData: Omit<ConversationFile, 'version'>
+  ): Promise<{ fileId: string; updatedAt: string }> {
+    await this.ensureAuthenticated();
+    const folderId = await this.ensureWidgetFolder();
+
+    const shortId = conversationData.conversationId.replace('widget-session-', '').slice(0, 8);
+    const sanitizedTitle = this.sanitizeFilename(conversationData.title || 'Widget Session');
+    const fileName = `${sanitizedTitle} - ${shortId}.json`;
+
+    console.log('[GoogleDrive] Saving widget session:', fileName);
+
+    const fileData: ConversationFile = {
+      version: FILE_VERSION,
+      ...conversationData,
+      updatedAt: new Date().toISOString(),
+    };
+
+    // Check existing
+    const existingFileId = await this.findFileByConversationId(
+      conversationData.conversationId,
+      folderId
+    );
+
+    if (existingFileId) {
+      await this.updateFile(existingFileId, fileData, fileName);
+      return { fileId: existingFileId, updatedAt: fileData.updatedAt };
+    } else {
       const fileId = await this.createFile(fileName, folderId, fileData);
       return { fileId, updatedAt: fileData.updatedAt };
     }
@@ -273,16 +379,30 @@ export class GoogleDriveClient {
    * Load a conversation from Google Drive
    */
   async loadConversation(conversationId: string): Promise<ConversationFile | null> {
-    this.ensureAuthenticated();
+    await this.ensureAuthenticated();
 
     const folderId = await this.ensureFolderStructure();
-    const fileName = `${conversationId}.json`;
+    // Fix: Use findFileByConversationId to handle "[Title] - [shortId].json" format
+    // instead of expecting exact "ID.json" match
+    const fileId = await this.findFileByConversationId(conversationId, folderId);
 
-    const fileId = await this.findFileByName(fileName, folderId);
     if (!fileId) {
       return null;
     }
 
+    return await this.downloadFile(fileId);
+  }
+
+  /**
+   * Load a widget session from widget-sessions folder
+   */
+  async loadWidgetSession(conversationId: string): Promise<ConversationFile | null> {
+    await this.ensureAuthenticated();
+    const folderId = await this.ensureWidgetFolder();
+
+    const fileId = await this.findFileByConversationId(conversationId, folderId);
+
+    if (!fileId) return null;
     return await this.downloadFile(fileId);
   }
 
@@ -296,7 +416,7 @@ export class GoogleDriveClient {
     title: string;
     updatedAt: string;
   }>> {
-    this.ensureAuthenticated();
+    await this.ensureAuthenticated();
 
     const folderId = await this.ensureFolderStructure();
 
@@ -323,23 +443,92 @@ export class GoogleDriveClient {
   }
 
   /**
+   * List all widget sessions
+   */
+  async listWidgetSessions(): Promise<Array<{
+    conversationId: string;
+    fileId: string;
+    title: string;
+    updatedAt: string;
+  }>> {
+    await this.ensureAuthenticated();
+    const folderId = await this.ensureWidgetFolder();
+
+    const searchQuery = `'${folderId}' in parents and mimeType='${MIME_TYPE_JSON}' and trashed=false`;
+    const response = await this.makeRequest(
+      `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(searchQuery)}&fields=files(id,name,modifiedTime)&orderBy=modifiedTime desc`,
+      { method: 'GET' }
+    );
+
+    const data = await response.json();
+    if (!data.files || data.files.length === 0) return [];
+
+    return data.files.map((file: any) => ({
+      conversationId: 'widget-session', // We might need to parse this better if needed, but usually we load by specific ID
+      fileId: file.id,
+      title: file.name.replace('.json', ''),
+      updatedAt: file.modifiedTime,
+    }));
+  }
+
+  /**
+   * Delete a conversation from Google Drive
+   */
+  async deleteWidgetSession(conversationId: string): Promise<void> {
+    await this.ensureAuthenticated();
+    const folderId = await this.ensureWidgetFolder();
+    const fileId = await this.findFileByConversationId(conversationId, folderId);
+
+    if (!fileId) {
+      // Silent fail or throw? standard delete throws.
+      throw new Error(`Widget session ${conversationId} not found in Google Drive`);
+    }
+
+    await this.deleteFile(fileId);
+  }
+
+  async deleteFile(fileId: string): Promise<void> {
+    await this.makeRequest(
+      `https://www.googleapis.com/drive/v3/files/${fileId}`,
+      { method: 'DELETE' }
+    );
+  }
+
+  /**
    * Delete a conversation from Google Drive
    */
   async deleteConversation(conversationId: string): Promise<void> {
-    this.ensureAuthenticated();
+    await this.ensureAuthenticated();
 
     const folderId = await this.ensureFolderStructure();
-    const fileName = `${conversationId}.json`;
-    const fileId = await this.findFileByName(fileName, folderId);
+
+    // Fix: Use findFileByConversationId instead of exact name match
+    // because we save with titles now.
+    const fileId = await this.findFileByConversationId(conversationId, folderId);
 
     if (!fileId) {
       throw new Error(`Conversation ${conversationId} not found in Google Drive`);
     }
 
-    await this.makeRequest(
-      `https://www.googleapis.com/drive/v3/files/${fileId}`,
-      { method: 'DELETE' }
-    );
+    await this.deleteFile(fileId);
+  }
+
+  /**
+   * Move a file from widget-sessions to conversations folder
+   */
+  async promoteSessionToConversation(widgetConversationId: string, newTitle: string): Promise<string> {
+    await this.ensureAuthenticated();
+
+    // 1. Find the file in widget folder
+    const widgetFolderId = await this.ensureWidgetFolder();
+    const fileId = await this.findFileByConversationId(widgetConversationId, widgetFolderId);
+
+    if (!fileId) throw new Error('Widget session file not found');
+
+    // 2. Get target folder
+    const convFolderId = await this.ensureFolderStructure();
+
+    return fileId;
   }
 
   // ==========================================================================
@@ -472,7 +661,36 @@ export class GoogleDriveClient {
     });
 
     if (!response.ok) {
-      const error = await this.parseError(response);
+      const errorData = await this.parseError(response);
+
+      // Handle Auth Errors (401)
+      if (response.status === 401) {
+        throw new GoogleDriveAuthError(errorData.message, {
+          hasAccessToken: !!this.accessToken,
+          hasRefreshToken: false, // We don't track this in client
+          lastAuthAttempt: new Date()
+        });
+      }
+
+      // Handle Quota Errors (403 with specific reason, or 507)
+      // Google Drive uses 403 for rate limit and quota limits usually
+      if (response.status === 403 && (
+        errorData.message.toLowerCase().includes('quota') ||
+        errorData.message.toLowerCase().includes('insufficient storage') ||
+        (errorData.details?.errors?.[0]?.reason === 'storageQuotaExceeded')
+      )) {
+        // Try to fetch quota info if possible, otherwise throw with basic info
+        throw new GoogleDriveQuotaError(errorData.message, {
+          limit: 0,
+          usage: 0,
+          usageInDrive: 0
+        });
+      }
+
+      // Throw generic error with details
+      const error: any = new Error(errorData.message);
+      error.code = errorData.code;
+      error.details = errorData.details;
       throw error;
     }
 
@@ -501,10 +719,28 @@ export class GoogleDriveClient {
   /**
    * Ensure client is authenticated before making requests
    */
-  private ensureAuthenticated(): void {
-    if (!this.accessToken) {
-      throw new Error('Google Drive client not authenticated. Call setAccessToken() first.');
+  private async ensureAuthenticated(): Promise<void> {
+    if (this.accessToken) {
+      if (this._authState !== 'authenticated') {
+        this._authState = 'authenticated';
+        this.authChangeListeners.forEach(cb => cb('authenticated'));
+      }
+      return;
     }
+
+    this._authState = 'authenticating';
+    this.authChangeListeners.forEach(cb => cb('authenticating'));
+
+    const errorContext = {
+      hasAccessToken: false,
+      hasRefreshToken: false,
+      lastAuthAttempt: new Date()
+    };
+
+    throw new GoogleDriveAuthError(
+      'Google Drive client not authenticated. Call setAccessToken() first.',
+      errorContext
+    );
   }
 
   // ==========================================================================
@@ -520,7 +756,7 @@ export class GoogleDriveClient {
     usage: number;
     usageInDrive: number;
   }> {
-    this.ensureAuthenticated();
+    await this.ensureAuthenticated();
 
     const response = await this.makeRequest(
       'https://www.googleapis.com/drive/v3/about?fields=storageQuota',
