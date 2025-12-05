@@ -8,6 +8,7 @@ import { ConversationSidebar } from './ConversationSidebar';
 import { ChatView } from './ChatView';
 import { MobileSidebar } from './MobileSidebar';
 import { useSearchParams } from 'next/navigation';
+import { ChatActionProvider } from '../context/ChatActionContext';
 
 type JohnGPTPageProps = {
     user: WorkOSUser | null;
@@ -84,38 +85,40 @@ export function JohnGPTPage({ user, isDriveConnected, signInUrl, signUpUrl, conv
 
     // Authenticated user - show full interface
     return (
-        <div className="flex h-full bg-background relative overflow-hidden">
-            {/* Mobile Sidebar */}
-            <MobileSidebar
-                isOpen={isSidebarOpen}
-                onClose={() => setIsSidebarOpen(false)}
-                user={user}
-                isDriveConnected={isDriveConnected}
-                activeConversationId={conversationId}
-            />
-
-            {/* Sidebar - Desktop only */}
-            <aside className="hidden md:flex w-72 flex-col border-r border-border shrink-0">
-                <ConversationSidebar
+        <ChatActionProvider>
+            <div className="flex h-full bg-background relative overflow-hidden">
+                {/* Mobile Sidebar */}
+                <MobileSidebar
+                    isOpen={isSidebarOpen}
+                    onClose={() => setIsSidebarOpen(false)}
                     user={user}
                     isDriveConnected={isDriveConnected}
                     activeConversationId={conversationId}
-                    className="w-full"
                 />
-            </aside>
 
-            {/* Main Content Area */}
-            <main className="flex-1 flex flex-col bg-background min-w-0 h-full relative">
-                <div className="flex-1 relative h-full overflow-hidden">
-                    <ChatView
+                {/* Sidebar - Desktop only */}
+                <aside className="hidden md:flex w-72 flex-col border-r border-border shrink-0">
+                    <ConversationSidebar
                         user={user}
-                        conversationId={conversationId}
-                        importSessionId={importSessionId}
-                        className="w-full h-full absolute inset-0"
-                        onMobileMenuClick={() => setIsSidebarOpen(true)}
+                        isDriveConnected={isDriveConnected}
+                        activeConversationId={conversationId}
+                        className="w-full"
                     />
-                </div>
-            </main>
-        </div>
+                </aside>
+
+                {/* Main Content Area */}
+                <main className="flex-1 flex flex-col bg-background min-w-0 h-full relative">
+                    <div className="flex-1 relative h-full overflow-hidden">
+                        <ChatView
+                            user={user}
+                            conversationId={conversationId}
+                            importSessionId={importSessionId}
+                            className="w-full h-full absolute inset-0"
+                            onMobileMenuClick={() => setIsSidebarOpen(true)}
+                        />
+                    </div>
+                </main>
+            </div>
+        </ChatActionProvider>
     );
 }
