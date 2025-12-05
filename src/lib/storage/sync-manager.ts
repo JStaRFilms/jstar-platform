@@ -393,6 +393,14 @@ export class SyncManager {
      * Sync a conversation to Google Drive
      */
     private async syncConversationToDrive(conversationId: string, isWidget?: boolean): Promise<void> {
+        // Skip Drive sync if not authenticated (anonymous/guest users)
+        if (!googleDriveClient.isAuthenticated()) {
+            console.log('[SyncManager] Skipping Drive sync - not authenticated');
+            // Mark as synced locally since IndexedDB save succeeded
+            this.emitSyncEvent(conversationId, 'synced');
+            return;
+        }
+
         if (!this.isOnline) {
             // Add to offline queue
             await indexedDBClient.addToSyncQueue(conversationId);
