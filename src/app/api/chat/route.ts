@@ -5,7 +5,7 @@ import { prisma } from '../../../lib/prisma';
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { searchKnowledgeBase, formatSearchResults } from '../../../lib/ai/rag-utils';
-import { findPage } from '../../../lib/ai/findPage';
+import { findDestination } from '../../../lib/ai/findDestination';
 import { PromptManager, ChatContext } from '../../../lib/ai/prompt-manager';
 import { classifyIntent } from '../../../lib/ai/intent-classifier';
 
@@ -13,13 +13,25 @@ export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { messages } = body;
+  const { messages, currentPath: bodyCurrentPath } = body;
 
   // Detect context from the Referer header - much more reliable than client-side
   const referer = req.headers.get('referer') || '';
   const context = referer.includes('/john-gpt') ? 'full-page' : 'widget';
 
-  console.log('API /api/chat received body:', JSON.stringify({ ...body, messages: messages.length }, null, 2));
+  // Extract currentPath from referer (more reliable than body)
+  let currentPath = '/';
+  try {
+    if (referer) {
+      const refererUrl = new URL(referer);
+      currentPath = refererUrl.pathname;
+    }
+  } catch (e) {
+    // Fallback to body or default
+    currentPath = bodyCurrentPath || '/';
+  }
+
+  console.log('API /api/chat received:', { messages: messages.length, currentPath, context });
   console.log(`Context detected from referer: ${referer} => ${context}`);
 
   // 🔓 Optional Authentication - Allow anonymous users
@@ -133,60 +145,82 @@ export async function POST(req: NextRequest) {
           }
         },
       }),
-      navigate: tool({
-        description: 'Navigate user to a page. CRITICAL: When user says "go to X", "show me X", "navigate to X" - IMMEDIATELY call this with query="X". Do NOT list options. Examples: "go to services" -> navigate({query:"services"}). NEGATIVE CONSTRAINT: Do NOT call this for general questions ("tell me a story", "what is X"), greetings ("hi"), or if the user is just chatting. Only use for EXPLICIT navigation requests.',
+      goTo: tool({
+        description: `Smart navigation tool. Handles BOTH page navigation AND section scrolling. Use when user says "go to X", "show me X", "take me to X".
+EXAMPLES:
+- "show me services" → goTo({destination: "services"})
+- "take me to pricing" → goTo({destination: "pricing"})
+- "go to contact page" → goTo({destination: "contact page"})
+- "show me the portfolio section" → goTo({destination: "portfolio section"})
+NEGATIVE: Do NOT use for general questions, greetings, or casual chat.`,
         inputSchema: z.object({
-          query: z.string().describe('The destination or page description (e.g., "dashboard", "contact page", "video services")'),
+          destination: z.string().describe('Where the user wants to go (e.g., "services", "pricing page", "portfolio section")'),
         }),
-        execute: async ({ query }) => {
+        execute: async ({ destination }) => {
           try {
-            // 1. Find the best matching page
-            // We pass the user's tier to findPage, though currently it returns all matches
-            // The logic below handles the restriction
             const userTier = dbUser?.tier || 'GUEST';
-            const matches = await findPage(query, userTier);
+            console.log(`[goTo] Query: "${destination}", currentPath: "${currentPath}", userTier: ${userTier}`);
+            const match = await findDestination(destination, currentPath, userTier);
 
-            if (!matches || matches.length === 0) {
-              return "I couldn't find a page matching that description. Could you be more specific?";
+            if (!match) {
+              return "I couldn't find that destination. Could you be more specific?";
             }
 
-            const bestMatch = matches[0];
-            console.log(`[Navigate] Found match: ${bestMatch.title} (${bestMatch.url}) - Required: ${bestMatch.requiredTier}, User: ${userTier}`);
+            console.log(`[goTo] Match: ${match.type} - Page: ${match.pageUrl}, Section: ${match.sectionId || 'none'}, isOnCurrentPage: ${match.isOnCurrentPage}`);
 
-            // 2. Check Authentication/Tier Requirements
+            // Check tier access
             const TIER_LEVELS: Record<string, number> = {
-              'GUEST': 0,
-              'TIER1': 1,
-              'TIER2': 2,
-              'TIER3': 3,
-              'ADMIN': 4
+              'GUEST': 0, 'TIER1': 1, 'TIER2': 2, 'TIER3': 3, 'ADMIN': 4
             };
-
             const userLevel = TIER_LEVELS[userTier] ?? 0;
-            const requiredLevel = TIER_LEVELS[bestMatch.requiredTier] ?? 0;
+            const requiredLevel = TIER_LEVELS[match.requiredTier] ?? 0;
 
             if (userLevel < requiredLevel) {
-              // 🛑 Access Denied - Return special action to show login component
-              console.log(`[Navigate] Access denied for ${bestMatch.url}. returning showLoginComponent`);
               return {
                 action: 'showLoginComponent',
-                targetUrl: bestMatch.url,
-                pageTitle: bestMatch.title,
-                requiredTier: bestMatch.requiredTier,
-                message: `The ${bestMatch.title} page is restricted to ${bestMatch.requiredTier} users. Please log in to access it.`
+                targetUrl: match.pageUrl,
+                pageTitle: match.pageTitle,
+                requiredTier: match.requiredTier,
+                message: `The ${match.pageTitle} page requires ${match.requiredTier} access. Please log in.`
               };
             }
 
-            // ✅ Access Granted - Return navigation action
-            return {
-              action: 'navigate',
-              url: bestMatch.url,
-              title: bestMatch.title,
-              message: `Navigating to ${bestMatch.title}...`
-            };
+            // Return appropriate action based on match type
+            switch (match.type) {
+              case 'section':
+                // Already on this page, just scroll
+                return {
+                  action: 'scrollToSection',
+                  sectionId: match.sectionId,
+                  message: `Showing the ${match.sectionTitle} section...`
+                };
+
+              case 'page':
+                // Navigate to a different page
+                return {
+                  action: 'navigate',
+                  url: match.pageUrl,
+                  title: match.pageTitle,
+                  message: `Taking you to ${match.pageTitle}...`
+                };
+
+              case 'page_and_section':
+                // Navigate to page AND scroll to section
+                return {
+                  action: 'navigateAndScroll',
+                  url: match.pageUrl,
+                  title: match.pageTitle,
+                  sectionId: match.sectionId,
+                  sectionTitle: match.sectionTitle,
+                  message: `Taking you to the ${match.sectionTitle} section on ${match.pageTitle}...`
+                };
+
+              default:
+                return { action: 'navigate', url: match.pageUrl, title: match.pageTitle };
+            }
 
           } catch (error) {
-            console.error('Error in navigate tool:', error);
+            console.error('[goTo] Error:', error);
             return "I'm having trouble navigating right now. Please try again.";
           }
         },

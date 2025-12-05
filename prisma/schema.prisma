@@ -462,8 +462,49 @@ model PageNavigation {
   metadata     Json?    // Extra info: { icon: "📧", keywords: ["email", "reach out"] }
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
+  
+  // Relation: A Page has many Sections
+  sections     PageSection[]
 
   @@index([category])
   @@index([requiredTier])
   @@map("page_navigation")
 }
+
+/// Page Section - Sections within pages for scroll-to navigation
+/// Each section has its own embedding for semantic search
+model PageSection {
+  id          String   @id @default(cuid())
+  
+  // Link to parent page
+  pageId      String   @map("page_id")
+  page        PageNavigation @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  
+  // The HTML id attribute (e.g., "pricing-section")
+  elementId   String   @map("element_id")
+  
+  // Human-readable title (e.g., "Pricing")
+  title       String
+  
+  // Semantic description for vector search
+  description String
+  
+  // Display order on the page
+  order       Int      @default(0)
+  
+  // Vector embedding for semantic search
+  embedding   Unsupported("vector(768)")
+  
+  // Extra metadata (keywords, icons, etc.)
+  metadata    Json?
+  
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Prevent duplicate section IDs on the same page
+  @@unique([pageId, elementId])
+  @@index([elementId])
+  @@map("page_sections")
+}
+

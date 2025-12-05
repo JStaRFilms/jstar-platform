@@ -37,7 +37,7 @@ const TestimonialsSection = () => {
   };
 
   return (
-    <section id="testimonials" className="py-20 bg-white dark:bg-gray-900">
+    <section id="testimonials-section" className="py-20 bg-white dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center">
@@ -77,21 +77,20 @@ const TestimonialsSection = () => {
               return (
                 <div
                   key={index}
-                  className={`absolute inset-0 flex justify-center items-center transition-all duration-500 ease-in-out ${
-                    isActive
+                  className={`absolute inset-0 flex justify-center items-center transition-all duration-500 ease-in-out ${isActive
                       ? 'z-20 opacity-100 scale-100'
                       : isPrev || isNext
-                      ? 'z-10 opacity-60 scale-95'
-                      : 'z-0 opacity-0 scale-90'
-                  }`}
+                        ? 'z-10 opacity-60 scale-95'
+                        : 'z-0 opacity-0 scale-90'
+                    }`}
                   style={{
                     transform: isActive
                       ? 'translateY(0) rotateY(0deg)'
                       : isPrev
-                      ? 'translateY(-20px) translateX(-30px) rotateY(-5deg)'
-                      : isNext
-                      ? 'translateY(20px) translateX(30px) rotateY(5deg)'
-                      : 'translateY(0) translateX(0) rotateY(0deg)'
+                        ? 'translateY(-20px) translateX(-30px) rotateY(-5deg)'
+                        : isNext
+                          ? 'translateY(20px) translateX(30px) rotateY(5deg)'
+                          : 'translateY(0) translateX(0) rotateY(0deg)'
                   }}
                 >
                   <div
@@ -120,15 +119,14 @@ const TestimonialsSection = () => {
         {/* Testimonial Dots */}
         <div className="flex justify-center mt-8 space-x-2 -mb-10">
           {Array.from({ length: totalGroups }, (_, index) =>
-          <button
-            key={index}
-            onClick={() => handleDotClick(index)}
-            className={`testimonial-dot w-2 h-2 md:w-3 md:h-3 rounded-full transition-all duration-300 focus:outline-none ${
-            index === currentIndex ?
-            'bg-primary dark:bg-accent' :
-            'bg-primary/30 dark:bg-accent/30'}`
-            }
-            aria-label={`Go to testimonial group ${index + 1}`} />
+            <button
+              key={index}
+              onClick={() => handleDotClick(index)}
+              className={`testimonial-dot w-2 h-2 md:w-3 md:h-3 rounded-full transition-all duration-300 focus:outline-none ${index === currentIndex ?
+                  'bg-primary dark:bg-accent' :
+                  'bg-primary/30 dark:bg-accent/30'}`
+              }
+              aria-label={`Go to testimonial group ${index + 1}`} />
 
           )}
         </div>
@@ -144,7 +142,7 @@ const TestimonialsSection = () => {
           <a
             href="#contact"
             className="inline-flex items-center px-8 py-3.5 border border-transparent text-base font-medium rounded-full text-white bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5">
-            
+
             Get Started Today
             <ChevronRightIcon className="ml-2 -mr-1 w-5 h-5" />
           </a>

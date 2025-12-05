@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useChat, UIMessage } from '@ai-sdk/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { syncManager } from '@/lib/storage/sync-manager';
 
 export type BranchingMessage = UIMessage & {
@@ -27,11 +27,13 @@ export type UseBranchingChatOptions = {
     body?: any;
     onFinish?: any; // Let TypeScript infer from useChat
     isWidget?: boolean;
+    scrollToSection?: (sectionId: string) => void;
 };
 
 export function useBranchingChat(options: UseBranchingChatOptions = {}) {
     const { conversationId, userId } = options;
     const router = useRouter();
+    const pathname = usePathname();
 
     // 1. Internal Tree State
     const [tree, setTree] = useState<MessageTree>({});
@@ -42,11 +44,14 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
 
     const [currentMode, setCurrentMode] = useState<string | null>(null);
 
-    // 2. Initialize useChat
-    console.log('[useBranchingChat] Options received:', { body: options.body, api: options.api });
+    // 2. Initialize useChat with currentPath for navigation context
+    console.log('[useBranchingChat] Options received:', { body: options.body, api: options.api, currentPath: pathname });
 
     const chatHelpers = useChat({
         ...options,
+        // Include currentPath for navigation context
+        // @ts-expect-error - body is supported but types are strict
+        body: { ...options.body, currentPath: pathname },
         onFinish: (response: any) => {
             // 🚀 Handle navigation tool results HERE (not in UI component)
             // This ensures navigation only happens ONCE when streaming completes
@@ -55,16 +60,43 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
 
             if (msg?.parts) {
                 for (const part of msg.parts) {
-                    if (part.type === 'tool-navigate' && part.state === 'output-available') {
+                    // Handle unified goTo tool
+                    if (part.type === 'tool-goTo' && part.state === 'output-available') {
                         const result = part.output;
-                        if (result?.action === 'navigate' && result?.url) {
-                            // Delay slightly to let UI update first
-                            setTimeout(() => {
-                                console.log('[Navigation] Executing:', result.url);
-                                router.push(result.url);
-                            }, 1500);
-                            break; // Only navigate once
+                        const scrollFn = options.scrollToSection;
+
+                        switch (result?.action) {
+                            case 'navigate':
+                                // Navigate to page with spotlight effect
+                                setTimeout(() => {
+                                    console.log('[goTo] Navigating to:', result.url);
+                                    // Add spotlight=page param to trigger page glow on arrival
+                                    const separator = result.url.includes('?') ? '&' : '?';
+                                    router.push(`${result.url}${separator}spotlight=page`);
+                                }, 1500);
+                                break;
+
+                            case 'scrollToSection':
+                                // Scroll to section on current page
+                                if (result.sectionId && scrollFn) {
+                                    setTimeout(() => {
+                                        console.log('[goTo] Scrolling to:', result.sectionId);
+                                        scrollFn(result.sectionId);
+                                    }, 500);
+                                }
+                                break;
+
+                            case 'navigateAndScroll':
+                                // Navigate to page, then scroll to section
+                                setTimeout(() => {
+                                    console.log('[goTo] Navigate + Scroll:', result.url, result.sectionId);
+                                    // Add spotlight param with section ID
+                                    const sep = result.url.includes('?') ? '&' : '?';
+                                    router.push(`${result.url}${sep}spotlight=${result.sectionId}`);
+                                }, 1500);
+                                break;
                         }
+                        break; // Only handle one navigation action
                     }
                 }
             }

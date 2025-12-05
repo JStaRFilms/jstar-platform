@@ -13,7 +13,7 @@ import { companyData } from '../../../content/about-company';
  */
 const AboutSection = () => {
   return (
-    <section id="about" className="py-20 bg-background">
+    <section id="about-section" className="py-20 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-16">
@@ -21,8 +21,8 @@ const AboutSection = () => {
             About J StaR Films
           </span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
-          <span className="text-foreground">Crafting Exceptional </span>
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">Visual Experiences</span>
+            <span className="text-foreground">Crafting Exceptional </span>
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">Visual Experiences</span>
           </h2>
           <div className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto mb-6"></div>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
@@ -43,7 +43,7 @@ const AboutSection = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
               <div className="absolute bottom-0 left-0 p-6 text-white">
                 <h3 className="text-2xl font-bold">Our Creative Team</h3>
-              <p className="text-gray-200">Passionate professionals dedicated to excellence</p>
+                <p className="text-gray-200">Passionate professionals dedicated to excellence</p>
               </div>
             </div>
             <div className="absolute -top-6 -right-6 w-32 h-32 bg-accent/10 rounded-full -z-10 hidden lg:block"></div>
@@ -61,7 +61,7 @@ const AboutSection = () => {
               </div>
             </div>
           </div>
-          
+
           {/* Right Column - Content */}
           <div className="lg:pl-12">
             <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-6">
@@ -115,7 +115,7 @@ const AboutSection = () => {
             </div>
           </div>
         </div>
-        
+
         {/* Team Section */}
         <div className="mt-24">
           <div className="text-center mb-12">
@@ -126,21 +126,21 @@ const AboutSection = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {companyData.teamMembers.map((member, index) =>
-            <div key={index} className="group bg-card rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <div key={index} className="group bg-card rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <div className="relative overflow-hidden h-64">
                   <Image src={member.imageUrl} alt={member.name} fill className="object-cover transition-transform duration-500 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
-                      <div className="text-white">
-                          <h4 className="text-lg font-semibold">{member.name}</h4>
-                          <p className="text-gray-200 text-sm">{member.role}</p>
-                      </div>
+                    <div className="text-white">
+                      <h4 className="text-lg font-semibold">{member.name}</h4>
+                      <p className="text-gray-200 text-sm">{member.role}</p>
+                    </div>
                   </div>
                 </div>
               </div>
             )}
           </div>
         </div>
-        
+
         {/* Clients Section */}
         <div className="mt-24">
           <div className="text-center mb-12">
@@ -151,7 +151,7 @@ const AboutSection = () => {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center">
             {companyData.clients.map((client, index) =>
-            <div key={index} className="flex justify-center opacity-70 hover:opacity-100 transition-opacity duration-300">
+              <div key={index} className="flex justify-center opacity-70 hover:opacity-100 transition-opacity duration-300">
                 <ClientLogo client={client} />
               </div>
             )}

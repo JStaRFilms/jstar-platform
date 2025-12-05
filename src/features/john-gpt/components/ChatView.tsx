@@ -14,6 +14,7 @@ import { useConversationManagement } from '../hooks/useConversationManagement';
 import { useRouter } from 'next/navigation';
 import { ChatHeader } from './ChatHeader';
 import { useActiveChat } from '../context/ActiveChatContext';
+import { useChatActions } from '../context/ChatActionContext';
 
 type ChatViewProps = {
     user: WorkOSUser;
@@ -83,11 +84,15 @@ export function ChatView({ user, className, conversationId: conversationIdProp, 
     const [input, setInput] = React.useState('');
     const messagesRef = React.useRef<any[]>([]);
 
+    // Get scrollToSection from ChatActionContext
+    const { scrollToSection } = useChatActions();
+
     // Initialize useChat with persistence
     const { messages, sendMessage, status, stop, setMessages, addToolResult, editMessage, navigateBranch, currentMode } = useBranchingChat({
         api: '/api/chat',
         conversationId: internalConversationId, // Use internal state
         userId: user.id, // User ID for storage
+        scrollToSection, // Pass scrollToSection for spotlight feature
         // Context is now auto-detected server-side from the Referer header
     });
 

@@ -3,36 +3,36 @@ import React from 'react';
 import { LightBulbIcon, PenFancyIcon, CameraIcon, CommentsIcon, RocketIcon } from '../../../components/icons/static-icons';
 
 const processSteps = [
-  { 
-    icon: LightBulbIcon, 
-    title: 'Discovery', 
+  {
+    icon: LightBulbIcon,
+    title: 'Discovery',
     description: 'We discuss your vision, goals, and values to understand what matters most to your project.'
   },
-  { 
-    icon: PenFancyIcon, 
-    title: 'Strategy', 
+  {
+    icon: PenFancyIcon,
+    title: 'Strategy',
     description: 'We develop a tailored plan that aligns with your purpose and technical requirements.'
   },
-  { 
-    icon: CameraIcon, 
-    title: 'Creation', 
+  {
+    icon: CameraIcon,
+    title: 'Creation',
     description: 'We bring your vision to life with technical excellence and creative passion.'
   },
-  { 
-    icon: CommentsIcon, 
-    title: 'Refinement', 
+  {
+    icon: CommentsIcon,
+    title: 'Refinement',
     description: 'You review the work and provide feedback for any necessary revisions.'
   },
-  { 
-    icon: RocketIcon, 
-    title: 'Launch', 
+  {
+    icon: RocketIcon,
+    title: 'Launch',
     description: 'Final files are delivered and we ensure everything is perfect for your launch.'
   },
 ];
 
 const ProcessSection = () => {
   return (
-    <section id="process" className="py-20 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800/50">
+    <section id="process-section" className="py-20 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800/50">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <span className="inline-block px-4 py-1.5 bg-jstar-blue/10 text-jstar-blue rounded-full text-sm font-medium mb-4">
@@ -45,7 +45,7 @@ const ProcessSection = () => {
             A proven approach to delivering exceptional results, from initial concept to final delivery, with faith and excellence at every step.
           </p>
         </div>
-        
+
         <div className="relative">
           {/* Connecting line for desktop */}
           <div className="hidden md:block absolute top-8 left-0 w-full h-0.5 bg-gray-200 dark:bg-gray-700"></div>

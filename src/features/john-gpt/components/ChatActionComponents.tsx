@@ -1,7 +1,7 @@
 import React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Lock, ArrowRight, Check } from 'lucide-react';
+import { Lock, ArrowRight, Check, MousePointer2, Navigation } from 'lucide-react';
 
 // --- Types ---
 export interface LoginActionProps {
@@ -16,6 +16,20 @@ export interface NavigationPreviewProps {
     title: string;
     message?: string;
     timestamp?: Date | number;
+}
+
+export interface SectionScrollPreviewProps {
+    sectionId: string;
+    sectionTitle?: string;
+    message?: string;
+}
+
+export interface NavigateAndScrollPreviewProps {
+    url: string;
+    pageTitle: string;
+    sectionId: string;
+    sectionTitle?: string;
+    message?: string;
 }
 
 // --- Components ---
@@ -66,7 +80,7 @@ export function NavigationPreview({ url, title, message }: NavigationPreviewProp
 
     if (isCompleted) {
         return (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground my-2 opacity-80">
+            <div className="flex items-center gap-2 text-sm text-green-500 my-2">
                 <Check className="w-4 h-4" />
                 <span>Navigated to {title}</span>
             </div>
@@ -80,3 +94,47 @@ export function NavigationPreview({ url, title, message }: NavigationPreviewProp
         </div>
     );
 }
+
+/**
+ * Component shown when scrolling to a section on the current page.
+ */
+export function SectionScrollPreview({ sectionId, sectionTitle, message }: SectionScrollPreviewProps) {
+    const displayTitle = sectionTitle || sectionId.replace('-section', '').replace(/-/g, ' ');
+
+    return (
+        <div className="flex items-center gap-2 text-sm text-emerald-500 my-2">
+            <MousePointer2 className="w-4 h-4" />
+            <span>{message || `Scrolling to ${displayTitle}...`}</span>
+        </div>
+    );
+}
+
+/**
+ * Component shown when navigating to a page AND scrolling to a section.
+ */
+export function NavigateAndScrollPreview({ url, pageTitle, sectionId, sectionTitle, message }: NavigateAndScrollPreviewProps) {
+    const pathname = usePathname();
+    const displaySection = sectionTitle || sectionId.replace('-section', '').replace(/-/g, ' ');
+
+    // Determine display status based on current location
+    const targetPath = url.startsWith('http') ? new URL(url).pathname : url;
+    const isCompleted = pathname === targetPath ||
+        (targetPath !== '/' && pathname.endsWith(targetPath));
+
+    if (isCompleted) {
+        return (
+            <div className="flex items-center gap-2 text-sm text-green-500 my-2">
+                <Check className="w-4 h-4" />
+                <span>Showing {displaySection} on {pageTitle}</span>
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex items-center gap-2 text-sm text-accent-blue my-2 animate-pulse">
+            <Navigation className="w-4 h-4" />
+            <span>{message || `Taking you to ${displaySection} on ${pageTitle}...`}</span>
+        </div>
+    );
+}
+

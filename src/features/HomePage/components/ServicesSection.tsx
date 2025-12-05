@@ -22,7 +22,7 @@ const ServicesSection: React.FC = React.memo(() => {
 
 
   return (
-    <section id="services" className="py-20 bg-gray-50 dark:bg-gray-900/50">
+    <section id="services-section" className="py-20 bg-gray-50 dark:bg-gray-900/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-16">

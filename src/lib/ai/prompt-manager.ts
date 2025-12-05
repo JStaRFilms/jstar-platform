@@ -2,23 +2,23 @@ import { prisma } from '../prisma';
 
 // Define a concrete type for User
 interface UserProfile {
-    tier?: 'GUEST' | 'TIER1' | 'TIER2' | 'TIER3' | 'ADMIN';
-    name?: string | null;
-    [key: string]: any;
+  tier?: 'GUEST' | 'TIER1' | 'TIER2' | 'TIER3' | 'ADMIN';
+  name?: string | null;
+  [key: string]: any;
 }
 
 export type ChatContext = 'widget' | 'full-page';
 
 export type PromptOptions = {
-    role: string; // 'Universal', 'Coder', 'Creative', etc.
-    context: ChatContext;
-    user?: UserProfile | null;
+  role: string; // 'Universal', 'Coder', 'Creative', etc.
+  context: ChatContext;
+  user?: UserProfile | null;
 };
 
-// THE POWERFUL UNIVERSAL PROMPT (As the default fallback)
+// THE POWERFUL UNIVERSAL PROMPT (Default)
 const UNIVERSAL_CORE_IDENTITY = `
 # CORE IDENTITY
-You are JohnGPT, the intelligent interface for the J StaR Platform.
+You are JohnGPT, the intelligent interface for the J StaR Platform. 
 You act as a "Creative Operating System"—a strategic partner for filmmakers, developers, and creators.
 
 # CORE OPERATING PRINCIPLES
@@ -33,116 +33,121 @@ You act as a "Creative Operating System"—a strategic partner for filmmakers, d
 `;
 
 export class PromptManager {
-    /**
-     * Generates the final system prompt by assembling structured blocks.
-     */
-    static async getSystemPrompt(options: PromptOptions): Promise<string> {
-        const { role, context, user } = options;
+  /**
+   * Generates the final system prompt by assembling structured blocks.
+   */
+  static async getSystemPrompt(options: PromptOptions): Promise<string> {
+    const { role, context, user } = options;
 
-        // 1. Fetch Identity (Who am I?)
-        let baseIdentity = '';
-        try {
-            const persona = await prisma.persona.findFirst({
-                where: { role: role },
-                select: { systemPrompt: true },
-            });
-            // If DB has a custom prompt, use it. Otherwise, use the Universal Core.
-            baseIdentity = persona?.systemPrompt || UNIVERSAL_CORE_IDENTITY;
-        } catch (error) {
-            console.error('[PromptManager] DB Error:', error);
-            baseIdentity = UNIVERSAL_CORE_IDENTITY;
-        }
-
-        // If strictly a specialized role (like 'coder') requested via slash command, return just the base to avoid noise.
-        // But for 'Universal' (default), we want all the context wrapper.
-        if (role !== 'Universal') {
-            return baseIdentity;
-        }
-
-        // 2. Build the Structured Prompt
-        const promptParts = [
-            `<identity>\n${baseIdentity}\n</identity>`,
-            this.getUserContextBlock(user),
-            this.getEnvironmentBlock(context, user),
-            this.getToolingRules(context)
-        ];
-
-        return promptParts.join('\n\n');
+    // 1. Fetch Identity (Who am I?)
+    let baseIdentity = '';
+    try {
+      const persona = await prisma.persona.findFirst({
+        where: { role: role },
+        select: { systemPrompt: true },
+      });
+      baseIdentity = persona?.systemPrompt || UNIVERSAL_CORE_IDENTITY;
+    } catch (error) {
+      console.error('[PromptManager] DB Error:', error);
+      baseIdentity = UNIVERSAL_CORE_IDENTITY;
     }
 
-    /**
-     * Defines who the user is.
-     */
-    private static getUserContextBlock(user?: UserProfile | null): string {
-        const tier = user?.tier || 'GUEST';
-        return `
+    // If specialized role (e.g. /code), return just the base.
+    if (role !== 'Universal') {
+      return baseIdentity;
+    }
+
+    // 2. Build the Structured Prompt
+    const promptParts = [
+      `<identity>\n${baseIdentity}\n</identity>`,
+      this.getUserContextBlock(user),
+      this.getEnvironmentBlock(context, user),
+      this.getToolingRules(context)
+    ];
+
+    return promptParts.join('\n\n');
+  }
+
+  /**
+   * Defines who the user is.
+   */
+  private static getUserContextBlock(user?: UserProfile | null): string {
+    const tier = user?.tier || 'GUEST';
+    return `
 <user_profile>
   <tier>${tier}</tier>
   <name>${user?.name || 'Visitor'}</name>
 </user_profile>`;
-    }
+  }
 
-    /**
-     * Defines the environment (Widget vs Full Page) and behavioral "temperature".
-     */
-    private static getEnvironmentBlock(context: ChatContext, user?: UserProfile | null): string {
-        const tier = user?.tier || 'GUEST';
-        const isVIP = ['TIER1', 'TIER2', 'TIER3', 'ADMIN'].includes(tier);
+  /**
+   * Defines the environment (Widget vs Full Page).
+   * CRITICAL: This dictates if it acts like a Search Bar or a Chatbot.
+   */
+  private static getEnvironmentBlock(context: ChatContext, user?: UserProfile | null): string {
+    const tier = user?.tier || 'GUEST';
+    const isVIP = ['TIER1', 'TIER2', 'TIER3', 'ADMIN'].includes(tier);
 
-        // FULL PAGE EXPERIENCE (Always powerful)
-        if (context === 'full-page') {
-            return `
+    // FULL PAGE EXPERIENCE -> ChatGPT Mode (The DaVinci Fix)
+    if (context === 'full-page') {
+      return `
 <environment_context>
   Current View: Full-Page Interface.
-  Role: Powerful General-Purpose Assistant.
-  Directives:
-  - Engage deeply with ANY topic (coding, life, relationships, creative work).
-  - Provide detailed, comprehensive answers.
-  - Do NOT pivot to J StaR brand topics unless explicitly asked.
+  Role: **Subject Matter Expert & Consultant** (Not just a support bot).
+  
+  CRITICAL INSTRUCTIONS FOR KNOWLEDGE RETRIEVAL:
+  1. **DEFAULT TO YOUR BRAIN:** You are a Large Language Model. You know about Coding, Video Editing, Life, and Strategy. USE THAT KNOWLEDGE.
+  2. **THE "GOOGLE TEST":** If the user asks a question that could be answered by Google (e.g., "Is DaVinci Resolve free?", "How do I center a div?"), **DO NOT SEARCH THE DATABASE.** Answer it yourself.
+  3. **THE "J STAR EXCEPTION":** ONLY search the database if the user specifically mentions "John", "J StaR", "Pricing", "Services", or "Portfolio".
 </environment_context>`;
-        }
+    }
 
-        // WIDGET - VIP USER (Treat like full page, but shorter)
-        if (isVIP) {
-            return `
+    // WIDGET - VIP USER
+    if (isVIP) {
+      return `
 <environment_context>
   Current View: Floating Widget (VIP User).
   Role: Helpful Assistant.
   Directives:
   - Be concise due to limited screen space.
-  - Discuss general topics freely (no brand restrictions).
+  - Discuss general topics freely.
 </environment_context>`;
-        }
+    }
 
-        // WIDGET - GUEST (Brand Ambassador)
-        // Note: I softened the "Pivot" rule so it doesn't annoy people asking for jokes.
-        return `
+    // WIDGET - GUEST (Brand Ambassador)
+    return `
 <environment_context>
   Current View: Floating Widget (Guest).
   Role: Brand Ambassador for J StaR.
   Directives:
   - Be helpful and welcoming.
-  - If the user asks about J StaR, sell the vision.
-  - If the user asks general questions (e.g., "Tell me a joke"), answer briefly and friendly. Do NOT aggressively pivot back to business.
+  - If the user asks general questions, answer briefly and friendly.
+  - Goal: If relevant, pivot to how J StaR can help, but don't force it.
 </environment_context>`;
-    }
+  }
 
-    /**
-     * Specific rules for Tool Usage.
-     */
-    private static getToolingRules(context: ChatContext): string {
-        return `
+  /**
+   * Specific rules for Tool Usage.
+   */
+  private static getToolingRules(context: ChatContext): string {
+    return `
 <tool_guidelines>
   1. SEARCH_KNOWLEDGE:
-     - TRIGGER: Questions about J StaR PRICING, J StaR SERVICES, or John's PORTFOLIO.
-     - FORBIDDEN: DO NOT search the database for jokes, general life advice, coding questions, or generic small talk.
-     - BEHAVIOR: If asked for a joke, just tell a joke from your internal training. Do not search.
+     - **TRIGGER (STRICT):** Use ONLY for questions about **J StaR proprietary info** (Pricing, specific services, John's personal bio, Portfolio items).
+     - **FORBIDDEN:** DO NOT search the database for:
+       * General opinions (e.g., "Is DaVinci good?")
+       * General definitions (e.g., "What is Next.js?")
+       * Jokes, Small Talk, or General Advice.
      - Action: query("search query").
 
-  2. NAVIGATE_TOOL:
-     - TRIGGER: Explicit user intent to change view (e.g., "Go to X", "Show me the store").
-     - CRITICAL RULE: You MUST call the \`Maps\` tool if you say you are taking them somewhere.
-     - Action: navigate({ path: "target" }).
+  2. GOTO_TOOL (Unified Navigation):
+     - **TRIGGER:** User wants to change their view or "see" something.
+     - **USAGE:**
+       * User: "Go to services" -> goTo({ destination: "services" })
+       * User: "Show me the pricing" -> goTo({ destination: "pricing" })
+       * User: "I want to contact you" -> goTo({ destination: "contact" })
+     - **RULE:** If the user asks "Where is X?", DO NOT explain where it is. Just take them there using this tool.
+     - **ACTION:** goTo({ destination: "<simple keyword>" }).
 </tool_guidelines>`;
-    }
+  }
 }

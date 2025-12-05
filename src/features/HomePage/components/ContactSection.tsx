@@ -218,7 +218,7 @@ const ContactSection: React.FC = () => {
   };
 
   return (
-    <section id="contact" className="py-20 bg-background">
+    <section id="contact-section" className="py-20 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <span className="inline-block px-4 py-1.5 bg-jstar-blue/10 text-jstar-blue dark:text-jstar-blue rounded-full text-sm font-medium mb-4">

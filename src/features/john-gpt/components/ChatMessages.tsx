@@ -7,12 +7,13 @@ import { CodeBlock } from '@/components/ui/code-block';
 import { FileAttachment } from '@/components/ui/file-attachment';
 import { MarkdownRenderer } from '@/components/ui/MarkdownRenderer';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { useSmartAutoScroll } from '@/hooks/useSmartAutoScroll';
 import { useRouter, usePathname } from 'next/navigation';
 import type { User as WorkOSUser } from '@workos-inc/node';
 import { ExtendedMessage } from '@/lib/chat-types';
 import { Check, ChevronDown, Edit2, Copy, Compass, ChevronLeft, ChevronRight, Save, X } from 'lucide-react';
 import { BranchingMessage } from '../hooks/useBranchingChat';
-import { LoginActionComponent, NavigationPreview } from './ChatActionComponents';
+import { LoginActionComponent, NavigationPreview, SectionScrollPreview, NavigateAndScrollPreview } from './ChatActionComponents';
 
 /**
  * Props for the ChatMessages component
@@ -317,29 +318,16 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
   onEdit,
   onNavigateBranch
 }) => {
-  const messagesEndRef = React.useRef<HTMLDivElement>(null);
-  const scrollContainerRef = React.useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
   const isMobile = useMediaQuery('(max-width: 768px)');
 
-  // Scroll to bottom on mount
-  React.useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
-  }, []);
-
-  // Smooth auto-scroll logic - only scroll if user is within 100px of bottom
-  React.useEffect(() => {
-    const scrollContainer = scrollContainerRef.current;
-    if (!scrollContainer || !autoScrollEnabled) return;
-
-    const shouldScroll =
-      scrollContainer.scrollHeight - scrollContainer.scrollTop - scrollContainer.clientHeight <= 100;
-
-    if (shouldScroll) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [messages, isLoading, autoScrollEnabled]);
+  // Smart auto-scroll hook - handles all scroll logic intelligently
+  const { scrollContainerRef, scrollAnchorRef } = useSmartAutoScroll({
+    enabled: autoScrollEnabled,
+    threshold: 100,
+    debounceMs: 50,
+  });
 
   if (messages.length === 0 && !isLoading) {
     return (
@@ -508,6 +496,69 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
                           if (typeof result === 'string') {
                             return (
                               <div key={`tool-nav-${index}`} className="text-sm text-muted-foreground italic my-2">
+                                {result}
+                              </div>
+                            );
+                          }
+                        }
+
+                        // Handle unified goTo tool
+                        if (part.type === 'tool-goTo' && part.state === 'output-available') {
+                          console.log('🚀 [ChatMessages] Found tool-goTo part:', part);
+                          const result = part.output;
+
+                          if (result.action === 'showLoginComponent') {
+                            return (
+                              <LoginActionComponent
+                                key={`tool-goto-${index}`}
+                                requiredTier={result.requiredTier}
+                                targetUrl={result.targetUrl}
+                                pageTitle={result.pageTitle}
+                                message={result.message}
+                              />
+                            );
+                          }
+
+                          if (result.action === 'navigate') {
+                            return (
+                              <NavigationPreview
+                                key={`tool-goto-${index}`}
+                                url={result.url}
+                                title={result.title}
+                                message={result.message}
+                                timestamp={0}
+                              />
+                            );
+                          }
+
+                          if (result.action === 'scrollToSection') {
+                            return (
+                              <SectionScrollPreview
+                                key={`tool-goto-${index}`}
+                                sectionId={result.sectionId}
+                                sectionTitle={result.sectionTitle}
+                                message={result.message}
+                              />
+                            );
+                          }
+
+                          if (result.action === 'navigateAndScroll') {
+                            return (
+                              <NavigateAndScrollPreview
+                                key={`tool-goto-${index}`}
+                                url={result.url}
+                                pageTitle={result.title}
+                                sectionId={result.sectionId}
+                                sectionTitle={result.sectionTitle}
+                                message={result.message}
+                              />
+                            );
+                          }
+
+                          // Fallback for text messages or errors
+                          if (typeof result === 'string') {
+                            return (
+                              <div key={`tool-goto-${index}`} className="text-sm text-muted-foreground italic my-2">
                                 {result}
                               </div>
                             );
@@ -684,7 +735,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
         )
       }
 
-      <div ref={messagesEndRef} />
+      <div ref={scrollAnchorRef} />
     </div >
   );
 };

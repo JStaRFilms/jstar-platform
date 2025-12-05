@@ -46,7 +46,7 @@ function JohnGPTDialogContent({ open, onOpenChange, user, followMeConversationId
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { state, expandChat, minimizeChat } = useChatActions();
+  const { state, expandChat, minimizeChat, scrollToSection } = useChatActions();
   const { deactivateFollowMe } = useActiveChat();
 
   // Determine if we're in follow-me mode
@@ -79,6 +79,7 @@ function JohnGPTDialogContent({ open, onOpenChange, user, followMeConversationId
     conversationId: activeConversationId,
     userId: activeUserId,
     isWidget: !isFollowMeMode, // In follow-me mode, act like full page
+    scrollToSection, // Enable section scrolling from goTo tool
   });
   const { messages, sendMessage, status, stop, error: chatError, addToolResult, editMessage, navigateBranch, setMessages } = chatHelpers;
 
