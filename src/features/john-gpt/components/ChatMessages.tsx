@@ -2,9 +2,6 @@ import React from 'react';
 import { UIMessage } from '@ai-sdk/react';
 import { formatTime } from '@/lib/utils';
 import { BrainIcon } from '@/components/ui/BrainIcon';
-import { ColorPalette } from '@/components/ui/color-palette';
-import { CodeBlock } from '@/components/ui/code-block';
-import { FileAttachment } from '@/components/ui/file-attachment';
 import { MarkdownRenderer } from '@/components/ui/MarkdownRenderer';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useSmartAutoScroll } from '@/hooks/useSmartAutoScroll';
@@ -34,72 +31,14 @@ interface ChatMessagesProps {
 }
 
 /**
- * Parse message content for rich components like color palettes, code blocks, and file attachments
+ * Parse message content for rich components like color palettes
+ * NOTE: Code blocks are handled by MarkdownRenderer with Prism.js
+ * Color detection is DISABLED to prevent breaking code blocks
  */
 const parseMessageContent = (content: string) => {
-  const parts: Array<{ type: 'text' | 'color-palette' | 'code-block' | 'file-attachment', content: any }> = [];
-
-  // Simple parsing logic - expand this based on AI responses
-  const colorRegex = /#([0-9A-Fa-f]{3,8})/g;
-  const codeBlockRegex = /```(\w+)?\n?([\s\S]*?)```/g;
-  const attachmentRegex = /{{attachment:(.*?)}}/g; // Placeholder for file attachments
-
-
-
-  // Find all patterns and create parts
-  const allMatches: Array<{ index: number, endIndex: number, type: string, data: any }> = [];
-  let match: RegExpExecArray | null;
-
-  // Colors
-  while ((match = colorRegex.exec(content)) !== null) {
-    allMatches.push({
-      index: match.index,
-      endIndex: match.index + match[0].length,
-      type: 'color',
-      data: match[1]
-    });
-  }
-
-  // Code blocks
-  while ((match = codeBlockRegex.exec(content)) !== null) {
-    allMatches.push({
-      index: match.index,
-      endIndex: match.index + match[0].length,
-      type: 'code',
-      data: { language: match[1] || 'javascript', code: match[2] }
-    });
-  }
-
-  // Find color palettes (groups of 3+ colors)
-  const colorMatches = allMatches.filter(m => m.type === 'color');
-  if (colorMatches.length >= 3) {
-    const start = colorMatches[0].index;
-    const end = colorMatches[colorMatches.length - 1].endIndex;
-
-    parts.push({ type: 'text', content: content.slice(0, start).trim() });
-    parts.push({
-      type: 'color-palette',
-      content: colorMatches.map(m => ({ hex: `#${m.data}`, name: `Color ${colorMatches.indexOf(m) + 1}` }))
-    });
-    parts.push({ type: 'text', content: content.slice(end).trim() });
-  } else {
-    // No color palette, check for code blocks
-    const codeMatches = allMatches.filter(m => m.type === 'code');
-    if (codeMatches.length > 0) {
-      const codeMatch = codeMatches[0];
-      parts.push({ type: 'text', content: content.slice(0, codeMatch.index).trim() });
-      parts.push({
-        type: 'code-block',
-        content: { code: codeMatch.data.code, language: codeMatch.data.language }
-      });
-      parts.push({ type: 'text', content: content.slice(codeMatch.endIndex).trim() });
-    } else {
-      // Plain text
-      parts.push({ type: 'text', content: content });
-    }
-  }
-
-  return parts.filter(part => part.content !== '');
+  // Just return as text - let MarkdownRenderer handle everything
+  // This prevents color detection from breaking CSS/code examples
+  return [{ type: 'text' as const, content }];
 };
 
 /**
@@ -391,9 +330,9 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
             <div className={`space-y-2 ${message.role === 'user' ? 'max-w-[90%] md:max-w-3xl items-end flex flex-col' : 'max-w-full md:max-w-5xl items-start flex flex-col w-full'}`}>
               {/* Message bubble */}
               <div
-                className={`px-5 py-3.5 shadow-sm relative backdrop-blur-md transition-all duration-300 max-w-full ${message.role === 'user'
-                  ? 'bg-primary text-primary-foreground rounded-2xl rounded-br-sm overflow-hidden w-fit'
-                  : 'md:bg-background/60 md:border md:border-border/40 text-foreground rounded-2xl rounded-tl-sm md:hover:bg-background/80 md:hover:shadow-md md:hover:border-border/60 w-full md:w-auto bg-transparent border-none shadow-none p-0 md:px-5 md:py-3.5'
+                className={`shadow-sm relative backdrop-blur-md transition-all duration-300 max-w-full ${message.role === 'user'
+                  ? 'px-5 py-3.5 bg-primary text-primary-foreground rounded-2xl rounded-br-sm overflow-hidden w-fit'
+                  : 'px-1 py-1 md:px-5 md:py-3.5 md:bg-background/60 md:border md:border-border/40 text-foreground rounded-2xl rounded-tl-sm md:hover:bg-background/80 md:hover:shadow-md md:hover:border-border/60 w-full md:w-auto bg-transparent border-none md:shadow-sm'
                   }`}
               >
                 {/* Message content */}
@@ -427,38 +366,9 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
                     />
                   ) : (
                     <>
-                      {parsedParts.map((part, index) => {
-                        switch (part.type) {
-                          case 'text':
-                            return <MarkdownRenderer key={index} content={part.content} />;
-                          case 'color-palette':
-                            return (
-                              <ColorPalette
-                                key={index}
-                                colors={part.content}
-                                className="max-w-sm my-2"
-                              />
-                            );
-                          case 'code-block':
-                            return (
-                              <CodeBlock
-                                key={index}
-                                code={part.content.code}
-                                language={part.content.language}
-                                className="max-w-full my-2 shadow-sm border border-border/50"
-                              />
-                            );
-                          case 'file-attachment':
-                            return (
-                              <FileAttachment
-                                key={index}
-                                file={part.content}
-                              />
-                            );
-                          default:
-                            return null;
-                        }
-                      })}
+                      {parsedParts.map((part, index) => (
+                        <MarkdownRenderer key={index} content={part.content} />
+                      ))}
                       {/* Handle tool results from message.parts (AI SDK format) */}
                       {message.parts?.map((part: any, index: number) => {
                         // AI SDK returns tool calls as parts with type 'tool-{toolName}'
