@@ -97,3 +97,84 @@ The system automatically detects the context (widget vs full-page) from the HTTP
 2. **Cost Optimization**: Widgets typically handle more frequent, shorter interactions - use cost-effective models
 3. **Consistency**: Keep the same provider for both unless you have specific performance requirements
 4. **Fallback**: The widget will always fall back to main configuration if widget-specific variables are not set
+
+---
+
+## Dynamic Model Selection (UI-based)
+
+Beyond environment variables, users can select AI models dynamically through the Model Selector UI on the full JohnGPT page.
+
+### How It Works
+
+1. **Model Selector Component** (`ModelSelector.tsx`): Displays available models from the database
+2. **ChatView State**: Manages `selectedModelId` state
+3. **Per-Request Body**: The `modelId` is passed on each message via `sendMessageWithModel()`
+4. **Server Validation**: The API validates tier access and premium model limits
+
+### Key Implementation Details
+
+The Vercel AI SDK's `useChat` hook **memoizes** the `body` option at initialization. This means passing `modelId` in the static body configuration doesn't work when the user changes models after the hook initializes.
+
+**Solution**: Pass `modelId` per-request via the `sendMessage()` options:
+
+```typescript
+// useBranchingChat.ts
+const sendMessageWithModel = useCallback(
+    async (message: any, modelId?: string | null) => {
+        return sendMessage(message, {
+            body: { modelId },  // Per-request body overrides static body
+        });
+    },
+    [sendMessage]
+);
+```
+
+### Files Involved
+
+| File | Purpose |
+|------|---------|
+| `useBranchingChat.ts` | Custom hook wrapping `useChat` with `sendMessageWithModel` wrapper |
+| `ChatView.tsx` | Manages `selectedModelId` state and calls `sendMessageWithModel` |
+| `ModelSelector.tsx` | UI component for selecting models |
+| `route.ts` (API) | Receives `modelId` and passes to `getDynamicModel()` |
+| `ai-providers.ts` | `getDynamicModel()` fetches model config from database |
+
+---
+
+## Tier-Based Model Access
+
+Models can be restricted by user tier:
+
+| Tier | Access Level |
+|------|--------------|
+| `GUEST` | Free models only |
+| `TIER1` | Free + limited premium (daily cap) |
+| `TIER2` | All models, no limits |
+| `TIER3` | All models, no limits |
+| `ADMIN` | All models, no limits |
+
+Premium model usage is tracked in `User.paidModelUsageToday` with daily reset via `paidModelUsageResetAt`.
+
+---
+
+## Change Log
+
+### 2025-12-07: Fixed Dynamic Model Selection Bug
+
+**Problem**: The `modelId` selected in the Model Selector UI was not being passed to the `/api/chat` endpoint. Server logs showed `modelId: undefined` regardless of user selection.
+
+**Root Cause**: The `useChat` hook from `@ai-sdk/react` memoizes the `body` option at hook initialization. When `selectedModelId` was `null` at mount, that value was captured forever—even after the user selected a model.
+
+**Solution**: 
+1. Removed `modelId` from the static `body` configuration in `useChat`
+2. Created `sendMessageWithModel()` wrapper that passes `modelId` per-request via `sendMessage()` options
+3. Updated `ChatView.tsx` to call `sendMessageWithModel(message, selectedModelId)`
+
+**Additional Fix**: Changed `append` → `sendMessage` for AI SDK v5 compatibility (the SDK renamed this function).
+
+**Files Modified**:
+- `src/features/john-gpt/hooks/useBranchingChat.ts` - Added `sendMessageWithModel` wrapper
+- `src/features/john-gpt/components/ChatView.tsx` - Uses `sendMessageWithModel` with `selectedModelId`
+- `src/app/api/chat/route.ts` - Added `modelId` to console logging
+
+**Verification**: Server logs now show `modelId: 'cmiuo8eqo0009g67sh6asqbg4'` when a model is selected, and the correct model (e.g., "Gemini 2.5 Pro") is used.

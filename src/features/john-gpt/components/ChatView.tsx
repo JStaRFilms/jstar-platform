@@ -115,12 +115,12 @@ export function ChatView({ user, className, conversationId: conversationIdProp, 
     }, [fetchModelName]);
 
     // Initialize useChat with persistence
-    const { messages, sendMessage, status, stop, setMessages, addToolResult, editMessage, navigateBranch, currentMode } = useBranchingChat({
+    const { messages, sendMessageWithModel, status, stop, setMessages, addToolResult, editMessage, navigateBranch, currentMode } = useBranchingChat({
         api: '/api/chat',
         conversationId: internalConversationId, // Use internal state
         userId: user.id, // User ID for storage
         scrollToSection, // Pass scrollToSection for spotlight feature
-        modelId: selectedModelId, // Pass selected model ID
+        // modelId is now passed per-request via sendMessageWithModel, not here
         // Context is now auto-detected server-side from the Referer header
     });
 
@@ -231,10 +231,11 @@ export function ChatView({ user, className, conversationId: conversationIdProp, 
         }
 
         // Send message first (don't block on navigation)
-        await sendMessage({
-            role: 'user',
-            parts: [{ type: 'text', text: userMessage }],
-        });
+        // Pass selectedModelId dynamically - this bypasses useChat's memoized body
+        await sendMessageWithModel(
+            { role: 'user', parts: [{ type: 'text', text: userMessage }] },
+            selectedModelId
+        );
 
         // Update URL after message is sent (if we just created a new conversation)
         if (!conversationIdProp && currentConversationId) {

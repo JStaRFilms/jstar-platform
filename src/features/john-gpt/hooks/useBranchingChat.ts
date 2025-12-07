@@ -50,9 +50,10 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
 
     const chatHelpers = useChat({
         ...options,
-        // Include currentPath for navigation context and modelId for model selection
+        // Include currentPath for navigation context
+        // NOTE: modelId is passed per-request via sendMessageWithModel, NOT here (body is memoized at init)
         // @ts-expect-error - body is supported but types are strict
-        body: { ...options.body, currentPath: pathname, modelId: options.modelId },
+        body: { ...options.body, currentPath: pathname },
         onFinish: (response: any) => {
             // 🚀 Handle navigation tool results HERE (not in UI component)
             // This ensures navigation only happens ONCE when streaming completes
@@ -109,7 +110,18 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
         },
     }) as any;
 
-    const { messages, setMessages, append } = chatHelpers;
+    const { messages, setMessages, sendMessage } = chatHelpers;
+
+    // 🚀 Dynamic model selection wrapper
+    // useChat memoizes `body` at init, so we pass modelId per-request via sendMessage options
+    const sendMessageWithModel = useCallback(
+        async (message: any, modelId?: string | null) => {
+            return sendMessage(message, {
+                body: { modelId },
+            });
+        },
+        [sendMessage]
+    );
 
     // Listen for message updates to set the mode from metadata
     useEffect(() => {
@@ -433,12 +445,12 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
         }
 
         // 4. Append new message
-        await append({
+        await sendMessage({
             role: 'user',
             parts: [{ type: 'text', text: newContent }],
         });
 
-    }, [tree, setMessages, append]);
+    }, [tree, setMessages, sendMessage]);
 
 
     const navigateBranch = useCallback((nodeId: string, direction: 'prev' | 'next') => {
@@ -503,5 +515,6 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
         editMessage,
         navigateBranch,
         currentMode, // Expose current mode
+        sendMessageWithModel, // Dynamic model selection per-request
     };
 }

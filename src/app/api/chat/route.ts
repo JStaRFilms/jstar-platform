@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
     currentPath = bodyCurrentPath || '/';
   }
 
-  console.log('API /api/chat received:', { messages: messages.length, currentPath, context });
+  console.log('API /api/chat received:', { messages: messages.length, currentPath, context, modelId });
   console.log(`Context detected from referer: ${referer} => ${context}`);
 
   // 🔓 Optional Authentication - Allow anonymous users
