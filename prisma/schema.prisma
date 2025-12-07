@@ -121,23 +121,27 @@ model HeroSlideshowConfig {
 }
 
 model User {
-  id                String             @id @default(cuid())
-  email             String             @unique
-  name              String?
-  picture           String?
-  workosId          String?            @unique
-  tier              UserTier           @default(GUEST)
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  storageQuota      Int                @default(1073741824)
-  storageUsed       Int                @default(0)
-  fileShares        FileShare[]        @relation("SharedByUser")
-  receivedShares    FileShare[]        @relation("SharedWithUser")
-  files             File[]
-  folders           Folder[]
-  googleDriveConfig GoogleDriveConfig?
-  publicPrompts     PublicPrompt[]
-  conversations     Conversation[]
+  id                    String             @id @default(cuid())
+  email                 String             @unique
+  name                  String?
+  picture               String?
+  workosId              String?            @unique
+  tier                  UserTier           @default(GUEST)
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+  storageQuota          Int                @default(1073741824)
+  storageUsed           Int                @default(0)
+  defaultModelId        String?            // User's preferred default AI model
+  paidModelUsageToday   Int                @default(0) // Daily usage count for paid models
+  paidModelUsageResetAt DateTime?          // When to reset the daily counter
+  fileShares            FileShare[]        @relation("SharedByUser")
+  receivedShares        FileShare[]        @relation("SharedWithUser")
+  files                 File[]
+  folders               Folder[]
+  googleDriveConfig     GoogleDriveConfig?
+  publicPrompts         PublicPrompt[]
+  conversations         Conversation[]
+  modelUsageStats       UserModelUsage[]   // Track model usage for "most used" sorting
 
   @@map("users")
 }
@@ -297,16 +301,17 @@ model PublicPrompt {
 ///  * TIER1-2: Metadata in DB, full messages in Google Drive
 ///  * TIER3+: Full messages can be stored in DB (messages field)
 model Conversation {
-  id            String   @id @default(cuid())
-  userId        String
-  user          User     @relation(fields: [userId], references: [id])
-  title         String   @default("New Chat") // Auto-generated from first message
-  driveFileId   String?  // Google Drive file ID for cloud storage
-  driveVersion  Int      @default(1) // Version number for conflict resolution
-  personaId     String?
-  messages      Json?    // Optional: Array of {role, content, timestamp, metadata}
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  title           String   @default("New Chat") // Auto-generated from first message
+  driveFileId     String?  // Google Drive file ID for cloud storage
+  driveVersion    Int      @default(1) // Version number for conflict resolution
+  personaId       String?
+  selectedModelId String?  // AI model used for this conversation
+  messages        Json?    // Optional: Array of {role, content, timestamp, metadata}
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   @@index([userId, updatedAt])
   @@map("conversations")
@@ -508,3 +513,86 @@ model PageSection {
   @@map("page_sections")
 }
 
+/// *
+///  * AI Provider - Configuration for AI service providers
+///  * Stores API keys (encrypted) and provider settings
+model AIProvider {
+  id          String    @id @default(cuid())
+  name        String    @unique  // "openai", "google", "groq", "anthropic", "openrouter"
+  displayName String              // "OpenAI", "Google Gemini", "Groq"
+  apiKey      String?   @db.Text  // Encrypted API key (nullable = use env var fallback)
+  baseUrl     String?             // Custom base URL for OpenRouter, local models, etc.
+  isEnabled   Boolean   @default(true)
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  models      AIModel[]
+
+  @@map("ai_providers")
+}
+
+/// *
+///  * AI Model - Available AI models with tier requirements
+///  * Defines which models are available and access restrictions
+model AIModel {
+  id            String     @id @default(cuid())
+  providerId    String
+  provider      AIProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  modelId       String     // Provider's model ID, e.g., "gpt-4o", "gemini-2.5-flash"
+  displayName   String     // User-friendly name, e.g., "GPT-4o"
+  description   String?    // Brief description of model capabilities
+  minTier       UserTier   @default(GUEST)  // Minimum tier required to use this model
+  contextWindow Int?       // Token context window size (128000, 1000000, etc.)
+  hasVision     Boolean    @default(false)  // Supports image input
+  hasImageGen   Boolean    @default(false)  // Can generate images
+  isPremium     Boolean    @default(false)  // Counts against daily limit for Tier 1
+  isFeatured    Boolean    @default(false)  // Admin-selected to show in top 5
+  tags          String[]   // Capability tags: ["creativity", "reasoning", "coding"]
+  iconUrl       String?    // URL to provider/model icon
+  isDefault     Boolean    @default(false)  // Default model for new conversations
+  isActive      Boolean    @default(true)   // Admin can disable without deleting
+  sortOrder     Int        @default(0)      // Display order in model selector
+  
+  // Rate limiting (per-model limits from provider)
+  requestsPerMinute   Int?       // Max requests per minute (RPM)
+  requestsPerDay      Int?       // Max requests per day  
+  tokensPerMinute     Int?       // Max input tokens per minute
+  tokensPerDay        Int?       // Max input tokens per day
+  maxOutputTokens     Int?       // Max output tokens per request
+  
+  // Context caps per tier (JSON: {"GUEST": 8000, "TIER1": 32000, "TIER2": null})
+  tierContextCaps     Json?      // null = use full context, number = cap at that limit
+  
+  // Relations
+  usageStats    UserModelUsage[]
+  
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  @@unique([providerId, modelId])
+  @@index([minTier])
+  @@index([isActive, sortOrder])
+  @@index([isFeatured, sortOrder])  // For featured models query
+  @@map("ai_models")
+}
+
+/// *
+///  * User Model Usage - Tracks how often users use each model
+///  * Used to show "most used" models in the selector
+model UserModelUsage {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  modelId     String
+  model       AIModel  @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  
+  usageCount  Int      @default(1)  // Total times used
+  lastUsedAt  DateTime @default(now())
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, modelId])  // One record per user-model pair
+  @@index([userId, usageCount])  // For sorting by most used
+  @@map("user_model_usage")
+}

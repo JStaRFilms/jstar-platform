@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { Menu, Terminal, Flame, Zap, Book, Sparkles, Minimize2 } from 'lucide-react';
+import { Menu, Terminal, Flame, Zap, Book, Sparkles, Minimize2, Cpu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useActiveChat } from '../context/ActiveChatContext';
 
@@ -12,9 +12,13 @@ type ChatHeaderProps = {
     currentMode?: string | null;
     conversationId?: string;
     userId?: string;
+    /** Current model display name */
+    modelName?: string | null;
+    /** Callback to open model selector */
+    onOpenModelSelector?: () => void;
 };
 
-export function ChatHeader({ onMobileMenuClick, messages, currentMode, conversationId, userId }: ChatHeaderProps) {
+export function ChatHeader({ onMobileMenuClick, messages, currentMode, conversationId, userId, modelName, onOpenModelSelector }: ChatHeaderProps) {
     const router = useRouter();
     const { activateFollowMe } = useActiveChat();
 
@@ -177,6 +181,20 @@ export function ChatHeader({ onMobileMenuClick, messages, currentMode, conversat
 
             {/* Right side actions */}
             <div className="flex items-center gap-2">
+                {/* Model Indicator - Only show if callback provided (full-page mode) */}
+                {onOpenModelSelector && (
+                    <button
+                        onClick={onOpenModelSelector}
+                        className="flex items-center gap-2 px-3 py-1.5 bg-secondary/50 hover:bg-secondary rounded-full text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                        title="Change AI model"
+                    >
+                        <Cpu className="w-3.5 h-3.5" />
+                        <span className="max-w-[100px] truncate hidden sm:inline">
+                            {modelName || 'Model'}
+                        </span>
+                    </button>
+                )}
+
                 {/* Minimize Button - Only show if conversation is active */}
                 {conversationId && userId && (
                     <button

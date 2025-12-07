@@ -1,5 +1,5 @@
 import { streamText, tool, stepCountIs } from 'ai';
-import { getAIModel } from '../../../lib/ai-providers';
+import { getDynamicModel, getAIModel } from '../../../lib/ai-providers';
 import { withAuth } from '@workos-inc/authkit-nextjs';
 import { prisma } from '../../../lib/prisma';
 import { NextRequest } from 'next/server';
@@ -8,12 +8,13 @@ import { searchKnowledgeBase, formatSearchResults } from '../../../lib/ai/rag-ut
 import { findDestination } from '../../../lib/ai/findDestination';
 import { PromptManager, ChatContext } from '../../../lib/ai/prompt-manager';
 import { classifyIntent } from '../../../lib/ai/intent-classifier';
+import { canAccessModel, canUsePremiumModel, PAID_MODEL_DAILY_LIMITS } from '../../../lib/ai/types';
 
 export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { messages, currentPath: bodyCurrentPath } = body;
+  const { messages, currentPath: bodyCurrentPath, modelId } = body;
 
   // Detect context from the Referer header - much more reliable than client-side
   const referer = req.headers.get('referer') || '';
@@ -117,6 +118,68 @@ export async function POST(req: NextRequest) {
     });
   }
 
+  // 3. Handle dynamic model selection with tier validation
+  let selectedModelId: string | null = modelId || null;
+  let selectedModel = getAIModel(context as 'widget' | 'full-page'); // Default fallback
+
+  if (selectedModelId) {
+    try {
+      // Fetch the model to validate access
+      const aiModel = await prisma.aIModel.findUnique({
+        where: { id: selectedModelId },
+        include: { provider: true },
+      });
+
+      if (aiModel && aiModel.isActive && aiModel.provider.isEnabled) {
+        const userTier = dbUser?.tier || 'GUEST';
+
+        // Check tier access
+        if (!canAccessModel(userTier, aiModel.minTier)) {
+          console.warn(`User tier ${userTier} cannot access model requiring ${aiModel.minTier}`);
+          selectedModelId = null; // Fall back to default
+        }
+        // Check premium usage limits for Tier 1 users
+        else if (aiModel.isPremium && userTier === 'TIER1') {
+          const canUse = canUsePremiumModel(
+            userTier,
+            dbUser?.paidModelUsageToday || 0,
+            dbUser?.paidModelUsageResetAt || null
+          );
+
+          if (!canUse) {
+            console.warn(`Tier 1 user exceeded daily limit for premium models`);
+            selectedModelId = null; // Fall back to default
+          } else if (dbUser) {
+            // Increment usage counter
+            const now = new Date();
+            const tomorrow = new Date(now);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            tomorrow.setHours(0, 0, 0, 0);
+
+            await prisma.user.update({
+              where: { id: dbUser.id },
+              data: {
+                paidModelUsageToday: { increment: 1 },
+                paidModelUsageResetAt: dbUser.paidModelUsageResetAt || tomorrow,
+              },
+            });
+          }
+        }
+      } else {
+        console.warn(`Model ${selectedModelId} not found or inactive`);
+        selectedModelId = null;
+      }
+    } catch (error) {
+      console.error('Error validating model access:', error);
+      selectedModelId = null;
+    }
+
+    // Get the dynamic model if validated
+    if (selectedModelId) {
+      selectedModel = await getDynamicModel(selectedModelId, context as 'widget' | 'full-page');
+    }
+  }
+
   const systemPrompt = await PromptManager.getSystemPrompt({
     role: targetRole,
     context: context as ChatContext,
@@ -125,7 +188,7 @@ export async function POST(req: NextRequest) {
 
   // 🌐 Stream response from selected provider
   const result = await streamText({
-    model: getAIModel(context as 'widget' | 'full-page'),
+    model: selectedModel,
     messages: modelMessages,
     system: systemPrompt,
     stopWhen: stepCountIs(5), // Allow AI to continue after tool execution for up to 5 steps
