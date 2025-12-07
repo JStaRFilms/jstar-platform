@@ -79,21 +79,30 @@ export function getAIModel(context?: 'widget' | 'full-page'): LanguageModel {
 
 /**
  * Get a fast model for quick tasks like title generation
+ * Now async - uses database fallback if no env vars
  */
-export function getFastModel(): LanguageModel {
+export async function getFastModel(): Promise<LanguageModel> {
+  // Prefer Gemini Flash Lite for speed if available
   if (process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
     return google('gemini-2.5-flash-lite');
   }
-  return getAIModel();
+
+  // Fall back to any available model from database
+  const { model } = await getDefaultModel();
+  return model;
 }
 
 /**
  * Get model for intent classification
+ * Now async - uses database fallback if no env vars
  */
-export function getClassifierModel(): LanguageModel {
+export async function getClassifierModel(): Promise<LanguageModel> {
+  // Prefer Groq Llama for classification if available
   if (process.env.GROQ_API_KEY) {
     return groq('meta-llama/llama-4-scout-17b-16e-instruct');
   }
+
+  // Fall back to any available fast model
   return getFastModel();
 }
 

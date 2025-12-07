@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Use the fast model for title generation
-        const model = getFastModel();
+        const model = await getFastModel();
 
         // Convert UIMessage[] to ModelMessage[] for generateText
         const modelMessages = convertToModelMessages(messages);

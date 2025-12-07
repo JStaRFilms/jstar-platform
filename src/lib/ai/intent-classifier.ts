@@ -28,7 +28,7 @@ export async function classifyIntent(messages: any[]): Promise<DetectedIntent> {
     // 3. AI Classification
     try {
         const { object } = await generateObject({
-            model: getClassifierModel(), // Use specific classifier model (Groq/Qwen)
+            model: await getClassifierModel(), // Use specific classifier model (Groq/Qwen) - now async
             mode: 'json',
             schema: z.object({
                 intent: z.enum(['code', 'roast', 'simplify', 'bible', 'Universal']),
