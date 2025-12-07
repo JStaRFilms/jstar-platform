@@ -77,6 +77,12 @@ const SECTION_OVERRIDES: Record<string, Record<string, SectionOverride>> = {
             keywords: ['contact', 'reach out', 'message', 'email', 'get in touch'],
             order: 8,
         },
+        'blog-section': {
+            title: 'Blog',
+            description: 'Latest articles, insights, and news from J StaR Films',
+            keywords: ['blog', 'articles', 'news', 'insights', 'updates', 'stories'],
+            order: 9,
+        },
     },
     // Add other pages as needed
     '/services': {

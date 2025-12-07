@@ -60,9 +60,9 @@ const MANUAL_OVERRIDES: Record<string, PageOverride> = {
     keywords: ['store', 'shop', 'products', 'templates', 'assets', 'buy'],
   },
   '/blog': {
-    title: 'Blog',
-    description: 'Read our latest articles, tutorials, and insights on filmmaking and content creation.',
-    keywords: ['blog', 'articles', 'news', 'tutorials', 'insights'],
+    title: 'Blog Page',
+    description: 'The main blog page featuring our latest articles, tutorials, and insights on filmmaking and content creation.',
+    keywords: ['blog page', 'blog', 'articles', 'news', 'tutorials', 'insights'],
   },
   '/john-gpt': {
     title: 'JohnGPT',
@@ -86,6 +86,13 @@ const MANUAL_OVERRIDES: Record<string, PageOverride> = {
     requiredTier: 'ADMIN',
     category: 'admin',
     keywords: ['admin', 'control panel', 'settings', 'management'],
+  },
+  '/admin/cms/blog-posts': {
+    title: 'Admin Blog Posts',
+    description: 'CMS page for managing blog posts.',
+    requiredTier: 'ADMIN',
+    category: 'admin',
+    keywords: ['admin blog', 'cms', 'manage posts'],
   },
 
   // Pages to skip (dynamic routes, API routes, etc.)
@@ -174,7 +181,7 @@ async function main() {
       title: override.title || toTitleCase(baseName),
       description: override.description || `The ${toTitleCase(baseName)} page of J StaR Films.`,
       category: override.category || (route.startsWith('/admin') ? 'admin' : 'public'),
-      requiredTier: override.requiredTier || 'GUEST',
+      requiredTier: override.requiredTier || (route.startsWith('/admin') ? 'ADMIN' : 'GUEST'),
       keywords: override.keywords || [baseName],
       priority: override.priority || 0,
     };

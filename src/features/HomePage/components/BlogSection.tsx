@@ -42,7 +42,7 @@ const BlogSection = () => {
 
   return (
     <section
-      id="blog"
+      id="blog-section"
       className="py-20 bg-background"
       aria-labelledby="blog-heading"
     >
@@ -55,7 +55,7 @@ const BlogSection = () => {
             id="blog-heading"
             className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6"
           >
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-jstar-blue to-faith-purple">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-jstar-blue to-faith-purple">
               Blog & Articles
             </span>
           </h2>

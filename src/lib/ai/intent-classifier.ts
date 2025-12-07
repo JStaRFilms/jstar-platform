@@ -27,33 +27,15 @@ export async function classifyIntent(messages: any[]): Promise<DetectedIntent> {
         return `${role}: ${text}`;
     }).join('\n');
 
-    // 2. Fast heuristic: Check for slash commands first
+    // 2. Fast heuristic: Check for slash commands first (Backup for direct usage)
     const lowerContent = content.toLowerCase();
     if (lowerContent.includes('/code')) return 'code';
     if (lowerContent.includes('/roast')) return 'roast';
     if (lowerContent.includes('/simplify')) return 'simplify';
     if (lowerContent.includes('/bible')) return 'bible';
 
-    // 3. Fast heuristic: Keyword matching (skips AI call entirely!)
-    for (const [intent, keywords] of Object.entries(INTENT_KEYWORDS)) {
-        if (intent === 'Universal') continue;
-        for (const keyword of keywords) {
-            if (lowerContent.includes(keyword)) {
-                console.log(`[IntentClassifier] Matched keyword "${keyword}" → ${intent}`);
-                return intent as DetectedIntent;
-            }
-        }
-    }
-
-    // 4. For short messages (greetings, simple questions), skip AI call
-    const lastUserMessage = recentMessages.filter((m: any) => m.role === 'user').pop();
-    const lastUserText = typeof lastUserMessage?.content === 'string'
-        ? lastUserMessage.content
-        : '';
-    if (lastUserText.length < 20) {
-        console.log('[IntentClassifier] Short message, skipping AI classification');
-        return 'Universal';
-    }
+    // 3. AI Classification
+    console.log('[IntentClassifier] Analyzing intent with AI...');
 
     // 5. AI Classification (only for complex messages)
     try {

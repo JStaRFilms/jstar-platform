@@ -95,23 +95,7 @@ export async function POST(req: NextRequest) {
     targetRole = await classifyIntent(classifierMessages);
   }
 
-  // Double-Tap Injection: Add reminder for navigation requests
-  // Note: We check classifier messages for triggers, but modify the original messages array
-  if (lastClassifierMessage && lastClassifierMessage.role === 'user') {
-    const content = (lastClassifierMessage.content || '').trim().toLowerCase();
-    const navigationTriggers = ['go to', 'show me', 'take me to', 'navigate to', 'open', 'visit'];
 
-    if (navigationTriggers.some(trigger => content.includes(trigger))) {
-      // Inject navigation reminder into the last user message in the original array
-      const lastOriginalMsg = messages[messages.length - 1];
-      if (lastOriginalMsg && lastOriginalMsg.parts) {
-        lastOriginalMsg.parts.push({
-          type: 'text',
-          text: `\n\n[SYSTEM REMINDER: The user wants to move. You may provide a brief, engaging "Tour Guide" transition, but you MUST execute the 'goTo' tool. Text alone is not enough.]`
-        });
-      }
-    }
-  }
 
   // Convert UIMessage[] to CoreMessage[] AFTER any modifications (preserves streaming metadata)
   const modelMessages = convertToModelMessages(messages as UIMessage[]);
