@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { withAuth } from '@workos-inc/authkit-nextjs';
 import { generateText } from 'ai';
-import { createGroq } from '@ai-sdk/groq';
+import { getFastModel } from '@/lib/ai-providers';
 
 type RouteContext = {
     params: Promise<{
@@ -13,7 +13,7 @@ type RouteContext = {
  * POST /api/conversations/[id]/title
  * 
  * Generate a title for a conversation based on first messages
- * Uses AI (Groq Llama) to create a concise, descriptive title
+ * Uses AI to create a concise, descriptive title
  */
 export async function POST(
     request: NextRequest,
@@ -57,7 +57,7 @@ export async function POST(
             return '';
         }).filter(Boolean).join('\n');
 
-        // Generate title using Groq Llama
+        // Generate title using fast model from database
         const titlePrompt = `Based on this conversation, generate a short, descriptive title (4-6 words max):
 
 ${conversationContext}
@@ -70,12 +70,11 @@ Requirements:
 
 Title:`;
 
-        const groq = createGroq({
-            apiKey: process.env.GROQ_API_KEY,
-        });
+        // Use database-configured model
+        const model = await getFastModel();
 
         const { text } = await generateText({
-            model: groq('meta-llama/llama-4-scout-17b-16e-instruct'), // Use Llama 3.3 70B
+            model,
             prompt: titlePrompt,
             temperature: 0.7,
         });

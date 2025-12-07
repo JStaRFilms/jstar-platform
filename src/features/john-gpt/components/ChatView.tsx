@@ -93,6 +93,7 @@ export function ChatView({ user, className, conversationId: conversationIdProp, 
     const [selectedModelId, setSelectedModelId] = useState<string | null>(null);
     const [selectedModelName, setSelectedModelName] = useState<string | null>(null);
     const [isModelSelectorOpen, setIsModelSelectorOpen] = useState(false);
+    const [isModelInitialized, setIsModelInitialized] = useState(false);
 
     // Fetch model name when ID changes
     const fetchModelName = useCallback(async (modelId: string) => {
@@ -113,6 +114,20 @@ export function ChatView({ user, className, conversationId: conversationIdProp, 
         setSelectedModelId(modelId);
         fetchModelName(modelId);
     }, [fetchModelName]);
+
+    // Initialize model from localStorage on mount (after hydration)
+    useEffect(() => {
+        if (!isModelInitialized) {
+            const stored = localStorage.getItem('johngpt-widget-model');
+            if (stored) {
+                console.log('[ChatView] Restored model from localStorage:', stored);
+                setSelectedModelId(stored);
+                fetchModelName(stored);
+            }
+            setIsModelInitialized(true);
+        }
+    }, [isModelInitialized, fetchModelName]);
+
 
     // Initialize useChat with persistence
     const { messages, sendMessageWithModel, status, stop, setMessages, addToolResult, editMessage, navigateBranch, currentMode } = useBranchingChat({

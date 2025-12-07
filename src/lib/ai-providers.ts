@@ -64,10 +64,10 @@ export function getAISetup(context?: 'widget' | 'full-page'): { provider: Provid
 }
 
 /**
- * Get AI model from environment variables (static configuration)
- * Used as fallback when no database model is selected
+ * Synchronous fallback for when database lookup fails
+ * ONLY use when async function cannot be awaited
  */
-export function getAIModel(context?: 'widget' | 'full-page'): LanguageModel {
+function getAIModelSync(context?: 'widget' | 'full-page'): LanguageModel {
   const { provider, model } = getAISetup(context);
   const providerInstance = providerMap[provider];
   if (!providerInstance) {
@@ -78,32 +78,197 @@ export function getAIModel(context?: 'widget' | 'full-page'): LanguageModel {
 }
 
 /**
+ * Get AI model - searches database FIRST, then falls back to environment variables
+ * This is the primary function for getting an AI model
+ */
+export async function getAIModel(context?: 'widget' | 'full-page'): Promise<LanguageModel> {
+  try {
+    // 1. Try to get default model from database first
+    const defaultModel = await prisma.aIModel.findFirst({
+      where: {
+        isDefault: true,
+        isActive: true,
+        provider: { isEnabled: true },
+      },
+      include: { provider: true },
+    });
+
+    if (defaultModel && defaultModel.provider.apiKey) {
+      console.log(`[getAIModel] Using default model from database: ${defaultModel.displayName}`);
+      const providerInstance = createProviderInstance(
+        defaultModel.provider.name,
+        defaultModel.provider.apiKey,
+        defaultModel.provider.baseUrl
+      );
+      if (providerInstance) {
+        return providerInstance(defaultModel.modelId);
+      }
+    }
+
+    // 2. Try to get any enabled provider from database with the configured provider type
+    const { provider: providerName, model: modelName } = getAISetup(context);
+
+    const dbProvider = await prisma.aIProvider.findFirst({
+      where: {
+        name: providerName === 'gemini' ? { in: ['google', 'gemini'] } : providerName,
+        isEnabled: true,
+        apiKey: { not: null },
+      },
+    });
+
+    if (dbProvider && dbProvider.apiKey) {
+      console.log(`[getAIModel] Using provider from database: ${dbProvider.name}`);
+      const providerInstance = createProviderInstance(
+        dbProvider.name,
+        dbProvider.apiKey,
+        dbProvider.baseUrl
+      );
+      if (providerInstance) {
+        return providerInstance(modelName);
+      }
+    }
+
+    // 3. Fall back to env-based configuration
+    console.log('[getAIModel] Falling back to env-based configuration');
+    return getAIModelSync(context);
+  } catch (error) {
+    console.error('[getAIModel] Database lookup failed, using env fallback:', error);
+    return getAIModelSync(context);
+  }
+}
+
+/**
  * Get a fast model for quick tasks like title generation
- * Now async - uses database fallback if no env vars
+ * Uses database-configured API keys (admin panel), falls back to env vars
  */
 export async function getFastModel(): Promise<LanguageModel> {
-  // Prefer Gemini Flash Lite for speed if available
-  if (process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+  try {
+    // Try Groq from database first (fastest)
+    const groqProvider = await prisma.aIProvider.findFirst({
+      where: {
+        name: 'groq',
+        isEnabled: true,
+        apiKey: { not: null },
+      },
+    });
+
+    if (groqProvider && groqProvider.apiKey) {
+      console.log('[getFastModel] Using Groq from database');
+      const groqInstance = createGroq({
+        apiKey: groqProvider.apiKey,
+        ...(groqProvider.baseUrl && { baseURL: groqProvider.baseUrl }),
+      });
+      return groqInstance('meta-llama/llama-4-maverick-17b-128e-instruct');
+    }
+
+    // Try Google from database
+    const googleProvider = await prisma.aIProvider.findFirst({
+      where: {
+        name: { in: ['google', 'gemini'] },
+        isEnabled: true,
+        apiKey: { not: null },
+      },
+    });
+
+    if (googleProvider && googleProvider.apiKey) {
+      console.log('[getFastModel] Using Google from database');
+      const googleInstance = createGoogleGenerativeAI({
+        apiKey: googleProvider.apiKey,
+        baseURL: googleProvider.baseUrl || 'https://generativelanguage.googleapis.com/v1beta',
+      });
+      return googleInstance('gemini-2.5-flash-lite');
+    }
+
+    // Fall back to env-based
+    if (process.env.GROQ_API_KEY) {
+      console.log('[getFastModel] Using Groq from env');
+      return groq('meta-llama/llama-4-maverick-17b-128e-instruct');
+    }
+
+    if (process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+      console.log('[getFastModel] Using Google from env');
+      return google('gemini-2.5-flash-lite');
+    }
+
+    // Ultimate fallback to default model
+    console.warn('[getFastModel] No fast model available, using default');
+    const { model } = await getDefaultModel();
+    return model;
+  } catch (error) {
+    console.error('[getFastModel] Error:', error);
+    // Fall back to env-based
+    if (process.env.GROQ_API_KEY) {
+      return groq('meta-llama/llama-4-maverick-17b-128e-instruct');
+    }
     return google('gemini-2.5-flash-lite');
   }
-
-  // Fall back to any available model from database
-  const { model } = await getDefaultModel();
-  return model;
 }
 
 /**
  * Get model for intent classification
- * Now async - uses database fallback if no env vars
+ * Uses database-configured API keys (admin panel), falls back to env vars
  */
 export async function getClassifierModel(): Promise<LanguageModel> {
-  // Prefer Groq Llama for classification if available
-  if (process.env.GROQ_API_KEY) {
-    return groq('meta-llama/llama-4-scout-17b-16e-instruct');
-  }
+  try {
+    // Try to get Groq provider from database first (fastest for classification)
+    const groqProvider = await prisma.aIProvider.findFirst({
+      where: {
+        name: 'groq',
+        isEnabled: true,
+        apiKey: { not: null },
+      },
+    });
 
-  // Fall back to any available fast model
-  return getFastModel();
+    if (groqProvider && groqProvider.apiKey) {
+      console.log('[getClassifierModel] Using Groq from database');
+      const groqInstance = createGroq({
+        apiKey: groqProvider.apiKey,
+        ...(groqProvider.baseUrl && { baseURL: groqProvider.baseUrl }),
+      });
+      return groqInstance('meta-llama/llama-4-maverick-17b-128e-instruct'); // Fast Llama model
+    }
+
+    // Try Google from database
+    const googleProvider = await prisma.aIProvider.findFirst({
+      where: {
+        name: { in: ['google', 'gemini'] },
+        isEnabled: true,
+        apiKey: { not: null },
+      },
+    });
+
+    if (googleProvider && googleProvider.apiKey) {
+      console.log('[getClassifierModel] Using Google from database');
+      const googleInstance = createGoogleGenerativeAI({
+        apiKey: googleProvider.apiKey,
+        baseURL: googleProvider.baseUrl || 'https://generativelanguage.googleapis.com/v1beta',
+      });
+      return googleInstance('gemini-2.5-flash-lite'); // Fast Gemini model
+    }
+
+    // Fall back to env-based Groq if available
+    if (process.env.GROQ_API_KEY) {
+      console.log('[getClassifierModel] Using Groq from env');
+      return groq('meta-llama/llama-4-maverick-17b-128e-instruct');
+    }
+
+    // Fall back to env-based Google
+    if (process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+      console.log('[getClassifierModel] Using Google from env');
+      return google('gemini-2.5-flash-lite');
+    }
+
+    // Ultimate fallback
+    console.warn('[getClassifierModel] No classifier model available, using default');
+    return getFastModel();
+  } catch (error) {
+    console.error('[getClassifierModel] Error:', error);
+    // Fall back to env-based
+    if (process.env.GROQ_API_KEY) {
+      return groq('meta-llama/llama-4-maverick-17b-128e-instruct');
+    }
+    return google('gemini-2.5-flash-lite');
+  }
 }
 
 /**
@@ -165,9 +330,9 @@ export async function getDynamicModel(
   modelDbId: string | null | undefined,
   context?: 'widget' | 'full-page'
 ): Promise<LanguageModel> {
-  // If no model ID, use static configuration
+  // If no model ID, use database-first configuration
   if (!modelDbId) {
-    return getAIModel(context);
+    return await getAIModel(context);
   }
 
   try {
@@ -181,12 +346,12 @@ export async function getDynamicModel(
 
     if (!aiModel || !aiModel.isActive) {
       console.warn(`Model ${modelDbId} not found or inactive, using fallback`);
-      return getAIModel(context);
+      return await getAIModel(context);
     }
 
     if (!aiModel.provider.isEnabled) {
       console.warn(`Provider ${aiModel.provider.name} is disabled, using fallback`);
-      return getAIModel(context);
+      return await getAIModel(context);
     }
 
     // Create provider instance with database configuration
@@ -198,7 +363,7 @@ export async function getDynamicModel(
 
     if (!providerInstance) {
       console.warn(`Could not create provider instance for ${aiModel.provider.name}, using fallback`);
-      return getAIModel(context);
+      return await getAIModel(context);
     }
 
     // Return the model from the provider
@@ -206,7 +371,7 @@ export async function getDynamicModel(
     return providerInstance(aiModel.modelId);
   } catch (error) {
     console.error('Error fetching dynamic model:', error);
-    return getAIModel(context);
+    return await getAIModel(context);
   }
 }
 
@@ -232,6 +397,6 @@ export async function getDefaultModel(): Promise<{ modelId: string | null; model
     console.error('Error fetching default model:', error);
   }
 
-  // Fall back to env-based model
-  return { modelId: null, model: getAIModel() };
+  // Fall back to env-based model (database-first, then env)
+  return { modelId: null, model: await getAIModel() };
 }

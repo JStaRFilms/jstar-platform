@@ -81,7 +81,7 @@ function JohnGPTDialogContent({ open, onOpenChange, user, followMeConversationId
     isWidget: !isFollowMeMode, // In follow-me mode, act like full page
     scrollToSection, // Enable section scrolling from goTo tool
   });
-  const { messages, sendMessage, status, stop, error: chatError, addToolResult, editMessage, navigateBranch, setMessages } = chatHelpers;
+  const { messages, sendMessage, sendMessageWithModel, status, stop, error: chatError, addToolResult, editMessage, navigateBranch, setMessages } = chatHelpers;
 
   // Load initial messages from IndexedDB when persistence is ready
   // In follow-me mode, load from the active conversation instead
@@ -132,6 +132,18 @@ function JohnGPTDialogContent({ open, onOpenChange, user, followMeConversationId
 
   const [input, setInput] = useState('');
 
+  // Inherited model from full-page JohnGPT (for widget model inheritance)
+  const [inheritedModelId, setInheritedModelId] = useState<string | null>(null);
+
+  // Load inherited model from localStorage on mount
+  React.useEffect(() => {
+    const storedModelId = localStorage.getItem('johngpt-widget-model');
+    if (storedModelId) {
+      console.log('[JohnGPTDialog] Inherited model from localStorage:', storedModelId);
+      setInheritedModelId(storedModelId);
+    }
+  }, []);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement> | React.ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value);
   };
@@ -143,18 +155,27 @@ function JohnGPTDialogContent({ open, onOpenChange, user, followMeConversationId
     const userMessage = input;
     setInput('');
 
-    await sendMessage({
-      text: userMessage,
-    });
+    // Use sendMessageWithModel to pass inherited model ID
+    await sendMessageWithModel(
+      { role: 'user', parts: [{ type: 'text', text: userMessage }] },
+      inheritedModelId
+    );
   };
 
   const [error, setError] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Handle errors from chat
+  // Handle errors from chat with enhanced model-specific messages
   React.useEffect(() => {
     if (chatError) {
-      setError('Failed to connect to JohnGPT. Please try again.');
+      const errorMsg = chatError.message || 'Failed to connect to JohnGPT.';
+      if (errorMsg.includes('API key')) {
+        setError('Model configuration error. Using default model.');
+      } else if (errorMsg.includes('tier') || errorMsg.includes('access')) {
+        setError('You don\'t have access to this model. Upgrade your tier.');
+      } else {
+        setError(errorMsg.length > 100 ? 'Failed to connect to JohnGPT. Please try again.' : errorMsg);
+      }
     } else {
       setError(null);
     }

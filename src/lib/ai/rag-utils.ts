@@ -3,17 +3,54 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// Lazy initialization to ensure env vars are loaded
+// Cache for GenAI instance per API key
 let genAI: GoogleGenerativeAI | null = null;
+let cachedApiKey: string | null = null;
 
-function getGenAI() {
-    if (!genAI) {
-        const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-        if (!apiKey) {
-            throw new Error('GOOGLE_GENERATIVE_AI_API_KEY is not set in environment variables');
+/**
+ * Get Google Generative AI instance with database-first API key lookup
+ */
+async function getGenAI(): Promise<GoogleGenerativeAI> {
+    // Try to get API key from database first
+    let apiKey: string | null = null;
+
+    try {
+        const googleProvider = await prisma.aIProvider.findFirst({
+            where: {
+                name: { in: ['google', 'gemini'] },
+                isEnabled: true,
+                apiKey: { not: null },
+            },
+        });
+
+        if (googleProvider?.apiKey) {
+            console.log('[RAG] Using Google API key from database');
+            apiKey = googleProvider.apiKey;
         }
-        genAI = new GoogleGenerativeAI(apiKey);
+    } catch (error) {
+        console.warn('[RAG] Database lookup failed, falling back to env:', error);
     }
+
+    // Fall back to env var
+    if (!apiKey) {
+        apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || null;
+        if (apiKey) {
+            console.log('[RAG] Using Google API key from environment');
+        }
+    }
+
+    if (!apiKey) {
+        throw new Error('No Google API key found in database or environment variables');
+    }
+
+    // Reuse cached instance if same API key
+    if (genAI && cachedApiKey === apiKey) {
+        return genAI;
+    }
+
+    // Create new instance
+    genAI = new GoogleGenerativeAI(apiKey);
+    cachedApiKey = apiKey;
     return genAI;
 }
 
@@ -28,7 +65,8 @@ interface SearchResult {
  * Generate embedding for a query using Gemini
  */
 export async function generateQueryEmbedding(query: string): Promise<number[]> {
-    const model = getGenAI().getGenerativeModel({ model: 'text-embedding-004' });
+    const ai = await getGenAI();
+    const model = ai.getGenerativeModel({ model: 'text-embedding-004' });
     const result = await model.embedContent(query);
     return Array.from(result.embedding.values);
 }

@@ -1,4 +1,4 @@
-import { streamText, tool, stepCountIs } from 'ai';
+import { streamText, tool, stepCountIs, convertToModelMessages, UIMessage } from 'ai';
 import { getDynamicModel, getAIModel } from '../../../lib/ai-providers';
 import { withAuth } from '@workos-inc/authkit-nextjs';
 import { prisma } from '../../../lib/prisma';
@@ -11,6 +11,8 @@ import { classifyIntent } from '../../../lib/ai/intent-classifier';
 import { canAccessModel, canUsePremiumModel, PAID_MODEL_DAILY_LIMITS } from '../../../lib/ai/types';
 
 export const runtime = 'nodejs';
+// Allow streaming responses up to 30 seconds (required by Vercel AI SDK)
+export const maxDuration = 30;
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -55,27 +57,23 @@ export async function POST(req: NextRequest) {
     console.log('Anonymous user accessing JohnGPT');
   }
 
-  // Convert UIMessage[] to CoreMessage[]
-  const modelMessages = messages.map((m: any) => {
-    const textContent = m.parts
+  // Extract simple text for intent classification and slash command detection
+  const classifierMessages = messages.map((m: any) => ({
+    role: m.role,
+    content: m.parts
       ? m.parts.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('')
-      : '';
-
-    return {
-      role: m.role,
-      content: textContent,
-    };
-  });
+      : m.content || '',
+  }));
 
   // --- INTELLIGENT ROUTING (The "Invisible Router") ---
   // 1. Analyze the LAST message for slash commands to determine the mode
-  const lastMessage = modelMessages[modelMessages.length - 1];
+  const lastClassifierMessage = classifierMessages[classifierMessages.length - 1];
   let targetRole = 'Universal'; // Default to JohnGPT
   let isExplicitCommand = false;
 
   // Check for slash commands first - they override context
-  if (lastMessage && lastMessage.role === 'user') {
-    const content = lastMessage.content.trim();
+  if (lastClassifierMessage && lastClassifierMessage.role === 'user') {
+    const content = (lastClassifierMessage.content || '').trim();
 
     if (content.startsWith('/code')) {
       targetRole = 'Coder';
@@ -93,19 +91,30 @@ export async function POST(req: NextRequest) {
   }
 
   // If no explicit command, try to classify intent
-  if (!isExplicitCommand && lastMessage && lastMessage.role === 'user') {
-    targetRole = await classifyIntent(modelMessages);
+  if (!isExplicitCommand && lastClassifierMessage && lastClassifierMessage.role === 'user') {
+    targetRole = await classifyIntent(classifierMessages);
   }
 
   // Double-Tap Injection: Add reminder for navigation requests
-  if (lastMessage && lastMessage.role === 'user') {
-    const content = lastMessage.content.trim().toLowerCase();
+  // Note: We check classifier messages for triggers, but modify the original messages array
+  if (lastClassifierMessage && lastClassifierMessage.role === 'user') {
+    const content = (lastClassifierMessage.content || '').trim().toLowerCase();
     const navigationTriggers = ['go to', 'show me', 'take me to', 'navigate to', 'open', 'visit'];
 
     if (navigationTriggers.some(trigger => content.includes(trigger))) {
-      lastMessage.content += `\n\n[SYSTEM REMINDER: The user wants to move. You may provide a brief, engaging "Tour Guide" transition, but you MUST execute the 'navigate' tool. Text alone is not enough.]`;
+      // Inject navigation reminder into the last user message in the original array
+      const lastOriginalMsg = messages[messages.length - 1];
+      if (lastOriginalMsg && lastOriginalMsg.parts) {
+        lastOriginalMsg.parts.push({
+          type: 'text',
+          text: `\n\n[SYSTEM REMINDER: The user wants to move. You may provide a brief, engaging "Tour Guide" transition, but you MUST execute the 'goTo' tool. Text alone is not enough.]`
+        });
+      }
     }
   }
+
+  // Convert UIMessage[] to CoreMessage[] AFTER any modifications (preserves streaming metadata)
+  const modelMessages = convertToModelMessages(messages as UIMessage[]);
 
   console.log(`Routing to Persona Role: ${targetRole} (Context: ${context})`);
 
@@ -120,7 +129,7 @@ export async function POST(req: NextRequest) {
 
   // 3. Handle dynamic model selection with tier validation
   let selectedModelId: string | null = modelId || null;
-  let selectedModel = getAIModel(context as 'widget' | 'full-page'); // Default fallback
+  let selectedModel = await getAIModel(context as 'widget' | 'full-page'); // Default fallback (database first, then env)
 
   if (selectedModelId) {
     try {
@@ -192,6 +201,7 @@ export async function POST(req: NextRequest) {
     messages: modelMessages,
     system: systemPrompt,
     stopWhen: stepCountIs(5), // Allow AI to continue after tool execution for up to 5 steps
+    maxRetries: 1, // Don't burn quota on retries - fail fast on rate limits
     tools: {
       searchKnowledge: tool({
         description: 'Search the knowledge base for ANY information related to J StaR, including services, portfolio, team members, testimonials, pricing, or specific details found on the website. Use this whenever the user asks a question that might be answered by content on the site, even if it seems like a specific detail.',

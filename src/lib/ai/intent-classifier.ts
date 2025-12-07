@@ -4,6 +4,15 @@ import { getClassifierModel } from '../ai-providers';
 
 export type DetectedIntent = 'code' | 'roast' | 'simplify' | 'bible' | 'Universal';
 
+// Keywords that suggest specific intents without needing AI
+const INTENT_KEYWORDS: Record<DetectedIntent, string[]> = {
+    code: ['code', 'debug', 'programming', 'javascript', 'typescript', 'python', 'function', 'api', 'bug', 'error', 'syntax'],
+    roast: ['roast', 'roast me', 'mock me', 'critique'],
+    simplify: ['eli5', 'explain like', 'simple terms', 'simplify', 'break down', 'dumb it down'],
+    bible: ['bible', 'scripture', 'biblical', 'verse', 'god says', 'jesus', 'proverbs', 'psalm', 'spiritual'],
+    Universal: [],
+};
+
 export async function classifyIntent(messages: any[]): Promise<DetectedIntent> {
     // 1. Get the last 3 messages for better context
     const recentMessages = messages.slice(-3);
@@ -18,17 +27,38 @@ export async function classifyIntent(messages: any[]): Promise<DetectedIntent> {
         return `${role}: ${text}`;
     }).join('\n');
 
-    // 2. Fast heuristic check (optional, but saves tokens)
+    // 2. Fast heuristic: Check for slash commands first
     const lowerContent = content.toLowerCase();
-    if (lowerContent.startsWith('/code')) return 'code';
-    if (lowerContent.startsWith('/roast')) return 'roast';
-    if (lowerContent.startsWith('/simplify')) return 'simplify';
-    if (lowerContent.startsWith('/bible')) return 'bible';
+    if (lowerContent.includes('/code')) return 'code';
+    if (lowerContent.includes('/roast')) return 'roast';
+    if (lowerContent.includes('/simplify')) return 'simplify';
+    if (lowerContent.includes('/bible')) return 'bible';
 
-    // 3. AI Classification
+    // 3. Fast heuristic: Keyword matching (skips AI call entirely!)
+    for (const [intent, keywords] of Object.entries(INTENT_KEYWORDS)) {
+        if (intent === 'Universal') continue;
+        for (const keyword of keywords) {
+            if (lowerContent.includes(keyword)) {
+                console.log(`[IntentClassifier] Matched keyword "${keyword}" → ${intent}`);
+                return intent as DetectedIntent;
+            }
+        }
+    }
+
+    // 4. For short messages (greetings, simple questions), skip AI call
+    const lastUserMessage = recentMessages.filter((m: any) => m.role === 'user').pop();
+    const lastUserText = typeof lastUserMessage?.content === 'string'
+        ? lastUserMessage.content
+        : '';
+    if (lastUserText.length < 20) {
+        console.log('[IntentClassifier] Short message, skipping AI classification');
+        return 'Universal';
+    }
+
+    // 5. AI Classification (only for complex messages)
     try {
         const { object } = await generateObject({
-            model: await getClassifierModel(), // Use specific classifier model (Groq/Qwen) - now async
+            model: await getClassifierModel(),
             mode: 'json',
             schema: z.object({
                 intent: z.enum(['code', 'roast', 'simplify', 'bible', 'Universal']),
@@ -49,9 +79,10 @@ export async function classifyIntent(messages: any[]): Promise<DetectedIntent> {
             
             Select the best fit for the AI's NEXT response. If unsure, choose 'Universal'.
             `,
+            maxRetries: 1, // Reduce retries to avoid burning quota
         });
 
-        // Only switch if confidence is high enough, otherwise stick to Universal to avoid jarring switches
+        // Only switch if confidence is high enough
         if (object.confidence > 0.6) {
             return object.intent;
         }
