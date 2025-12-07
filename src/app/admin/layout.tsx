@@ -55,6 +55,7 @@ export default function AdminLayout({
       '/cms/hero-slides': { category: 'cms', subItem: 'hero-slides' },
       '/cms/blog-posts': { category: 'cms', subItem: 'blog-posts' },
       '/johngpt-config': { category: 'johngpt-config', subItem: 'overview' },
+      '/johngpt-config/ai-models': { category: 'johngpt-config', subItem: 'ai-models' },
       '/user': { category: 'user-management', subItem: 'overview' },
       '/users/lead-magnets': { category: 'user-management', subItem: 'lead-magnets' },
       '/cge-admin': { category: 'cge-admin', subItem: 'overview' },

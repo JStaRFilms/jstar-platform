@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useBranchingChat } from '../hooks/useBranchingChat';
 import { syncManager } from '@/lib/storage/sync-manager';
 import { useConversationPersistence } from '../hooks/useConversationPersistence';
 import { ChatInput } from './ChatInput';
 import { ChatMessages } from './ChatMessages';
 import { EmptyState } from './EmptyState';
+import { ModelSelector } from './ModelSelector';
 import { Loader2, Sparkles } from 'lucide-react';
 import type { User as WorkOSUser } from '@workos-inc/node';
 import { cn } from '@/lib/utils';
@@ -15,6 +16,7 @@ import { useRouter } from 'next/navigation';
 import { ChatHeader } from './ChatHeader';
 import { useActiveChat } from '../context/ActiveChatContext';
 import { useChatActions } from '../context/ChatActionContext';
+import type { ModelSelectorItem } from '@/lib/ai/types';
 
 type ChatViewProps = {
     user: WorkOSUser;
@@ -87,12 +89,38 @@ export function ChatView({ user, className, conversationId: conversationIdProp, 
     // Get scrollToSection from ChatActionContext
     const { scrollToSection } = useChatActions();
 
+    // Model selection state
+    const [selectedModelId, setSelectedModelId] = useState<string | null>(null);
+    const [selectedModelName, setSelectedModelName] = useState<string | null>(null);
+    const [isModelSelectorOpen, setIsModelSelectorOpen] = useState(false);
+
+    // Fetch model name when ID changes
+    const fetchModelName = useCallback(async (modelId: string) => {
+        try {
+            const res = await fetch('/api/models');
+            if (!res.ok) return;
+            const data = await res.json();
+            const model = data.models.find((m: ModelSelectorItem) => m.id === modelId);
+            if (model) {
+                setSelectedModelName(model.displayName);
+            }
+        } catch (error) {
+            console.error('Failed to fetch model name:', error);
+        }
+    }, []);
+
+    const handleSelectModel = useCallback((modelId: string) => {
+        setSelectedModelId(modelId);
+        fetchModelName(modelId);
+    }, [fetchModelName]);
+
     // Initialize useChat with persistence
     const { messages, sendMessage, status, stop, setMessages, addToolResult, editMessage, navigateBranch, currentMode } = useBranchingChat({
         api: '/api/chat',
         conversationId: internalConversationId, // Use internal state
         userId: user.id, // User ID for storage
         scrollToSection, // Pass scrollToSection for spotlight feature
+        modelId: selectedModelId, // Pass selected model ID
         // Context is now auto-detected server-side from the Referer header
     });
 
@@ -230,6 +258,16 @@ export function ChatView({ user, className, conversationId: conversationIdProp, 
                 currentMode={currentMode}
                 conversationId={internalConversationId}
                 userId={user.id}
+                modelName={selectedModelName}
+                onOpenModelSelector={() => setIsModelSelectorOpen(true)}
+            />
+
+            {/* Model Selector Modal */}
+            <ModelSelector
+                selectedModelId={selectedModelId}
+                onSelectModel={handleSelectModel}
+                isOpen={isModelSelectorOpen}
+                onClose={() => setIsModelSelectorOpen(false)}
             />
             {/* Import Banner */}
             {isImportBannerVisible && (

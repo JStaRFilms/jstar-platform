@@ -28,6 +28,7 @@ export type UseBranchingChatOptions = {
     onFinish?: any; // Let TypeScript infer from useChat
     isWidget?: boolean;
     scrollToSection?: (sectionId: string) => void;
+    modelId?: string | null; // Selected AI model ID for dynamic model selection
 };
 
 export function useBranchingChat(options: UseBranchingChatOptions = {}) {
@@ -49,9 +50,9 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
 
     const chatHelpers = useChat({
         ...options,
-        // Include currentPath for navigation context
+        // Include currentPath for navigation context and modelId for model selection
         // @ts-expect-error - body is supported but types are strict
-        body: { ...options.body, currentPath: pathname },
+        body: { ...options.body, currentPath: pathname, modelId: options.modelId },
         onFinish: (response: any) => {
             // 🚀 Handle navigation tool results HERE (not in UI component)
             // This ensures navigation only happens ONCE when streaming completes
