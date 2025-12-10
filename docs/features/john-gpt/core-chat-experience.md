@@ -1210,3 +1210,41 @@ model Persona {
 *   **Frontend:** The `PersonaSelector` component has been removed. The UI is now cleaner and focused purely on the chat.
 *   **Backend:** `src/app/api/chat/route.ts` now contains the routing logic and Prisma queries to fetch prompts.
 *   **Seeding:** `prisma/seed.ts` includes the default prompts for all supported modes to ensure the database is populated on fresh installs.
+## 🔧 Phase 7: Streaming Reliability Fixes (December 2025)
+
+**Completed**: Addressed issues where chat streams were cutting off mid-sentence due to Vercel Hobby plan timeouts and buffering.
+
+### **The Problem**
+- Chat responses were cutting off after ~30 seconds.
+- Streaming was "aggressive" (bursty) followed by long pauses.
+- No error messages were displayed; the stream just stopped.
+
+### **Root Cause**
+1. **Timeout**: The `maxDuration` in `src/app/api/chat/route.ts` was set to `30` seconds. Vercel's Hobby plan has a hard limit of `60` seconds for Serverless Functions, but the strict 30s limit was prematurely killing longer generations (especially from slower models or during "thinking" phases).
+2. **Buffering**: Response buffering (likely at the Vercel Edge or proxy layer) was holding back chunks, causing them to arrive in bursts and potentially leading to timeouts if the buffer wasn't flushed before the limit.
+
+### **The Solution**
+
+**File**: `src/app/api/chat/route.ts`
+
+1.  **Increased Timeout**: Set `maxDuration = 60` to maximize the available execution time on the Hobby plan.
+2.  **Streaming Headers**: Added `Cache-Control: no-cache, no-transform` and `Connection: keep-alive` to force immediate flushing of chunks and prevent connection drops.
+3.  **Resilience**: Increased `maxRetries` from `1` to `2` to handle transient network blips.
+
+```typescript
+export const maxDuration = 60; // Increased from 30
+
+// ...
+
+return result.toUIMessageStreamResponse({
+  messageMetadata: () => ({ mode: targetRole }),
+  headers: {
+    'Connection': 'keep-alive', // Ensure connection stays open during pauses
+    'Cache-Control': 'no-cache, no-transform', // Prevent buffering
+  }
+});
+```
+
+### **Verification**
+- Stream should now persist for up to 60 seconds.
+- Text delivery should be smoother (less bursty) due to disabled caching/buffering.

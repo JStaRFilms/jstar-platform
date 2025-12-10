@@ -11,8 +11,8 @@ import { classifyIntent } from '../../../lib/ai/intent-classifier';
 import { canAccessModel, canUsePremiumModel, PAID_MODEL_DAILY_LIMITS } from '../../../lib/ai/types';
 
 export const runtime = 'nodejs';
-// Allow streaming responses up to 30 seconds (required by Vercel AI SDK)
-export const maxDuration = 30;
+// Allow streaming responses up to 60 seconds (max for Vercel Hobby plan)
+export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -185,7 +185,7 @@ export async function POST(req: NextRequest) {
     messages: modelMessages,
     system: systemPrompt,
     stopWhen: stepCountIs(5), // Allow AI to continue after tool execution for up to 5 steps
-    maxRetries: 1, // Don't burn quota on retries - fail fast on rate limits
+    maxRetries: 2, // Slight increase to handle transient network blips
     tools: {
       searchKnowledge: tool({
         description: 'Search the knowledge base for ANY information related to J StaR, including services, portfolio, team members, testimonials, pricing, or specific details found on the website. Use this whenever the user asks a question that might be answered by content on the site, even if it seems like a specific detail.',
@@ -290,5 +290,9 @@ NEGATIVE: Do NOT use for general questions, greetings, or casual chat.`,
 
   return result.toUIMessageStreamResponse({
     messageMetadata: () => ({ mode: targetRole }),
+    headers: {
+      'Connection': 'keep-alive', // Ensure connection stays open during pauses
+      'Cache-Control': 'no-cache, no-transform', // Prevent buffering
+    },
   });
 }
