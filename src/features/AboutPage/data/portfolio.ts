@@ -10,6 +10,9 @@ import {
     Briefcase,
     Users,
     Mic,
+    BookOpen,
+    Camera,
+    Smartphone
 } from "lucide-react";
 
 export const PROFILE_DATA = {
@@ -20,13 +23,15 @@ export const PROFILE_DATA = {
     stats: {
         experience: "5+",
         projects: "30+",
-        clients: "50+",
+        videos: "280+",
+        views: "176K+",
     },
     socials: {
         github: "https://github.com/JStaRFilms",
-        linkedin: "https://www.linkedin.com/in/ipinrere-oluleke-oke-a35094227/",
+        linkedin: "https://www.linkedin.com/in/saxy/",
         youtube: "https://youtube.com/@jstarfilms",
-        email: "mailto:johnoke.work@gmail.com",
+        email: "mailto:john@jstarfilms.com",
+        whatsapp: "https://wa.me/2348152657887"
     },
     // NEW: Speedcubing Section
     speedcubing: {
@@ -91,9 +96,9 @@ export const PROFILE_DATA = {
             role: "Founder & Lead Creator",
             period: "2020 - Present",
             description: [
-                "Grew a YouTube community of 800+ filmmakers with 130+ educational videos.",
-                "Specialist in DaVinci Resolve color grading and mobile cinematography.",
-                "Produced high-impact content accumulating 176k+ views.",
+                "Grew a YouTube community with over 280+ videos, specializing in DaVinci Resolve color grading and mobile cinematography.",
+                "Published unique 'filmmaking hacks' and technical problem-solving content, accumulating 176k+ total views.",
+                "Provided professional videography for live events, managing projects from consultation to final delivery.",
             ],
             icon: Video,
         },
@@ -113,9 +118,20 @@ export const PROFILE_DATA = {
             period: "2023 - 2024",
             description: [
                 "Directed visual storytelling and branding for developer community events.",
+                "Produced high-quality video and photo content adhering to official GDSC branding.",
             ],
             icon: Globe,
         },
+        {
+            company: "Sharon's Chronicles",
+            role: "YouTube Strategist & Editor",
+            period: "2023 - Present",
+            description: [
+                "Edited long-form storytelling content and produced dynamic trailers.",
+                "Optimized videos for audience retention and platform algorithms.",
+            ],
+            icon: Smartphone,
+        }
     ],
     skills: {
         engineering: [
@@ -126,9 +142,9 @@ export const PROFILE_DATA = {
         ],
         creative: [
             { name: "DaVinci Resolve", level: 95, icon: Video },
-            { name: "Cinematography", level: 90, icon: Globe }, // Utilizing Globe as a placeholder for lens/world view
+            { name: "Cinematography", level: 90, icon: Camera },
             { name: "Motion Graphics", level: 85, icon: Zap },
-            { name: "Sound Design", level: 80, icon: Users }, // Visual/Auditory audience connection
+            { name: "Sound Design", level: 80, icon: Mic },
         ],
     },
 };
