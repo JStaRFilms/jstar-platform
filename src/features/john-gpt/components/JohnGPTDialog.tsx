@@ -14,6 +14,7 @@ import { MessageCircle, AlertCircle, Sparkles, Send, Paperclip, X, Maximize2, Mi
 import { ChatMessages } from './ChatMessages';
 import { EmptyState } from './EmptyState';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { useSmartAutoScroll } from '@/hooks/useSmartAutoScroll';
 import TextareaAutosize from 'react-textarea-autosize';
 import { cn } from '@/lib/utils';
 import type { User as WorkOSUser } from '@workos-inc/node';
@@ -185,6 +186,13 @@ function JohnGPTDialogContent({ open, onOpenChange, user, followMeConversationId
 
   // Mobile detection
   const isMobile = useMediaQuery('(max-width: 768px)');
+
+  // Smart auto-scroll for widget messages
+  const { scrollContainerRef, scrollAnchorRef } = useSmartAutoScroll({
+    enabled: true,
+    threshold: 100,
+    debounceMs: 100,
+  });
 
   // Dynamic height based on expansion state
   const modalHeight = isMobile ? 'h-full' : isExpanded ? 'h-[80vh]' : 'h-[600px]';
@@ -424,10 +432,10 @@ function JohnGPTDialogContent({ open, onOpenChange, user, followMeConversationId
               </div>
             </div>
 
-            {/* Messages area */}
-            <div className="flex-1 flex flex-col overflow-hidden relative bg-transparent min-h-0">
+            {/* Messages area - scrollContainerRef for autoscroll */}
+            <div ref={scrollContainerRef} className="flex-1 flex flex-col overflow-y-auto relative bg-transparent min-h-0">
               {messages.length === 0 ? (
-                <div className="flex-1 overflow-y-auto">
+                <div className="flex-1">
                   <EmptyState
                     suggestions={suggestions}
                     onSuggestionClick={(text) => setInput(text)}
@@ -442,6 +450,7 @@ function JohnGPTDialogContent({ open, onOpenChange, user, followMeConversationId
                   user={user}
                   onEdit={editMessage}
                   onNavigateBranch={navigateBranch}
+                  scrollAnchorRef={scrollAnchorRef}
                 />
               )}
             </div>

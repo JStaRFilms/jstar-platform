@@ -33,27 +33,14 @@ interface UseSmartAutoScrollReturn {
  * 
  * Features:
  * - Auto-scrolls when user is at/near bottom during streaming
- * - Respects user intent - if they scroll up manually, doesn't yank them back
- * - Re-engages auto-scroll when user scrolls back to bottom
- * - Debounced with requestAnimationFrame for performance
- * - No "boomerang" effect during fast streaming
- * 
- * @example
- * ```tsx
- * const { scrollContainerRef, scrollAnchorRef, isFollowing } = useSmartAutoScroll();
- * 
- * return (
- *   <div ref={scrollContainerRef} className="overflow-y-auto">
- *     {messages.map(msg => <Message key={msg.id} {...msg} />)}
- *     <div ref={scrollAnchorRef} />
- *   </div>
- * );
- * ```
+ * - Respects user intent - if they scroll up manually, STOPS immediately
+ * - Only re-engages when user scrolls all the way to bottom
+ * - 500ms cooldown after user scroll to prevent boomerang
  */
 export function useSmartAutoScroll({
     threshold = 100,
     enabled = true,
-    debounceMs = 50,
+    debounceMs = 100,
 }: UseSmartAutoScrollOptions = {}): UseSmartAutoScrollReturn {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const scrollAnchorRef = useRef<HTMLDivElement>(null);
@@ -61,34 +48,34 @@ export function useSmartAutoScroll({
     // Track whether user is "following" (at/near bottom)
     const [isFollowing, setIsFollowing] = useState(true);
 
-    // Track if user manually scrolled (wheel/touch)
-    const userScrolledRef = useRef(false);
+    // Track user scroll state with cooldown
+    const userScrollCooldownRef = useRef(false);
+    const lastScrollTopRef = useRef(0);
 
-    // Debounce timer ref
-    const debounceTimerRef = useRef<number | null>(null);
-    // RAF ref for cancellation
+    // Separate timers to prevent conflicts
+    const userScrollTimerRef = useRef<number | null>(null);
+    const autoScrollTimerRef = useRef<number | null>(null);
     const rafRef = useRef<number | null>(null);
 
     /**
-     * Check if scroll position is at/near the bottom
+     * Check if user is at absolute bottom (stricter check for re-enabling)
      */
-    const isNearBottom = useCallback(() => {
+    const isAtBottom = useCallback(() => {
         const container = scrollContainerRef.current;
         if (!container) return true;
 
         const { scrollTop, scrollHeight, clientHeight } = container;
-        return scrollHeight - scrollTop - clientHeight <= threshold;
-    }, [threshold]);
+        // Must be within 20px of absolute bottom to re-enable
+        return scrollHeight - scrollTop - clientHeight <= 20;
+    }, []);
 
     /**
-     * Scroll to absolute bottom using direct scrollTop manipulation
-     * This is more reliable than scrollIntoView during streaming
+     * Scroll to absolute bottom
      */
     const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
         const container = scrollContainerRef.current;
         if (!container) return;
 
-        // Use scrollTo for better control
         container.scrollTo({
             top: container.scrollHeight,
             behavior,
@@ -97,54 +84,86 @@ export function useSmartAutoScroll({
 
     /**
      * Handle user manual scroll events (wheel/touch)
-     * This temporarily disables auto-scroll to respect user intent
+     * Immediately disables auto-scroll if user scrolls UP
      */
     useEffect(() => {
         const container = scrollContainerRef.current;
         if (!container || !enabled) return;
 
         const handleUserScroll = () => {
-            userScrolledRef.current = true;
+            const currentScrollTop = container.scrollTop;
+            const scrolledUp = currentScrollTop < lastScrollTopRef.current - 5; // 5px tolerance
+            lastScrollTopRef.current = currentScrollTop;
 
-            // Check position after a small delay to let scroll settle
-            if (debounceTimerRef.current) {
-                window.clearTimeout(debounceTimerRef.current);
+            // User scrolled UP - immediately disable following
+            if (scrolledUp && !isAtBottom()) {
+                setIsFollowing(false);
+                userScrollCooldownRef.current = true;
+
+                // Clear any pending auto-scroll
+                if (autoScrollTimerRef.current) {
+                    window.clearTimeout(autoScrollTimerRef.current);
+                    autoScrollTimerRef.current = null;
+                }
+                if (rafRef.current) {
+                    cancelAnimationFrame(rafRef.current);
+                    rafRef.current = null;
+                }
             }
 
-            debounceTimerRef.current = window.setTimeout(() => {
-                const nearBottom = isNearBottom();
-                setIsFollowing(nearBottom);
-                userScrolledRef.current = false;
-            }, 150);
+            // Reset cooldown timer
+            if (userScrollTimerRef.current) {
+                window.clearTimeout(userScrollTimerRef.current);
+            }
+
+            // Long cooldown (500ms) before allowing auto-scroll to re-engage
+            userScrollTimerRef.current = window.setTimeout(() => {
+                userScrollCooldownRef.current = false;
+
+                // Only re-enable if user scrolled ALL the way to bottom
+                if (isAtBottom()) {
+                    setIsFollowing(true);
+                }
+            }, 500);
         };
 
-        // Listen for user-initiated scroll events
         container.addEventListener('wheel', handleUserScroll, { passive: true });
         container.addEventListener('touchmove', handleUserScroll, { passive: true });
+        container.addEventListener('scroll', handleUserScroll, { passive: true });
 
         return () => {
             container.removeEventListener('wheel', handleUserScroll);
             container.removeEventListener('touchmove', handleUserScroll);
-            if (debounceTimerRef.current) {
-                window.clearTimeout(debounceTimerRef.current);
+            container.removeEventListener('scroll', handleUserScroll);
+            if (userScrollTimerRef.current) {
+                window.clearTimeout(userScrollTimerRef.current);
             }
         };
-    }, [enabled, isNearBottom]);
+    }, [enabled, isAtBottom]);
 
     /**
      * Auto-scroll effect - runs when content changes
-     * Uses MutationObserver to detect DOM changes (new messages/tokens)
+     * Uses MutationObserver to detect DOM changes with THROTTLING
      */
     useEffect(() => {
         const container = scrollContainerRef.current;
         if (!container || !enabled) return;
 
+        // Throttle: Track last scroll time to prevent excessive scrolling
+        let lastScrollTime = 0;
+        const THROTTLE_MS = 150; // Max once every 150ms
+
         const performAutoScroll = () => {
-            // Don't auto-scroll if user is manually scrolling
-            if (userScrolledRef.current) return;
+            // STRICT CHECK: Don't scroll if cooldown is active
+            if (userScrollCooldownRef.current) return;
 
             // Only scroll if we're in "following" mode
             if (!isFollowing) return;
+
+            // Throttle check
+            const now = Date.now();
+            if (now - lastScrollTime < THROTTLE_MS) return;
+            lastScrollTime = now;
 
             // Use RAF for smooth performance
             if (rafRef.current) {
@@ -152,43 +171,52 @@ export function useSmartAutoScroll({
             }
 
             rafRef.current = requestAnimationFrame(() => {
-                // Double-check we're still near bottom before scrolling
-                if (isNearBottom()) {
-                    // Direct scrollTop manipulation - most reliable during streaming
-                    container.scrollTop = container.scrollHeight - container.clientHeight;
-                }
+                // One more check before scrolling
+                if (userScrollCooldownRef.current || !isFollowing) return;
+
+                // Direct scrollTop manipulation
+                container.scrollTop = container.scrollHeight - container.clientHeight;
+                lastScrollTopRef.current = container.scrollTop;
             });
         };
 
-        // Observe DOM mutations (new content being added)
+        // Observe DOM mutations - with DEBOUNCE to prevent overwhelming
+        let mutationTimeout: number | null = null;
+
         const observer = new MutationObserver(() => {
-            // Debounce the scroll check
-            if (debounceTimerRef.current) {
-                window.clearTimeout(debounceTimerRef.current);
+            // Don't process if cooldown is active
+            if (userScrollCooldownRef.current) return;
+
+            // Debounce mutations - only process once per debounceMs
+            if (mutationTimeout) {
+                window.clearTimeout(mutationTimeout);
             }
 
-            debounceTimerRef.current = window.setTimeout(performAutoScroll, debounceMs);
+            mutationTimeout = window.setTimeout(performAutoScroll, debounceMs);
         });
 
+        // OPTIMIZED: Only observe childList (new elements), not characterData
+        // This reduces mutation events during streaming significantly
         observer.observe(container, {
             childList: true,
             subtree: true,
-            characterData: true,
+            characterData: false, // Changed: Don't observe text node changes
         });
 
         // Initial scroll to bottom on mount
         scrollToBottom('auto');
+        lastScrollTopRef.current = container.scrollTop;
 
         return () => {
             observer.disconnect();
-            if (debounceTimerRef.current) {
-                window.clearTimeout(debounceTimerRef.current);
+            if (mutationTimeout) {
+                window.clearTimeout(mutationTimeout);
             }
             if (rafRef.current) {
                 cancelAnimationFrame(rafRef.current);
             }
         };
-    }, [enabled, isFollowing, isNearBottom, debounceMs, scrollToBottom]);
+    }, [enabled, isFollowing, debounceMs, scrollToBottom]);
 
     return {
         scrollContainerRef,

@@ -11,6 +11,7 @@ import { ModelSelector } from './ModelSelector';
 import { Loader2, Sparkles } from 'lucide-react';
 import type { User as WorkOSUser } from '@workos-inc/node';
 import { cn } from '@/lib/utils';
+import { useSmartAutoScroll } from '@/hooks/useSmartAutoScroll';
 import { useConversationManagement } from '../hooks/useConversationManagement';
 import { useRouter } from 'next/navigation';
 import { ChatHeader } from './ChatHeader';
@@ -85,6 +86,14 @@ export function ChatView({ user, className, conversationId: conversationIdProp, 
     // Local state
     const [input, setInput] = React.useState('');
     const messagesRef = React.useRef<any[]>([]);
+
+    // Smart auto-scroll - hook MUST be in component that OWNS the scroll container
+    // isFollowing and scrollToBottom are available for future "scroll to bottom" button
+    const { scrollContainerRef, scrollAnchorRef, isFollowing: _isFollowing, scrollToBottom: _scrollToBottom } = useSmartAutoScroll({
+        enabled: true,
+        threshold: 150, // Slightly higher threshold for better UX
+        debounceMs: 50,
+    });
 
     // Get scrollToSection from ChatActionContext
     const { scrollToSection } = useChatActions();
@@ -318,6 +327,7 @@ export function ChatView({ user, className, conversationId: conversationIdProp, 
 
             {/* Messages Area */}
             <div
+                ref={scrollContainerRef}
                 className="flex-1 overflow-y-auto pt-4 pb-4 px-0 scroll-smooth min-h-0"
             >
                 <div className="max-w-5xl mx-auto space-y-6 h-full">
@@ -334,6 +344,7 @@ export function ChatView({ user, className, conversationId: conversationIdProp, 
                             user={user}
                             onEdit={editMessage}
                             onNavigateBranch={navigateBranch}
+                            scrollAnchorRef={scrollAnchorRef}
                         />
                     )}
                 </div>
