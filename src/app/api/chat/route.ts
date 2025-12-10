@@ -1,4 +1,4 @@
-import { streamText, tool, stepCountIs, convertToModelMessages, UIMessage } from 'ai';
+import { streamText, tool, stepCountIs, convertToModelMessages, UIMessage, CoreMessage } from 'ai';
 import { getDynamicModel, getAIModel } from '../../../lib/ai-providers';
 import { withAuth } from '@workos-inc/authkit-nextjs';
 import { prisma } from '../../../lib/prisma';
@@ -9,6 +9,7 @@ import { findDestination } from '../../../lib/ai/findDestination';
 import { PromptManager, ChatContext } from '../../../lib/ai/prompt-manager';
 import { classifyIntent } from '../../../lib/ai/intent-classifier';
 import { canAccessModel, canUsePremiumModel, PAID_MODEL_DAILY_LIMITS } from '../../../lib/ai/types';
+import crypto from 'crypto';
 
 export const runtime = 'nodejs';
 // Allow streaming responses up to 30 seconds (required by Vercel AI SDK)
@@ -16,7 +17,7 @@ export const maxDuration = 30;
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { messages, currentPath: bodyCurrentPath, modelId } = body;
+  const { messages, currentPath: bodyCurrentPath, modelId, conversationId } = body;
 
   // Detect context from the Referer header - much more reliable than client-side
   const referer = req.headers.get('referer') || '';
@@ -34,16 +35,17 @@ export async function POST(req: NextRequest) {
     currentPath = bodyCurrentPath || '/';
   }
 
-  console.log('API /api/chat received:', { messages: messages.length, currentPath, context, modelId });
+  console.log('API /api/chat received:', { messages: messages.length, currentPath, context, modelId, conversationId });
   console.log(`Context detected from referer: ${referer} => ${context}`);
 
   // 🔓 Optional Authentication - Allow anonymous users
   const { user } = await withAuth();
+  let dbUser: any = null;
 
   // If user is authenticated, we can save chat history (future feature)
   if (user) {
     try {
-      const dbUser = await prisma.user.findUnique({
+      dbUser = await prisma.user.findUnique({
         where: { workosId: user.id },
       });
       if (dbUser) {
@@ -104,12 +106,7 @@ export async function POST(req: NextRequest) {
 
   // 2. Fetch the appropriate System Prompt using PromptManager
   // We need to fetch the full user from DB if authenticated to get the tier
-  let dbUser = null;
-  if (user) {
-    dbUser = await prisma.user.findUnique({
-      where: { workosId: user.id },
-    });
-  }
+  // (Done above: dbUser)
 
   // 3. Handle dynamic model selection with tier validation
   let selectedModelId: string | null = modelId || null;
@@ -186,6 +183,66 @@ export async function POST(req: NextRequest) {
     system: systemPrompt,
     stopWhen: stepCountIs(5), // Allow AI to continue after tool execution for up to 5 steps
     maxRetries: 1, // Don't burn quota on retries - fail fast on rate limits
+    onFinish: async ({ response }) => {
+      // 💾 Server-Side Persistence for Offline Resilience
+      if (dbUser && conversationId) {
+        try {
+          // 1. Convert new CoreMessages (from AI SDK response) to UIMessages (for DB storage)
+          const newMessages = response.messages.map((m: CoreMessage) => {
+            // Handle content array (multimodal/tools) if present, otherwise string
+            let content = '';
+            let parts = undefined;
+
+            if (typeof m.content === 'string') {
+              content = m.content;
+            } else if (Array.isArray(m.content)) {
+               // For DB storage we might want to preserve the structure or simplify
+               // UIMessage uses 'content' string + 'parts' array
+               // We'll simplisticly join text parts for 'content'
+               content = m.content
+                 .filter(c => c.type === 'text')
+                 .map(c => (c as any).text)
+                 .join('');
+
+               // And map parts if we want to be thorough (optional for now)
+            }
+
+            return {
+              id: crypto.randomUUID(),
+              role: m.role,
+              content: content,
+              createdAt: new Date(),
+              // We could map tool invocations here if needed
+            };
+          });
+
+          // 2. Combine with existing history
+          // 'messages' (from request) + 'newMessages' (generated)
+          const fullHistory = [...messages, ...newMessages];
+
+          // 3. Save to Prisma
+          await prisma.conversation.upsert({
+            where: { id: conversationId },
+            create: {
+              id: conversationId,
+              userId: dbUser.id,
+              title: messages[0]?.content?.slice(0, 50) || 'New Chat',
+              messages: fullHistory as any, // Cast to Json
+              selectedModelId: selectedModelId,
+            },
+            update: {
+              messages: fullHistory as any,
+              updatedAt: new Date(),
+            }
+          });
+
+          console.log(`[onFinish] Saved ${newMessages.length} new messages to conversation ${conversationId}`);
+
+        } catch (error) {
+          console.error('[onFinish] Failed to save conversation:', error);
+        }
+      }
+    },
     tools: {
       searchKnowledge: tool({
         description: 'Search the knowledge base for ANY information related to J StaR, including services, portfolio, team members, testimonials, pricing, or specific details found on the website. Use this whenever the user asks a question that might be answered by content on the site, even if it seems like a specific detail.',

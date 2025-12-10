@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useChat, UIMessage } from '@ai-sdk/react';
 import { useRouter, usePathname } from 'next/navigation';
 import { dbSyncManager } from '@/lib/storage/db-sync-manager';
@@ -58,7 +58,7 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
         // Include currentPath for navigation context
         // NOTE: modelId is passed per-request via sendMessageWithModel, NOT here (body is memoized at init)
         // @ts-expect-error - body is supported but types are strict
-        body: { ...options.body, currentPath: pathname },
+        body: { ...options.body, currentPath: pathname, conversationId: conversationId },
         onFinish: (response: any) => {
             // 🚀 Handle navigation tool results HERE (not in UI component)
             // This ensures navigation only happens ONCE when streaming completes
@@ -122,10 +122,10 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
     const sendMessageWithModel = useCallback(
         async (message: any, modelId?: string | null) => {
             return sendMessage(message, {
-                body: { modelId },
+                body: { modelId, conversationId },
             });
         },
-        [sendMessage]
+        [sendMessage, conversationId]
     );
 
     // Listen for message updates to set the mode from metadata
@@ -228,6 +228,9 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
     }, [userId]);
 
     // 3.5. Persistence: Save to IndexedDB (and queue DB sync)
+    // Ref for debouncing
+    const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
     useEffect(() => {
         // Only save if we have a conversation ID and user ID and messages
         if (!conversationId || !userId || messages.length === 0) return;
@@ -276,8 +279,20 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
             }
         };
 
-        // Debounce handled inside dbSyncManager
-        saveConversation();
+        // Clear existing timeout
+        if (saveTimeoutRef.current) {
+            clearTimeout(saveTimeoutRef.current);
+        }
+
+        // Set new timeout (2 seconds debounce)
+        saveTimeoutRef.current = setTimeout(saveConversation, 2000);
+
+        return () => {
+            if (saveTimeoutRef.current) {
+                clearTimeout(saveTimeoutRef.current);
+            }
+        };
+
     }, [messages, tree, conversationId, userId, options.isWidget, options.modelId]);
 
     // 3.7. Auto-generate AI title after 6 messages (3 exchanges)

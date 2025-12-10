@@ -2,172 +2,92 @@
 
 import { useRef, useEffect, useCallback, useState } from 'react';
 
-/**
- * Options for the useSmartAutoScroll hook
- */
 interface UseSmartAutoScrollOptions {
-    /** Threshold in pixels - if user is within this distance of bottom, auto-scroll follows */
     threshold?: number;
-    /** Whether auto-scroll is enabled */
     enabled?: boolean;
-    /** Debounce time in ms for scroll checks during streaming */
     debounceMs?: number;
 }
 
-/**
- * Return type for the useSmartAutoScroll hook
- */
 interface UseSmartAutoScrollReturn {
-    /** Ref to attach to the scroll container */
     scrollContainerRef: React.RefObject<HTMLDivElement | null>;
-    /** Ref to attach to the element at the end of messages */
     scrollAnchorRef: React.RefObject<HTMLDivElement | null>;
-    /** Whether user is currently "following" (at/near bottom) */
     isFollowing: boolean;
-    /** Manually scroll to bottom */
     scrollToBottom: (behavior?: ScrollBehavior) => void;
 }
 
 /**
- * Smart auto-scroll hook for streaming chat messages.
+ * Enhanced Smart Auto-Scroll Hook
  * 
- * Features:
- * - Auto-scrolls when user is at/near bottom during streaming
- * - Respects user intent - if they scroll up manually, doesn't yank them back
- * - Re-engages auto-scroll when user scrolls back to bottom
- * - Debounced with requestAnimationFrame for performance
- * - No "boomerang" effect during fast streaming
- * 
- * @example
- * ```tsx
- * const { scrollContainerRef, scrollAnchorRef, isFollowing } = useSmartAutoScroll();
- * 
- * return (
- *   <div ref={scrollContainerRef} className="overflow-y-auto">
- *     {messages.map(msg => <Message key={msg.id} {...msg} />)}
- *     <div ref={scrollAnchorRef} />
- *   </div>
- * );
- * ```
+ * Simplified and robust implementation for sticky scrolling during streaming.
+ * Checks scroll position and only auto-scrolls if the user was already at the bottom.
  */
 export function useSmartAutoScroll({
-    threshold = 100,
+    threshold = 150, // Increased threshold for better "sticky" feel
     enabled = true,
-    debounceMs = 50,
 }: UseSmartAutoScrollOptions = {}): UseSmartAutoScrollReturn {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const scrollAnchorRef = useRef<HTMLDivElement>(null);
 
-    // Track whether user is "following" (at/near bottom)
+    // Track if we should auto-scroll (sticky mode)
     const [isFollowing, setIsFollowing] = useState(true);
 
-    // Track if user manually scrolled (wheel/touch)
-    const userScrolledRef = useRef(false);
-
-    // Debounce timer ref
-    const debounceTimerRef = useRef<number | null>(null);
-    // RAF ref for cancellation
-    const rafRef = useRef<number | null>(null);
-
     /**
-     * Check if scroll position is at/near the bottom
+     * Check if user is near bottom
      */
-    const isNearBottom = useCallback(() => {
+    const checkIsNearBottom = useCallback(() => {
         const container = scrollContainerRef.current;
         if (!container) return true;
 
-        const { scrollTop, scrollHeight, clientHeight } = container;
-        return scrollHeight - scrollTop - clientHeight <= threshold;
+        // Distance from bottom
+        const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+
+        // Use Math.abs because sometimes overscroll (elastic scrolling) can make it negative
+        return Math.abs(distanceFromBottom) <= threshold;
     }, [threshold]);
 
     /**
-     * Scroll to absolute bottom using direct scrollTop manipulation
-     * This is more reliable than scrollIntoView during streaming
+     * Scroll to bottom helper
      */
     const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
         const container = scrollContainerRef.current;
         if (!container) return;
 
-        // Use scrollTo for better control
-        container.scrollTo({
-            top: container.scrollHeight,
-            behavior,
-        });
+        // Prefer scrollIntoView on the anchor for reliability across layouts
+        if (scrollAnchorRef.current) {
+            scrollAnchorRef.current.scrollIntoView({ behavior, block: 'end' });
+        } else {
+            // Fallback to scrollTop
+            container.scrollTo({ top: container.scrollHeight, behavior });
+        }
     }, []);
 
-    /**
-     * Handle user manual scroll events (wheel/touch)
-     * This temporarily disables auto-scroll to respect user intent
-     */
+    // 1. Handle Scroll Events to toggle "sticky" mode
     useEffect(() => {
         const container = scrollContainerRef.current;
         if (!container || !enabled) return;
 
-        const handleUserScroll = () => {
-            userScrolledRef.current = true;
-
-            // Check position after a small delay to let scroll settle
-            if (debounceTimerRef.current) {
-                window.clearTimeout(debounceTimerRef.current);
-            }
-
-            debounceTimerRef.current = window.setTimeout(() => {
-                const nearBottom = isNearBottom();
-                setIsFollowing(nearBottom);
-                userScrolledRef.current = false;
-            }, 150);
+        const handleScroll = () => {
+            // If the user scrolls, check if they broke "stickiness"
+            const nearBottom = checkIsNearBottom();
+            setIsFollowing(nearBottom);
         };
 
-        // Listen for user-initiated scroll events
-        container.addEventListener('wheel', handleUserScroll, { passive: true });
-        container.addEventListener('touchmove', handleUserScroll, { passive: true });
+        container.addEventListener('scroll', handleScroll, { passive: true });
+        return () => container.removeEventListener('scroll', handleScroll);
+    }, [enabled, checkIsNearBottom]);
 
-        return () => {
-            container.removeEventListener('wheel', handleUserScroll);
-            container.removeEventListener('touchmove', handleUserScroll);
-            if (debounceTimerRef.current) {
-                window.clearTimeout(debounceTimerRef.current);
-            }
-        };
-    }, [enabled, isNearBottom]);
-
-    /**
-     * Auto-scroll effect - runs when content changes
-     * Uses MutationObserver to detect DOM changes (new messages/tokens)
-     */
+    // 2. Observe mutations (new content) to trigger auto-scroll
     useEffect(() => {
         const container = scrollContainerRef.current;
         if (!container || !enabled) return;
 
-        const performAutoScroll = () => {
-            // Don't auto-scroll if user is manually scrolling
-            if (userScrolledRef.current) return;
-
-            // Only scroll if we're in "following" mode
-            if (!isFollowing) return;
-
-            // Use RAF for smooth performance
-            if (rafRef.current) {
-                cancelAnimationFrame(rafRef.current);
-            }
-
-            rafRef.current = requestAnimationFrame(() => {
-                // Double-check we're still near bottom before scrolling
-                if (isNearBottom()) {
-                    // Direct scrollTop manipulation - most reliable during streaming
-                    container.scrollTop = container.scrollHeight - container.clientHeight;
-                }
-            });
-        };
-
-        // Observe DOM mutations (new content being added)
         const observer = new MutationObserver(() => {
-            // Debounce the scroll check
-            if (debounceTimerRef.current) {
-                window.clearTimeout(debounceTimerRef.current);
+            // If we are following, scroll to bottom when content changes
+            if (isFollowing) {
+                // Use 'instant' or 'smooth'? 'smooth' is nicer but can lag behind fast tokens.
+                // 'auto' (instant) is better for high-speed streaming.
+                scrollToBottom('auto');
             }
-
-            debounceTimerRef.current = window.setTimeout(performAutoScroll, debounceMs);
         });
 
         observer.observe(container, {
@@ -176,19 +96,18 @@ export function useSmartAutoScroll({
             characterData: true,
         });
 
-        // Initial scroll to bottom on mount
-        scrollToBottom('auto');
+        return () => observer.disconnect();
+    }, [enabled, isFollowing, scrollToBottom]);
 
-        return () => {
-            observer.disconnect();
-            if (debounceTimerRef.current) {
-                window.clearTimeout(debounceTimerRef.current);
-            }
-            if (rafRef.current) {
-                cancelAnimationFrame(rafRef.current);
-            }
-        };
-    }, [enabled, isFollowing, isNearBottom, debounceMs, scrollToBottom]);
+    // 3. Initial scroll on mount
+    useEffect(() => {
+        if (enabled) {
+            // Wait for layout to stabilize
+            setTimeout(() => {
+                scrollToBottom('auto');
+            }, 100);
+        }
+    }, [enabled, scrollToBottom]);
 
     return {
         scrollContainerRef,
