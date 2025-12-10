@@ -1,5 +1,5 @@
 
-import { PromptManager } from '../src/lib/ai/prompt-manager';
+import { PromptManager } from '../lib/ai/prompt-manager';
 import { config } from 'dotenv';
 
 // Load environment variables

@@ -1,142 +1,80 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { ConversationService } from '@/features/john-gpt/services/conversation.service';
+import { UpdateConversationSchema } from '@/features/john-gpt/schema';
+import { z } from 'zod';
 import { withAuth } from '@workos-inc/authkit-nextjs';
 
-type RouteContext = {
-    params: Promise<{
-        id: string;
-    }>;
-};
-
-/**
- * GET /api/conversations/[id]
- * 
- * Get conversation metadata by ID
- */
 export async function GET(
-    request: NextRequest,
-    context: RouteContext
+    req: NextRequest,
+    props: { params: Promise<{ id: string }> }
 ) {
-    let conversationId = 'unknown';
+    const { params } = props;
+    const { user } = await withAuth();
+    const { id } = await params;
+
+    if (!user) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     try {
-        const { user } = await withAuth();
-
-        if (!user) {
-            return NextResponse.json(
-                { error: 'Unauthorized' },
-                { status: 401 }
-            );
-        }
-
-        // Look up the database user by WorkOS ID
-        const dbUser = await prisma.user.findUnique({
-            where: { workosId: user.id },
-        });
-
-        if (!dbUser) {
-            return NextResponse.json(
-                { error: 'User not found in database' },
-                { status: 404 }
-            );
-        }
-
-        // Await params (Next.js 15 requirement)
-        const params = await context.params;
-        conversationId = params.id;
-
-        const conversation = await prisma.conversation.findUnique({
-            where: {
-                id: conversationId,
-                userId: dbUser.id, // Ensure user owns this conversation
-            },
-            select: {
-                id: true,
-                title: true,
-                createdAt: true,
-                updatedAt: true,
-                driveFileId: true,
-                driveVersion: true,
-            },
-        });
+        const conversation = await ConversationService.getConversation(id, user.id);
 
         if (!conversation) {
-            return NextResponse.json(
-                { error: 'Conversation not found' },
-                { status: 404 }
-            );
+            return NextResponse.json({ error: 'Not Found' }, { status: 404 });
         }
 
-        return NextResponse.json({ conversation });
+        return NextResponse.json(conversation);
     } catch (error) {
-        console.error(`[GET /api/conversations/${conversationId}] Error:`, error);
-        return NextResponse.json(
-            { error: 'Internal server error' },
-            { status: 500 }
-        );
+        console.error('Failed to get conversation:', error);
+        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }
 
-/**
- * DELETE /api/conversations/[id]
- * 
- * Delete conversation metadata from DB
- * (Client is responsible for deleting from Google Drive)
- */
-export async function DELETE(
-    request: NextRequest,
-    context: RouteContext
+export async function PATCH(
+    req: NextRequest,
+    props: { params: Promise<{ id: string }> }
 ) {
-    let conversationId = 'unknown';
+    const { params } = props;
+    const { user } = await withAuth();
+    const { id } = await params;
+
+    if (!user) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     try {
-        const { user } = await withAuth();
+        const body = await req.json();
+        const data = UpdateConversationSchema.parse(body);
 
-        if (!user) {
-            return NextResponse.json(
-                { error: 'Unauthorized' },
-                { status: 401 }
-            );
-        }
-
-        // Look up the database user by WorkOS ID
-        const dbUser = await prisma.user.findUnique({
-            where: { workosId: user.id },
-        });
-
-        if (!dbUser) {
-            return NextResponse.json(
-                { error: 'User not found in database' },
-                { status: 404 }
-            );
-        }
-
-        // Await params (Next.js 15 requirement)
-        const params = await context.params;
-        conversationId = params.id;
-
-        // Delete conversation (only if user owns it)
-        const deleted = await prisma.conversation.deleteMany({
-            where: {
-                id: conversationId,
-                userId: dbUser.id, // Use internal database user ID
-            },
-        });
-
-        if (deleted.count === 0) {
-            return NextResponse.json(
-                { error: 'Conversation not found or unauthorized' },
-                { status: 404 }
-            );
-        }
-
-        return NextResponse.json({
-            success: true,
-            message: 'Conversation deleted',
-        });
+        const conversation = await ConversationService.updateConversation(id, user.id, data);
+        return NextResponse.json(conversation);
     } catch (error) {
-        console.error(`[DELETE /api/conversations/${conversationId}] Error:`, error);
-        return NextResponse.json(
-            { error: 'Internal server error' },
-            { status: 500 }
-        );
+        if (error instanceof z.ZodError) {
+            return NextResponse.json({ error: 'Validation Error', details: (error as any).errors || (error as any).issues }, { status: 400 });
+        }
+        // Handle specific Prisma errors like "Record not found" if needed
+        console.error('Failed to update conversation:', error);
+        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    }
+}
+
+export async function DELETE(
+    req: NextRequest,
+    props: { params: Promise<{ id: string }> }
+) {
+    const { params } = props;
+    const { user } = await withAuth();
+    const { id } = await params;
+
+    if (!user) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    try {
+        await ConversationService.deleteConversation(id, user.id);
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        console.error('Failed to delete conversation:', error);
+        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }

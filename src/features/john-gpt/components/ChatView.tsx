@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useBranchingChat } from '../hooks/useBranchingChat';
-import { syncManager } from '@/lib/storage/sync-manager';
+import { dbSyncManager } from '@/lib/storage/db-sync-manager';
 import { useConversationPersistence } from '../hooks/useConversationPersistence';
 import { ChatInput } from './ChatInput';
 import { ChatMessages } from './ChatMessages';
@@ -169,7 +169,7 @@ export function ChatView({ user, className, conversationId: conversationIdProp, 
         const loadImportSession = async () => {
             try {
                 console.log('[ChatView] Importing session:', importSessionId);
-                const session = await syncManager.loadConversation(importSessionId, { isWidget: true });
+                const session = await dbSyncManager.loadConversation(importSessionId, { isWidget: true });
 
                 if (session && session.messages.length > 0) {
                     setMessages(session.messages as any);
@@ -208,8 +208,8 @@ export function ChatView({ user, className, conversationId: conversationIdProp, 
                 throw new Error('Failed to save conversation to database');
             }
 
-            // 4. Save to IndexedDB for offline access
-            await syncManager.saveConversation(newId, user.id, title, messages as any);
+            // 4. Save to IndexedDB/DB via dbSyncManager
+            await dbSyncManager.saveConversation(newId, user.id, title, messages as any);
 
             // 5. Navigate to new conversation
             router.replace(`/john-gpt/${newId}`);

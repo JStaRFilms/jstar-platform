@@ -11,7 +11,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { indexedDBClient } from '@/lib/storage/indexeddb-client';
-import { syncManager } from '@/lib/storage/sync-manager';
+import { dbSyncManager } from '@/lib/storage/db-sync-manager';
 
 // ============================================================================
 // Types
@@ -91,6 +91,11 @@ export function useWidgetPersistence(
         return `anonymous-${getOrCreateDeviceId()}`;
     }, [authUserId]);
 
+    // Initialize DB Sync Manager
+    useEffect(() => {
+        dbSyncManager.initialize(effectiveUserId);
+    }, [effectiveUserId]);
+
     // Widget session ID (stable per user)
     const sessionId = useMemo(() => {
         return generateWidgetSessionId(effectiveUserId);
@@ -113,9 +118,9 @@ export function useWidgetPersistence(
                     return;
                 }
 
-                // Try to load the widget session from SyncManager (handles Drive + Cache)
-                // New: Pass isWidget: true to look in widget folder
-                const cachedSession = await syncManager.loadConversation(sessionId, { isWidget: true });
+                // Try to load the widget session from dbSyncManager
+                // Pass isWidget: true to optionally skip remote API if desired (managed in DBSyncManager)
+                const cachedSession = await dbSyncManager.loadConversation(sessionId, { isWidget: true });
 
                 if (cachedSession && cachedSession.messages && cachedSession.messages.length > 0) {
                     console.log('[useWidgetPersistence] Loaded session:', sessionId, 'with', cachedSession.messages.length, 'messages');
@@ -136,7 +141,7 @@ export function useWidgetPersistence(
     // Clear the current session
     const clearSession = useCallback(async () => {
         try {
-            await syncManager.deleteConversation(sessionId);
+            await dbSyncManager.deleteConversation(sessionId);
             setInitialMessages([]);
             console.log('[useWidgetPersistence] Session cleared:', sessionId);
         } catch (error) {

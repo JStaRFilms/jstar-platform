@@ -7,17 +7,24 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "embed-site": "tsx scripts/embed-site.ts",
+    "embed-site": "tsx src/scripts/embed-site.ts",
     "update-nav": "tsx src/scripts/populate-navigation.ts",
     "update-sections": "tsx src/scripts/populate-sections.ts",
     "db:sync-nav": "tsx src/scripts/populate-navigation.ts && tsx src/scripts/populate-sections.ts",
+    "db:seed": "npx prisma db seed",
+    "db:embeddings": "npm run db:sync-nav && npm run embed-site",
+    "db:reset": "npx prisma db push --force-reset && npm run db:seed && npm run db:embeddings",
     "postinstall": "prisma generate"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^2.0.53",
     "@ai-sdk/google": "^2.0.44",
     "@ai-sdk/groq": "^2.0.32",
     "@ai-sdk/openai": "^2.0.74",
+    "@ai-sdk/openai-compatible": "^1.0.28",
     "@ai-sdk/react": "^2.0.104",
     "@babel/generator": "^7.28.5",
     "@babel/parser": "^7.28.5",
@@ -62,7 +69,8 @@
     "resend": "^6.1.0",
     "swr": "^2.3.6",
     "tailwind-merge": "^3.3.1",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "zod": "^4.1.13"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

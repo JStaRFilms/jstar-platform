@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useChat, UIMessage } from '@ai-sdk/react';
 import { useRouter, usePathname } from 'next/navigation';
-import { syncManager } from '@/lib/storage/sync-manager';
+import { dbSyncManager } from '@/lib/storage/db-sync-manager';
 
 export type BranchingMessage = UIMessage & {
     parentId?: string | null;
@@ -35,6 +35,11 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
     const { conversationId, userId } = options;
     const router = useRouter();
     const pathname = usePathname();
+
+    // Initialize SyncManager
+    useEffect(() => {
+        dbSyncManager.initialize(userId || null);
+    }, [userId]);
 
     // 1. Internal Tree State
     const [tree, setTree] = useState<MessageTree>({});
@@ -217,13 +222,16 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
 
     }, [messages, headId]);
 
-    // 3.5. Persistence: Save to IndexedDB + queue Drive sync
+    // Initialize SyncManager
+    useEffect(() => {
+        dbSyncManager.initialize(userId || null);
+    }, [userId]);
+
+    // 3.5. Persistence: Save to IndexedDB (and queue DB sync)
     useEffect(() => {
         // Only save if we have a conversation ID and user ID and messages
         if (!conversationId || !userId || messages.length === 0) return;
 
-        // Debounce: Only save after streaming completes (when status is 'idle')
-        // This prevents saving on every token during streaming
         const saveConversation = async () => {
             try {
                 // Convert tree to flat message array with branching metadata
@@ -237,11 +245,12 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
                     };
                 });
 
-                // Auto-generate title from first 2 messages
+                // Auto-generate title logic (simplified)
                 let title = 'New Chat';
                 if (messages.length >= 2) {
+                    // Get title from first User message
                     const firstUserMsg = messages.find((m: any) => m.role === 'user');
-                    if (firstUserMsg && firstUserMsg.parts) {
+                    if (firstUserMsg?.parts) {
                         const textPart = firstUserMsg.parts.find((p: any) => p.type === 'text');
                         if (textPart && 'text' in textPart) {
                             title = textPart.text.slice(0, 50);
@@ -250,13 +259,15 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
                     }
                 }
 
-                // Save to IndexedDB immediately + queue Drive sync
-                await syncManager.saveConversation(
+                await dbSyncManager.saveConversation(
                     conversationId,
                     userId,
                     title,
                     messagesToSave,
-                    { isWidget: options.isWidget }
+                    {
+                        isWidget: options.isWidget,
+                        selectedModelId: options.modelId || undefined
+                    }
                 );
 
                 console.log('[useBranchingChat] Conversation saved to IndexedDB:', conversationId);
@@ -265,66 +276,14 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
             }
         };
 
+        // Debounce handled inside dbSyncManager
         saveConversation();
-    }, [messages, tree, conversationId, userId]);
-
-    // 3.6. Debounced Neon DB Metadata Sync
-    // This runs LESS frequently to avoid spamming the API
-    useEffect(() => {
-        if (!conversationId || !userId || messages.length === 0) return;
-
-        // Skip generic title save if we have 6+ messages (AI title will be generated)
-        if (messages.length >= 6) {
-            console.log('[useBranchingChat] Skipping generic title save - AI title will handle this');
-            return;
-        }
-
-        // Debounce timer: only save to DB after 2 seconds of no changes
-        const timer = setTimeout(async () => {
-            try {
-                // Auto-generate title from first 2 messages (only for < 6 messages)
-                let title = 'New Chat';
-                if (messages.length >= 2) {
-                    const firstUserMsg = messages.find((m: any) => m.role === 'user');
-                    if (firstUserMsg && firstUserMsg.parts) {
-                        const textPart = firstUserMsg.parts.find((p: any) => p.type === 'text');
-                        if (textPart && 'text' in textPart) {
-                            title = textPart.text.slice(0, 50);
-                            if (textPart.text.length > 50) title += '...';
-                        }
-                    }
-                }
-
-                // Save metadata to Neon DB (debounced, generic title only)
-                if (!options.isWidget) {
-                    await fetch('/api/conversations', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            conversationId,
-                            title,
-                            driveFileId: null, // Will be updated when Drive sync completes
-                            driveVersion: 1,
-                        }),
-                    });
-                    console.log('[useBranchingChat] Metadata saved to Neon DB (generic title):', conversationId);
-                } else {
-                    console.log('[useBranchingChat] Skipping DB save for widget session');
-                }
-
-                console.log('[useBranchingChat] Metadata saved to Neon DB (generic title):', conversationId);
-            } catch (dbError) {
-                // Non-critical: metadata save failed, but conversation is still saved to IndexedDB/Drive
-                console.warn('[useBranchingChat] DB metadata save failed:', dbError);
-            }
-        }, 2000); // Wait 2 seconds after last change
-
-        return () => clearTimeout(timer);
-    }, [messages, conversationId, userId]);
+    }, [messages, tree, conversationId, userId, options.isWidget, options.modelId]);
 
     // 3.7. Auto-generate AI title after 6 messages (3 exchanges)
     useEffect(() => {
         if (!conversationId || !userId || messages.length !== 6) return;
+        if (options.isWidget) return; // Skip for widget
 
         const generateTitle = async () => {
             try {
@@ -351,64 +310,25 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
                 const { title } = await res.json();
                 console.log('[useBranchingChat] AI-generated title:', title);
 
-                // Update Neon DB with new title (skip for widgets)
-                if (!options.isWidget) {
-                    await fetch('/api/conversations', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            conversationId,
-                            title,
-                            driveFileId: null,
-                            driveVersion: 1,
-                        }),
-                    });
-                }
+                // Update via SyncManager
+                const messagesToSave = messages.map((msg: any) => {
+                    const node = tree[msg.id];
+                    return { ...msg, parentId: node?.parentId, childrenIds: node?.childrenIds, createdAt: new Date(node?.createdAt || Date.now()).toISOString() };
+                });
+
+                await dbSyncManager.saveConversation(
+                    conversationId,
+                    userId,
+                    title,
+                    messagesToSave,
+                    { isWidget: options.isWidget }
+                );
 
                 // Trigger sidebar refresh
                 window.dispatchEvent(new CustomEvent('conversation-updated', {
                     detail: { conversationId, title }
                 }));
 
-                // 🚀 Trigger Google Drive backup with AI-generated title
-                console.log('[useBranchingChat] Triggering Google Drive backup...');
-                try {
-                    // Initialize Drive client first
-                    const driveReady = await syncManager.initializeGoogleDrive(userId);
-
-                    if (!driveReady) {
-                        console.warn('[useBranchingChat] Google Drive not connected - skipping backup');
-                        return;
-                    }
-
-                    // Convert tree to flat message array
-                    const messagesToSave = messages.map((msg: any) => {
-                        const node = tree[msg.id];
-                        return {
-                            ...msg,
-                            parentId: node?.parentId || null,
-                            childrenIds: node?.childrenIds || [],
-                            createdAt: new Date(node?.createdAt || Date.now()).toISOString(),
-                        };
-                    });
-
-                    // Backup to Google Drive (will use AI title in filename)
-                    // 1. Update IndexedDB with new title & tree data
-                    await syncManager.saveConversation(
-                        conversationId,
-                        userId,
-                        title,
-                        messagesToSave as any,
-                        { isWidget: options.isWidget }
-                    );
-
-                    // 2. Force immediate sync to Drive
-                    await syncManager.forceSyncConversation(conversationId);
-
-                    console.log('[useBranchingChat] ✅ Google Drive backup complete!');
-                } catch (driveError) {
-                    console.warn('[useBranchingChat] Drive backup failed (non-critical):', driveError);
-                }
             } catch (error) {
                 console.error('[useBranchingChat] Title generation error:', error);
             }
@@ -417,7 +337,7 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
         // Debounce to ensure streaming is complete
         const timer = setTimeout(generateTitle, 3000);
         return () => clearTimeout(timer);
-    }, [messages.length, conversationId]);
+    }, [messages.length, conversationId, userId, options.isWidget]);
 
 
     // 4. Branching Logic

@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });
-import { classifyIntent } from '../src/lib/ai/intent-classifier';
+import { classifyIntent } from '../lib/ai/intent-classifier';
 
 async function runTests() {
     const testCases = [

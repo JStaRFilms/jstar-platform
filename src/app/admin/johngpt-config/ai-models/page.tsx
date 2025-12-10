@@ -362,8 +362,8 @@ export default function AIModelsPage() {
                             <div
                                 key={model.id}
                                 className={`bg-white dark:bg-gray-800 rounded-lg shadow p-4 border ${model.isDefault ? 'border-green-500' :
-                                        model.isFeatured ? 'border-yellow-500' :
-                                            'border-gray-200 dark:border-gray-700'
+                                    model.isFeatured ? 'border-yellow-500' :
+                                        'border-gray-200 dark:border-gray-700'
                                     }`}
                             >
                                 <div className="flex items-center justify-between">
@@ -430,8 +430,8 @@ export default function AIModelsPage() {
                                         <button
                                             onClick={() => toggleFeatured(model)}
                                             className={`px-2 py-1 rounded text-xs font-medium transition-colors ${model.isFeatured
-                                                    ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                                                    : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'
+                                                ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                                                : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'
                                                 }`}
                                             title="Toggle featured"
                                         >
@@ -581,6 +581,8 @@ function ProviderFormModal({
                                         groq: 'Groq',
                                         anthropic: 'Anthropic',
                                         openrouter: 'OpenRouter',
+                                        ollama: 'Ollama (Local)',
+                                        lmstudio: 'LM Studio (Local)',
                                     };
                                     setDisplayName(names[e.target.value] || '');
                                 }}
@@ -588,11 +590,17 @@ function ProviderFormModal({
                                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                             >
                                 <option value="">Select provider...</option>
-                                <option value="openai">openai</option>
-                                <option value="google">google</option>
-                                <option value="groq">groq</option>
-                                <option value="anthropic">anthropic</option>
-                                <option value="openrouter">openrouter</option>
+                                <optgroup label="Cloud Providers">
+                                    <option value="openai">openai</option>
+                                    <option value="google">google</option>
+                                    <option value="groq">groq</option>
+                                    <option value="anthropic">anthropic</option>
+                                    <option value="openrouter">openrouter</option>
+                                </optgroup>
+                                <optgroup label="Local Providers">
+                                    <option value="ollama">ollama</option>
+                                    <option value="lmstudio">lmstudio</option>
+                                </optgroup>
                             </select>
                         </div>
                     )}

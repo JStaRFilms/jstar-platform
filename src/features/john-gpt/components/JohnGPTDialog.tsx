@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/dialog';
 import { useBranchingChat } from '../hooks/useBranchingChat';
 import { useWidgetPersistence } from '../hooks/useWidgetPersistence';
-import { syncManager } from '@/lib/storage/sync-manager';
+import { dbSyncManager } from '@/lib/storage/db-sync-manager';
 
 import { AnimatedCloseIcon } from '@/components/icons/animated-icons';
 import { MessageCircle, AlertCircle, Sparkles, Send, Paperclip, X, Maximize2, Minimize2, ChevronUp, ExternalLink, Trash2 } from 'lucide-react';
@@ -88,9 +88,9 @@ function JohnGPTDialogContent({ open, onOpenChange, user, followMeConversationId
   useEffect(() => {
     const loadMessages = async () => {
       if (isFollowMeMode && followMeConversationId) {
-        // Load follow-me conversation from IndexedDB
+        // Load follow-me conversation from IndexedDB (or API via DBSyncManager)
         try {
-          const conversation = await syncManager.loadConversation(followMeConversationId);
+          const conversation = await dbSyncManager.loadConversation(followMeConversationId);
           if (conversation && conversation.messages.length > 0) {
             console.log('[JohnGPTDialog] Loading follow-me conversation:', followMeConversationId, 'with', conversation.messages.length, 'messages');
             setMessages(conversation.messages as any);

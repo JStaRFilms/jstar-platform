@@ -1,11 +1,13 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  directUrl  = env("DIRECT_URL")
+  extensions = [vector]
 }
 
 model ContactSubmission {
@@ -304,12 +306,22 @@ model Conversation {
   id              String   @id @default(cuid())
   userId          String
   user            User     @relation(fields: [userId], references: [id])
-  title           String   @default("New Chat") // Auto-generated from first message
-  driveFileId     String?  // Google Drive file ID for cloud storage
-  driveVersion    Int      @default(1) // Version number for conflict resolution
+  title           String   @default("New Chat")
+  messages        Json     @default("[]") // Database is now source of truth
+  messageCount    Int      @default(0)
+  lastMessageAt   DateTime @default(now())
+  
   personaId       String?
-  selectedModelId String?  // AI model used for this conversation
-  messages        Json?    // Optional: Array of {role, content, timestamp, metadata}
+  selectedModelId String?
+
+  // Sync metadata
+  localVersion    Int      @default(1)
+  syncedVersion   Int      @default(0)
+  
+  // Legacy/Backup fields
+  driveFileId     String?
+  driveVersion    Int      @default(1)
+
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 

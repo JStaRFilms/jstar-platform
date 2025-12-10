@@ -21,6 +21,9 @@ export type CachedConversation = ConversationFile & {
     driveFileId?: string;
     lastSyncedAt: number;
     isDirty: number; // 1 (true) or 0 (false) - IndexedDB doesn't support boolean keys
+    localVersion?: number;
+    personaId?: string | null;
+    selectedModelId?: string | null;
 };
 
 export type SyncQueueItem = {

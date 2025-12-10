@@ -13,6 +13,7 @@
  */
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { createOpenAI } from '@ai-sdk/openai';
+import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { createGroq } from '@ai-sdk/groq';
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { type LanguageModel } from 'ai';
@@ -279,7 +280,7 @@ function createProviderInstance(
   providerName: string,
   apiKey: string | null,
   baseUrl: string | null
-): ReturnType<typeof createOpenAI> | ReturnType<typeof createGoogleGenerativeAI> | ReturnType<typeof createGroq> | ReturnType<typeof createAnthropic> | null {
+): ReturnType<typeof createOpenAI> | ReturnType<typeof createGoogleGenerativeAI> | ReturnType<typeof createGroq> | ReturnType<typeof createAnthropic> | ReturnType<typeof createOpenAICompatible> | null {
   // Use provided API key or fall back to env var
   switch (providerName) {
     case 'openai':
@@ -316,7 +317,33 @@ function createProviderInstance(
         baseURL: baseUrl || 'https://openrouter.ai/api/v1',
       });
 
+    case 'ollama':
+      // Ollama uses OpenAI-compatible Chat Completions API on localhost
+      // Using @ai-sdk/openai-compatible to ensure standard chat format (not Responses API)
+      return createOpenAICompatible({
+        name: 'ollama',
+        apiKey: apiKey || 'ollama', // Ollama doesn't require an API key
+        baseURL: baseUrl || 'http://localhost:11434/v1',
+      });
+
+    case 'lmstudio':
+      // LM Studio uses OpenAI-compatible Chat Completions API on localhost
+      // Using @ai-sdk/openai-compatible to ensure standard chat format (not Responses API)
+      return createOpenAICompatible({
+        name: 'lmstudio',
+        apiKey: apiKey || 'lm-studio', // LM Studio doesn't require an API key
+        baseURL: baseUrl || 'http://localhost:1234/v1',
+      });
+
     default:
+      // For any unknown provider, try OpenAI-compatible if baseUrl is provided
+      if (baseUrl) {
+        console.log(`Using OpenAI-compatible API for unknown provider: ${providerName}`);
+        return createOpenAI({
+          apiKey: apiKey || 'default-key',
+          baseURL: baseUrl,
+        });
+      }
       console.warn(`Unknown provider: ${providerName}`);
       return null;
   }

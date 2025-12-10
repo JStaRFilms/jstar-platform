@@ -191,7 +191,7 @@ async function storeEmbeddings(embeddings: EmbeddingResult[]): Promise<void> {
  * Main execution
  */
 async function main() {
-    const baseUrl = process.env.SITE_URL || 'http://localhost:3000';
+    const baseUrl = process.env.SITE_URL || 'http://localhost:5782';
 
     console.log('🚀 JohnGPT Site Embedding Script\n');
     console.log(`Base URL: ${baseUrl}\n`);

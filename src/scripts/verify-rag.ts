@@ -1,4 +1,4 @@
-import { searchKnowledgeBase } from '../src/lib/ai/rag-utils';
+import { searchKnowledgeBase } from '../lib/ai/rag-utils';
 import { PrismaClient } from '@prisma/client';
 import { config } from 'dotenv';
 

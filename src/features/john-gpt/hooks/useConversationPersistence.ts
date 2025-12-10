@@ -2,10 +2,10 @@
  * Conversation Persistence Hook
  * 
  * Centralized hook for loading/saving JohnGPT conversations
- * Orchestrates between IndexedDB (cache) and Google Drive (cloud storage)
+ * Orchestrates between IndexedDB (cache) and Neon DB (via DBSyncManager)
  * 
  * Features:
- * - Loads from cache first (instant), then syncs with Drive in background
+ * - Loads from cache first (instant), then syncs with API/DB in background
  * - Queues saves with debouncing to reduce API calls
  * - Tracks sync status for UI feedback
  * - Handles offline scenarios
@@ -13,9 +13,9 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { syncManager, type SyncStatus, type SyncEvent } from '@/lib/storage/sync-manager';
-import { indexedDBClient, type CachedConversation } from '@/lib/storage/indexeddb-client';
-import { googleDriveClient, type ConversationFile } from '@/lib/storage/google-drive-client';
+import { dbSyncManager, type SyncStatus, type SyncEvent } from '@/lib/storage/db-sync-manager';
+import { indexedDBClient } from '@/lib/storage/indexeddb-client';
+import type { ConversationFile } from '@/lib/storage/google-drive-client';
 import type { UIMessage } from '@ai-sdk/react';
 
 // ============================================================================
@@ -85,9 +85,9 @@ export function useConversationPersistence(
 
     useEffect(() => {
         if (userId) {
-            // Initialize Google Drive client with user's token
-            // This ensures we can sync/load from Drive immediately
-            syncManager.initializeGoogleDrive(userId).catch(err => {
+            dbSyncManager.initialize(userId);
+            // Optionally initialize Google Drive if user has it configured
+            dbSyncManager.initializeGoogleDrive(userId).catch(err => {
                 console.error('[useConversationPersistence] Failed to init Drive:', err);
             });
         }
@@ -99,7 +99,7 @@ export function useConversationPersistence(
 
     useEffect(() => {
         // Subscribe to sync events
-        const unsubscribe = syncManager.onSyncEvent((event: SyncEvent) => {
+        const unsubscribe = dbSyncManager.onSyncEvent((event: SyncEvent) => {
             // Only update state if this event is for our conversation
             if (!conversationId || event.conversationId === conversationId) {
                 setSyncStatus(event.status);
@@ -142,7 +142,7 @@ export function useConversationPersistence(
         setLoadError(null);
 
         try {
-            const conversation = await syncManager.loadConversation(id);
+            const conversation = await dbSyncManager.loadConversation(id);
 
             if (!conversation) {
                 setLoadError(`Conversation ${id} not found`);
@@ -171,7 +171,7 @@ export function useConversationPersistence(
         messages: UIMessage[]
     ): Promise<void> => {
         try {
-            await syncManager.saveConversation(conversationId, userId, title, messages);
+            await dbSyncManager.saveConversation(conversationId, userId, title, messages);
         } catch (error) {
             console.error('[useConversationPersistence] Save error:', error);
             throw error;
@@ -184,7 +184,7 @@ export function useConversationPersistence(
 
     const listConversations = useCallback(async (userId: string): Promise<ConversationMetadata[]> => {
         try {
-            const conversations = await syncManager.listConversations(userId);
+            const conversations = await dbSyncManager.listConversations(userId);
 
             // Transform to metadata format
             return conversations.map((conv) => ({
@@ -205,7 +205,7 @@ export function useConversationPersistence(
 
     const deleteConversation = useCallback(async (conversationId: string): Promise<void> => {
         try {
-            await syncManager.deleteConversation(conversationId);
+            await dbSyncManager.deleteConversation(conversationId);
         } catch (error) {
             console.error('[useConversationPersistence] Delete error:', error);
             throw error;
@@ -213,13 +213,16 @@ export function useConversationPersistence(
     }, []);
 
     // ========================================================================
-    // Force Sync
+    // Force Sync (Backup to Drive)
     // ========================================================================
 
     const forceSyncConversation = useCallback(async (conversationId: string): Promise<void> => {
         try {
             setSyncStatus('syncing');
-            await syncManager.forceSyncConversation(conversationId);
+            // This force sync is specifically for Drive backup now
+            await dbSyncManager.forceSyncToDrive(conversationId);
+            // Also ensure it's synced to DB if queued? 
+            // dbSyncManager handles queue automatically.
         } catch (error) {
             console.error('[useConversationPersistence] Force sync error:', error);
             setSyncStatus('error');

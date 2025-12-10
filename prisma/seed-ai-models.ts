@@ -1,15 +1,12 @@
+/**
+ * Seeder: AI Providers and Models
+ * Auto-discovered by prisma/seed.ts
+ */
+
 import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
-
-/**
- * Seed AI Providers and Models
- * 
- * Run with: npx ts-node prisma/seed-ai-models.ts
- * Or: npx tsx prisma/seed-ai-models.ts
- */
-async function main() {
-    console.log('🌱 Seeding AI Providers and Models...\n');
+export async function seed(prisma: PrismaClient) {
+    console.log('🤖 Seeding AI Providers and Models...');
 
     // ============================================
     // PROVIDERS
@@ -66,6 +63,38 @@ async function main() {
         },
     });
     console.log('✅ Anthropic provider created/updated');
+
+    // ============================================
+    // LOCAL PROVIDERS (Ollama, LM Studio)
+    // ============================================
+
+    const ollamaProvider = await prisma.aIProvider.upsert({
+        where: { name: 'ollama' },
+        update: {},
+        create: {
+            name: 'ollama',
+            displayName: 'Ollama (Local)',
+            apiKey: null, // Ollama doesn't need an API key
+            baseUrl: 'http://localhost:11434/v1', // OpenAI-compatible endpoint
+            isEnabled: false, // Disabled by default - user must enable after setup
+            sortOrder: 5,
+        },
+    });
+    console.log('✅ Ollama provider created/updated');
+
+    const lmstudioProvider = await prisma.aIProvider.upsert({
+        where: { name: 'lmstudio' },
+        update: {},
+        create: {
+            name: 'lmstudio',
+            displayName: 'LM Studio (Local)',
+            apiKey: null, // LM Studio doesn't need an API key
+            baseUrl: 'http://localhost:1234/v1', // OpenAI-compatible endpoint
+            isEnabled: false, // Disabled by default - user must enable after setup
+            sortOrder: 6,
+        },
+    });
+    console.log('✅ LM Studio provider created/updated');
 
     // ============================================
     // GOOGLE GEMINI MODELS (from your screenshots)
@@ -732,24 +761,121 @@ async function main() {
     console.log(`✅ ${anthropicModels.length} Anthropic models created/updated`);
 
     // ============================================
+    // OLLAMA MODELS (Common local models)
+    // ============================================
+
+    const ollamaModels = [
+        {
+            modelId: 'llama3.2',
+            displayName: 'Llama 3.2 (Ollama)',
+            description: 'Meta Llama 3.2 running locally via Ollama.',
+            contextWindow: 128000,
+            sortOrder: 1,
+        },
+        {
+            modelId: 'mistral',
+            displayName: 'Mistral (Ollama)',
+            description: 'Mistral 7B running locally via Ollama.',
+            contextWindow: 32000,
+            sortOrder: 2,
+        },
+        {
+            modelId: 'codellama',
+            displayName: 'Code Llama (Ollama)',
+            description: 'Code-specialized Llama for programming tasks.',
+            contextWindow: 100000,
+            sortOrder: 3,
+        },
+        {
+            modelId: 'gemma2',
+            displayName: 'Gemma 2 (Ollama)',
+            description: 'Google Gemma 2 running locally via Ollama.',
+            contextWindow: 8192,
+            sortOrder: 4,
+        },
+        {
+            modelId: 'phi3',
+            displayName: 'Phi-3 (Ollama)',
+            description: 'Microsoft Phi-3 running locally via Ollama.',
+            contextWindow: 128000,
+            sortOrder: 5,
+        },
+    ];
+
+    for (const model of ollamaModels) {
+        await prisma.aIModel.upsert({
+            where: {
+                providerId_modelId: {
+                    providerId: ollamaProvider.id,
+                    modelId: model.modelId,
+                },
+            },
+            update: {
+                displayName: model.displayName,
+                description: model.description,
+                contextWindow: model.contextWindow,
+                sortOrder: model.sortOrder,
+            },
+            create: {
+                providerId: ollamaProvider.id,
+                modelId: model.modelId,
+                displayName: model.displayName,
+                description: model.description,
+                contextWindow: model.contextWindow,
+                sortOrder: model.sortOrder,
+                tags: ['ollama', 'local'],
+            },
+        });
+    }
+    console.log(`✅ ${ollamaModels.length} Ollama models created/updated`);
+
+    // ============================================
+    // LM STUDIO MODELS (Common local models)
+    // ============================================
+
+    const lmstudioModels = [
+        {
+            modelId: 'local-model',
+            displayName: 'Local Model (LM Studio)',
+            description: 'Your currently loaded LM Studio model. Model ID should match your loaded model.',
+            contextWindow: 32000,
+            sortOrder: 1,
+        },
+    ];
+
+    for (const model of lmstudioModels) {
+        await prisma.aIModel.upsert({
+            where: {
+                providerId_modelId: {
+                    providerId: lmstudioProvider.id,
+                    modelId: model.modelId,
+                },
+            },
+            update: {
+                displayName: model.displayName,
+                description: model.description,
+                contextWindow: model.contextWindow,
+                sortOrder: model.sortOrder,
+            },
+            create: {
+                providerId: lmstudioProvider.id,
+                modelId: model.modelId,
+                displayName: model.displayName,
+                description: model.description,
+                contextWindow: model.contextWindow,
+                sortOrder: model.sortOrder,
+                tags: ['lmstudio', 'local'],
+            },
+        });
+    }
+    console.log(`✅ ${lmstudioModels.length} LM Studio models created/updated`);
+
+    // ============================================
     // SUMMARY
     // ============================================
 
     const totalProviders = await prisma.aIProvider.count();
     const totalModels = await prisma.aIModel.count();
 
-    console.log('\n========================================');
-    console.log(`🎉 Seeding complete!`);
-    console.log(`   Providers: ${totalProviders}`);
-    console.log(`   Models: ${totalModels}`);
-    console.log('========================================\n');
+    console.log(`   ✅ ${totalProviders} providers, ${totalModels} models seeded`);
 }
-
-main()
-    .catch((e) => {
-        console.error('❌ Seed error:', e);
-        process.exit(1);
-    })
-    .finally(async () => {
-        await prisma.$disconnect();
-    });
