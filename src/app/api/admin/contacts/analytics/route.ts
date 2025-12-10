@@ -31,7 +31,7 @@ interface ContactAnalyticsResponse {
  * GET /api/admin/contacts/analytics
  * Get comprehensive contact analytics and metrics
  */
-export const GET = withAdminAuth(async (request: NextRequest) => {
+export const GET = withAdminAuth(async (_request: NextRequest) => {
   const cacheKey = generateCacheKey('/api/admin/contacts/analytics');
 
   try {
@@ -39,7 +39,7 @@ export const GET = withAdminAuth(async (request: NextRequest) => {
       // Get date ranges for recent activity
       const now = new Date();
       const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      const _thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
       // Get overall counts
       const [

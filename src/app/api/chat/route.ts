@@ -8,7 +8,7 @@ import { searchKnowledgeBase, formatSearchResults } from '../../../lib/ai/rag-ut
 import { findDestination } from '../../../lib/ai/findDestination';
 import { PromptManager, ChatContext } from '../../../lib/ai/prompt-manager';
 import { classifyIntent } from '../../../lib/ai/intent-classifier';
-import { canAccessModel, canUsePremiumModel, PAID_MODEL_DAILY_LIMITS } from '../../../lib/ai/types';
+import { canAccessModel, canUsePremiumModel } from '../../../lib/ai/types';
 import crypto from 'crypto';
 
 export const runtime = 'nodejs';
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
       const refererUrl = new URL(referer);
       currentPath = refererUrl.pathname;
     }
-  } catch (e) {
+  } catch (_e) {
     // Fallback to body or default
     currentPath = bodyCurrentPath || '/';
   }
@@ -176,6 +176,11 @@ export async function POST(req: NextRequest) {
     user: dbUser,
   });
 
+  // Track accumulated text for progressive saves
+  let accumulatedText = '';
+  let lastSaveLength = 0;
+  const SAVE_INTERVAL = 500; // Save every 500 characters
+
   // 🌐 Stream response from selected provider
   const result = await streamText({
     model: selectedModel,
@@ -183,6 +188,48 @@ export async function POST(req: NextRequest) {
     system: systemPrompt,
     stopWhen: stepCountIs(5), // Allow AI to continue after tool execution for up to 5 steps
     maxRetries: 1, // Don't burn quota on retries - fail fast on rate limits
+    onChunk: async ({ chunk }) => {
+      // 💾 Progressive Server-Side Persistence for Offline Resilience
+      if (chunk.type === 'text-delta' && dbUser && conversationId) {
+        accumulatedText += chunk.text;
+
+        // Save every SAVE_INTERVAL characters
+        if (accumulatedText.length - lastSaveLength >= SAVE_INTERVAL) {
+          lastSaveLength = accumulatedText.length;
+
+          try {
+            // Update conversation with partial response
+            await prisma.conversation.upsert({
+              where: { id: conversationId },
+              create: {
+                id: conversationId,
+                userId: dbUser.id,
+                title: messages[0]?.content?.slice(0, 50) || 'New Chat',
+                messages: [...messages, {
+                  id: 'partial-response',
+                  role: 'assistant',
+                  content: accumulatedText,
+                  createdAt: new Date(),
+                }] as any,
+                selectedModelId: selectedModelId,
+              },
+              update: {
+                messages: [...messages, {
+                  id: 'partial-response',
+                  role: 'assistant',
+                  content: accumulatedText,
+                  createdAt: new Date(),
+                }] as any,
+                updatedAt: new Date(),
+              }
+            });
+            console.log(`[onChunk] Saved partial response: ${accumulatedText.length} chars`);
+          } catch (error) {
+            console.error('[onChunk] Progressive save failed:', error);
+          }
+        }
+      }
+    },
     onFinish: async ({ response }) => {
       // 💾 Server-Side Persistence for Offline Resilience
       if (dbUser && conversationId) {
@@ -191,20 +238,19 @@ export async function POST(req: NextRequest) {
           const newMessages = response.messages.map((m: CoreMessage) => {
             // Handle content array (multimodal/tools) if present, otherwise string
             let content = '';
-            let parts = undefined;
 
             if (typeof m.content === 'string') {
               content = m.content;
             } else if (Array.isArray(m.content)) {
-               // For DB storage we might want to preserve the structure or simplify
-               // UIMessage uses 'content' string + 'parts' array
-               // We'll simplisticly join text parts for 'content'
-               content = m.content
-                 .filter(c => c.type === 'text')
-                 .map(c => (c as any).text)
-                 .join('');
+              // For DB storage we might want to preserve the structure or simplify
+              // UIMessage uses 'content' string + 'parts' array
+              // We'll simplisticly join text parts for 'content'
+              content = m.content
+                .filter(c => c.type === 'text')
+                .map(c => (c as any).text)
+                .join('');
 
-               // And map parts if we want to be thorough (optional for now)
+              // And map parts if we want to be thorough (optional for now)
             }
 
             return {

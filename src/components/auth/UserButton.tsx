@@ -1,5 +1,5 @@
-import { getSignInUrl, signOut } from '@workos-inc/authkit-nextjs';
-import Link from 'next/link';
+import { signOut } from '@workos-inc/authkit-nextjs';
+// Link can be added back when needed for navigation
 
 interface UserButtonProps {
     user: {

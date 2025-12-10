@@ -203,7 +203,7 @@ export async function DELETE(
     // Allow deletion of any slide (including defaults) - validation happens on frontend
 
     // Soft delete by setting isActive to false
-    const slide = await prisma.heroSlide.update({
+    const _slide = await prisma.heroSlide.update({
       where: { id },
       data: { isActive: false },
     });

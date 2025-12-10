@@ -3,7 +3,7 @@ import { googleDriveService } from '@/lib/google-drive';
 import { withAuth } from '@workos-inc/authkit-nextjs';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
     const { user } = await withAuth();
 
     if (!user) {

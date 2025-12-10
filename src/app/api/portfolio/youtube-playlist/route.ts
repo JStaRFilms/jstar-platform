@@ -88,7 +88,7 @@ function transformYouTubeVideo(item: YouTubeVideoItem): PortfolioProject {
   return baseProject;
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     if (!YOUTUBE_API_KEY) {
       console.error('YOUTUBE_API_KEY not configured');

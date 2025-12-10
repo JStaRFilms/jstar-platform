@@ -83,8 +83,8 @@ export async function POST(request: NextRequest) {
   try {
     // Get client IP (in production, use proper IP detection)
     const ip = request.headers.get('x-forwarded-for') ||
-               request.headers.get('x-real-ip') ||
-               'unknown';
+      request.headers.get('x-real-ip') ||
+      'unknown';
 
     // Check rate limit
     const rateLimit = checkRateLimit(ip);
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
     let body;
     try {
       body = await request.json();
-    } catch (error) {
+    } catch (_error) {
       return NextResponse.json(
         { status: 'error', message: 'Invalid JSON in request body' },
         { status: 400 }

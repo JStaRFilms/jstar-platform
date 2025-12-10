@@ -179,7 +179,7 @@ export const GET = withAdminAuth(async (request: NextRequest) => {
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const _body = await request.json();
 
     // For now, return not implemented
     return NextResponse.json(

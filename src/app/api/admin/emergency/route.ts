@@ -401,7 +401,7 @@ async function restartAIServices() {
             break;
         }
         console.log(`Backup kill attempted for: ${processName}`);
-      } catch (error) {
+      } catch (_error) {
         // Ignore errors
       }
     }
@@ -577,7 +577,7 @@ async function optimizeForLowResources() {
     ];
 
     // Define critical processes that should NEVER be killed
-    const criticalProcesses = [
+    const _criticalProcesses = [
       'svchost.exe', 'lsass.exe', 'winlogon.exe', 'csrss.exe',
       'services.exe', 'system', 'init', 'systemd', 'launchd',
       'node.exe', 'next-server', 'ollama.exe', 'LM Studio.exe'
@@ -600,7 +600,7 @@ async function optimizeForLowResources() {
               await execAsync(`taskkill /f /im "${processName}" /t 2>/dev/null || true`);
               optimizationResults.processesKilled++;
               console.log(`Terminated non-essential process: ${processName}`);
-            } catch (killError) {
+            } catch (_killError) {
               // Process might have already exited
             }
           }
@@ -615,12 +615,12 @@ async function optimizeForLowResources() {
             await execAsync(`pkill -f "${processName}" 2>/dev/null || true`);
             optimizationResults.processesKilled++;
             console.log(`Terminated non-essential process: ${processName}`);
-          } catch (error) {
+          } catch (_error) {
             // Ignore errors
           }
         }
       }
-    } catch (processError) {
+    } catch (_processError) {
       console.log('Process optimization completed with some errors');
       optimizationResults.warnings.push('Some processes could not be terminated');
     }
@@ -661,7 +661,7 @@ async function optimizeForLowResources() {
         optimizationResults.tempFilesCleaned = true;
         console.log('macOS caches and temp files cleared');
       }
-    } catch (cacheError) {
+    } catch (_cacheError) {
       console.log('Cache clearing completed with some errors');
       optimizationResults.warnings.push('Some cache files could not be cleared');
     }
@@ -686,7 +686,7 @@ async function optimizeForLowResources() {
         optimizationResults.memoryOptimized = true;
         console.log('macOS memory optimized');
       }
-    } catch (memoryError) {
+    } catch (_memoryError) {
       console.log('Memory optimization completed with some errors');
       optimizationResults.warnings.push('Memory optimization partially failed');
     }
@@ -842,7 +842,7 @@ async function switchToLiteMode() {
       fs.writeFileSync(configPath, JSON.stringify(liteConfig, null, 2));
       configResults.changes.push('Configuration saved to system-mode.json');
       console.log('Lite mode configuration saved');
-    } catch (configError) {
+    } catch (_configError) {
       console.log('Configuration saving failed, continuing with runtime changes');
       configResults.warnings.push('Could not save configuration file');
     }
@@ -852,7 +852,7 @@ async function switchToLiteMode() {
 
     try {
       // Check current AI status
-      const [ollamaRunning, lmStudioRunning] = await Promise.all([
+      const [ollamaRunning, _lmStudioRunning] = await Promise.all([
         checkServiceRunning('ollama', 11434),
         checkServiceRunning('lm_studio', 1234)
       ]);
@@ -887,14 +887,14 @@ async function switchToLiteMode() {
               try {
                 fs.writeFileSync(configPath, JSON.stringify(liteConfig, null, 2));
                 console.log('Updated lite mode configuration saved with selected model');
-              } catch (updateError) {
+              } catch (_updateError) {
                 console.log('Failed to update config with selected model');
               }
             } else {
               configResults.warnings.push('No AI models available for optimization');
             }
           }
-        } catch (aiError) {
+        } catch (_aiError) {
           console.log('AI model analysis failed, using default settings');
           configResults.warnings.push('Could not analyze AI models, using default lite mode settings');
         }
@@ -903,7 +903,7 @@ async function switchToLiteMode() {
       }
 
       configResults.changes.push('AI model optimizations configured');
-    } catch (aiError) {
+    } catch (_aiError) {
       configResults.warnings.push('AI model optimization check failed');
     }
 
@@ -924,7 +924,7 @@ async function switchToLiteMode() {
         await execAsync('pmset -a displaysleep 10 disksleep 10 sleep 30 2>/dev/null || true');
         configResults.changes.push('macOS power settings optimized');
       }
-    } catch (systemError) {
+    } catch (_systemError) {
       configResults.warnings.push('Some system optimizations could not be applied');
     }
 
@@ -943,7 +943,7 @@ async function switchToLiteMode() {
         await execAsync('echo 1 > /proc/sys/vm/compact_memory 2>/dev/null || true');
         configResults.changes.push('Linux memory compaction enabled');
       }
-    } catch (memoryError) {
+    } catch (_memoryError) {
       // Memory optimization is not critical
     }
 

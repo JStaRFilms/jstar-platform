@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { googleDriveService } from '@/lib/google-drive';
 import { withAuth } from '@workos-inc/authkit-nextjs';
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
     const { user } = await withAuth();
 
     if (!user) {

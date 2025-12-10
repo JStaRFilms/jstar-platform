@@ -17,7 +17,7 @@ export const AnimatedPlayIcon: React.FC<AnimatedIconProps> = ({
   className,
   onClick,
   duration = 300,
-  trigger = 'hover',
+  trigger: _trigger = 'hover',
   'aria-label': ariaLabel = 'Play',
   'aria-hidden': ariaHidden,
   role = 'button'
@@ -56,21 +56,21 @@ export const AnimatedPlayIcon: React.FC<AnimatedIconProps> = ({
  */
 export const AnimatedCheckIcon: React.FC<AnimatedIconProps> = ({
   className,
-  onClick,
+  onClick: _onClick,
   duration = 500,
-  trigger = 'load',
+  trigger: _trigger = 'load',
   'aria-label': ariaLabel = 'Success',
   'aria-hidden': ariaHidden,
   role = 'img'
 }) => {
-  const [isVisible, setIsVisible] = React.useState(trigger !== 'load');
+  const [isVisible, setIsVisible] = React.useState(_trigger !== 'load');
 
   React.useEffect(() => {
-    if (trigger === 'load') {
+    if (_trigger === 'load') {
       const timer = setTimeout(() => setIsVisible(true), 100);
       return () => clearTimeout(timer);
     }
-  }, [trigger]);
+  }, [_trigger]);
 
   return (
     <div
@@ -95,7 +95,7 @@ export const AnimatedArrowRightIcon: React.FC<AnimatedIconProps> = ({
   className,
   onClick,
   duration = 600,
-  trigger = 'hover',
+  trigger: _trigger = 'hover',
   'aria-label': ariaLabel = 'Next',
   'aria-hidden': ariaHidden,
   role = 'button'
@@ -129,7 +129,7 @@ export const AnimatedCloseIcon: React.FC<AnimatedIconProps> = ({
   className,
   onClick,
   duration = 300,
-  trigger = 'hover',
+  trigger: _trigger = 'hover',
   'aria-label': ariaLabel = 'Close',
   'aria-hidden': ariaHidden,
   role = 'button'
@@ -163,7 +163,7 @@ export const AnimatedStarIcon: React.FC<AnimatedIconProps> = ({
   className,
   onClick,
   duration = 1000,
-  trigger = 'hover',
+  trigger: _trigger = 'hover',
   'aria-label': ariaLabel = 'Favorite',
   'aria-hidden': ariaHidden,
   role = 'button'
@@ -200,7 +200,7 @@ export const AnimatedChevronLeftIcon: React.FC<AnimatedIconProps> = ({
   className,
   onClick,
   duration = 400,
-  trigger = 'hover',
+  trigger: _trigger = 'hover',
   'aria-label': ariaLabel = 'Previous',
   'aria-hidden': ariaHidden,
   role = 'button'
@@ -234,7 +234,7 @@ export const AnimatedChevronRightIcon: React.FC<AnimatedIconProps> = ({
   className,
   onClick,
   duration = 400,
-  trigger = 'hover',
+  trigger: _trigger = 'hover',
   'aria-label': ariaLabel = 'Next',
   'aria-hidden': ariaHidden,
   role = 'button'

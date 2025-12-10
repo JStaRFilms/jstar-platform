@@ -1,5 +1,5 @@
 import { withAuth, getSignInUrl, getSignUpUrl } from '@workos-inc/authkit-nextjs';
-import { redirect } from 'next/navigation';
+// redirect can be added back when needed for tier restrictions
 import { JohnGPTPage } from '@/features/john-gpt/components/JohnGPTPage';
 import { prisma } from '@/lib/prisma';
 

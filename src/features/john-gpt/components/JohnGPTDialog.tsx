@@ -16,6 +16,7 @@ import { EmptyState } from './EmptyState';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import TextareaAutosize from 'react-textarea-autosize';
 import { cn } from '@/lib/utils';
+import { useSmartAutoScroll } from '@/hooks/useSmartAutoScroll';
 import type { User as WorkOSUser } from '@workos-inc/node';
 import { ChatActionProvider, useChatActions } from '../context/ChatActionContext';
 import { useActiveChat } from '../context/ActiveChatContext';
@@ -182,6 +183,12 @@ function JohnGPTDialogContent({ open, onOpenChange, user, followMeConversationId
   }, [chatError]);
 
   const isLoading = status === 'submitted' || status === 'streaming';
+
+  // Smart auto-scroll for widget messages
+  const { scrollContainerRef, scrollAnchorRef } = useSmartAutoScroll({
+    enabled: true,
+    threshold: 100,
+  });
 
   // Mobile detection
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -425,16 +432,17 @@ function JohnGPTDialogContent({ open, onOpenChange, user, followMeConversationId
             </div>
 
             {/* Messages area */}
-            <div className="flex-1 flex flex-col overflow-hidden relative bg-transparent min-h-0">
+            <div
+              ref={scrollContainerRef}
+              className="flex-1 overflow-y-auto relative bg-transparent min-h-0"
+            >
               {messages.length === 0 ? (
-                <div className="flex-1 overflow-y-auto">
-                  <EmptyState
-                    suggestions={suggestions}
-                    onSuggestionClick={(text) => setInput(text)}
-                    user={user}
-                    isLocked={true}
-                  />
-                </div>
+                <EmptyState
+                  suggestions={suggestions}
+                  onSuggestionClick={(text) => setInput(text)}
+                  user={user}
+                  isLocked={true}
+                />
               ) : (
                 <ChatMessages
                   messages={messages}
@@ -442,6 +450,7 @@ function JohnGPTDialogContent({ open, onOpenChange, user, followMeConversationId
                   user={user}
                   onEdit={editMessage}
                   onNavigateBranch={navigateBranch}
+                  scrollAnchorRef={scrollAnchorRef}
                 />
               )}
             </div>

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { withAuth } from '@workos-inc/authkit-nextjs';
+// Auth can be added here if needed for personas endpoint
 
 export const runtime = 'nodejs';
 

@@ -149,7 +149,7 @@ export async function POST(request: NextRequest) {
       await prisma.heroSlide.deleteMany({});
 
       // Create default slides in database
-      const createdSlides = await prisma.heroSlide.createMany({
+      const _createdSlides = await prisma.heroSlide.createMany({
         data: defaultSlides.map((slide, index) => ({
           ...slide,
           sortOrder: index + 1,

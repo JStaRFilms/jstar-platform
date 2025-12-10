@@ -222,11 +222,6 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
 
     }, [messages, headId]);
 
-    // Initialize SyncManager
-    useEffect(() => {
-        dbSyncManager.initialize(userId || null);
-    }, [userId]);
-
     // 3.5. Persistence: Save to IndexedDB (and queue DB sync)
     // Ref for debouncing
     const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);

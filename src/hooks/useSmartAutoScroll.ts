@@ -5,7 +5,6 @@ import { useRef, useEffect, useCallback, useState } from 'react';
 interface UseSmartAutoScrollOptions {
     threshold?: number;
     enabled?: boolean;
-    debounceMs?: number;
 }
 
 interface UseSmartAutoScrollReturn {

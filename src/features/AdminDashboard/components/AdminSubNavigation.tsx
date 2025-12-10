@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import Link from 'next/link';
-import { useRouter, usePathname } from 'next/navigation';
+import React from 'react';
+// Link and usePathname can be added back when needed
+import { useRouter } from 'next/navigation';
 
 /**
  * Props for AdminSubNavigation component
@@ -150,8 +150,8 @@ export const AdminSubNavigation: React.FC<AdminSubNavigationProps> = ({
             key={item.id}
             onClick={() => handleSubItemClick(item.id, item.route)}
             className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all duration-200 ${activeSubItem === item.id
-                ? 'bg-red-500 text-white shadow-lg'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
+              ? 'bg-red-500 text-white shadow-lg'
+              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
               }`}
           >
             <svg className="h-4 w-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

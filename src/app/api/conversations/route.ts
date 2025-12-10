@@ -4,7 +4,7 @@ import { CreateConversationSchema } from '@/features/john-gpt/schema';
 import { z } from 'zod';
 import { withAuth } from '@workos-inc/authkit-nextjs';
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
     const { user } = await withAuth();
 
     if (!user) {

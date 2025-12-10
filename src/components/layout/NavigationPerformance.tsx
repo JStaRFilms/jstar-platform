@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useMemo, useRef, useEffect, useState } from 'react';
+import { useCallback, useRef, useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 
 /**
@@ -60,6 +60,11 @@ export const useKeyboardNavigation = (
 ) => {
   const currentIndexRef = useRef(-1);
 
+  const focusItem = useCallback((item: { id: string; href: string }) => {
+    const element = document.querySelector(`[data-nav-item="${item.id}"]`) as HTMLElement;
+    element?.focus();
+  }, []);
+
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     const { key } = e;
     const currentIndex = currentIndexRef.current;
@@ -101,12 +106,7 @@ export const useKeyboardNavigation = (
         focusItem(items[items.length - 1]);
         break;
     }
-  }, [items, onNavigate]);
-
-  const focusItem = useCallback((item: { id: string; href: string }) => {
-    const element = document.querySelector(`[data-nav-item="${item.id}"]`) as HTMLElement;
-    element?.focus();
-  }, []);
+  }, [items, onNavigate, focusItem]);
 
   const resetFocus = useCallback(() => {
     currentIndexRef.current = -1;
@@ -370,7 +370,7 @@ export const useOptimizedNavigationState = (initialState: any = {}) => {
   return { getState, setState, subscribe };
 };
 
-export default {
+const navigationPerformanceExports = {
   useNavigationPerformance,
   useKeyboardNavigation,
   useSmartPrefetch,
@@ -379,3 +379,5 @@ export default {
   useNavigationAnalytics,
   useOptimizedNavigationState
 };
+
+export default navigationPerformanceExports;

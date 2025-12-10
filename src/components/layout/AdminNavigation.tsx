@@ -6,26 +6,14 @@ import { usePathname } from 'next/navigation';
 import { SharedNavigation, NavigationProvider, useNavigation } from './SharedNavigation';
 import {
   ShieldCheckIcon,
-  VideoCameraIcon,
-  CameraIcon,
   FilmIcon,
   GiftIcon,
   EnvelopeIcon,
   PlayCircleIcon,
-  CheckIcon,
-  ArrowRightIcon,
-  LightBulbIcon,
   PenFancyIcon,
   CommentsIcon,
-  RocketIcon,
-  CloseIcon,
-  StarIcon,
-  ChevronLeftIcon,
   ChevronRightIcon,
   CheckCircleIcon,
-  PhoneIcon,
-  MapPinIcon,
-  ClockIcon
 } from '@/components/icons';
 
 /**
@@ -143,7 +131,7 @@ export const AdminNavigation: React.FC = () => {
   }, [pathname]);
 
   // Handle navigation item click
-  const handleNavigationClick = (itemId: string) => {
+  const _handleNavigationClick = (itemId: string) => {
     setActiveCategory(itemId);
     setActiveSubItem('overview');
     setMobileMenuOpen(false); // Close mobile menu on navigation
@@ -175,11 +163,10 @@ export const AdminNavigation: React.FC = () => {
                 <Link
                   key={subItem.id}
                   href={subItem.href}
-                  className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all duration-200 ${
-                    activeSubItem === subItem.id
+                  className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all duration-200 ${activeSubItem === subItem.id
                       ? 'bg-jstar-blue text-white shadow-lg'
                       : 'text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-jstar-blue'
-                  }`}
+                    }`}
                   aria-current={activeSubItem === subItem.id ? 'page' : undefined}
                   onClick={() => setActiveSubItem(subItem.id)}
                 >
