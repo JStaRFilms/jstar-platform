@@ -449,20 +449,21 @@ export class DBSyncManager {
                 await this.updateCache(mapped, false);
                 this.emitSyncEvent(conversationId, 'synced'); // Updated from server
             }
-        } catch (e) {
+        } catch (_e) {
             // ignore
         }
     }
 
-    private async refreshConversationList(userId: string): Promise<void> {
+    private async refreshConversationList(_userId: string): Promise<void> {
         try {
             const res = await fetch('/api/conversations');
             if (!res.ok) return;
-            const output = await res.json();
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const _output = await res.json();
 
             // Update all in cache
             // Logic to update cache list could go here
-        } catch (e) {
+        } catch (_e) {
             // ignore
         }
     }
@@ -494,7 +495,7 @@ export class DBSyncManager {
         }
     }
 
-    private scheduleRetry(conversationId: string, retryCount: number) {
+    private scheduleRetry(_conversationId: string, _retryCount: number) {
         // Logic similar to original SyncManager
     }
 

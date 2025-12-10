@@ -516,7 +516,7 @@ export class GoogleDriveClient {
   /**
    * Move a file from widget-sessions to conversations folder
    */
-  async promoteSessionToConversation(widgetConversationId: string, newTitle: string): Promise<string> {
+  async promoteSessionToConversation(widgetConversationId: string, _newTitle: string): Promise<string> {
     await this.ensureAuthenticated();
 
     // 1. Find the file in widget folder
@@ -526,7 +526,8 @@ export class GoogleDriveClient {
     if (!fileId) throw new Error('Widget session file not found');
 
     // 2. Get target folder
-    const convFolderId = await this.ensureFolderStructure();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _convFolderId = await this.ensureFolderStructure();
 
     return fileId;
   }

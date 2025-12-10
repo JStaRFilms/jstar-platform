@@ -5,6 +5,7 @@ import { getClassifierModel } from '../ai-providers';
 export type DetectedIntent = 'code' | 'roast' | 'simplify' | 'bible' | 'Universal';
 
 // Keywords that suggest specific intents without needing AI
+// @ts-expect-error - Unused for now, but kept for future heuristic expansion
 const INTENT_KEYWORDS: Record<DetectedIntent, string[]> = {
     code: ['code', 'debug', 'programming', 'javascript', 'typescript', 'python', 'function', 'api', 'bug', 'error', 'syntax'],
     roast: ['roast', 'roast me', 'mock me', 'critique'],

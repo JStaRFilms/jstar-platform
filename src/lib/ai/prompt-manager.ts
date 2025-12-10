@@ -129,7 +129,7 @@ export class PromptManager {
   /**
    * Specific rules for Tool Usage.
    */
-  private static getToolingRules(context: ChatContext): string {
+  private static getToolingRules(_context: ChatContext): string {
     return `
 <tool_guidelines>
   1. SEARCH_KNOWLEDGE:

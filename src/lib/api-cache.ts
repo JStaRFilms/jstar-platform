@@ -134,7 +134,7 @@ class APICacheManager {
     let expiredEntries = 0;
     let totalHits = 0;
 
-    for (const [key, entry] of this.cache) {
+    for (const [_, entry] of this.cache) {
       totalEntries++;
       totalHits += entry.hits;
 
@@ -248,7 +248,8 @@ export async function withCache<T>(
   }
 
   // Register pending request for deduplication
-  const promise = apiCache.setPendingRequest<T>(key);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _promise = apiCache.setPendingRequest<T>(key);
 
   try {
     const data = await fetcher();
