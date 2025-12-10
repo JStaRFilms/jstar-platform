@@ -15,8 +15,15 @@ const eslintConfig = [
     rules: {
       // Temporarily allow any types (main blocker for deployment)
       "@typescript-eslint/no-explicit-any": "off",
-      // Reduce unused vars to warnings instead of errors
-      "@typescript-eslint/no-unused-vars": "warn",
+      // Reduce unused vars to warnings instead of errors and allow _ prefix
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          "argsIgnorePattern": "^_",
+          "varsIgnorePattern": "^_",
+          "caughtErrorsIgnorePattern": "^_"
+        }
+      ],
       // React entity warnings
       "react/no-unescaped-entities": "warn",
       // Display name warnings
