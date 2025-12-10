@@ -33,14 +33,13 @@ export const PROFILE_DATA = {
         email: "mailto:john@jstarfilms.com",
         whatsapp: "https://wa.me/2348152657887"
     },
-    // NEW: Speedcubing Section
     speedcubing: {
         wcaId: "2022JOHN41",
         status: "National Champion",
         medals: {
-            gold: 2, // 2x2, Megaminx
-            silver: 2, // 4x4, OH
-            bronze: 1, // 3x3
+            gold: 2,
+            silver: 2,
+            bronze: 1,
         },
         records: [
             { event: "3x3x3 Cube", single: "11.73s", average: "13.14s", rank: "Top 20 National" },
@@ -49,7 +48,6 @@ export const PROFILE_DATA = {
         ],
         highlight: "Solving problems at speed is my DNA. Whether it's an algorithm for a Rubik's cube or a distributed system, I optimize for efficiency and elegance.",
     },
-    // NEW: Entrepreneurship & Speaking
     ventures: [
         {
             name: "The Olive Blessed Crest Academy",
@@ -147,4 +145,41 @@ export const PROFILE_DATA = {
             { name: "Sound Design", level: 80, icon: Mic },
         ],
     },
+    testimonials: [
+        {
+            name: "Winning Worship Way",
+            role: "Media Team",
+            text: "Huge thanks to Goodness for helping elevate our church's YouTube channel! We've started seeing some improvements in engagement and we are very glad we are working with him.",
+            image: "/testimonials/rev-dr-oke.jpg",
+            channel: "Winning Worship Way"
+        },
+        {
+            name: "Monjola Aminu",
+            role: "Content Creator",
+            text: "He is very good at what he does and he demonstrates exceptional creativity.",
+            image: "/testimonials/monjola-aminu.jpg",
+            channel: "Monjola Aminu"
+        },
+        {
+            name: "John",
+            role: "YouTuber",
+            text: "Goodness is a fantastic editor! He took my raw footage and transformed it into a truly engaging video. Their creativity and attention to detail really shined through.",
+            image: "/testimonials/john-13cubes.jpg",
+            channel: "13 Cubes"
+        },
+        {
+            name: "Sharon",
+            role: "Creator, Sharon's Chronicles",
+            text: "I love how he brings my vision to life in the best way possible. He's collaborative, attentive and open to correction. Love the end results always.",
+            image: "/testimonials/sharon.jpg",
+            channel: "Sharon's Chronicles"
+        }
+    ],
+    clients: [
+        { name: "Sharon's Chronicles", subscribers: "354", logo: Users },
+        { name: "Winning Worship Way", subscribers: "192", logo: Zap },
+        { name: "Monjola Aminu", subscribers: "118", logo: Globe },
+        { name: "Success Light Music", subscribers: "1.89K", logo: Mic },
+        { name: "Temisan Adebiyi", subscribers: "1.05K", logo: Video },
+    ]
 };
