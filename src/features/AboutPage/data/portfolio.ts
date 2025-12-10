@@ -1,118 +1,134 @@
+import {
+    Code,
+    Video,
+    Database,
+    Layout,
+    Cpu,
+    Globe,
+    Award,
+    Zap,
+    Briefcase,
+    Users,
+    Mic,
+} from "lucide-react";
 
 export const PROFILE_DATA = {
     name: "John Oluleke-Oke",
-    role: "Creative Technologist & Filmmaker",
-    location: "Abuja, Nigeria",
-    email: "johnoke.work@gmail.com",
-    socials: {
-        linkedin: "https://www.linkedin.com/in/ipinrere-oluleke-oke-a35094227/",
-        github: "https://github.com/JStaRFilms/",
-        youtube: "https://youtube.com/@jstarfilms",
+    role: "Creative Technologist · Filmmaker · Polymath",
+    about:
+        "Product-minded Software Engineer and National Speedcubing Champion. I blend technical depth with cinematic storytelling to build intuitive, intelligent experiences. From architecting full-stack AI applications to producing educational content for thousands of creators, I operate at the intersection of logic and creativity.",
+    stats: {
+        experience: "5+",
+        projects: "30+",
+        clients: "50+",
     },
-    summary:
-        "Product-minded Software Engineer with proven experience architecting, building, and shipping full-stack AI applications. Specializing in React, Next.js, and Python, with a deep understanding of system design. A recent TEDx speaker passionate about creating intuitive, intelligent user experiences that combine technical depth with cinematic storytelling.",
+    socials: {
+        github: "https://github.com/JStaRFilms",
+        linkedin: "https://www.linkedin.com/in/ipinrere-oluleke-oke-a35094227/",
+        youtube: "https://youtube.com/@jstarfilms",
+        email: "mailto:johnoke.work@gmail.com",
+    },
+    // NEW: Speedcubing Section
+    speedcubing: {
+        wcaId: "2022JOHN41",
+        status: "National Champion",
+        medals: {
+            gold: 2, // 2x2, Megaminx
+            silver: 2, // 4x4, OH
+            bronze: 1, // 3x3
+        },
+        records: [
+            { event: "3x3x3 Cube", single: "11.73s", average: "13.14s", rank: "Top 20 National" },
+            { event: "2x2x2 Cube", single: "3.53s", average: "4.89s", rank: "National Gold" },
+            { event: "Megaminx", single: "2:20.17", average: "2:50.86", rank: "National Gold" },
+        ],
+        highlight: "Solving problems at speed is my DNA. Whether it's an algorithm for a Rubik's cube or a distributed system, I optimize for efficiency and elegance.",
+    },
+    // NEW: Entrepreneurship & Speaking
+    ventures: [
+        {
+            name: "The Olive Blessed Crest Academy",
+            role: "Co-Owner & Director",
+            description: "Driving educational innovation in Nigeria. Instrumental in integrating technology into the curriculum and overseeing strategic operations.",
+            icon: Users,
+        },
+        {
+            name: "TEDxElizadeUniversity",
+            role: "Speaker",
+            description: "Delivered the talk 'What if reality is editable?', exploring the intersection of digital media, perception, and technology.",
+            icon: Mic,
+        },
+    ],
+    projects: [
+        {
+            title: "Adaptive Study Game",
+            category: "EdTech / AI",
+            description: "Multimodal AI study platform transforming notes and videos into interactive quizzes. Built with 'Parallel Pipelines' for real-time generation.",
+            tech: ["React", "TypeScript", "Gemini API", "IndexedDB"],
+            link: "#",
+            featured: true,
+        },
+        {
+            title: "MindGuard-AI",
+            category: "HealthTech",
+            description: "Privacy-first desktop app for mental wellness tracking. Features local ONNX inference for offline sentiment analysis.",
+            tech: ["Electron", "React", "Python", "ONNX"],
+            link: "https://github.com/JStaRFilms/MindGuard-AI",
+            featured: true,
+        },
+        {
+            title: "AI Storyboard Studio",
+            category: "Creative Tools",
+            description: "Web app generating visual storyboards from scripts. Seamlessly bridges Next.js frontend with a Python/Flask ML backend.",
+            tech: ["Next.js", "Python/Flask", "Supabase", "GenAI"],
+            link: "https://github.com/JStaRFilms/AI-Storyboard-Studio",
+            featured: true,
+        },
+    ],
     experience: [
         {
-            company: "JStarFilms",
-            role: "Founder, Producer & Educator",
+            company: "JStaRFilms",
+            role: "Founder & Lead Creator",
             period: "2020 - Present",
             description: [
-                "Grew a YouTube channel dedicated to filmmaking education, producing in-depth tutorials on advanced editing techniques, with a specialized focus on DaVinci Resolve and cinematic color grading.",
-                "Developed and published unique 'filmmaking hacks' and technical problem-solving content, establishing a reputation as a go-to resource for creators.",
-                "Provided professional videography and photography services for live events, managing projects from consultation to final delivery.",
+                "Grew a YouTube community of 800+ filmmakers with 130+ educational videos.",
+                "Specialist in DaVinci Resolve color grading and mobile cinematography.",
+                "Produced high-impact content accumulating 176k+ views.",
             ],
+            icon: Video,
         },
         {
-            company: "Sharon's Chronicles",
-            role: "YouTube Video Editor & Manager",
-            period: "April 2023 - Present",
+            company: "Winning Worship Way",
+            role: "Media Director",
+            period: "2020 - Present",
             description: [
-                "Edited long and short-form video content, creating engaging narratives and optimizing videos for audience retention and platform algorithms.",
-                "Produced dynamic trailers and promotional clips for upcoming content, successfully boosting viewership for new releases.",
+                "Head of live stream production and multi-camera broadcasts.",
+                "Manage weekly post-production workflows and social media content strategy.",
             ],
+            icon: Zap,
         },
         {
-            company: "Google Developer Students Clubs (GDSC)",
-            role: "Multimedia Editor",
-            period: "Sept 2023 - Sept 2024",
+            company: "Google DSC",
+            role: "Multimedia Lead",
+            period: "2023 - 2024",
             description: [
-                "Produced high-quality video and photo content for club meetings and events, ensuring all media adhered to official GDSC branding standards.",
+                "Directed visual storytelling and branding for developer community events.",
             ],
-        },
-        {
-            company: "Winning Worship Way Christian Centre",
-            role: "Video Editor & Social Media Manager",
-            period: "May 2020 - Present",
-            description: [
-                "Edit weekly service footages and create compelling video snippets and graphics for social media platforms.",
-                "Manage live streams during services, ensuring high-quality audio and video delivery to the online audience.",
-            ],
-        },
-        {
-            company: "Polaris Digitech",
-            role: "Software Development Intern",
-            period: "Sept 2022 – Oct 2022",
-            description: [
-                "Collaborated in an agile team to write, test, and debug code for core software applications.",
-                "Utilized Git for version control, managing codebase changes, branches, and merges efficiently.",
-            ],
+            icon: Globe,
         },
     ],
     skills: {
         engineering: [
-            "React",
-            "Next.js",
-            "TypeScript",
-            "Python",
-            "Node.js",
-            "SQL",
-            "Google Gemini API",
-            "Tailwind CSS",
-            "Framer Motion",
+            { name: "React / Next.js", level: 95, icon: Code },
+            { name: "TypeScript", level: 90, icon: Layout },
+            { name: "Python / AI", level: 85, icon: Cpu },
+            { name: "System Design", level: 80, icon: Database },
         ],
         creative: [
-            "DaVinci Resolve (Advanced)",
-            "Adobe Premiere Pro",
-            "Adobe After Effects",
-            "Storyboarding",
-            "Color Grading",
-            "Sound Design",
+            { name: "DaVinci Resolve", level: 95, icon: Video },
+            { name: "Cinematography", level: 90, icon: Globe }, // Utilizing Globe as a placeholder for lens/world view
+            { name: "Motion Graphics", level: 85, icon: Zap },
+            { name: "Sound Design", level: 80, icon: Users }, // Visual/Auditory audience connection
         ],
     },
-    projects: [
-        {
-            title: "Adaptive Study Game",
-            tech: "React, TypeScript, Google Gemini API, IndexedDB",
-            description:
-                "Shipped a live, multimodal AI study application that transforms user notes and YouTube videos into interactive quizzes and visual learning canvases. Engineered a performant AI architecture using 'Parallel Pipelines' to reduce latency.",
-            link: "#", // Placeholder as per docs
-        },
-        {
-            title: "AI Storyboard Studio",
-            tech: "Next.js, Python, Flask, Supabase",
-            description:
-                "Architected and built a web application for generating visual storyboards from scripts. Demonstrated expertise in hybrid-stack development by integrating a JavaScript frontend with a Python ML backend.",
-            link: "#",
-        },
-        {
-            title: "MindGuard-AI",
-            tech: "Electron, React, Python, ONNX",
-            description:
-                "Developed a privacy-first, cross-platform desktop application for mental wellness tracking. Deployed a local ONNX inference engine for secure, offline analysis.",
-            link: "#",
-        },
-    ],
-    education: [
-        {
-            institution: "Elizade University",
-            degree: "Bachelor of Science, Computer Science",
-            period: "Expected Aug 2025",
-        },
-        {
-            institution: "TEDxElizadeUniversity",
-            degree: "TEDx Speaker",
-            period: "June 2025",
-            details: 'Delivered a talk on "What if reality is editable?"',
-        },
-    ],
 };

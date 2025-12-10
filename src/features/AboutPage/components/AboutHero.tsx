@@ -38,14 +38,14 @@ const AboutHero = () => {
             </span>
           </h1>
 
-          <h2 className={`text-2xl md:text-3xl text-gray-300 font-light mb-8 flex flex-wrap items-center gap-3 scroll-animate-hidden ${isVisible ? 'scroll-animate-fade-in-up scroll-stagger-2' : ''}`}>
-            <span className="text-jstar-blue font-semibold">Creative Technologist</span>
-            <span className="hidden sm:inline w-1.5 h-1.5 rounded-full bg-gray-600" />
-            <span className="text-faith-purple font-semibold">Filmmaker</span>
+          {/* Role/Title */}
+          <h2 className={`text-xl md:text-2xl font-medium mb-8 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-emerald-400 scroll-animate-hidden ${isVisible ? 'scroll-animate-fade-in-up scroll-stagger-2' : ''}`}>
+            {PROFILE_DATA.role}
           </h2>
 
-          <p className={`text-lg md:text-xl text-gray-400 mb-10 max-w-2xl leading-relaxed scroll-animate-hidden ${isVisible ? 'scroll-animate-fade-in-up scroll-stagger-3' : ''}`}>
-            {PROFILE_DATA.summary}
+          {/* Intro Text */}
+          <p className={`text-lg md:text-xl text-gray-400 leading-relaxed max-w-2xl mb-10 scroll-animate-hidden ${isVisible ? 'scroll-animate-fade-in-up scroll-stagger-3' : ''}`}>
+            {PROFILE_DATA.about}
           </p>
 
           <div className={`flex flex-wrap gap-4 scroll-animate-hidden ${isVisible ? 'scroll-animate-fade-in-up scroll-stagger-4' : ''}`}>

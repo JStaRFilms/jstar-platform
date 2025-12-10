@@ -55,7 +55,7 @@ const MySkills = () => {
                     key={index}
                     className="px-4 py-2 bg-jstar-blue/10 border border-jstar-blue/20 rounded-lg text-blue-300 font-mono text-sm group-hover:bg-jstar-blue/20 transition-colors cursor-default hover:border-jstar-blue/50"
                   >
-                    {skill}
+                    {skill.name}
                   </span>
                 ))}
               </div>
@@ -91,7 +91,7 @@ const MySkills = () => {
                     key={index}
                     className="px-4 py-2 bg-faith-purple/10 border border-faith-purple/20 rounded-lg text-purple-300 font-mono text-sm group-hover:bg-faith-purple/20 transition-colors cursor-default hover:border-faith-purple/50"
                   >
-                    {skill}
+                    {skill.name}
                   </span>
                 ))}
               </div>
