@@ -47,7 +47,11 @@ export const useSmartNavigation = ({ href, onTooltipChange, onScrollStart }: Use
 
     if (isHomepage) {
       // This was a short press on the homepage, so scroll to section
-      const element = document.getElementById(targetSectionId);
+      // Try both ID patterns: AI nav uses '{id}-section', simple uses '{id}'
+      const sectionElement = document.getElementById(`${targetSectionId}-section`);
+      const simpleElement = document.getElementById(targetSectionId);
+      const element = sectionElement || simpleElement;
+
       if (element) {
         // Trigger motion blur before scrolling
         onScrollStart?.();
