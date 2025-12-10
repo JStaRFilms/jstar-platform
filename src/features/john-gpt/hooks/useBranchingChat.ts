@@ -129,8 +129,12 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
     );
 
     // Listen for message updates to set the mode from metadata
+    // PERFORMANCE: Skip during streaming - only check when status changes
     useEffect(() => {
         if (!messages || messages.length === 0) return;
+
+        // Skip during streaming to prevent re-renders on every token
+        if (chatHelpers.status === 'streaming') return;
 
         const lastMessage = messages[messages.length - 1];
         // Check if it's an assistant message and has metadata
@@ -141,7 +145,7 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
                 setCurrentMode(mode);
             }
         }
-    }, [messages]);
+    }, [messages, chatHelpers.status]);
 
     // Helper to reconstruct path from a given leaf/head ID
     const getPathToNode = useCallback((leafId: string, currentTree: MessageTree): UIMessage[] => {
@@ -156,8 +160,16 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
     }, []);
 
     // 3. Sync `messages` from useChat to `tree` (for streaming updates)
+    // PERFORMANCE: Only sync tree when streaming completes, not on every token
     useEffect(() => {
         if (messages.length === 0) return;
+
+        // Skip tree sync during active streaming - causes 3 state updates per token!
+        // We only need to sync the final state after streaming completes
+        const status = chatHelpers.status;
+        if (status === 'streaming') {
+            return;
+        }
 
         const lastMsg = messages[messages.length - 1] as any;
 
@@ -220,7 +232,7 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
             }
         }
 
-    }, [messages, headId]);
+    }, [messages, headId, chatHelpers.status]);
 
     // Initialize SyncManager
     useEffect(() => {
@@ -228,9 +240,17 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
     }, [userId]);
 
     // 3.5. Persistence: Save to IndexedDB (and queue DB sync)
+    // PERFORMANCE: Skip saves during active streaming to prevent UI freezing
     useEffect(() => {
         // Only save if we have a conversation ID and user ID and messages
         if (!conversationId || !userId || messages.length === 0) return;
+
+        // Skip save during active streaming - only save when streaming completes
+        // This prevents constant saves during token-by-token updates
+        const currentStatus = chatHelpers.status;
+        if (currentStatus === 'streaming' || currentStatus === 'submitted') {
+            return;
+        }
 
         const saveConversation = async () => {
             try {
@@ -276,9 +296,10 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
             }
         };
 
-        // Debounce handled inside dbSyncManager
-        saveConversation();
-    }, [messages, tree, conversationId, userId, options.isWidget, options.modelId]);
+        // Add a small debounce to batch rapid state changes
+        const debounceTimer = setTimeout(saveConversation, 500);
+        return () => clearTimeout(debounceTimer);
+    }, [messages.length, chatHelpers.status, tree, conversationId, userId, options.isWidget, options.modelId]);
 
     // 3.7. Auto-generate AI title after 6 messages (3 exchanges)
     useEffect(() => {

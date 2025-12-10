@@ -4,7 +4,6 @@ import { formatTime } from '@/lib/utils';
 import { BrainIcon } from '@/components/ui/BrainIcon';
 import { MarkdownRenderer } from '@/components/ui/MarkdownRenderer';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
-import { useSmartAutoScroll } from '@/hooks/useSmartAutoScroll';
 import { useRouter, usePathname } from 'next/navigation';
 import type { User as WorkOSUser } from '@workos-inc/node';
 import { ExtendedMessage } from '@/lib/chat-types';
@@ -20,14 +19,14 @@ interface ChatMessagesProps {
   messages: ExtendedMessage[] | UIMessage[] | BranchingMessage[];
   /** Whether the AI is currently loading/generating a response */
   isLoading: boolean;
-  /** Whether auto-scroll is enabled */
-  autoScrollEnabled?: boolean;
   /** The current user, used for avatar */
   user?: WorkOSUser | null;
   /** Handler for editing a message */
   onEdit?: (messageId: string, content: string) => void;
   /** Handler for navigating branches */
   onNavigateBranch?: (messageId: string, direction: 'prev' | 'next') => void;
+  /** Ref for scroll anchor - passed from parent ChatView which owns the scroll container */
+  scrollAnchorRef?: React.RefObject<HTMLDivElement | null>;
 }
 
 /**
@@ -43,20 +42,23 @@ const parseMessageContent = (content: string) => {
 
 /**
  * Component for rendering user message content with collapsible functionality
+ * Memoized to prevent re-renders during streaming
  */
-const UserMessageContent = ({
-  message,
-  isMobile,
-  isEditable,
-  onEdit,
-  onNavigateBranch
-}: {
+interface UserMessageContentProps {
   message: BranchingMessage | any;
   isMobile: boolean;
   isEditable: boolean;
   onEdit?: (messageId: string, content: string) => void;
   onNavigateBranch?: (messageId: string, direction: 'prev' | 'next') => void;
-}) => {
+}
+
+const UserMessageContent = React.memo(function UserMessageContent({
+  message,
+  isMobile,
+  isEditable,
+  onEdit,
+  onNavigateBranch
+}: UserMessageContentProps) {
   const [isExpanded, setIsExpanded] = React.useState(false);
   const [showCopy, setShowCopy] = React.useState(false);
   const [showActions, setShowActions] = React.useState(false); // For mobile toggle
@@ -247,26 +249,22 @@ const UserMessageContent = ({
       )}
     </div>
   );
-};
+});
 
-export const ChatMessages: React.FC<ChatMessagesProps> = ({
+export const ChatMessages = React.memo(function ChatMessages({
   messages,
   isLoading,
-  autoScrollEnabled = true,
   user,
   onEdit,
-  onNavigateBranch
-}) => {
+  onNavigateBranch,
+  scrollAnchorRef
+}: ChatMessagesProps) {
   const router = useRouter();
   const pathname = usePathname();
   const isMobile = useMediaQuery('(max-width: 768px)');
 
-  // Smart auto-scroll hook - handles all scroll logic intelligently
-  const { scrollContainerRef, scrollAnchorRef } = useSmartAutoScroll({
-    enabled: autoScrollEnabled,
-    threshold: 100,
-    debounceMs: 50,
-  });
+  // Note: useSmartAutoScroll is now owned by ChatView (the actual scroll container)
+  // scrollAnchorRef is passed down as a prop
 
   if (messages.length === 0 && !isLoading) {
     return (
@@ -286,14 +284,10 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
     );
   }
 
-  // Calculate user message indices for editability (ALL user messages are now editable in branching mode)
-  // But we might want to keep the "last 2" rule? No, branching allows editing ANY past message.
-  // So we'll make all user messages editable.
-  const isBranchingMode = true; // Always true now with new hook
-
+  // Note: Branching mode is always enabled - all user messages are editable
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 md:space-y-8 scroll-smooth" ref={scrollContainerRef}>
+    <div className="flex-1 p-4 md:p-6 space-y-6 md:space-y-8">
       {messages.map((message) => {
         // Handle both UIMessage and ExtendedMessage structures
         const parts = (message as any).parts || [];
@@ -645,7 +639,8 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
         )
       }
 
-      <div ref={scrollAnchorRef} />
+      {/* Scroll anchor - used by useSmartAutoScroll in ChatView */}
+      <div ref={scrollAnchorRef} className="h-px" aria-hidden="true" />
     </div >
   );
-};
+});
