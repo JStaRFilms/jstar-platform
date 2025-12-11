@@ -17,7 +17,7 @@ import {
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import type { User as WorkOSUser } from '@workos-inc/node';
-
+import { dbSyncManager } from '@/lib/storage/db-sync-manager';
 
 type Conversation = {
     id: string;
@@ -57,22 +57,25 @@ export function ConversationSidebar({ user, isDriveConnected, className, activeC
         }
     }, []);
 
-    // Fetch conversations from API
+    // Initialize DB & Fetch conversations
     useEffect(() => {
+        dbSyncManager.initialize(user.id);
+
         const fetchConversations = async () => {
             try {
-                const res = await fetch('/api/conversations');
-                if (!res.ok) throw new Error('Failed to fetch conversations');
+                // Use DB Sync Manager (Fast + Offline)
+                const cachedDocs = await dbSyncManager.listConversations(user.id);
 
-                const data = await res.json();
-
-                // Transform API response to match UI format
-                const transformed = data.conversations.map((conv: any) => ({
-                    id: conv.id,
+                // Transform response
+                const transformed = cachedDocs.map((conv) => ({
+                    id: conv.conversationId,
                     title: conv.title || 'New Chat',
                     date: conv.updatedAt,
                     preview: conv.title || 'No preview',
                 }));
+
+                // Sort by date desc (if not already)
+                transformed.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
                 setConversations(transformed);
             } catch (error) {
@@ -82,26 +85,19 @@ export function ConversationSidebar({ user, isDriveConnected, className, activeC
             }
         };
 
+        // Initial fetch
         fetchConversations();
-    }, []);
 
-    // Listen for conversation updates (title changes)
-    useEffect(() => {
-        const handleConversationUpdate = (event: any) => {
-            const { conversationId: updatedId, title: newTitle } = event.detail;
+        // Subscribe to ANY list changes (Created, Saved, Deleted)
+        const unsubscribe = dbSyncManager.onListChange(() => {
+            console.log('[ConversationSidebar] List changed, refreshing...');
+            fetchConversations();
+        });
 
-            setConversations(prev => prev.map(conv =>
-                conv.id === updatedId
-                    ? { ...conv, title: newTitle, preview: newTitle }
-                    : conv
-            ));
-
-            console.log('[ConversationSidebar] Title updated in real-time:', newTitle);
+        return () => {
+            unsubscribe();
         };
-
-        window.addEventListener('conversation-updated', handleConversationUpdate);
-        return () => window.removeEventListener('conversation-updated', handleConversationUpdate);
-    }, []);
+    }, [user.id]);
 
     const toggleTheme = () => {
         const newTheme = theme === 'dark' ? 'light' : 'dark';
@@ -186,6 +182,7 @@ export function ConversationSidebar({ user, isDriveConnected, className, activeC
         if (!editTitle.trim()) return;
 
         // Storage logic removed - placeholder for new implementation
+        // TODO: Implement rename via DB Sync Manager if supported
         setEditingId(null);
     };
 
@@ -198,14 +195,8 @@ export function ConversationSidebar({ user, isDriveConnected, className, activeC
         if (!deletingId) return;
 
         try {
-            const res = await fetch(`/api/conversations/${deletingId}`, {
-                method: 'DELETE',
-            });
-
-            if (!res.ok) throw new Error('Failed to delete conversation');
-
-            // Remove from local state
-            setConversations(prev => prev.filter(c => c.id !== deletingId));
+            // Use DB Sync Manager to delete (Handles Local + API + Drive)
+            await dbSyncManager.deleteConversation(deletingId);
 
             console.log('[ConversationSidebar] Deleted conversation:', deletingId);
         } catch (error) {

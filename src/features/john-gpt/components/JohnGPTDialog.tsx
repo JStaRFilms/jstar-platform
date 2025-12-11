@@ -298,7 +298,7 @@ function JohnGPTDialogContent({ open, onOpenChange, user, followMeConversationId
         hideDefaultClose={true}
         hideOverlay={state.isChatMinimized} // Hide overlay when minimized to allow background clicks
         overlayClassName="bg-transparent transition-all duration-500 pointer-events-none"
-        style={isMobile ? { '--solomon-offset': 'calc(100% - 48px)' } as React.CSSProperties : undefined}
+        style={isMobile ? { '--solomon-offset': 'calc(100% - 70px)' } as React.CSSProperties : undefined}
         onClick={(!isMobile && state.isChatMinimized) ? expandChat : undefined}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -349,7 +349,10 @@ function JohnGPTDialogContent({ open, onOpenChange, user, followMeConversationId
           <div className={contentClasses}>
 
             {/* Header */}
-            <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-border/40 bg-background/40 backdrop-blur-xl rounded-t-3xl transition-all duration-300">
+            <div className={cn(
+              "flex-shrink-0 flex items-center justify-between p-4 border-b border-border/40 bg-background/40 backdrop-blur-xl rounded-t-3xl transition-all duration-300",
+              (isMobile && state.isChatMinimized) ? "hidden" : "flex"
+            )}>
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/20 ring-1 ring-white/20">
                   <Sparkles className="w-4 h-4 text-white" />

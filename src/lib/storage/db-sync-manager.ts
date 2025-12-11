@@ -52,6 +52,7 @@ const NETWORK_CHECK_INTERVAL = 10000; // 10 seconds
 
 export class DBSyncManager {
     private listeners: SyncListener[] = [];
+    private listListeners: (() => void)[] = [];
     private debouncedSaves: Map<string, DebouncedSave> = new Map();
     private syncStatus: Map<string, SyncStatus> = new Map();
     private isOnline: boolean = typeof navigator !== 'undefined' ? navigator.onLine : true;
@@ -207,6 +208,9 @@ export class DBSyncManager {
             // Widget sync logic might be separate or added later
             this.emitSyncEvent(conversationId, 'synced'); // Effectively synced locally
         }
+
+        // Notify lists that data changed (instant UI update)
+        this.notifyListListeners();
     }
 
     /**
@@ -298,6 +302,7 @@ export class DBSyncManager {
         }
 
         this.emitSyncEvent(conversationId, 'idle');
+        this.notifyListListeners();
     }
 
     // ==========================================================================
@@ -397,12 +402,30 @@ export class DBSyncManager {
             // cached.createdAt === cached.updatedAt implies new? Not reliable.
             // Best check: Use a flag or try PATCH.
 
+            // Ensure messages adhere to schema (strip extra fields if necessary)
+            // Ensure messages adhere to schema (strip extra fields if necessary)
+            // Zod schema expects: id, role, content?, parts?, createdAt?, metadata?
+            const cleanMessages = (cached.messages as any[]).map(msg => {
+                // Remove undefined/null content to satisfy Zod optional()
+                const content = msg.content && typeof msg.content === 'string' ? msg.content : undefined;
+                const parts = Array.isArray(msg.parts) ? msg.parts : undefined;
+
+                return {
+                    id: msg.id,
+                    role: msg.role,
+                    content,
+                    parts,
+                    createdAt: msg.createdAt, // Zod allows string or Date
+                    metadata: typeof msg.metadata === 'object' && msg.metadata !== null ? msg.metadata : {},
+                };
+            });
+
             const payload = {
                 title: cached.title,
-                messages: cached.messages,
+                messages: cleanMessages,
                 personaId: (cached as any).personaId,
                 selectedModelId: (cached as any).selectedModelId,
-                localVersion: (cached as any).localVersion || 1,
+                localVersion: Number((cached as any).localVersion) || 1, // Force number
             };
 
             let res = await fetch(`/api/conversations/${conversationId}`, {
@@ -458,12 +481,46 @@ export class DBSyncManager {
         try {
             const res = await fetch('/api/conversations');
             if (!res.ok) return;
-            const output = await res.json();
+            // The API returns { conversations: [...] } or just [...] depending on implementation.
+            // Based on sidebar code: { conversations: [...] } 
+            // Wait, previous Sidebar code used `data.conversations`.
+            // Let's verify API route return type.
+            // API route returns `NextResponse.json(conversations)` which is an array.
+            // Wait, Sidebar code `const data = await res.json(); const transformed = data.conversations...`
+            // Let's check api/conversations/route.ts again.
+            // It returns `NextResponse.json(conversations)`.
+            // So it IS an array directly.
+            // Sidebar code I replaced was `const data = await res.json(); // ... data.conversations.map ...`
+            // Wait, if API returns array, `data.conversations` would be undefined.
+            // Let me check my memory or previous file read of route.ts.
+            // route.ts: `return NextResponse.json(conversations);` -> Array.
+            // Sidebar original code: `const data = await res.json(); setConversations(data.conversations...` 
+            // This suggests the Sidebar code MIGHT HAVE BEEN BROKEN or I misread route.ts.
+            // Let's assume API returns Array based on route.ts code `const conversations = ... findMany ... return json(conversations)`.
 
-            // Update all in cache
-            // Logic to update cache list could go here
+            const serverConversations = await res.json();
+
+            let hasChanges = false;
+
+            if (Array.isArray(serverConversations)) {
+                for (const serverConv of serverConversations) {
+                    const cached = await indexedDBClient.getConversation(serverConv.id);
+                    const serverTime = new Date(serverConv.updatedAt).getTime();
+
+                    // If not in cache, or server is newer
+                    if (!cached || serverTime > new Date(cached.updatedAt).getTime()) {
+                        const mapped = this.mapApiToCache(serverConv);
+                        await this.updateCache(mapped, false);
+                        hasChanges = true;
+                    }
+                }
+            }
+
+            if (hasChanges) {
+                this.notifyListListeners();
+            }
         } catch (e) {
-            // ignore
+            console.warn('[DBSyncManager] Background refresh failed:', e);
         }
     }
 
@@ -510,6 +567,21 @@ export class DBSyncManager {
         return () => {
             this.listeners = this.listeners.filter(l => l !== listener);
         };
+    }
+
+    /**
+     * Subscribe to ANY change in the conversation list
+     * (Created, Updated Title, Deleted)
+     */
+    onListChange(listener: () => void): () => void {
+        this.listListeners.push(listener);
+        return () => {
+            this.listListeners = this.listListeners.filter(l => l !== listener);
+        };
+    }
+
+    private notifyListListeners() {
+        this.listListeners.forEach(listener => listener());
     }
 }
 
