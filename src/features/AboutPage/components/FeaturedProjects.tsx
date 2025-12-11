@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { PROFILE_DATA } from '../data/portfolio';
 import { useScrollAnimationMulti } from '@/hooks/useScrollAnimationMulti';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
@@ -39,7 +40,7 @@ const FeaturedProjects = () => {
                             A curation of digital products, AI applications, and immersive experiences that define my approach to creative technology.
                         </p>
                     </div>
-                    <a
+                    <Link
                         href="/portfolio"
                         className="hidden md:flex items-center gap-2 text-white font-medium hover:text-jstar-blue transition-colors group px-6 py-3 rounded-full border border-white/10 hover:border-jstar-blue/50 hover:bg-white/5"
                     >
@@ -52,7 +53,7 @@ const FeaturedProjects = () => {
                         >
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                         </svg>
-                    </a>
+                    </Link>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -99,12 +100,12 @@ const FeaturedProjects = () => {
                 </div>
 
                 <div className="mt-12 text-center md:hidden">
-                    <a
+                    <Link
                         href="/portfolio"
                         className="inline-flex px-6 py-3 rounded-full bg-white/10 text-white font-medium hover:bg-white/20 transition-colors"
                     >
                         View All Projects
-                    </a>
+                    </Link>
                 </div>
             </div>
         </section>

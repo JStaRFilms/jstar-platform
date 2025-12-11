@@ -4,8 +4,8 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { PROFILE_DATA } from '../data/portfolio';
-import { Music, Box, Youtube, Code, Cpu, Trophy, ArrowUpRight, Layout, Zap, Shield, Touchpad, MousePointer2 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { Music, Box, Youtube, Code, Cpu, Trophy, ArrowUpRight, Zap, Shield, MousePointer2 } from 'lucide-react';
+import { motion } from 'motion/react';
 
 const InteractionPrompt = ({ isVisible }: { isVisible: boolean }) => (
     <div className={`absolute bottom-6 right-6 z-20 transition-all duration-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
@@ -132,7 +132,7 @@ const ThePolymath = () => {
                         The <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Polymath</span>
                     </h2>
                     <p className="text-gray-400 max-w-2xl mx-auto text-lg leading-relaxed">
-                        I believe in the intersection of disciplines. Whether it's the rhythm of jazz, the logic of algorithms, or the storytelling of cinema—it all feeds the creative process.
+                        I believe in the intersection of disciplines. Whether it&apos;s the rhythm of jazz, the logic of algorithms, or the storytelling of cinema it all feeds the creative process.
                     </p>
                 </div>
 
