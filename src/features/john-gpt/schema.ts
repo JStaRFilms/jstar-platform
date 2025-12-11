@@ -15,6 +15,9 @@ export const MessageSchema = z.object({
     parts: z.array(MessagePartSchema).optional(), // Structured content
     createdAt: z.union([z.string(), z.date()]).optional(),
     metadata: z.record(z.string(), z.any()).optional(),
+    // Branching Logic
+    parentId: z.string().nullable().optional(),
+    childrenIds: z.array(z.string()).optional(),
 });
 
 // Conversation CRUD schemas
