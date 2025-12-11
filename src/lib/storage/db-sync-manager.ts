@@ -417,6 +417,9 @@ export class DBSyncManager {
                     parts,
                     createdAt: msg.createdAt, // Zod allows string or Date
                     metadata: typeof msg.metadata === 'object' && msg.metadata !== null ? msg.metadata : {},
+                    // Preserve branching structure
+                    parentId: (msg as any).parentId || null,
+                    childrenIds: (msg as any).childrenIds || [],
                 };
             });
 
