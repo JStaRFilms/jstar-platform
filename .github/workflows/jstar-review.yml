@@ -1,0 +1,59 @@
+# .github/workflows/jstar-review.yml
+# J Star Code Review - Automated PR Reviewer
+# Triggers on: PR open/update, or manual '/review' comment
+
+name: J Star Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  issue_comment:
+    types: [created]
+
+# Permissions needed for posting comments
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  review:
+    name: 🌟 J Star Review
+    runs-on: ubuntu-latest
+    
+    # Only run on:
+    # 1. Pull request events, OR
+    # 2. Issue comments that:
+    #    - Start with '/review'
+    #    - Are on a pull request (not a regular issue)
+    if: >
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'issue_comment' &&
+       contains(github.event.comment.body, '/review') &&
+       github.event.issue.pull_request)
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          # Fetch full history for diff analysis
+          fetch-depth: 0
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: 🤖 Run J Star Reviewer
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          TRIAGE_MODEL: openai/gpt-oss-120b
+          ANALYST_MODEL: moonshotai/kimi-k2-instruct-0905
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number || github.event.issue.number }}
+        run: npx tsx src/orchestrator.ts
