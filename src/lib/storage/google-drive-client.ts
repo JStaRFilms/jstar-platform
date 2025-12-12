@@ -528,6 +528,24 @@ export class GoogleDriveClient {
     // 2. Get target folder
     const convFolderId = await this.ensureFolderStructure();
 
+    // 3. Generate new filename
+    // We try to keep the ID part consistent so we can find it later
+    const shortId = widgetConversationId.replace('widget-session-', '').slice(0, 8);
+    const sanitizedTitle = this.sanitizeFilename(newTitle);
+    const newFileName = `${sanitizedTitle} - ${shortId}.json`;
+
+    // 4. Move (add content folder, remove widget folder) and Rename
+    await this.makeRequest(
+      `https://www.googleapis.com/drive/v3/files/${fileId}?addParents=${convFolderId}&removeParents=${widgetFolderId}`,
+      {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newFileName,
+        }),
+      }
+    );
+
     return fileId;
   }
 

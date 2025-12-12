@@ -41,7 +41,6 @@ export async function classifyIntent(messages: any[]): Promise<DetectedIntent> {
     try {
         const { object } = await generateObject({
             model: await getClassifierModel(),
-            mode: 'json',
             schema: z.object({
                 intent: z.enum(['code', 'roast', 'simplify', 'bible', 'Universal']),
                 confidence: z.number().describe('Confidence score between 0 and 1'),

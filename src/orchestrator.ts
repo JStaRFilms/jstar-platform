@@ -34,7 +34,7 @@ function validateEnv() {
     const result = EnvSchema.safeParse(process.env);
     if (!result.success) {
         console.error('❌ Environment validation failed:');
-        result.error.errors.forEach((err) => {
+        result.error.issues.forEach((err) => {
             console.error(`   - ${err.path.join('.')}: ${err.message}`);
         });
         process.exit(1);
