@@ -50,6 +50,7 @@ interface GitHubContext {
     owner: string;
     repo: string;
     prNumber: number;
+    commentId?: number;
     octokit: Octokit;
 }
 
@@ -59,6 +60,7 @@ function initGitHub(env: ReturnType<typeof validateEnv>): GitHubContext {
         owner,
         repo,
         prNumber: parseInt(env.PR_NUMBER, 10),
+        commentId: env.COMMENT_ID ? parseInt(env.COMMENT_ID, 10) : undefined,
         octokit: new Octokit({ auth: env.GITHUB_TOKEN }),
     };
 }
@@ -214,6 +216,26 @@ async function postComment(ctx: GitHubContext, body: string): Promise<void> {
 }
 
 // ============================================================
+// REACTION LOGIC
+// ============================================================
+
+async function addReaction(ctx: GitHubContext, reaction: 'eyes' | 'rocket') {
+    if (!ctx.commentId) return; // Only works if triggered by a comment
+
+    try {
+        await ctx.octokit.reactions.createForIssueComment({
+            owner: ctx.owner,
+            repo: ctx.repo,
+            comment_id: ctx.commentId,
+            content: reaction,
+        });
+        console.log(`👀 Reacted with ${reaction}`);
+    } catch (e) {
+        console.log("⚠️ Could not react (might be a permission issue or invalid comment ID)");
+    }
+}
+
+// ============================================================
 // MAIN ORCHESTRATOR
 // ============================================================
 
@@ -224,6 +246,10 @@ async function main() {
     // 1. Validate environment
     const env = validateEnv();
     const ctx = initGitHub(env);
+
+    // Quick Win: React immediately if triggered by comment
+    await addReaction(ctx, 'eyes');
+
     console.log(`📦 Reviewing PR #${ctx.prNumber} in ${ctx.owner}/${ctx.repo}\n`);
 
     // 2. Fetch PR data

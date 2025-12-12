@@ -123,6 +123,7 @@ export const EnvSchema = z.object({
     GROQ_API_KEY: z.string().min(1, 'GROQ_API_KEY is required'),
     GITHUB_REPOSITORY: z.string().min(1, 'GITHUB_REPOSITORY is required'),
     PR_NUMBER: z.string().regex(/^\d+$/, 'PR_NUMBER must be a valid number'),
+    COMMENT_ID: z.string().optional(),
 });
 
 export type Env = z.infer<typeof EnvSchema>;
