@@ -51,17 +51,24 @@ Do NOT comment on import order or naming conventions unless they cause bugs.
 
 ### OUTPUT FORMAT:
 You must output STRICT JSON matching the schema. No markdown, no code fences, just raw JSON.
+You MUST include both "summary" and "findings" fields. Do not omit the summary.
+
+JSON Structure:
+{
+  "summary": { "risk_score": 0-100, "verdict": "APPROVE"|"REQUEST_CHANGES"|"COMMENT", "tone": "encouraging"|"critical"|"neutral" },
+  "findings": [ ... ]
+}
 `;
 
 /**
  * Builds the user prompt for the analyst, including focused files and diff.
  */
 export function buildAnalystUserPrompt(filesToAudit: string[], diff: string, maxLength = 50000): string {
-    const truncatedDiff = diff.length > maxLength
-        ? diff.substring(0, maxLength) + '\n\n[... truncated for token limit ...]'
-        : diff;
+  const truncatedDiff = diff.length > maxLength
+    ? diff.substring(0, maxLength) + '\n\n[... truncated for token limit ...]'
+    : diff;
 
-    return `
+  return `
 Focus ONLY on these critical files: ${JSON.stringify(filesToAudit)}
 
 Ignore changes to all other files in the diff.
