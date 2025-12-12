@@ -2,11 +2,13 @@
   "name": "jstar-platform",
   "version": "0.1.0",
   "private": true,
+  "main": "src/orchestrator.ts",
   "scripts": {
     "dev": "next dev -p 5782",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
+    "lint": "eslint src/",
+    "typecheck": "tsc --noEmit",
     "embed-site": "tsx src/scripts/embed-site.ts",
     "update-nav": "tsx src/scripts/populate-navigation.ts",
     "update-sections": "tsx src/scripts/populate-sections.ts",
@@ -14,7 +16,10 @@
     "db:seed": "npx prisma db seed",
     "db:embeddings": "npm run db:sync-nav && npm run embed-site",
     "db:reset": "npx prisma db push --force-reset && npm run db:seed && npm run db:embeddings",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "review": "tsx src/orchestrator.ts",
+    "test:local": "dotenv -e .env.local -- tsx src/orchestrator.ts",
+    "test:dry": "dotenv -e .env.local -- tsx src/test-local.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -22,8 +27,8 @@
   "dependencies": {
     "@ai-sdk/anthropic": "^2.0.53",
     "@ai-sdk/google": "^2.0.44",
-    "@ai-sdk/groq": "^2.0.32",
-    "@ai-sdk/openai": "^2.0.74",
+    "@ai-sdk/groq": "^2.0.33",
+    "@ai-sdk/openai": "^2.0.85",
     "@ai-sdk/openai-compatible": "^1.0.28",
     "@ai-sdk/react": "^2.0.104",
     "@babel/generator": "^7.28.5",
@@ -37,7 +42,8 @@
     "@types/prismjs": "^1.26.5",
     "@workos-inc/authkit-nextjs": "^2.11.1",
     "@workos-inc/node": "^7.74.2",
-    "ai": "^5.0.104",
+    "@octokit/rest": "^21.0.0",
+    "ai": "^5.0.112",
     "cheerio": "^1.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -80,6 +86,7 @@
     "@types/react-dom": "^19",
     "@types/remarkable": "^2.0.8",
     "eslint": "^9",
+    "dotenv-cli": "^7.4.0",
     "eslint-config-next": "15.5.7",
     "prisma": "^6.16.1",
     "tailwindcss": "^4",
