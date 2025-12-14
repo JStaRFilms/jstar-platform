@@ -88,34 +88,38 @@ export class ConversationService {
             selectedModelId?: string;
         }
     ) {
-        // Ideally we check versions here, but for now we just allow last-write-wins 
-        // from the authenticated user.
-
-        // We update syncedVersion to match localVersion because the server IS the sync target.
-        return prisma.conversation.update({
+        // Ideally we check versions here, but for now we just allow last-write-wins
+        // Enforce ownership by filtering on both id and userId using updateMany
+        const result = await prisma.conversation.updateMany({
             where: { id, userId },
             data: {
                 title: data.title,
                 messages: data.messages as any,
-                messageCount: data.messages.length, // Trust length over count
+                messageCount: data.messages.length,
                 localVersion: data.localVersion,
-                syncedVersion: data.localVersion, // Acknowledge sync
+                syncedVersion: data.localVersion,
                 personaId: data.personaId,
                 selectedModelId: data.selectedModelId,
                 lastMessageAt: new Date(),
             },
         });
+
+        if (result.count === 0) {
+            // Not found or not owned by user
+            throw new Error('Not Found');
+        }
+
+        return prisma.conversation.findUnique({ where: { id } });
     }
 
     /**
      * Delete a conversation
      */
     static async deleteConversation(id: string, userId: string) {
-        // Delete from DB logic
-        // Also likely triggers a cascade delete if we had relation tables, 
-        // but messages are JSON so it's simple.
-        return prisma.conversation.delete({
-            where: { id, userId },
-        });
+        const result = await prisma.conversation.deleteMany({ where: { id, userId } });
+        if (result.count === 0) {
+            throw new Error('Not Found');
+        }
+        return { id } as any;
     }
 }

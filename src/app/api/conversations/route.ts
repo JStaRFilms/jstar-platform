@@ -3,6 +3,7 @@ import { ConversationService } from '@/features/john-gpt/services/conversation.s
 import { CreateConversationSchema } from '@/features/john-gpt/schema';
 import { z } from 'zod';
 import { withAuth } from '@workos-inc/authkit-nextjs';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(req: NextRequest) {
     const { user } = await withAuth();
@@ -12,7 +13,12 @@ export async function GET(req: NextRequest) {
     }
 
     try {
-        const conversations = await ConversationService.listConversations(user.id);
+        const dbUser = await prisma.user.findUnique({ where: { workosId: user.id } });
+        if (!dbUser) {
+            return NextResponse.json({ error: 'User not found' }, { status: 404 });
+        }
+
+        const conversations = await ConversationService.listConversations(dbUser.id);
         return NextResponse.json(conversations);
     } catch (error) {
         console.error('Failed to list conversations:', error);
@@ -32,7 +38,12 @@ export async function POST(req: NextRequest) {
         // Allow ID to be passed in body for client-side generation
         const data = CreateConversationSchema.extend({ id: z.string().optional() }).parse(body);
 
-        const conversation = await ConversationService.createConversation(user.id, data);
+        const dbUser = await prisma.user.findUnique({ where: { workosId: user.id } });
+        if (!dbUser) {
+            return NextResponse.json({ error: 'User not found' }, { status: 404 });
+        }
+
+        const conversation = await ConversationService.createConversation(dbUser.id, data);
         return NextResponse.json(conversation);
     } catch (error) {
         if (error instanceof z.ZodError) {
