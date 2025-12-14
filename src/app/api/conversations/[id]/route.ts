@@ -3,6 +3,21 @@ import { ConversationService } from '@/features/john-gpt/services/conversation.s
 import { UpdateConversationSchema } from '@/features/john-gpt/schema';
 import { z } from 'zod';
 import { withAuth } from '@workos-inc/authkit-nextjs';
+import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
+
+async function getOrCreateDbUser(workosId: string) {
+    const existing = await prisma.user.findUnique({ where: { workosId } });
+    if (existing) return existing;
+    // Create with required defaults. Email is required and must be unique.
+    // Use a deterministic placeholder to satisfy constraints when WorkOS email isn't available here.
+    return prisma.user.create({
+        data: {
+            workosId,
+            email: `${workosId}@placeholder.local`,
+        },
+    });
+}
 
 export async function GET(
     req: NextRequest,
@@ -17,7 +32,9 @@ export async function GET(
     }
 
     try {
-        const conversation = await ConversationService.getConversation(id, user.id);
+        const dbUser = await getOrCreateDbUser(user.id);
+
+        const conversation = await ConversationService.getConversation(id, dbUser.id);
 
         if (!conversation) {
             return NextResponse.json({ error: 'Not Found' }, { status: 404 });
@@ -45,14 +62,27 @@ export async function PATCH(
     try {
         const body = await req.json();
         const data = UpdateConversationSchema.parse(body);
+        const dbUser = await getOrCreateDbUser(user.id);
 
-        const conversation = await ConversationService.updateConversation(id, user.id, data);
+        // Fail fast if the conversation doesn't exist for this user
+        const exists = await prisma.conversation.findFirst({ where: { id, userId: dbUser.id } });
+        if (!exists) {
+            return NextResponse.json({ error: 'Not Found' }, { status: 404 });
+        }
+
+        const conversation = await ConversationService.updateConversation(id, dbUser.id, data);
         return NextResponse.json(conversation);
     } catch (error) {
         if (error instanceof z.ZodError) {
             return NextResponse.json({ error: 'Validation Error', details: (error as any).errors || (error as any).issues }, { status: 400 });
         }
-        // Handle specific Prisma errors like "Record not found" if needed
+        // Map Prisma not-found to 404 so client can create on fallback
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+            return NextResponse.json({ error: 'Not Found' }, { status: 404 });
+        }
+        if (error instanceof Error && error.message === 'Not Found') {
+            return NextResponse.json({ error: 'Not Found' }, { status: 404 });
+        }
         console.error('Failed to update conversation:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
@@ -71,9 +101,14 @@ export async function DELETE(
     }
 
     try {
-        await ConversationService.deleteConversation(id, user.id);
+        const dbUser = await getOrCreateDbUser(user.id);
+
+        await ConversationService.deleteConversation(id, dbUser.id);
         return NextResponse.json({ success: true });
     } catch (error) {
+        if (error instanceof Error && error.message === 'Not Found') {
+            return NextResponse.json({ error: 'Not Found' }, { status: 404 });
+        }
         console.error('Failed to delete conversation:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }

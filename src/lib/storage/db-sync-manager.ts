@@ -39,6 +39,26 @@ type DebouncedSave = {
     isWidget?: boolean;
 };
 
+type AllowedPartType = 'text' | 'image' | 'tool-invocation';
+type NormalizedMessagePart =
+    | {
+        type: 'text';
+        text: string;
+        toolInvocation?: any;
+        image?: any;
+    }
+    | {
+        type: 'image';
+        image: string;
+        alt?: string;
+    }
+    | {
+        type: 'tool-invocation';
+        toolInvocation: any;
+    };
+
+const ALLOWED_PART_TYPES: AllowedPartType[] = ['text', 'image', 'tool-invocation'];
+
 // ============================================================================
 // Constants
 // ============================================================================
@@ -70,6 +90,46 @@ export class DBSyncManager {
             // Periodic network check (some browsers don't fire events reliably)
             this.startNetworkCheck();
         }
+    }
+
+    private normalizeMessageParts(parts: any): NormalizedMessagePart[] | undefined {
+        if (!Array.isArray(parts)) return undefined;
+
+        const normalized = parts
+            .filter((part) => part && ALLOWED_PART_TYPES.includes(part.type as AllowedPartType))
+            .map((part): NormalizedMessagePart | null => {
+                if (part.type === 'text') {
+                    const textValue = typeof part.text === 'string' ? part.text : String(part.text ?? '');
+                    if (!textValue) return null;
+
+                    return {
+                        type: 'text',
+                        text: textValue,
+                        ...(part.toolInvocation ? { toolInvocation: part.toolInvocation } : {}),
+                        ...(part.image ? { image: part.image } : {}),
+                    };
+                }
+
+                if (part.type === 'image') {
+                    const imageValue = part.image ?? part.url ?? part.src ?? '';
+                    if (typeof imageValue !== 'string' || imageValue.length === 0) return null;
+
+                    return {
+                        type: 'image',
+                        image: imageValue,
+                        alt: typeof part.alt === 'string' ? part.alt : undefined,
+                    };
+                }
+
+                // tool-invocation
+                return {
+                    type: 'tool-invocation',
+                    toolInvocation: part.toolInvocation ?? part,
+                };
+            })
+            .filter((part): part is NormalizedMessagePart => part !== null);
+
+        return normalized.length > 0 ? normalized : undefined;
     }
 
     // ==========================================================================
@@ -161,6 +221,7 @@ export class DBSyncManager {
         // Convert UIMessage[] to StoredMessage format (compatible with ConversationFile)
         const storedMessages = messages.map((msg) => ({
             ...msg,
+            parts: this.normalizeMessageParts((msg as any).parts),
             createdAt: (msg as any).createdAt ? new Date((msg as any).createdAt).toISOString() : new Date().toISOString(),
             metadata: (msg as any).data as any, // Map data to metadata for storage
         }));
@@ -187,25 +248,15 @@ export class DBSyncManager {
         } as any; // Cast because CachedConversation types might not have all new fields yet
 
         await indexedDBClient.saveConversation(cachedConversation);
+        console.log('[DBSyncManager] Saved to IndexedDB:', conversationId);
 
         // Queue sync only if authenticated (real user) and not widget
-        // Widgets (even for auth users) might not need DB sync yet? 
-        // User said "JohnGPT chat storage... utilizing Neon PostgreSQL". 
-        // Widgets usually use same storage? 
-        // Previous code skipped widget sync. I'll respect `!options?.isWidget`.
         if (this.isAuthenticated && !options?.isWidget) {
+            console.log('[DBSyncManager] ✅ Queuing API sync for:', conversationId, { isAuthenticated: this.isAuthenticated, isWidget: options?.isWidget });
             this.queueDebouncedSync(conversationId);
-
-            // Also queue Drive Sync if connected (Debounce separate? Or just do it after API sync?)
-            // We'll let `syncConversationToApi` trigger Drive sync or queue it separately?
-            // To be safe, we can do it here but maybe debounced too?
-            // Existing `sync-manager` had `syncConversationToDrive`.
-            // Here `saveConversation` queues API sync. 
-            // We can add Drive sync to the `debouncedSaves` or handle it in `syncConversationToApi`.
-            // I'll handle it in `syncConversationToApi` to chain them (DB First -> Then Backup).
         } else {
             // For guest or widget, we just stop here (IndexedDB only for now)
-            // Widget sync logic might be separate or added later
+            console.log('[DBSyncManager] ⚠️ Skipping API sync:', { isAuthenticated: this.isAuthenticated, isWidget: options?.isWidget });
             this.emitSyncEvent(conversationId, 'synced'); // Effectively synced locally
         }
 
@@ -373,9 +424,15 @@ export class DBSyncManager {
     }
 
     private async syncConversationToApi(conversationId: string): Promise<void> {
-        if (!this.isAuthenticated) return;
+        console.log('[DBSyncManager] 🔄 syncConversationToApi called:', { conversationId, isAuthenticated: this.isAuthenticated, isOnline: this.isOnline });
+        
+        if (!this.isAuthenticated) {
+            console.log('[DBSyncManager] ❌ Aborting sync - not authenticated');
+            return;
+        }
 
         if (!this.isOnline) {
+            console.log('[DBSyncManager] 📴 Offline - queuing for later');
             await indexedDBClient.addToSyncQueue(conversationId);
             this.emitSyncEvent(conversationId, 'offline');
             return;
@@ -408,7 +465,7 @@ export class DBSyncManager {
             const cleanMessages = (cached.messages as any[]).map(msg => {
                 // Remove undefined/null content to satisfy Zod optional()
                 const content = msg.content && typeof msg.content === 'string' ? msg.content : undefined;
-                const parts = Array.isArray(msg.parts) ? msg.parts : undefined;
+                const parts = this.normalizeMessageParts(msg.parts);
 
                 return {
                     id: msg.id,
@@ -431,29 +488,37 @@ export class DBSyncManager {
                 localVersion: Number((cached as any).localVersion) || 1, // Force number
             };
 
+            console.log('[DBSyncManager] 📤 Sending PATCH to API:', `/api/conversations/${conversationId}`);
             let res = await fetch(`/api/conversations/${conversationId}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
+            console.log('[DBSyncManager] PATCH response status:', res.status);
 
             if (res.status === 404) {
                 // Conversation doesn't exist on server -> Create it with POST
-                // We must include the ID to preserve the client-generated UUID
+                console.log('[DBSyncManager] 📝 Conversation not found, creating with POST...');
                 res = await fetch(`/api/conversations`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ ...payload, id: conversationId })
                 });
+                console.log('[DBSyncManager] POST response status:', res.status);
             }
 
-            if (!res.ok) throw new Error(`Sync failed: ${res.statusText}`);
+            if (!res.ok) {
+                const errorBody = await res.text();
+                console.error('[DBSyncManager] ❌ API Error:', res.status, errorBody);
+                throw new Error(`Sync failed: ${res.status} ${res.statusText} - ${errorBody}`);
+            }
 
+            console.log('[DBSyncManager] ✅ Sync successful!');
             await indexedDBClient.markConversationClean(conversationId, '', Date.now());
             this.emitSyncEvent(conversationId, 'synced');
 
         } catch (error) {
-            console.error('[DBSyncManager] Sync error:', error);
+            console.error('[DBSyncManager] ❌ Sync error:', error);
             // Queue for retry
             await indexedDBClient.addToSyncQueue(conversationId);
             this.emitSyncEvent(conversationId, 'error', (error as Error).message);

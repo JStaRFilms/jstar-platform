@@ -10,15 +10,7 @@ export class ConversationService {
      * Get a single conversation by ID
      */
     static async getConversation(id: string, userId: string) {
-        const conversation = await prisma.conversation.findUnique({
-            where: { id },
-        });
-
-        if (!conversation || conversation.userId !== userId) {
-            return null;
-        }
-
-        return conversation;
+        return prisma.conversation.findFirst({ where: { id, userId } });
     }
 
     /**
@@ -88,34 +80,39 @@ export class ConversationService {
             selectedModelId?: string;
         }
     ) {
-        // Ideally we check versions here, but for now we just allow last-write-wins 
-        // from the authenticated user.
-
-        // We update syncedVersion to match localVersion because the server IS the sync target.
-        return prisma.conversation.update({
-            where: { id, userId },
-            data: {
-                title: data.title,
-                messages: data.messages as any,
-                messageCount: data.messages.length, // Trust length over count
-                localVersion: data.localVersion,
-                syncedVersion: data.localVersion, // Acknowledge sync
-                personaId: data.personaId,
-                selectedModelId: data.selectedModelId,
-                lastMessageAt: new Date(),
-            },
-        });
+        try {
+            const updated = await prisma.conversation.update({
+                where: { id },
+                data: {
+                    title: data.title,
+                    messages: data.messages as any,
+                    messageCount: data.messages.length,
+                    localVersion: data.localVersion,
+                    syncedVersion: data.localVersion,
+                    personaId: data.personaId,
+                    selectedModelId: data.selectedModelId,
+                    lastMessageAt: new Date(),
+                },
+            });
+            // Ownership is ensured by the route pre-check; if additional safety is required,
+            // switch to a composite unique constraint and filter on both id and userId.
+            return updated;
+        } catch (error) {
+            if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+                throw new Error('Not Found');
+            }
+            throw error;
+        }
     }
 
     /**
      * Delete a conversation
      */
     static async deleteConversation(id: string, userId: string) {
-        // Delete from DB logic
-        // Also likely triggers a cascade delete if we had relation tables, 
-        // but messages are JSON so it's simple.
-        return prisma.conversation.delete({
-            where: { id, userId },
-        });
+        const result = await prisma.conversation.deleteMany({ where: { id, userId } });
+        if (result.count === 0) {
+            throw new Error('Not Found');
+        }
+        return { id } as any;
     }
 }

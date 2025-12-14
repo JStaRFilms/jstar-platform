@@ -234,11 +234,6 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
 
     }, [messages, headId, chatHelpers.status]);
 
-    // Initialize SyncManager
-    useEffect(() => {
-        dbSyncManager.initialize(userId || null);
-    }, [userId]);
-
     // 3.5. Persistence: Save to IndexedDB (and queue DB sync)
     // PERFORMANCE: Skip saves during active streaming to prevent UI freezing
     useEffect(() => {
