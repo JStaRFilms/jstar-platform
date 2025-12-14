@@ -1,6 +1,17 @@
-# .github/workflows/jstar-review.yml
-# J Star Code Review - Automated PR Reviewer
-# Triggers on: PR open/update, or manual '/review' comment
+# .github/workflows/spawn-template.yml
+# ═══════════════════════════════════════════════════════════════════
+# J STAR CODE REVIEW - SPAWNER TEMPLATE
+# ═══════════════════════════════════════════════════════════════════
+#
+# COPY THIS FILE to any repository at: .github/workflows/jstar-review.yml
+# Then add GROQ_API_KEY to your repo secrets. That's it!
+#
+# For custom project context (coding rules, architecture docs), create:
+#   - .jstar/rules.md       (your coding guidelines)
+#   - .jstar/architecture.md (your project structure overview)
+#
+# The bot will automatically pick these up and use them in reviews.
+# ═══════════════════════════════════════════════════════════════════
 
 name: J Star Code Review
 
@@ -10,51 +21,41 @@ on:
   issue_comment:
     types: [created]
 
-# Permissions needed for posting comments
 permissions:
   contents: read
   pull-requests: write
   issues: write
 
 jobs:
+  # Gate check - only run on PRs or /review comments
+  check:
+    name: 🔍 Check Trigger
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
+    steps:
+      - name: Check if should run
+        id: check
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "should_run=true" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event_name }}" == "issue_comment" && \
+                  "${{ contains(github.event.comment.body, '/review') }}" == "true" && \
+                  "${{ github.event.issue.pull_request != null }}" == "true" ]]; then
+            echo "should_run=true" >> $GITHUB_OUTPUT
+          else
+            echo "should_run=false" >> $GITHUB_OUTPUT
+          fi
+
+  # Call the J Star Review bot from the source repo
   review:
     name: 🌟 J Star Review
-    runs-on: ubuntu-latest
-    
-    # Only run on:
-    # 1. Pull request events, OR
-    # 2. Issue comments that:
-    #    - Start with '/review'
-    #    - Are on a pull request (not a regular issue)
-    if: >
-      github.event_name == 'pull_request' ||
-      (github.event_name == 'issue_comment' &&
-       contains(github.event.comment.body, '/review') &&
-       github.event.issue.pull_request)
-
-    steps:
-      - name: 📥 Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          # Fetch full history for diff analysis
-          fetch-depth: 0
-
-      - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: 📦 Install Dependencies
-        run: npm ci
-
-      - name: 🤖 Run J Star Reviewer
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          TRIAGE_MODEL: openai/gpt-oss-120b
-          ANALYST_MODEL: moonshotai/kimi-k2-instruct-0905
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          PR_NUMBER: ${{ github.event.pull_request.number || github.event.issue.number }}
-          COMMENT_ID: ${{ github.event.comment.id }}
-        run: npx tsx src/orchestrator.ts
+    needs: check
+    if: needs.check.outputs.should_run == 'true'
+    uses: JStaRFilms/jstar-code-review/.github/workflows/reusable-review.yml@main
+    secrets:
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+    # Optionally customize models:
+    # with:
+    #   triage_model: 'openai/gpt-oss-120b'
+    #   analyst_model: 'moonshotai/kimi-k2-instruct-0905'
