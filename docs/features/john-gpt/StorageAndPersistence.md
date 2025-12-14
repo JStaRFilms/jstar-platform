@@ -104,8 +104,38 @@ const conversation = await syncManager.loadConversation(conversationId);
 await syncManager.initializeGoogleDrive(userId);
 ```
 
-## 7. Future Improvements
+## 7. Message Schema Validation
+
+The `MessagePartSchema` (`src/features/john-gpt/schema.ts`) validates AI SDK message parts before storage.
+
+### Supported Part Types
+
+| Type | Fields |
+|------|--------|
+| `text` | `text: string` |
+| `image` | `image: string`, `mimeType?: string` |
+| `file` | `data: string`, `mimeType: string` |
+| `tool-call` | `toolCallId`, `toolName`, `args` |
+| `tool-result` | `toolCallId`, `toolName`, `result`, `isError?` |
+| `reasoning` | `reasoning: string` |
+| `source` | `source: { sourceType, id, url?, title? }` |
+| `step-start/finish` | *(no additional fields)* |
+
+> **Note:** If new AI SDK part types are added, update the discriminated union in `schema.ts`.
+
+---
+
+## 8. Future Improvements
 
 *   **Conflict Resolution UI:** Allow users to choose versions if a conflict occurs.
 *   **Storage Quota:** Display Drive usage.
 *   **Export:** Download conversation as Markdown/PDF.
+
+---
+
+## 9. Change Log
+
+| Date | Change |
+|------|--------|
+| 2024-12-14 | Hardened `MessagePartSchema` with explicit discriminated union (was `.passthrough()`) |
+| 2024-12-14 | Added ownership checks (403 responses) to `/api/conversations/[id]` |

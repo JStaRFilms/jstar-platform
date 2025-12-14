@@ -360,3 +360,50 @@ export default authkitMiddleware({
 - Verified all tables created successfully in Supabase
 - Tested WorkOS authentication with PostgreSQL user sync
 - See [`DATABASE_INTEGRATION.md`](./DATABASE_INTEGRATION.md) for complete database documentation
+
+### v2.1.0 - API Auth Helper & Security Hardening (2024-12-14)
+- **Created `src/lib/user-auth.ts`** - Reusable auth helper to eliminate N+1 queries
+- Added `getAuthenticatedUser()` for combined WorkOS + DB user lookup
+- Added `unauthorizedResponse()`, `forbiddenResponse()`, `notFoundResponse()` helpers
+- Refactored `/api/conversations/[id]/route.ts` to use shared helper
+- Added explicit 403 responses for ownership violations (PATCH/DELETE)
+
+---
+
+## 14. Auth Helper Reference
+
+### `user-auth.ts` (`src/lib/user-auth.ts`)
+
+**Purpose**: Eliminates N+1 user lookup patterns by combining WorkOS authentication and internal database user resolution in a single reusable helper.
+
+#### Exports
+
+| Export | Type | Description |
+|--------|------|-------------|
+| `getAuthenticatedUser()` | `async function` | Returns `AuthResult` or `null` |
+| `unauthorizedResponse()` | `function` | 401 response |
+| `forbiddenResponse(msg?)` | `function` | 403 response |
+| `notFoundResponse(resource?)` | `function` | 404 response |
+
+#### Usage Example
+
+```typescript
+import { getAuthenticatedUser, unauthorizedResponse, forbiddenResponse } from '@/lib/user-auth';
+
+export async function GET(req: NextRequest) {
+    const authResult = await getAuthenticatedUser();
+    
+    if (!authResult) {
+        return unauthorizedResponse();
+    }
+    
+    const { internalUser } = authResult;
+    const data = await SomeService.getData(internalUser.id);
+    
+    if (!data) {
+        return forbiddenResponse('Access denied');
+    }
+    
+    return NextResponse.json(data);
+}
+```
