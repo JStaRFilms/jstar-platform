@@ -1,24 +1,24 @@
 import { z } from 'zod';
 
 // AI SDK Message format validation
+// NOTE: Parts are kept permissive because the AI SDK uses many part types
+// (text, image, tool-call, tool-result, reasoning, file, etc.)
+// Strict validation would break sync for legitimate messages.
 export const MessagePartSchema = z.object({
-    type: z.enum(['text', 'image', 'tool-invocation']),
-    text: z.string().optional(),
-    image: z.string().optional(),
-    toolInvocation: z.any().optional(),
-});
+    type: z.string(), // Permissive - AI SDK has many part types
+}).passthrough(); // Allow any additional properties
 
 export const MessageSchema = z.object({
     id: z.string(),
     role: z.enum(['system', 'user', 'assistant', 'data', 'tool']),
-    content: z.string().optional(), // Simple string content
+    content: z.string().optional().nullable(), // Simple string content (can be null)
     parts: z.array(MessagePartSchema).optional(), // Structured content
     createdAt: z.union([z.string(), z.date()]).optional(),
     metadata: z.record(z.string(), z.any()).optional(),
     // Branching Logic
     parentId: z.string().nullable().optional(),
     childrenIds: z.array(z.string()).optional(),
-});
+}).passthrough(); // Allow additional AI SDK fields we don't explicitly define
 
 // Conversation CRUD schemas
 export const CreateConversationSchema = z.object({
