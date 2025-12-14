@@ -1,8 +1,11 @@
 import { authkitMiddleware } from '@workos-inc/authkit-nextjs';
 
-export default authkitMiddleware({
-    redirectUri: process.env.WORKOS_REDIRECT_URI || 'http://localhost:5782/auth/callback',
-});
+const redirectUri = process.env.WORKOS_REDIRECT_URI;
+if (!redirectUri) {
+    throw new Error('WORKOS_REDIRECT_URI environment variable is required');
+}
+
+export default authkitMiddleware({ redirectUri });
 
 export const config = {
     matcher: [
