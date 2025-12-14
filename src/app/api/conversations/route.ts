@@ -5,6 +5,20 @@ import { z } from 'zod';
 import { withAuth } from '@workos-inc/authkit-nextjs';
 import { prisma } from '@/lib/prisma';
 
+async function getOrCreateDbUser(workosId: string, opts?: { email?: string | null; name?: string | null }) {
+    const existing = await prisma.user.findUnique({ where: { workosId } });
+    if (existing) return existing;
+    // Create with best-available metadata; email must be unique, fall back to placeholder if missing
+    const email = opts?.email ?? `${workosId}@placeholder.local`;
+    return prisma.user.create({
+        data: {
+            workosId,
+            email,
+            name: opts?.name ?? undefined,
+        },
+    });
+}
+
 export async function GET(req: NextRequest) {
     const { user } = await withAuth();
 
@@ -13,10 +27,7 @@ export async function GET(req: NextRequest) {
     }
 
     try {
-        const dbUser = await prisma.user.findUnique({ where: { workosId: user.id } });
-        if (!dbUser) {
-            return NextResponse.json({ error: 'User not found' }, { status: 404 });
-        }
+        const dbUser = await getOrCreateDbUser(user.id, { email: (user as any).email ?? null, name: (user as any).firstName ?? null });
 
         const conversations = await ConversationService.listConversations(dbUser.id);
         return NextResponse.json(conversations);
@@ -37,11 +48,7 @@ export async function POST(req: NextRequest) {
         const body = await req.json();
         // Allow ID to be passed in body for client-side generation
         const data = CreateConversationSchema.extend({ id: z.string().optional() }).parse(body);
-
-        const dbUser = await prisma.user.findUnique({ where: { workosId: user.id } });
-        if (!dbUser) {
-            return NextResponse.json({ error: 'User not found' }, { status: 404 });
-        }
+        const dbUser = await getOrCreateDbUser(user.id, { email: (user as any).email ?? null, name: (user as any).firstName ?? null });
 
         const conversation = await ConversationService.createConversation(dbUser.id, data);
         return NextResponse.json(conversation);

@@ -10,15 +10,7 @@ export class ConversationService {
      * Get a single conversation by ID
      */
     static async getConversation(id: string, userId: string) {
-        const conversation = await prisma.conversation.findUnique({
-            where: { id },
-        });
-
-        if (!conversation || conversation.userId !== userId) {
-            return null;
-        }
-
-        return conversation;
+        return prisma.conversation.findFirst({ where: { id, userId } });
     }
 
     /**
@@ -88,28 +80,29 @@ export class ConversationService {
             selectedModelId?: string;
         }
     ) {
-        // Ideally we check versions here, but for now we just allow last-write-wins
-        // Enforce ownership by filtering on both id and userId using updateMany
-        const result = await prisma.conversation.updateMany({
-            where: { id, userId },
-            data: {
-                title: data.title,
-                messages: data.messages as any,
-                messageCount: data.messages.length,
-                localVersion: data.localVersion,
-                syncedVersion: data.localVersion,
-                personaId: data.personaId,
-                selectedModelId: data.selectedModelId,
-                lastMessageAt: new Date(),
-            },
-        });
-
-        if (result.count === 0) {
-            // Not found or not owned by user
-            throw new Error('Not Found');
+        try {
+            const updated = await prisma.conversation.update({
+                where: { id },
+                data: {
+                    title: data.title,
+                    messages: data.messages as any,
+                    messageCount: data.messages.length,
+                    localVersion: data.localVersion,
+                    syncedVersion: data.localVersion,
+                    personaId: data.personaId,
+                    selectedModelId: data.selectedModelId,
+                    lastMessageAt: new Date(),
+                },
+            });
+            // Ownership is ensured by the route pre-check; if additional safety is required,
+            // switch to a composite unique constraint and filter on both id and userId.
+            return updated;
+        } catch (error) {
+            if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+                throw new Error('Not Found');
+            }
+            throw error;
         }
-
-        return prisma.conversation.findUnique({ where: { id } });
     }
 
     /**

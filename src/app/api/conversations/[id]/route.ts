@@ -6,6 +6,19 @@ import { withAuth } from '@workos-inc/authkit-nextjs';
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
 
+async function getOrCreateDbUser(workosId: string) {
+    const existing = await prisma.user.findUnique({ where: { workosId } });
+    if (existing) return existing;
+    // Create with required defaults. Email is required and must be unique.
+    // Use a deterministic placeholder to satisfy constraints when WorkOS email isn't available here.
+    return prisma.user.create({
+        data: {
+            workosId,
+            email: `${workosId}@placeholder.local`,
+        },
+    });
+}
+
 export async function GET(
     req: NextRequest,
     props: { params: Promise<{ id: string }> }
@@ -19,10 +32,7 @@ export async function GET(
     }
 
     try {
-        const dbUser = await prisma.user.findUnique({ where: { workosId: user.id } });
-        if (!dbUser) {
-            return NextResponse.json({ error: 'User not found' }, { status: 404 });
-        }
+        const dbUser = await getOrCreateDbUser(user.id);
 
         const conversation = await ConversationService.getConversation(id, dbUser.id);
 
@@ -52,9 +62,12 @@ export async function PATCH(
     try {
         const body = await req.json();
         const data = UpdateConversationSchema.parse(body);
-        const dbUser = await prisma.user.findUnique({ where: { workosId: user.id } });
-        if (!dbUser) {
-            return NextResponse.json({ error: 'User not found' }, { status: 404 });
+        const dbUser = await getOrCreateDbUser(user.id);
+
+        // Fail fast if the conversation doesn't exist for this user
+        const exists = await prisma.conversation.findFirst({ where: { id, userId: dbUser.id } });
+        if (!exists) {
+            return NextResponse.json({ error: 'Not Found' }, { status: 404 });
         }
 
         const conversation = await ConversationService.updateConversation(id, dbUser.id, data);
@@ -88,10 +101,7 @@ export async function DELETE(
     }
 
     try {
-        const dbUser = await prisma.user.findUnique({ where: { workosId: user.id } });
-        if (!dbUser) {
-            return NextResponse.json({ error: 'User not found' }, { status: 404 });
-        }
+        const dbUser = await getOrCreateDbUser(user.id);
 
         await ConversationService.deleteConversation(id, dbUser.id);
         return NextResponse.json({ success: true });
