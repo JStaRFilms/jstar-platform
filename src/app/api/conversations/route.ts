@@ -3,6 +3,7 @@ import { ConversationService } from '@/features/john-gpt/services/conversation.s
 import { CreateConversationSchema } from '@/features/john-gpt/schema';
 import { z } from 'zod';
 import { withAuth } from '@workos-inc/authkit-nextjs';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(req: NextRequest) {
     const { user } = await withAuth();
@@ -11,8 +12,17 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const internalUser = await prisma.user.findUnique({
+        where: { workosId: user.id },
+        select: { id: true },
+    });
+
+    if (!internalUser) {
+        return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
     try {
-        const conversations = await ConversationService.listConversations(user.id);
+        const conversations = await ConversationService.listConversations(internalUser.id);
         return NextResponse.json(conversations);
     } catch (error) {
         console.error('Failed to list conversations:', error);
@@ -27,12 +37,21 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const internalUser = await prisma.user.findUnique({
+        where: { workosId: user.id },
+        select: { id: true },
+    });
+
+    if (!internalUser) {
+        return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
     try {
         const body = await req.json();
         // Allow ID to be passed in body for client-side generation
         const data = CreateConversationSchema.extend({ id: z.string().optional() }).parse(body);
 
-        const conversation = await ConversationService.createConversation(user.id, data);
+        const conversation = await ConversationService.createConversation(internalUser.id, data);
         return NextResponse.json(conversation);
     } catch (error) {
         if (error instanceof z.ZodError) {
