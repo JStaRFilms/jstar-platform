@@ -533,22 +533,23 @@ export class DBSyncManager {
                     const cached = await indexedDBClient.getConversation(serverConv.id);
                     const serverTime = new Date(serverConv.updatedAt).getTime();
 
-                    // If not in cache, or server is newer - save to cache
-                    if (!cached || serverTime > new Date(cached.updatedAt).getTime()) {
+                    // If not in cache, or server is newer, or userId is wrong/missing - save to cache
+                    const needsUpdate = !cached ||
+                        serverTime > new Date(cached.updatedAt).getTime() ||
+                        cached.userId !== userId;
+
+                    if (needsUpdate) {
                         const mapped = this.mapApiToCache(serverConv, userId);
                         await this.updateCache(mapped, false);
                         hasChanges = true;
-                        console.log(`[DBSyncManager] Cached conversation: ${serverConv.id} (${serverConv.title})`);
                     }
                 }
             }
 
             // Only notify if there were actual changes (prevents infinite loop)
             if (hasChanges) {
-                console.log('[DBSyncManager] refreshConversationList: Changes found, notifying listeners');
+                console.log(`[DBSyncManager] Synced ${serverConversations.length} conversations from API`);
                 this.notifyListListeners();
-            } else {
-                console.log('[DBSyncManager] refreshConversationList: No changes');
             }
         } catch (e) {
             console.warn('[DBSyncManager] Background refresh failed:', e);

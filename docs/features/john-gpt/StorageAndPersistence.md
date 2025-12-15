@@ -13,16 +13,40 @@ The system uses a three-tier storage strategy:
     *   **Benefit:** Instant load times, offline support, zero latency.
     *   **Library:** `idb` (via `IndexedDBClient`).
 
-2.  **Google Drive (Cloud Backup):**
+2.  **Neon PostgreSQL (Server DB):**
+    *   **Role:** Primary cloud storage for conversations with API sync.
+    *   **Benefit:** Cross-browser sync, persistent storage, real-time availability.
+    *   **Manager:** `DBSyncManager` (`src/lib/storage/db-sync-manager.ts`)
+    *   **Data:** Full conversation metadata and messages stored via Prisma.
+
+3.  **Google Drive (Optional Cloud Backup):**
+    *   **Status:** Backend available but **UI disabled** (2025-12-15).
     *   **Role:** Long-term storage and cross-device sync.
     *   **Benefit:** User owns their data, accessible outside the app.
     *   **Format:** JSON files named `[AI Title] - [8-char ID].json`.
     *   **Library:** Custom `GoogleDriveClient` using Google Drive API v3.
 
-3.  **Neon DB (Metadata):**
-    *   **Role:** Lightweight index for the conversation sidebar.
-    *   **Benefit:** Fast listing of conversations without scanning Drive files.
-    *   **Data:** `id`, `title`, `createdAt`, `updatedAt`, `driveFileId`.
+## 2.1 Current Status (2025-12-15)
+
+### ✅ Working Features
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| **Sidebar loads all conversations** | ✅ Working | Lists all user conversations from DB |
+| **Messages load correctly** | ✅ Working | Full message history displays when opening a conversation |
+| **New conversations save to DB** | ✅ Working | Auto-syncs with 5s debounce |
+| **IndexedDB caching** | ✅ Working | Instant loads, offline support |
+| **Cross-browser sync** | ✅ Working | Conversations sync via Neon PostgreSQL |
+| **AI title generation** | ✅ Working | Triggers after 6 messages |
+| **Conversation deletion** | ✅ Working | Removes from DB and cache |
+| **Offline queue** | ✅ Working | Pending syncs retry when online |
+
+### ⚠️ Known Issues
+
+| Issue | Severity | Ticket |
+|-------|----------|--------|
+| Viewing old conversations updates `updatedAt` timestamp | Low | See `docs/escalation_report_timestamp_issue.md` |
+| Google Drive sync UI disabled | Info | Backend works, UI hidden from sidebar |
 
 ## 3. Key Components
 
@@ -137,5 +161,12 @@ The `MessagePartSchema` (`src/features/john-gpt/schema.ts`) validates AI SDK mes
 
 | Date | Change |
 |------|--------|
+| 2025-12-15 | **FIX:** Sidebar now correctly displays all conversations by adding `userId` mismatch check in `refreshConversationList` |
+| 2025-12-15 | **FIX:** Sync 400 Bad Request error resolved - Zod `.optional()` accepts `undefined` but not `null` |
+| 2025-12-15 | **FIX:** Infinite refresh loop prevented with `isRefreshingList` flag |
+| 2025-12-15 | **FIX:** Individual conversation loading now fetches from API if cache has 0 messages (metadata-only) |
+| 2025-12-15 | Disabled Google Drive sync UI from sidebar (backend still available, UI hidden) |
+| 2025-12-15 | **KNOWN ISSUE:** Viewing old conversations updates their `updatedAt` timestamp - see `docs/escalation_report_timestamp_issue.md` |
 | 2024-12-14 | Hardened `MessagePartSchema` with explicit discriminated union (was `.passthrough()`) |
 | 2024-12-14 | Added ownership checks (403 responses) to `/api/conversations/[id]` |
+
