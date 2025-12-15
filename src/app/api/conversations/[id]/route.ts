@@ -57,7 +57,8 @@ export async function PATCH(
         return NextResponse.json(conversation);
     } catch (error) {
         if (error instanceof z.ZodError) {
-            return NextResponse.json({ error: 'Validation Error', details: (error as any).errors || (error as any).issues }, { status: 400 });
+            console.error('[API] Zod validation error:', JSON.stringify(error.issues, null, 2));
+            return NextResponse.json({ error: 'Validation Error', details: error.issues }, { status: 400 });
         }
         // Handle Prisma "Record not found" error - could be 404 (not exists) or 403 (wrong owner)
         // Since our WHERE clause includes userId, P2025 means either the conversation doesn't exist

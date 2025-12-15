@@ -60,6 +60,7 @@ export class DBSyncManager {
     private isAuthenticated: boolean = false;
     private userId: string | null = null;
     private isDriveConnected: boolean = false;
+    private isRefreshingList: boolean = false;
 
     constructor() {
         if (typeof window !== 'undefined') {
@@ -283,7 +284,8 @@ export class DBSyncManager {
         }
 
         // 3. Background refresh for non-empty cache (stale-while-revalidate)
-        if (this.isOnline && this.isAuthenticated) {
+        // Only if not already refreshing (prevents infinite loop)
+        if (this.isOnline && this.isAuthenticated && !this.isRefreshingList) {
             this.refreshConversationList(userId).catch((error) => {
                 console.warn('[DBSyncManager] Background refresh failed:', error);
             });
@@ -322,14 +324,15 @@ export class DBSyncManager {
     // Private Methods - Helpers
     // ==========================================================================
 
-    private mapApiToCache(apiConv: any): CachedConversation {
+    private mapApiToCache(apiConv: any, overrideUserId?: string): CachedConversation {
         return {
             conversationId: apiConv.id,
-            userId: apiConv.userId,
+            // API list endpoint doesn't return userId, so use override or fallback to manager's userId
+            userId: overrideUserId || apiConv.userId || this.userId,
             title: apiConv.title,
             createdAt: apiConv.createdAt,
             updatedAt: apiConv.updatedAt,
-            messages: apiConv.messages as any[],
+            messages: apiConv.messages as any[] || [],
             lastSyncedAt: Date.now(), // fresh from API
             isDirty: 0,
             localVersion: apiConv.localVersion,
@@ -439,10 +442,20 @@ export class DBSyncManager {
             const payload = {
                 title: cached.title,
                 messages: cleanMessages,
-                personaId: (cached as any).personaId,
-                selectedModelId: (cached as any).selectedModelId,
+                // Zod .optional() accepts undefined but NOT null
+                personaId: (cached as any).personaId ?? undefined,
+                selectedModelId: (cached as any).selectedModelId ?? undefined,
                 localVersion: Number((cached as any).localVersion) || 1, // Force number
             };
+
+            console.log('[DBSyncManager] Sync payload:', {
+                conversationId,
+                title: payload.title,
+                messageCount: payload.messages.length,
+                localVersion: payload.localVersion,
+                personaId: payload.personaId,
+                selectedModelId: payload.selectedModelId,
+            });
 
             let res = await fetch(`/api/conversations/${conversationId}`, {
                 method: 'PATCH',
@@ -494,6 +507,14 @@ export class DBSyncManager {
     }
 
     private async refreshConversationList(userId: string): Promise<void> {
+        // Prevent concurrent/recursive refreshes
+        if (this.isRefreshingList) {
+            console.log('[DBSyncManager] refreshConversationList: Already refreshing, skipping');
+            return;
+        }
+
+        this.isRefreshingList = true;
+
         try {
             console.log('[DBSyncManager] refreshConversationList: Fetching from API...');
             const res = await fetch('/api/conversations');
@@ -505,6 +526,8 @@ export class DBSyncManager {
             const serverConversations = await res.json();
             console.log(`[DBSyncManager] refreshConversationList: API returned ${Array.isArray(serverConversations) ? serverConversations.length : 0} conversations`);
 
+            let hasChanges = false;
+
             if (Array.isArray(serverConversations)) {
                 for (const serverConv of serverConversations) {
                     const cached = await indexedDBClient.getConversation(serverConv.id);
@@ -512,18 +535,25 @@ export class DBSyncManager {
 
                     // If not in cache, or server is newer - save to cache
                     if (!cached || serverTime > new Date(cached.updatedAt).getTime()) {
-                        const mapped = this.mapApiToCache(serverConv);
+                        const mapped = this.mapApiToCache(serverConv, userId);
                         await this.updateCache(mapped, false);
+                        hasChanges = true;
                         console.log(`[DBSyncManager] Cached conversation: ${serverConv.id} (${serverConv.title})`);
                     }
                 }
             }
 
-            // Always notify after refresh so UI updates
-            console.log('[DBSyncManager] refreshConversationList: Complete, notifying listeners');
-            this.notifyListListeners();
+            // Only notify if there were actual changes (prevents infinite loop)
+            if (hasChanges) {
+                console.log('[DBSyncManager] refreshConversationList: Changes found, notifying listeners');
+                this.notifyListListeners();
+            } else {
+                console.log('[DBSyncManager] refreshConversationList: No changes');
+            }
         } catch (e) {
             console.warn('[DBSyncManager] Background refresh failed:', e);
+        } finally {
+            this.isRefreshingList = false;
         }
     }
 
