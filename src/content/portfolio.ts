@@ -13,7 +13,7 @@ export interface PortfolioProject {
   videoUrl?: string; // Full URL for external links
   videoId?: string; // Clean video ID for embeds (YouTube only)
   liveUrl?: string; // For live demos or GitHub repos
-  source: 'manual' | 'youtube';
+  source: 'manual' | 'youtube' | 'instagram' | 'tiktok';
   order?: number; // For manual projects to control display order
   tags: string[];
   category: 'video' | 'web' | 'branding' | 'other';

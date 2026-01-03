@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
+// import Link from 'next/link';
 import { PROFILE_DATA } from '../data/portfolio';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
-import { Code, Video, Youtube, ExternalLink } from 'lucide-react';
+import { Code, Video, Youtube } from 'lucide-react';
 import { HeroImageCarousel } from './HeroImageCarousel';
 
 const HERO_IMAGES = {
@@ -99,13 +99,13 @@ const AboutHero = () => {
                 </span>
               </a>
 
-              <Link
+              {/* <Link
                 href="/portfolio"
                 className="px-8 py-4 rounded-full bg-white/5 border border-white/10 text-white font-medium hover:bg-white/10 backdrop-blur-md transition-all duration-300 flex items-center gap-2 hover:-translate-y-1"
               >
                 View Work
                 <ExternalLink className="w-4 h-4 opacity-50" />
-              </Link>
+              </Link> */}
             </div>
           </div>
 

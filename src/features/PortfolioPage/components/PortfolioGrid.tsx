@@ -1,131 +1,170 @@
 'use client';
 
-import React, { useState } from 'react';
-
-const portfolioItems = [
-  {
-    id: 'wedding1',
-    title: 'The Johnson Wedding',
-    category: 'Wedding',
-    description: 'A cinematic highlight film capturing the joy and emotion of Sarah and Michael\'s special day, featuring drone footage and professional color grading.',
-    tags: ['Drone', '4K', 'Color Grading'],
-    imageUrl: '/placeholder.svg',
-  },
-  {
-    id: 'app1',
-    title: 'TechSummit 2023 App',
-    category: 'App',
-    description: 'A custom mobile application developed for the annual TechSummit conference, featuring schedules, networking tools, and real-time updates.',
-    tags: ['React Native', 'Firebase', 'Real-time'],
-    imageUrl: '/placeholder.svg',
-  },
-  {
-    id: 'event1',
-    title: 'GlobalTech Annual Gala',
-    category: 'Event',
-    description: 'Comprehensive coverage of GlobalTech\'s annual gala event, including keynote speeches, networking sessions, and a professionally edited highlight reel.',
-    tags: ['Multi-Camera', 'Live Streaming', 'Highlight Reel'],
-    imageUrl: '/placeholder.svg',
-  },
-  {
-    id: 'brand1',
-    title: 'Hope Foundation Brand Video',
-    category: 'Brand',
-    description: 'An emotional brand story created for the Hope Foundation, showcasing their mission, impact, and the lives they\'ve changed through compelling storytelling.',
-    tags: ['Narrative', 'Interviews', 'Motion Graphics'],
-    imageUrl: '/placeholder.svg',
-  },
-  {
-    id: 'app2',
-    title: 'FitLife Mobile App',
-    category: 'App',
-    description: 'A comprehensive health and fitness tracking application that helps users achieve their wellness goals with personalized workout plans and progress tracking.',
-    tags: ['React Native', 'HealthKit', 'Personalization'],
-    imageUrl: '/placeholder.svg',
-  },
-  {
-    id: 'wedding2',
-    title: 'The Martinez Wedding',
-    category: 'Wedding',
-    description: 'A full-length documentary style wedding film capturing every moment of Elena and Carlos\'s beautiful ceremony and reception in stunning 4K.',
-    tags: ['Documentary', '4K', 'Cinematic'],
-    imageUrl: '/placeholder.svg',
-  },
-];
+import React, { useState, useEffect } from 'react';
+import { PortfolioProject, manualProjects } from '@/content/portfolio';
+import PortfolioCard from '@/features/HomePage/components/PortfolioCard';
+import PortfolioModal from '@/features/HomePage/components/PortfolioModal';
+import { useScrollAnimationMulti } from '@/hooks/useScrollAnimationMulti';
+import { usePortfolioFilter } from '@/features/HomePage/hooks/usePortfolioFilter';
+import { isMobileDevice } from '@/lib/scrollAnimationUtils';
 
 const PortfolioGrid = () => {
-  const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [lightboxContent, setLightboxContent] = useState({ image: '', caption: '' });
+  const { activeFilter, handleFilterChange } = usePortfolioFilter('all');
+  const [portfolioProjects, setPortfolioProjects] = useState<PortfolioProject[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedProject, setSelectedProject] = useState<PortfolioProject | null>(null);
+  const [initialTime, setInitialTime] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
-  const openLightbox = (image: string, caption: string) => {
-    setLightboxContent({ image, caption });
-    setLightboxOpen(true);
+  // Use scroll animation hook - re-using logic from PortfolioSection
+  // Note: We'll initialize this after data loads
+  const filteredItems = activeFilter === 'all'
+    ? portfolioProjects
+    : portfolioProjects.filter(item => item.category === activeFilter);
+
+  // Scroll animation hook
+  const { refs, visibilityStates } = useScrollAnimationMulti<HTMLDivElement>({
+    count: filteredItems.length,
+    staggerDelay: 100,
+    threshold: 0.1,
+    triggerOnce: true,
+  });
+
+  // Check for mobile device on mount and resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(isMobileDevice());
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+    };
+  }, []);
+
+  // Fetch data
+  useEffect(() => {
+    const fetchPortfolioData = async () => {
+      try {
+        setLoading(true);
+
+        // Fetch unified portfolio data from database
+        const response = await fetch('/api/portfolio?showHidden=true');
+        const data = response.ok ? await response.json() : { projects: [] };
+
+        // data.projects already contains mapped projects sorted by order/date
+        setPortfolioProjects(data.projects);
+      } catch (error) {
+        console.error('Error fetching portfolio data:', error);
+        // Fallback to manual projects only if API fails completely
+        setPortfolioProjects(manualProjects);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPortfolioData();
+  }, []);
+
+  const getTagColor = (tag: string, index: number) => {
+    const colors = [
+      'bg-primary/20 text-primary dark:text-accent',
+      'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300',
+      'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300'
+    ];
+    return colors[index % colors.length];
   };
 
-  const closeLightbox = () => {
-    setLightboxOpen(false);
+  const handleProjectClick = (project: PortfolioProject, startTime: number = 0) => {
+    setSelectedProject(project);
+    setInitialTime(startTime);
+  };
+
+  const closeModal = () => {
+    setSelectedProject(null);
+    setInitialTime(0);
   };
 
   return (
     <>
-      <section className="py-16">
+      <section className="py-16 min-h-screen">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {portfolioItems.map((item) => (
-              <div key={item.id} className="portfolio-item bg-card rounded-2xl overflow-hidden shadow-lg">
-                <div className="portfolio-image">
-                  <div className="h-64 bg-gradient-to-br bg-portfolio-gradient-start to-portfolio-gradient-end flex items-center justify-center">
-                    <div className="text-center text-white">
-                      <div className="w-16 h-16 bg-portfolio-icon rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                        </svg>
-                      </div>
-                      <p className="font-medium text-portfolio-text">{item.title}</p>
-                    </div>
+
+          {/* Loading State */}
+          {loading ? (
+            <div className="flex justify-center items-center py-20 min-h-[400px]">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            <>
+              {/* Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {filteredItems.map((project, index) => (
+                  <div
+                    key={project.id}
+                    ref={refs[index]}
+                    className="h-full"
+                  >
+                    <PortfolioCard
+                      project={project}
+                      onClick={(startTime) => handleProjectClick(project, startTime)}
+                      getTagColor={getTagColor}
+                      forceHover={isMobile && visibilityStates[index]}
+                      isModalOpen={selectedProject?.id === project.id}
+                    />
                   </div>
-                  <div className="portfolio-overlay">
-                    <h3 className="text-xl font-bold text-foreground mb-2">{item.title}</h3>
-                    <p className="text-muted-foreground mb-4">{item.description}</p>
-                    <button onClick={() => openLightbox(item.imageUrl, item.title)} className="px-4 py-2 bg-background text-foreground rounded-lg font-medium hover:bg-muted transition-colors">
-                      View Project
-                    </button>
-                  </div>
-                </div>
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-3">
-                    <h3 className="text-lg font-bold text-foreground">{item.title}</h3>
-                    <span className={`px-2 py-1 bg-accent dark:bg-accent/30 text-accent-foreground rounded text-xs font-medium`}>
-                      {item.category}
-                    </span>
-                  </div>
-                  <p className="text-muted-foreground text-sm mb-4">
-                    {item.description}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {item.tags.map((tag) => (
-                      <span key={tag} className="px-2 py-1 bg-portfolio-tag text-gray-800 dark:text-gray-300 rounded text-xs">{tag}</span>
-                    ))}
-                  </div>
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
-          <div className="text-center mt-12">
-            <button className="px-8 py-4 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-xl font-semibold hover:opacity-90 transition-opacity">
-              Load More Projects
-            </button>
-          </div>
+
+              {/* Empty State */}
+              {filteredItems.length === 0 && (
+                <div className="text-center py-20">
+                  <p className="text-xl text-gray-500 dark:text-gray-400">No projects found in this category.</p>
+                  <button
+                    onClick={() => handleFilterChange('all')}
+                    className="mt-4 text-primary hover:underline"
+                  >
+                    View all projects
+                  </button>
+                </div>
+              )}
+
+              {/* Load More Button - Logic not fully implemented yet, just visual for now if list is huge */}
+              {filteredItems.length > 9 && (
+                <div className="text-center mt-12">
+                  <div className="text-sm text-gray-500 mb-4">Showing all {filteredItems.length} projects</div>
+                </div>
+              )}
+            </>
+          )}
         </div>
       </section>
 
-      {lightboxOpen && (
-        <div id="lightbox" className="lightbox" style={{ display: 'block' }} onClick={closeLightbox}>
-          <span className="absolute top-6 right-6 text-white text-3xl cursor-pointer" onClick={closeLightbox}>&times;</span>
-          <img id="lightbox-img" className="lightbox-content" src={lightboxContent.image} alt={lightboxContent.caption} />
-          <div id="lightbox-caption" className="lightbox-caption">{lightboxContent.caption}</div>
-        </div>
-      )}
+      {/* Portfolio Modal */}
+      <PortfolioModal
+        project={selectedProject}
+        onClose={closeModal}
+        isOpen={selectedProject !== null}
+        initialTime={initialTime}
+        onNext={() => {
+          const currentIndex = filteredItems.findIndex(p => p.id === selectedProject?.id);
+          if (currentIndex < filteredItems.length - 1) {
+            setSelectedProject(filteredItems[currentIndex + 1]);
+            setInitialTime(0);
+          }
+        }}
+        onPrev={() => {
+          const currentIndex = filteredItems.findIndex(p => p.id === selectedProject?.id);
+          if (currentIndex > 0) {
+            setSelectedProject(filteredItems[currentIndex - 1]);
+            setInitialTime(0);
+          }
+        }}
+        hasNext={selectedProject ? filteredItems.findIndex(p => p.id === selectedProject.id) < filteredItems.length - 1 : false}
+        hasPrev={selectedProject ? filteredItems.findIndex(p => p.id === selectedProject.id) > 0 : false}
+      />
     </>
   );
 };

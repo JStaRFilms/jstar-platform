@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { PortfolioProject } from '../../../content/portfolio';
 import { useYouTubePlayer } from '@/hooks/useYouTubePlayer';
 import { PlayCircleIcon, PauseCircleIcon } from '@/components/icons/static-icons';
+import { InstagramEmbed } from '@/components/embeds/InstagramEmbed';
 
 /**
  * Props for the PortfolioModal component.
@@ -19,6 +20,10 @@ interface PortfolioModalProps {
   isOpen: boolean;
   /** Initial start time for the video in seconds. */
   initialTime?: number;
+  onNext?: () => void;
+  onPrev?: () => void;
+  hasNext?: boolean;
+  hasPrev?: boolean;
 }
 
 /**
@@ -40,7 +45,7 @@ const VolumeOffIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const PortfolioModal: React.FC<PortfolioModalProps> = ({ project, onClose, isOpen, initialTime = 0 }) => {
+const PortfolioModal: React.FC<PortfolioModalProps> = ({ project, onClose, isOpen, initialTime = 0, onNext, onPrev, hasNext, hasPrev }) => {
   const [showControls, setShowControls] = useState(false);
 
   // Hook for YouTube Player
@@ -71,6 +76,31 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ project, onClose, isOpe
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
+
+        {/* Navigation Arrows */}
+        {hasPrev && onPrev && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onPrev(); }}
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-50 w-12 h-12 rounded-full bg-black/50 hover:bg-black/70 flex items-center justify-center text-white transition-colors backdrop-blur-sm group/nav"
+            aria-label="Previous Project"
+          >
+            <svg className="w-6 h-6 group-hover/nav:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+        )}
+
+        {hasNext && onNext && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onNext(); }}
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-50 w-12 h-12 rounded-full bg-black/50 hover:bg-black/70 flex items-center justify-center text-white transition-colors backdrop-blur-sm group/nav"
+            aria-label="Next Project"
+          >
+            <svg className="w-6 h-6 group-hover/nav:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        )}
 
         {/* 70% Video Section */}
         <div
@@ -115,6 +145,27 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ project, onClose, isOpe
                 </button>
               </div>
             </>
+          ) : project.source === 'instagram' && project.videoUrl ? (
+            <div className="w-full h-full flex items-center justify-center bg-gray-900 overflow-hidden relative group-hover:bg-black transition-colors">
+              {/* Ambient Background Effect */}
+              <div className="absolute inset-0 z-0 select-none pointer-events-none">
+                <Image
+                  src={project.thumbnailUrl}
+                  alt=""
+                  fill
+                  className="object-cover blur-3xl opacity-40 scale-125"
+                  priority
+                />
+                <div className="absolute inset-0 bg-black/40" />
+              </div>
+
+              {/* Instagram Embed Container */}
+              <div className="relative z-10 w-full h-full flex justify-center items-center p-4">
+                <div className="shadow-2xl rounded-sm overflow-hidden max-h-full overflow-y-auto custom-scrollbar w-full flex justify-center">
+                  <InstagramEmbed key={project.videoUrl} postUrl={project.videoUrl} />
+                </div>
+              </div>
+            </div>
           ) : project.videoUrl ? (
             <video
               className="w-full h-full object-cover"

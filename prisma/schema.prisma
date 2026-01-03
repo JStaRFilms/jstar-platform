@@ -7,7 +7,7 @@ datasource db {
   provider   = "postgresql"
   url        = env("DATABASE_URL")
   directUrl  = env("DIRECT_URL")
-  extensions = [vector]
+  // extensions = [vector]
 }
 
 model ContactSubmission {
@@ -456,7 +456,7 @@ model SiteEmbedding {
   pageUrl      String   @map("page_url")
   pageTitle    String   @map("page_title")
   contentChunk String   @map("content_chunk") @db.Text
-  embedding    Unsupported("vector(768)")
+  // embedding    Unsupported("vector(768)")
   metadata     Json?
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
@@ -475,7 +475,7 @@ model PageNavigation {
   requiredTier UserTier @default(GUEST) // Minimum tier needed to access
   isActive     Boolean  @default(true) // Can toggle on/off without deleting
   priority     Int      @default(0) // Higher priority = preferred in search results
-  embedding    Unsupported("vector(768)")
+  // embedding    Unsupported("vector(768)")
   metadata     Json?    // Extra info: { icon: "📧", keywords: ["email", "reach out"] }
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
@@ -510,7 +510,7 @@ model PageSection {
   order       Int      @default(0)
   
   // Vector embedding for semantic search
-  embedding   Unsupported("vector(768)")
+  // embedding   Unsupported("vector(768)")
   
   // Extra metadata (keywords, icons, etc.)
   metadata    Json?
@@ -607,4 +607,103 @@ model UserModelUsage {
   @@unique([userId, modelId])  // One record per user-model pair
   @@index([userId, usageCount])  // For sorting by most used
   @@map("user_model_usage")
+}
+
+// ============================================
+// PORTFOLIO SYSTEM
+// ============================================
+
+enum PortfolioPlatform {
+  YOUTUBE
+  TIKTOK
+  INSTAGRAM
+  MANUAL
+}
+
+enum PortfolioCategory {
+  VIDEO
+  WEB
+  BRANDING
+  OTHER
+}
+
+model PortfolioItem {
+  id          String   @id @default(cuid())
+  
+  // External IDs
+  externalId  String?  // Platform-specific ID (YouTube video ID, TikTok ID, etc.)
+  platform    PortfolioPlatform
+  
+  // Content
+  title       String
+  description String?  @db.Text
+  aiSummary   String?  @db.Text  // AI-generated summary
+  
+  // Media
+  thumbnailUrl String?
+  mediaUrl     String?  // Direct media URL or embed URL
+  embedHtml    String?  @db.Text  // Pre-generated embed HTML for iframes
+  
+  // Metadata
+  category    PortfolioCategory @default(VIDEO)
+  tags        String[]
+  duration    String?  // "4:32" format
+  views       Int?
+  likes       Int?
+  publishedAt DateTime?
+  
+  // Case Study (optional)
+  hasDetailedCaseStudy Boolean @default(false)
+  challenge   String?  @db.Text
+  solution    String?  @db.Text
+  results     String?  @db.Text
+  liveUrl     String?
+  
+  // Ordering & Visibility
+  displayOrder Int      @default(0)
+  isVisible    Boolean  @default(true)
+  isPinned     Boolean  @default(false)
+  
+  // Cross-platform duplicate tracking
+  duplicateGroupId String?  // Items with same ID are duplicates
+  isPrimaryVersion Boolean @default(true)  // Only show primary version
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  credits     PortfolioCredit[]
+  
+  @@unique([platform, externalId])
+  @@index([platform])
+  @@index([category])
+  @@index([duplicateGroupId])
+  @@map("portfolio_items")
+}
+
+model PortfolioCredit {
+  id            String @id @default(cuid())
+  portfolioItem PortfolioItem @relation(fields: [portfolioItemId], references: [id], onDelete: Cascade)
+  portfolioItemId String
+  
+  name     String
+  role     String
+  linkedin String?
+  website  String?
+  
+  @@index([portfolioItemId])
+  @@map("portfolio_credits")
+}
+
+model PortfolioSyncLog {
+  id        String   @id @default(cuid())
+  platform  PortfolioPlatform
+  status    String   // 'success', 'failed', 'partial'
+  itemsAdded Int     @default(0)
+  itemsUpdated Int   @default(0)
+  errorMessage String?
+  syncedAt  DateTime @default(now())
+
+  @@map("portfolio_sync_logs")
 }

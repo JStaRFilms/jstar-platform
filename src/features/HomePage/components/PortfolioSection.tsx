@@ -238,6 +238,22 @@ const PortfolioSection = () => {
           onClose={closeModal}
           isOpen={selectedProject !== null}
           initialTime={initialTime}
+          onNext={() => {
+            const currentIndex = filteredItems.findIndex(p => p.id === selectedProject?.id);
+            if (currentIndex < filteredItems.length - 1) {
+              setSelectedProject(filteredItems[currentIndex + 1]);
+              setInitialTime(0);
+            }
+          }}
+          onPrev={() => {
+            const currentIndex = filteredItems.findIndex(p => p.id === selectedProject?.id);
+            if (currentIndex > 0) {
+              setSelectedProject(filteredItems[currentIndex - 1]);
+              setInitialTime(0);
+            }
+          }}
+          hasNext={selectedProject ? filteredItems.findIndex(p => p.id === selectedProject.id) < filteredItems.length - 1 : false}
+          hasPrev={selectedProject ? filteredItems.findIndex(p => p.id === selectedProject.id) > 0 : false}
         />
       </div>
     </section>
