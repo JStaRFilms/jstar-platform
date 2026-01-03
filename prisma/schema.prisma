@@ -7,7 +7,7 @@ datasource db {
   provider   = "postgresql"
   url        = env("DATABASE_URL")
   directUrl  = env("DIRECT_URL")
-  // extensions = [vector]
+  extensions = [vector]
 }
 
 model ContactSubmission {
@@ -144,6 +144,9 @@ model User {
   publicPrompts         PublicPrompt[]
   conversations         Conversation[]
   modelUsageStats       UserModelUsage[]   // Track model usage for "most used" sorting
+
+  projects        Project[]          // User projects
+  settings        Json?              // User Dashboard Settings
 
   @@map("users")
 }
@@ -456,7 +459,7 @@ model SiteEmbedding {
   pageUrl      String   @map("page_url")
   pageTitle    String   @map("page_title")
   contentChunk String   @map("content_chunk") @db.Text
-  // embedding    Unsupported("vector(768)")
+  embedding    Unsupported("vector(768)")?
   metadata     Json?
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
@@ -475,7 +478,7 @@ model PageNavigation {
   requiredTier UserTier @default(GUEST) // Minimum tier needed to access
   isActive     Boolean  @default(true) // Can toggle on/off without deleting
   priority     Int      @default(0) // Higher priority = preferred in search results
-  // embedding    Unsupported("vector(768)")
+  embedding    Unsupported("vector(768)")?
   metadata     Json?    // Extra info: { icon: "📧", keywords: ["email", "reach out"] }
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
@@ -510,7 +513,7 @@ model PageSection {
   order       Int      @default(0)
   
   // Vector embedding for semantic search
-  // embedding   Unsupported("vector(768)")
+  embedding   Unsupported("vector(768)")?
   
   // Extra metadata (keywords, icons, etc.)
   metadata    Json?
@@ -706,4 +709,54 @@ model PortfolioSyncLog {
   syncedAt  DateTime @default(now())
 
   @@map("portfolio_sync_logs")
+}
+
+// ============================================
+// SAAS DASHBOARD SYSTEM
+// ============================================
+
+enum ProjectStatus {
+  IDEA
+  DRAFTING
+  POLISHING
+  PUBLISHED
+  ARCHIVED
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  title       String
+  description String?       @db.Text
+  status      ProjectStatus @default(IDEA)
+  
+  // Relations
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chapters    Chapter[]
+  
+  // Metadata
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  @@index([userId])
+  @@index([status])
+  @@map("projects")
+}
+
+model Chapter {
+  id          String   @id @default(cuid())
+  title       String
+  content     Json?    // Structured content or Delta format
+  order       Int      @default(0)
+  isCompleted Boolean  @default(false)
+  
+  // Relations
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([projectId])
+  @@map("chapters")
 }
