@@ -65,8 +65,8 @@ const Footer = () => {
         <div className="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-400 mb-4 md:mb-0">&copy; {currentYear} J StaR Films. All rights reserved.</p>
           <div className="flex space-x-6">
-            <Link href="#" className="text-gray-400 hover:text-white transition-colors">Privacy Policy</Link>
-            <Link href="#" className="text-gray-400 hover:text-white transition-colors">Terms of Service</Link>
+            <Link href="/privacy-policy" className="text-gray-400 hover:text-white transition-colors">Privacy Policy</Link>
+            <Link href="/terms" className="text-gray-400 hover:text-white transition-colors">Terms of Service</Link>
           </div>
         </div>
       </div>
