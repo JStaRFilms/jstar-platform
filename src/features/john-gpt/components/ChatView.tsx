@@ -52,7 +52,7 @@ export function ChatView({ user, className, conversationId: conversationIdProp, 
             // Small delay to allow navigation to complete first
             const timeoutId = setTimeout(() => {
                 if (isFollowMeActive) {
-                    console.log('[ChatView] Clearing follow-me state - arrived at full JohnGPT page');
+                    // console.log('[ChatView] Clearing follow-me state - arrived at full JohnGPT page');
                     deactivateFollowMe();
                 }
             }, 100);
@@ -129,7 +129,7 @@ export function ChatView({ user, className, conversationId: conversationIdProp, 
         if (!isModelInitialized) {
             const stored = localStorage.getItem('johngpt-widget-model');
             if (stored) {
-                console.log('[ChatView] Restored model from localStorage:', stored);
+                // console.log('[ChatView] Restored model from localStorage:', stored);
                 setSelectedModelId(stored);
                 fetchModelName(stored);
             }
@@ -159,7 +159,7 @@ export function ChatView({ user, className, conversationId: conversationIdProp, 
                 if (conversation && conversation.messages.length > 0) {
                     // Hydrate messages into chat
                     setMessages(conversation.messages as any);
-                    console.log('[ChatView] Loaded conversation:', internalConversationId, conversation.messages.length, 'messages');
+                    // console.log('[ChatView] Loaded conversation:', internalConversationId, conversation.messages.length, 'messages');
                 }
             } catch (error) {
                 console.error('[ChatView] Failed to load conversation:', error);
@@ -177,13 +177,13 @@ export function ChatView({ user, className, conversationId: conversationIdProp, 
 
         const loadImportSession = async () => {
             try {
-                console.log('[ChatView] Importing session:', importSessionId);
+                // console.log('[ChatView] Importing session:', importSessionId);
                 const session = await dbSyncManager.loadConversation(importSessionId, { isWidget: true });
 
                 if (session && session.messages.length > 0) {
                     setMessages(session.messages as any);
                     setIsImportBannerVisible(true);
-                    console.log('[ChatView] Imported widget session with', session.messages.length, 'messages');
+                    // console.log('[ChatView] Imported widget session with', session.messages.length, 'messages');
                 }
             } catch (error) {
                 console.error('[ChatView] Failed to import session:', error);
@@ -251,7 +251,7 @@ export function ChatView({ user, className, conversationId: conversationIdProp, 
             const newId = crypto.randomUUID();
             setInternalConversationId(newId);
             currentConversationId = newId;
-            console.log('[ChatView] Generated new conversation ID:', newId);
+            // console.log('[ChatView] Generated new conversation ID:', newId);
         }
 
         // Send message first (don't block on navigation)

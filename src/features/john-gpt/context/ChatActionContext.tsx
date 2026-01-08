@@ -45,7 +45,7 @@ export function ChatActionProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         const spotlight = searchParams.get('spotlight');
         if (spotlight) {
-            console.log('✨ [ChatActionContext] Spotlight param detected:', spotlight);
+            // console.log('✨ [ChatActionContext] Spotlight param detected:', spotlight);
 
             // Clean up the URL by removing the spotlight param
             const newUrl = new URL(window.location.href);
@@ -97,7 +97,7 @@ export function ChatActionProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const navigateTo = useCallback((url: string, options?: { isMobile?: boolean }) => {
-        console.log('🚀 [ChatActionContext] navigateTo called with:', url);
+        // console.log('🚀 [ChatActionContext] navigateTo called with:', url);
         const isMobile = options?.isMobile ?? (typeof window !== 'undefined' && window.innerWidth < 768);
 
         // Minimize chat to show the page being navigated to
@@ -109,7 +109,7 @@ export function ChatActionProvider({ children }: { children: ReactNode }) {
         }));
 
         // Navigate to the URL - use router.push for client-side navigation (preserves state)
-        console.log('🚀 [ChatActionContext] Navigating to:', url);
+        // console.log('🚀 [ChatActionContext] Navigating to:', url);
 
         // Use requestAnimationFrame to ensure state updates settle before navigation
         requestAnimationFrame(() => {
@@ -128,7 +128,7 @@ export function ChatActionProvider({ children }: { children: ReactNode }) {
     const scrollToSection = useCallback((sectionId: string) => {
         const element = document.getElementById(sectionId);
         if (element) {
-            console.log('✨ [ChatActionContext] Scrolling to section:', sectionId);
+            // console.log('✨ [ChatActionContext] Scrolling to section:', sectionId);
 
             // 1. Scroll to element
             element.scrollIntoView({ behavior: 'smooth', block: 'start' });

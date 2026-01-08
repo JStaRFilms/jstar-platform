@@ -84,7 +84,7 @@ export class DBSyncManager {
         // Authenticated if userId exists AND is not anonymous
         this.isAuthenticated = !!userId && !userId.startsWith('anonymous-');
 
-        console.log(`[DBSyncManager] Initialized. User: ${userId || 'Guest'} (Auth: ${this.isAuthenticated}), Online: ${this.isOnline}`);
+        // console.log(`[DBSyncManager] Initialized. User: ${userId || 'Guest'} (Auth: ${this.isAuthenticated}), Online: ${this.isOnline}`);
 
         if (this.isAuthenticated && this.isOnline) {
             this.processOfflineQueue();
@@ -111,7 +111,7 @@ export class DBSyncManager {
             const { accessToken } = await res.json();
             googleDriveClient.setAccessToken(accessToken);
             this.isDriveConnected = true;
-            console.log('[DBSyncManager] Google Drive connected');
+            // console.log('[DBSyncManager] Google Drive connected');
             return true;
         } catch (error) {
             console.warn('[DBSyncManager] Failed to initialize Google Drive:', error);
@@ -141,7 +141,7 @@ export class DBSyncManager {
             };
 
             await googleDriveClient.saveConversation(driveData);
-            console.log(`[DBSyncManager] Backed up ${conversationId} to Drive`);
+            // console.log(`[DBSyncManager] Backed up ${conversationId} to Drive`);
         } catch (error) {
             console.error('[DBSyncManager] Drive backup failed:', error);
         }
