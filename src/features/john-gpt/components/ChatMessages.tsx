@@ -367,7 +367,7 @@ export const ChatMessages = React.memo(function ChatMessages({
                       {message.parts?.map((part: any, index: number) => {
                         // AI SDK returns tool calls as parts with type 'tool-{toolName}'
                         if (part.type === 'tool-navigate' && part.state === 'output-available') {
-                          console.log('🚀 [ChatMessages] Found tool-navigate part:', part);
+                          // console.log('🚀 [ChatMessages] Found tool-navigate part:', part);
                           const result = part.output;
 
                           if (result.action === 'showLoginComponent') {
@@ -408,7 +408,7 @@ export const ChatMessages = React.memo(function ChatMessages({
 
                         // Handle unified goTo tool
                         if (part.type === 'tool-goTo' && part.state === 'output-available') {
-                          console.log('🚀 [ChatMessages] Found tool-goTo part:', part);
+                          // console.log('🚀 [ChatMessages] Found tool-goTo part:', part);
                           const result = part.output;
 
                           if (result.action === 'showLoginComponent') {

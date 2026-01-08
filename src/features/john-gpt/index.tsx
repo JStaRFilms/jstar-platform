@@ -22,7 +22,7 @@ export const JohnGPTFeature = ({ user }: { user?: WorkOSUser | null }) => {
   useEffect(() => {
     if (isFollowMeMode && !isOpen) {
       // Don't auto-open, but the button will pulse to indicate active chat
-      console.log('[JohnGPTFeature] Follow-me mode active, conversation:', activeChat?.state.conversationId);
+      // console.log('[JohnGPTFeature] Follow-me mode active, conversation:', activeChat?.state.conversationId);
     }
   }, [isFollowMeMode, isOpen, activeChat?.state.conversationId]);
 

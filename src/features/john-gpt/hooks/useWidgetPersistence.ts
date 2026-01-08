@@ -113,7 +113,7 @@ export function useWidgetPersistence(
 
                 // Check if IndexedDB is supported
                 if (!indexedDBClient || typeof indexedDB === 'undefined') {
-                    console.log('[useWidgetPersistence] IndexedDB not supported');
+                    // console.log('[useWidgetPersistence] IndexedDB not supported');
                     setIsLoading(false);
                     return;
                 }
@@ -123,10 +123,10 @@ export function useWidgetPersistence(
                 const cachedSession = await dbSyncManager.loadConversation(sessionId, { isWidget: true });
 
                 if (cachedSession && cachedSession.messages && cachedSession.messages.length > 0) {
-                    console.log('[useWidgetPersistence] Loaded session:', sessionId, 'with', cachedSession.messages.length, 'messages');
+                    // console.log('[useWidgetPersistence] Loaded session:', sessionId, 'with', cachedSession.messages.length, 'messages');
                     setInitialMessages(cachedSession.messages);
                 } else {
-                    console.log('[useWidgetPersistence] No existing session found for:', sessionId);
+                    // console.log('[useWidgetPersistence] No existing session found for:', sessionId);
                 }
             } catch (error) {
                 console.error('[useWidgetPersistence] Error loading session:', error);
@@ -143,7 +143,7 @@ export function useWidgetPersistence(
         try {
             await dbSyncManager.deleteConversation(sessionId);
             setInitialMessages([]);
-            console.log('[useWidgetPersistence] Session cleared:', sessionId);
+            // console.log('[useWidgetPersistence] Session cleared:', sessionId);
         } catch (error) {
             console.error('[useWidgetPersistence] Error clearing session:', error);
         }

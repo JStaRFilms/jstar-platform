@@ -93,14 +93,14 @@ function JohnGPTDialogContent({ open, onOpenChange, user, followMeConversationId
         try {
           const conversation = await dbSyncManager.loadConversation(followMeConversationId);
           if (conversation && conversation.messages.length > 0) {
-            console.log('[JohnGPTDialog] Loading follow-me conversation:', followMeConversationId, 'with', conversation.messages.length, 'messages');
+            // console.log('[JohnGPTDialog] Loading follow-me conversation:', followMeConversationId, 'with', conversation.messages.length, 'messages');
             setMessages(conversation.messages as any);
           }
         } catch (error) {
           console.error('[JohnGPTDialog] Failed to load follow-me conversation:', error);
         }
       } else if (!isPersistenceLoading && initialMessages.length > 0 && messages.length === 0) {
-        console.log('[JohnGPTDialog] Loading', initialMessages.length, 'messages from IndexedDB');
+        // console.log('[JohnGPTDialog] Loading', initialMessages.length, 'messages from IndexedDB');
         setMessages(initialMessages);
       }
     };
@@ -140,7 +140,7 @@ function JohnGPTDialogContent({ open, onOpenChange, user, followMeConversationId
   React.useEffect(() => {
     const storedModelId = localStorage.getItem('johngpt-widget-model');
     if (storedModelId) {
-      console.log('[JohnGPTDialog] Inherited model from localStorage:', storedModelId);
+      // console.log('[JohnGPTDialog] Inherited model from localStorage:', storedModelId);
       setInheritedModelId(storedModelId);
     }
   }, []);

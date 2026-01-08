@@ -37,7 +37,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     input.onchange = (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file) {
-        console.log('File selected:', file);
+        // console.log('File selected:', file);
         // TODO: Handle file upload
       }
     };

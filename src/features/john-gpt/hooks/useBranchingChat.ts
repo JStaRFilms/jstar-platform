@@ -51,7 +51,7 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
     const [currentMode, setCurrentMode] = useState<string | null>(null);
 
     // 2. Initialize useChat with currentPath for navigation context
-    console.log('[useBranchingChat] Options received:', { body: options.body, api: options.api, currentPath: pathname });
+    // console.log('[useBranchingChat] Options received:', { body: options.body, api: options.api, currentPath: pathname });
 
     const chatHelpers = useChat({
         ...options,
@@ -76,7 +76,7 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
                             case 'navigate':
                                 // Navigate to page with spotlight effect
                                 setTimeout(() => {
-                                    console.log('[goTo] Navigating to:', result.url);
+                                    // console.log('[goTo] Navigating to:', result.url);
                                     // Add spotlight=page param to trigger page glow on arrival
                                     const separator = result.url.includes('?') ? '&' : '?';
                                     router.push(`${result.url}${separator}spotlight=page`);
@@ -87,7 +87,7 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
                                 // Scroll to section on current page
                                 if (result.sectionId && scrollFn) {
                                     setTimeout(() => {
-                                        console.log('[goTo] Scrolling to:', result.sectionId);
+                                        // console.log('[goTo] Scrolling to:', result.sectionId);
                                         scrollFn(result.sectionId);
                                     }, 500);
                                 }
@@ -96,7 +96,7 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
                             case 'navigateAndScroll':
                                 // Navigate to page, then scroll to section
                                 setTimeout(() => {
-                                    console.log('[goTo] Navigate + Scroll:', result.url, result.sectionId);
+                                    // console.log('[goTo] Navigate + Scroll:', result.url, result.sectionId);
                                     // Add spotlight param with section ID
                                     const sep = result.url.includes('?') ? '&' : '?';
                                     router.push(`${result.url}${sep}spotlight=${result.sectionId}`);
@@ -141,7 +141,7 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
         if (lastMessage.role === 'assistant' && (lastMessage as any).metadata) {
             const mode = (lastMessage as any).metadata.mode;
             if (mode) {
-                console.log('[useBranchingChat] Found mode in metadata:', mode);
+                // console.log('[useBranchingChat] Found mode in metadata:', mode);
                 setCurrentMode(mode);
             }
         }
@@ -290,7 +290,7 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
                     }
                 );
 
-                console.log('[useBranchingChat] Conversation saved to IndexedDB:', conversationId);
+                // console.log('[useBranchingChat] Conversation saved to IndexedDB:', conversationId);
             } catch (error) {
                 console.error('[useBranchingChat] Save failed:', error);
             }
@@ -308,7 +308,7 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
 
         const generateTitle = async () => {
             try {
-                console.log('[useBranchingChat] Generating AI title after 6 messages...');
+                // console.log('[useBranchingChat] Generating AI title after 6 messages...');
 
                 // Convert messages to API format
                 const messagesToSend = messages.map((msg: any) => ({
@@ -329,7 +329,7 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
                 }
 
                 const { title } = await res.json();
-                console.log('[useBranchingChat] AI-generated title:', title);
+                // console.log('[useBranchingChat] AI-generated title:', title);
 
                 // Update via SyncManager
                 const messagesToSave = messages.map((msg: any) => {

@@ -47,7 +47,7 @@ export function ActiveChatProvider({ children }: { children: React.ReactNode }) 
             if (stored) {
                 const parsed = JSON.parse(stored) as ActiveChatState;
                 setState(parsed);
-                console.log('[ActiveChatContext] Hydrated follow-me state:', parsed);
+                // console.log('[ActiveChatContext] Hydrated follow-me state:', parsed);
             }
         } catch (error) {
             console.warn('[ActiveChatContext] Failed to hydrate state:', error);
@@ -70,7 +70,7 @@ export function ActiveChatProvider({ children }: { children: React.ReactNode }) 
     }, [state]);
 
     const activateFollowMe = useCallback((conversationId: string, userId: string) => {
-        console.log('[ActiveChatContext] Activating follow-me mode:', { conversationId, userId });
+        // console.log('[ActiveChatContext] Activating follow-me mode:', { conversationId, userId });
         setState({
             conversationId,
             isFollowMeMode: true,
@@ -79,7 +79,7 @@ export function ActiveChatProvider({ children }: { children: React.ReactNode }) 
     }, []);
 
     const deactivateFollowMe = useCallback(() => {
-        console.log('[ActiveChatContext] Deactivating follow-me mode');
+        // console.log('[ActiveChatContext] Deactivating follow-me mode');
         setState({
             conversationId: null,
             isFollowMeMode: false,

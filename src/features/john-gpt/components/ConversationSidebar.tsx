@@ -90,7 +90,7 @@ export function ConversationSidebar({ user, isDriveConnected, className, activeC
 
         // Subscribe to ANY list changes (Created, Saved, Deleted)
         const unsubscribe = dbSyncManager.onListChange(() => {
-            console.log('[ConversationSidebar] List changed, refreshing...');
+            // console.log('[ConversationSidebar] List changed, refreshing...');
             fetchConversations();
         });
 
@@ -198,7 +198,7 @@ export function ConversationSidebar({ user, isDriveConnected, className, activeC
             // Use DB Sync Manager to delete (Handles Local + API + Drive)
             await dbSyncManager.deleteConversation(deletingId);
 
-            console.log('[ConversationSidebar] Deleted conversation:', deletingId);
+            // console.log('[ConversationSidebar] Deleted conversation:', deletingId);
         } catch (error) {
             console.error('[ConversationSidebar] Delete failed:', error);
         } finally {
