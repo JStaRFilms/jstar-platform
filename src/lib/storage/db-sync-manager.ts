@@ -60,6 +60,7 @@ export class DBSyncManager {
     private isAuthenticated: boolean = false;
     private userId: string | null = null;
     private isDriveConnected: boolean = false;
+    private isRefreshingList: boolean = false;
 
     constructor() {
         if (typeof window !== 'undefined') {
@@ -218,11 +219,15 @@ export class DBSyncManager {
      * Implements "stale-while-revalidate" pattern
      */
     async loadConversation(conversationId: string, options?: { isWidget?: boolean }): Promise<ConversationFile | null> {
+        console.log(`[DBSyncManager] loadConversation called: ${conversationId}, isAuth: ${this.isAuthenticated}, isOnline: ${this.isOnline}`);
+
         // 1. Try IndexedDB first (instant)
         const cached = await indexedDBClient.getConversation(conversationId);
+        const cachedMessageCount = cached?.messages?.length || 0;
+        console.log(`[DBSyncManager] IndexedDB cache result:`, cached ? `Found (${cachedMessageCount} msgs)` : 'Not found');
 
-        if (cached) {
-            // Return cached data immediately
+        // Return cached data ONLY if it has messages (not just metadata from list endpoint)
+        if (cached && cachedMessageCount > 0) {
             // Background: fetch from API and update cache if newer
             if (this.isAuthenticated && !options?.isWidget) {
                 this.revalidateFromApi(conversationId, cached.updatedAt).catch((error) => {
@@ -232,17 +237,14 @@ export class DBSyncManager {
             return cached;
         }
 
-        // 2. No cache - fetch from API
-        // Widget sessions shouldn't be pulled from API? 
-        // If user is authenticated, widget history IS chat history?
-        // Usually widget has separate session unless "Open in JohnGPT".
-        // If `isWidget` is true, we might want to skip API if API doesn't store widget sessions.
-        // Assuming API stores everything if `userId` matches.
+        // 2. No cache OR cached has no messages (metadata-only from list) - fetch from API
         if (!this.isOnline || !this.isAuthenticated) {
+            console.log(`[DBSyncManager] Skipping API fetch: online=${this.isOnline}, auth=${this.isAuthenticated}`);
             return null; // Can't fetch offline or if guest
         }
 
         try {
+            console.log(`[DBSyncManager] Fetching from API: /api/conversations/${conversationId}`);
             const res = await fetch(`/api/conversations/${conversationId}`);
             if (!res.ok) {
                 if (res.status === 404) return null;
@@ -250,11 +252,13 @@ export class DBSyncManager {
             }
 
             const conversation = await res.json();
+            console.log(`[DBSyncManager] API returned conversation with ${conversation.messages?.length || 0} messages`);
 
             // Transform API response to CachedConversation
             const mapped = this.mapApiToCache(conversation);
             await this.updateCache(mapped, false);
 
+            console.log(`[DBSyncManager] Conversation cached and returning:`, mapped.messages?.length || 0, 'messages');
             return mapped;
         } catch (error) {
             console.error('[DBSyncManager] Failed to load from API:', error);
@@ -264,13 +268,24 @@ export class DBSyncManager {
 
     /**
      * List all conversations (from cache + API)
+     * If cache is empty and authenticated, fetches from API first (fresh window scenario)
      */
     async listConversations(userId: string): Promise<CachedConversation[]> {
         // 1. Get from cache (instant)
         const cached = await indexedDBClient.listConversations(userId);
 
-        // 2. Background: refresh from API
-        if (this.isOnline && this.isAuthenticated) {
+        // 2. If cache is empty and we're online+authenticated, await API fetch first
+        //    This handles the "new browser window" scenario where IndexedDB is empty
+        if (cached.length === 0 && this.isOnline && this.isAuthenticated) {
+            console.log('[DBSyncManager] Cache empty, fetching from API...');
+            await this.refreshConversationList(userId);
+            // Return the now-populated cache
+            return await indexedDBClient.listConversations(userId);
+        }
+
+        // 3. Background refresh for non-empty cache (stale-while-revalidate)
+        // Only if not already refreshing (prevents infinite loop)
+        if (this.isOnline && this.isAuthenticated && !this.isRefreshingList) {
             this.refreshConversationList(userId).catch((error) => {
                 console.warn('[DBSyncManager] Background refresh failed:', error);
             });
@@ -309,14 +324,15 @@ export class DBSyncManager {
     // Private Methods - Helpers
     // ==========================================================================
 
-    private mapApiToCache(apiConv: any): CachedConversation {
+    private mapApiToCache(apiConv: any, overrideUserId?: string): CachedConversation {
         return {
             conversationId: apiConv.id,
-            userId: apiConv.userId,
+            // API list endpoint doesn't return userId, so use override or fallback to manager's userId
+            userId: overrideUserId || apiConv.userId || this.userId,
             title: apiConv.title,
             createdAt: apiConv.createdAt,
             updatedAt: apiConv.updatedAt,
-            messages: apiConv.messages as any[],
+            messages: apiConv.messages as any[] || [],
             lastSyncedAt: Date.now(), // fresh from API
             isDirty: 0,
             localVersion: apiConv.localVersion,
@@ -426,10 +442,20 @@ export class DBSyncManager {
             const payload = {
                 title: cached.title,
                 messages: cleanMessages,
-                personaId: (cached as any).personaId,
-                selectedModelId: (cached as any).selectedModelId,
+                // Zod .optional() accepts undefined but NOT null
+                personaId: (cached as any).personaId ?? undefined,
+                selectedModelId: (cached as any).selectedModelId ?? undefined,
                 localVersion: Number((cached as any).localVersion) || 1, // Force number
             };
+
+            console.log('[DBSyncManager] Sync payload:', {
+                conversationId,
+                title: payload.title,
+                messageCount: payload.messages.length,
+                localVersion: payload.localVersion,
+                personaId: payload.personaId,
+                selectedModelId: payload.selectedModelId,
+            });
 
             let res = await fetch(`/api/conversations/${conversationId}`, {
                 method: 'PATCH',
@@ -481,27 +507,24 @@ export class DBSyncManager {
     }
 
     private async refreshConversationList(userId: string): Promise<void> {
+        // Prevent concurrent/recursive refreshes
+        if (this.isRefreshingList) {
+            console.log('[DBSyncManager] refreshConversationList: Already refreshing, skipping');
+            return;
+        }
+
+        this.isRefreshingList = true;
+
         try {
+            console.log('[DBSyncManager] refreshConversationList: Fetching from API...');
             const res = await fetch('/api/conversations');
-            if (!res.ok) return;
-            // The API returns { conversations: [...] } or just [...] depending on implementation.
-            // Based on sidebar code: { conversations: [...] } 
-            // Wait, previous Sidebar code used `data.conversations`.
-            // Let's verify API route return type.
-            // API route returns `NextResponse.json(conversations)` which is an array.
-            // Wait, Sidebar code `const data = await res.json(); const transformed = data.conversations...`
-            // Let's check api/conversations/route.ts again.
-            // It returns `NextResponse.json(conversations)`.
-            // So it IS an array directly.
-            // Sidebar code I replaced was `const data = await res.json(); // ... data.conversations.map ...`
-            // Wait, if API returns array, `data.conversations` would be undefined.
-            // Let me check my memory or previous file read of route.ts.
-            // route.ts: `return NextResponse.json(conversations);` -> Array.
-            // Sidebar original code: `const data = await res.json(); setConversations(data.conversations...` 
-            // This suggests the Sidebar code MIGHT HAVE BEEN BROKEN or I misread route.ts.
-            // Let's assume API returns Array based on route.ts code `const conversations = ... findMany ... return json(conversations)`.
+            if (!res.ok) {
+                console.warn('[DBSyncManager] refreshConversationList: API returned', res.status);
+                return;
+            }
 
             const serverConversations = await res.json();
+            console.log(`[DBSyncManager] refreshConversationList: API returned ${Array.isArray(serverConversations) ? serverConversations.length : 0} conversations`);
 
             let hasChanges = false;
 
@@ -510,20 +533,28 @@ export class DBSyncManager {
                     const cached = await indexedDBClient.getConversation(serverConv.id);
                     const serverTime = new Date(serverConv.updatedAt).getTime();
 
-                    // If not in cache, or server is newer
-                    if (!cached || serverTime > new Date(cached.updatedAt).getTime()) {
-                        const mapped = this.mapApiToCache(serverConv);
+                    // If not in cache, or server is newer, or userId is wrong/missing - save to cache
+                    const needsUpdate = !cached ||
+                        serverTime > new Date(cached.updatedAt).getTime() ||
+                        cached.userId !== userId;
+
+                    if (needsUpdate) {
+                        const mapped = this.mapApiToCache(serverConv, userId);
                         await this.updateCache(mapped, false);
                         hasChanges = true;
                     }
                 }
             }
 
+            // Only notify if there were actual changes (prevents infinite loop)
             if (hasChanges) {
+                console.log(`[DBSyncManager] Synced ${serverConversations.length} conversations from API`);
                 this.notifyListListeners();
             }
         } catch (e) {
             console.warn('[DBSyncManager] Background refresh failed:', e);
+        } finally {
+            this.isRefreshingList = false;
         }
     }
 
