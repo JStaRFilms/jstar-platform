@@ -3,6 +3,21 @@ import { ConversationService } from '@/features/john-gpt/services/conversation.s
 import { CreateConversationSchema } from '@/features/john-gpt/schema';
 import { z } from 'zod';
 import { withAuth } from '@workos-inc/authkit-nextjs';
+import { prisma } from '@/lib/prisma';
+
+async function getOrCreateDbUser(workosId: string, opts?: { email?: string | null; name?: string | null }) {
+    const existing = await prisma.user.findUnique({ where: { workosId } });
+    if (existing) return existing;
+    // Create with best-available metadata; email must be unique, fall back to placeholder if missing
+    const email = opts?.email ?? `${workosId}@placeholder.local`;
+    return prisma.user.create({
+        data: {
+            workosId,
+            email,
+            name: opts?.name ?? undefined,
+        },
+    });
+}
 
 export async function GET(req: NextRequest) {
     const { user } = await withAuth();
@@ -12,7 +27,9 @@ export async function GET(req: NextRequest) {
     }
 
     try {
-        const conversations = await ConversationService.listConversations(user.id);
+        const dbUser = await getOrCreateDbUser(user.id, { email: (user as any).email ?? null, name: (user as any).firstName ?? null });
+
+        const conversations = await ConversationService.listConversations(dbUser.id);
         return NextResponse.json(conversations);
     } catch (error) {
         console.error('Failed to list conversations:', error);
@@ -31,8 +48,9 @@ export async function POST(req: NextRequest) {
         const body = await req.json();
         // Allow ID to be passed in body for client-side generation
         const data = CreateConversationSchema.extend({ id: z.string().optional() }).parse(body);
+        const dbUser = await getOrCreateDbUser(user.id, { email: (user as any).email ?? null, name: (user as any).firstName ?? null });
 
-        const conversation = await ConversationService.createConversation(user.id, data);
+        const conversation = await ConversationService.createConversation(dbUser.id, data);
         return NextResponse.json(conversation);
     } catch (error) {
         if (error instanceof z.ZodError) {
