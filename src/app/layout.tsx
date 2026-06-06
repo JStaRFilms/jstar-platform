@@ -37,7 +37,19 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user } = await withAuth();
+  let user = null;
+
+  try {
+    const auth = await withAuth();
+    user = auth.user;
+  } catch (error) {
+    if (typeof error === 'object' && error !== null && 'digest' in error && error.digest === 'DYNAMIC_SERVER_USAGE') {
+      throw error;
+    }
+
+    console.warn('[WorkOS] Auth is unavailable; rendering public layout without a signed-in user.', error);
+  }
+
   const authButton = user ? <UserButton user={user} /> : <SignInButton />;
 
   return (

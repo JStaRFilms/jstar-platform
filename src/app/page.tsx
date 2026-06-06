@@ -3,6 +3,7 @@ import HeroSection from "@/features/HomePage/components/HeroSection";
 import AboutSection from "@/features/HomePage/components/AboutSection";
 import ServicesSection from "@/features/HomePage/components/ServicesSection";
 import PortfolioSection from "@/features/HomePage/components/PortfolioSection";
+import AiBuildWall from "@/features/HomePage/components/AiBuildWall";
 import ProcessSection from "@/features/HomePage/components/ProcessSection";
 import PricingSection from "@/features/HomePage/components/PricingSection";
 import TestimonialsSection from "@/features/HomePage/components/TestimonialsSection";
@@ -18,6 +19,7 @@ export default function HomePage() {
       <AboutSection />
       <ServicesSection />
       <PortfolioSection />
+      <AiBuildWall compact />
       <ProcessSection />
       <PricingSection />
       <TestimonialsSection />
