@@ -9,7 +9,17 @@ export async function SignInButton() {
 
     // Encode current URL in state parameter
     const state = encodeURIComponent(currentUrl);
-    const signInUrl = await getSignInUrl({ state });
+    let signInUrl = '/auth/callback';
+
+    try {
+        signInUrl = await getSignInUrl({ state });
+    } catch (error) {
+        if (typeof error === 'object' && error !== null && 'digest' in error && error.digest === 'DYNAMIC_SERVER_USAGE') {
+            throw error;
+        }
+
+        console.warn('[WorkOS] Sign-in URL unavailable; auth is not configured for this environment.', error);
+    }
 
     return (
         <Link

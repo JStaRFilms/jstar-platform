@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { MenuIcon, CloseIcon, SunIcon, MoonIcon, UserIcon, VideoCameraIcon, FilmIcon, PenFancyIcon, GiftIcon, EnvelopeIcon } from '@/components/icons';
+import { MenuIcon, CloseIcon, SunIcon, MoonIcon, UserIcon, VideoCameraIcon, FilmIcon, CodeIcon, PenFancyIcon, GiftIcon, EnvelopeIcon } from '@/components/icons';
 import { useSmartNavigation } from '@/hooks/useSmartNavigation';
 import Tooltip from '@/components/ui/Tooltip';
 
@@ -73,6 +73,7 @@ const Header: React.FC<HeaderProps> = ({ authButton }) => {
     { href: '/about', label: 'About', icon: UserIcon },
     { href: '/services', label: 'Services', icon: VideoCameraIcon },
     { href: '/portfolio', label: 'Portfolio', icon: FilmIcon },
+    { href: '/ai-builds', label: 'AI Builds', icon: CodeIcon },
     { href: '/blog', label: 'Blog', icon: PenFancyIcon },
     { href: '/store', label: 'Store', icon: GiftIcon },
     { href: '/contact', label: 'Contact', icon: EnvelopeIcon }
