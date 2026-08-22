@@ -148,6 +148,11 @@ export function ChatView({ user, className, conversationId: conversationIdProp, 
         // Context is now auto-detected server-side from the Referer header
     });
 
+    // Keep messagesRef in sync with messages (for revalidation guard)
+    useEffect(() => {
+        messagesRef.current = messages;
+    }, [messages]);
+
     // Load conversation on mount if conversationId exists
     useEffect(() => {
         if (!internalConversationId || messages.length > 0 || importSessionId) return;
@@ -168,6 +173,31 @@ export function ChatView({ user, className, conversationId: conversationIdProp, 
 
         loadExistingConversation();
     }, [internalConversationId, loadConversation, setMessages, messages.length, importSessionId]);
+
+    // Listen for server revalidation updates (when another browser synced newer data)
+    // IMPORTANT: Only update if server has MORE messages - prevents clearing during active chat
+    useEffect(() => {
+        if (!internalConversationId) return;
+
+        const handleRevalidated = (event: CustomEvent<{ conversationId: string; messages: any[] }>) => {
+            if (event.detail.conversationId === internalConversationId) {
+                const serverMsgCount = event.detail.messages?.length || 0;
+                const localMsgCount = messagesRef.current?.length || 0;
+
+                // Only update if server has MORE messages (another browser added messages)
+                // If server has fewer or equal, ignore (we're actively chatting)
+                if (serverMsgCount > localMsgCount) {
+                    console.log(`[ChatView] Server has more messages (${serverMsgCount} > ${localMsgCount}), updating`);
+                    setMessages(event.detail.messages as any);
+                } else {
+                    console.log(`[ChatView] Ignoring revalidation - local has more (${localMsgCount} >= ${serverMsgCount})`);
+                }
+            }
+        };
+
+        window.addEventListener('conversation-revalidated', handleRevalidated as EventListener);
+        return () => window.removeEventListener('conversation-revalidated', handleRevalidated as EventListener);
+    }, [internalConversationId, setMessages]);
 
     // Handle Import Session Logic
     const [isImportBannerVisible, setIsImportBannerVisible] = React.useState(false);

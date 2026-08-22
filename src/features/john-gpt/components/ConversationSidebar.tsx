@@ -247,8 +247,8 @@ export function ConversationSidebar({ user, isDriveConnected, className, activeC
                 </button>
             </div>
 
-            {/* Drive Connection Status */}
-            {!isDriveConnected ? (
+            {/* Google Drive sync disabled - not currently used */}
+            {/* {!isDriveConnected ? (
                 <div className="px-4 pt-4">
                     <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl">
                         <p className="text-xs text-blue-600 dark:text-blue-400 mb-2 font-medium">
@@ -285,7 +285,7 @@ export function ConversationSidebar({ user, isDriveConnected, className, activeC
                         </button>
                     </div>
                 </div>
-            )}
+            )} */}
 
             {/* Search */}
             <div className="px-4 pt-4 pb-2">
