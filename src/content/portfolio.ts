@@ -117,5 +117,48 @@ export const manualProjects: PortfolioProject[] = [
       { name: 'John Oluleke-Oke', role: 'Lead Developer' }
     ],
     publishedAt: '2024-03-10T00:00:00Z'
+  },
+
+  // --- Project 4: MindGuard AI ---
+  {
+    id: 'mindguard-ai',
+    title: 'MindGuard AI: Offline Mental Wellness',
+    description: 'Privacy-first desktop app for mental wellness tracking featuring local ONNX neural inference for completely offline sentiment analysis.',
+    thumbnailUrl: '/portfolio/thumbnails/blink-logo.png',
+    liveUrl: 'https://github.com/JStaRFilms/MindGuard-AI',
+    source: 'manual',
+    order: 4,
+    tags: ['Electron', 'React', 'Python', 'ONNX', 'Local AI'],
+    category: 'web',
+    hasDetailedCaseStudy: true,
+    challenge: 'Users are hesitant to journal sensitive emotional thoughts into cloud-based AI systems that monetize their data.',
+    solution: 'Designed an offline-first desktop application with an embedded ONNX runtime to run sentiment analysis locally with zero network telemetry.',
+    results: 'Shipped a privacy-preserving desktop application that runs 100% offline with zero cloud latency.',
+    credits: [
+      { name: 'John Oluleke-Oke', role: 'Lead Architect' }
+    ],
+    publishedAt: '2024-02-15T00:00:00Z'
+  },
+
+  // --- Project 5: Winning Worship Way ---
+  {
+    id: 'winning-worship-way-broadcast',
+    title: 'Winning Worship Way: Multi-Camera Broadcast & Media',
+    description: 'Directing live multi-camera broadcast production and weekly post-production workflows that elevated audience engagement.',
+    thumbnailUrl: '/me/mobile-cam.jpg',
+    videoUrl: 'https://youtube.com/@winningworshipway',
+    source: 'manual',
+    order: 5,
+    tags: ['Broadcast', 'Live Streaming', 'DaVinci Resolve', 'Cinematography'],
+    category: 'video',
+    hasDetailedCaseStudy: true,
+    challenge: 'Transforming a weekly live worship broadcast into a cinematic, high-retention video production that reaches an international audience.',
+    solution: 'Implemented a streamlined multi-camera switching pipeline, real-time audio mastering, and DaVinci Resolve color grading presets.',
+    results: 'Consistent weekly broadcast delivery with measurable growth in online viewer engagement and community retention.',
+    credits: [
+      { name: 'John Oluleke-Oke', role: 'Media Director & Broadcast Lead' }
+    ],
+    publishedAt: '2023-11-20T00:00:00Z'
   }
 ];
+

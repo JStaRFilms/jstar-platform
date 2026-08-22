@@ -192,8 +192,8 @@ const Header: React.FC<HeaderProps> = ({ authButton }) => {
             key={item.href}
             type="button"
             aria-label={`Scroll to ${item.href.replace('/', '')}`}
-            className={`text-foreground hover:text-jstar-blue transition-colors focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10 rounded-md px-2 py-1 text-sm font-medium ${isActive
-              ? 'text-jstar-blue font-semibold'
+            className={`text-foreground hover:text-chartreuse transition-colors focus:outline-none focus:ring-2 focus:ring-chartreuse focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10 rounded-md px-2 py-1 text-sm font-medium ${isActive
+              ? 'text-chartreuse font-semibold'
               : ''
               }`}
             aria-current={isActive ? 'page' : undefined}
@@ -215,8 +215,8 @@ const Header: React.FC<HeaderProps> = ({ authButton }) => {
       <Link
         key={item.href}
         href={item.href}
-        className={`text-foreground hover:text-jstar-blue transition-colors focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10 rounded-md px-2 py-1 text-sm font-medium ${isActive
-          ? 'text-jstar-blue font-semibold'
+        className={`text-foreground hover:text-chartreuse transition-colors focus:outline-none focus:ring-2 focus:ring-chartreuse focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10 rounded-md px-2 py-1 text-sm font-medium ${isActive
+          ? 'text-chartreuse font-semibold'
           : ''
           }`}
         aria-current={isActive ? 'page' : undefined}
@@ -230,30 +230,32 @@ const Header: React.FC<HeaderProps> = ({ authButton }) => {
     <>
       {/* Premium Glassmorphism Header - Ultra Compact */}
       <nav
-        className="fixed top-0 w-full z-50 glassmorphism-header border-b border-white/20 dark:border-white/10 transition-all duration-300"
+        className="fixed top-0 w-full z-50 glassmorphism-header bg-ink-black/80 backdrop-blur-md border-b border-powder-blue/15 transition-all duration-300"
         role="navigation"
         aria-label="Main navigation"
         onKeyDown={handleKeyDown}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-12">
+          <div className="flex justify-between items-center h-14">
             {/* Logo - Compact */}
             <div className="flex items-center">
               {pathname === '/' ? (
                 <button
                   onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                  className="text-xl font-bold bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10 rounded-md px-2 py-1"
+                  className="text-xl font-extrabold tracking-tight text-ghost-white hover:text-chartreuse transition-colors focus:outline-none rounded-md px-2 py-1 flex items-center gap-1.5"
                   aria-label="Scroll to top"
                 >
-                  J StaR Films
+                  <span className="w-2 h-2 rounded-full bg-chartreuse animate-pulse" />
+                  <span>J StaR <span className="text-chartreuse">Studios</span></span>
                 </button>
               ) : (
                 <Link
                   href="/"
-                  className="text-xl font-bold bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10 rounded-md px-2 py-1"
-                  aria-label="J StaR Films homepage"
+                  className="text-xl font-extrabold tracking-tight text-ghost-white hover:text-chartreuse transition-colors focus:outline-none rounded-md px-2 py-1 flex items-center gap-1.5"
+                  aria-label="J StaR Studios homepage"
                 >
-                  J StaR Films
+                  <span className="w-2 h-2 rounded-full bg-chartreuse animate-pulse" />
+                  <span>J StaR <span className="text-chartreuse">Studios</span></span>
                 </Link>
               )}
             </div>
@@ -270,7 +272,7 @@ const Header: React.FC<HeaderProps> = ({ authButton }) => {
               {/* Theme Toggle - Desktop */}
               <button
                 onClick={toggleTheme}
-                className="hidden md:flex p-1.5 rounded-lg bg-white/10 dark:bg-black/10 backdrop-blur-sm text-foreground hover:bg-white/20 dark:hover:bg-black/20 transition-all focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10"
+                className="hidden md:flex p-1.5 rounded-lg bg-card border border-powder-blue/20 text-powder-blue hover:text-chartreuse transition-all focus:outline-none"
                 aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
                 aria-pressed={theme === 'dark'}
               >
@@ -287,16 +289,16 @@ const Header: React.FC<HeaderProps> = ({ authButton }) => {
               {/* JohnGPT Button - Desktop Only */}
               <Link
                 href="/john-gpt"
-                className="hidden md:flex btn-enhanced px-3 py-1.5 bg-gradient-to-r from-jstar-blue to-faith-purple text-white rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10 items-center justify-center"
+                className="hidden md:flex px-4 py-1.5 bg-chartreuse text-ink-black rounded-full font-bold text-xs shadow-glow-chartreuse hover:bg-chartreuse/90 transition-all items-center justify-center"
                 aria-label="Open JohnGPT assistant interface"
               >
-                Meet JohnGPT
+                JohnGPT AI
               </Link>
 
               {/* Mobile Menu Toggle */}
               <button
                 onClick={toggleMobileMenu}
-                className="md:hidden p-1.5 rounded-lg bg-white/10 dark:bg-black/10 backdrop-blur-sm text-foreground hover:bg-white/20 dark:hover:bg-black/20 transition-all focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10"
+                className="md:hidden p-1.5 rounded-lg bg-card border border-powder-blue/20 text-ghost-white hover:text-chartreuse transition-all focus:outline-none"
                 aria-label={mobileMenu.isOpen ? 'Close mobile menu' : 'Open mobile menu'}
                 aria-expanded={mobileMenu.isOpen}
                 aria-controls="mobile-menu"

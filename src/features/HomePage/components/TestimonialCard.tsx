@@ -1,52 +1,58 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
-import { StarIcon } from '../../../components/icons/static-icons';
+import { Star, Quote } from 'lucide-react';
 import type { Testimonial } from '../../../content/testimonials';
 
 interface TestimonialCardProps {
   testimonial: Testimonial;
 }
 
-const TestimonialCard: React.FC<TestimonialCardProps> = ({ testimonial }) => {
+export const TestimonialCard: React.FC<TestimonialCardProps> = ({ testimonial }) => {
   return (
-    <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6 md:p-8 h-full transform transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
-      <div className="flex items-center mb-4 md:mb-6">
-        <div className="w-12 h-12 md:w-16 md:h-16 rounded-full overflow-hidden mr-3 md:mr-4 border-2 border-primary/20 dark:border-accent/30 flex-shrink-0">
-          <Image
-            src={testimonial.authorImage}
-            alt={testimonial.authorName}
-            width={64}
-            height={64}
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div className="min-w-0">
-          <h4 className="text-base md:text-lg font-bold text-gray-900 dark:text-white truncate">
-            {testimonial.authorName}
-          </h4>
-          <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 truncate">
-            {testimonial.authorRole}
-          </p>
-          <div className="flex text-amber-400 mt-1">
-            <StarIcon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
-            <span className="ml-1 text-xs md:text-sm text-gray-700 dark:text-gray-300">5.0</span>
+    <div className="bg-card border border-powder-blue/15 hover:border-chartreuse/50 rounded-3xl p-8 h-full flex flex-col justify-between transition-all duration-300 relative group shadow-lg">
+      <Quote className="absolute top-6 right-6 w-8 h-8 text-powder-blue/10 group-hover:text-chartreuse/20 transition-colors pointer-events-none" />
+
+      <div>
+        <div className="flex items-center gap-4 mb-6">
+          <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-chartreuse/40 flex-shrink-0 relative">
+            <Image
+              src={testimonial.authorImage}
+              alt={testimonial.authorName}
+              fill
+              className="object-cover"
+            />
+          </div>
+          <div className="min-w-0">
+            <h4 className="text-base font-bold text-ghost-white truncate">
+              {testimonial.authorName}
+            </h4>
+            <p className="text-xs text-powder-blue/80 truncate">
+              {testimonial.authorRole}
+            </p>
+            <div className="flex items-center gap-1 text-chartreuse mt-1">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className="w-3 h-3 fill-current" />
+              ))}
+            </div>
           </div>
         </div>
+
+        <p className="text-sm text-powder-blue/90 leading-relaxed italic">
+          "{testimonial.quote}"
+        </p>
       </div>
-      <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 italic">
-        "{testimonial.quote}"
-      </p>
-      <div className="mt-4 md:mt-6 pt-4 md:pt-6 border-t border-gray-200 dark:border-gray-700">
-        <div className="flex flex-wrap gap-2">
-          {testimonial.tags.map((tag) => (
-            <span
-              key={tag}
-              className="px-2 py-0.5 md:px-3 md:py-1 bg-primary/10 dark:bg-accent/20 text-primary dark:text-accent text-xs font-medium rounded-full"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
+
+      <div className="mt-6 pt-4 border-t border-powder-blue/10 flex flex-wrap gap-1.5">
+        {testimonial.tags.map((tag) => (
+          <span
+            key={tag}
+            className="px-2.5 py-0.5 rounded-full bg-ink-black border border-powder-blue/10 text-powder-blue font-mono text-[10px]"
+          >
+            {tag}
+          </span>
+        ))}
       </div>
     </div>
   );

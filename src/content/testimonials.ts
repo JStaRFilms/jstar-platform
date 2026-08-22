@@ -9,9 +9,9 @@ export interface Testimonial {
 
 export const testimonials: Testimonial[] = [
   {
-    quote: "I love how he brings my vision to life in the best way possible. He's corroborative, attentive and open to correction. Love the end results always.",
+    quote: "I love how he brings my vision to life in the best way possible. He's collaborative, attentive and open to correction. Love the end results always.",
     authorName: "Sharon",
-    authorRole: "Influencer, Sharon's Chronicles",
+    authorRole: "Creator, Sharon's Chronicles",
     authorImage: "/testimonials/sharon.jpg",
     tags: ["Video Editing", "Channel Management"],
   },

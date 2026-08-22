@@ -1,160 +1,88 @@
-import React, { useState, useRef, useEffect } from 'react';
+'use client';
+
+import React from 'react';
 import Image from 'next/image';
 import { PortfolioProject } from '../../../content/portfolio';
-import { PlayCircleIcon, ArrowRightIcon } from '../../../components/icons/static-icons';
-import { useYouTubePlayer } from '@/hooks/useYouTubePlayer';
+import { Play, ArrowUpRight, Github, ExternalLink } from 'lucide-react';
 
 interface PortfolioCardProps {
   project: PortfolioProject;
   onClick: (startTime?: number) => void;
-  getTagColor: (tag: string, index: number) => string;
+  getTagColor?: (tag: string, index: number) => string;
   forceHover?: boolean;
   isModalOpen?: boolean;
 }
 
-const PortfolioCard: React.FC<PortfolioCardProps> = ({ project, onClick, getTagColor, forceHover = false, isModalOpen = false }) => {
-  const [isHovered, setIsHovered] = useState(false);
-  const [showVideo, setShowVideo] = useState(false);
-  const [lastPosition, setLastPosition] = useState(0);
-  const playerContainerRef = useRef<HTMLDivElement>(null);
-  const positionInterval = useRef<NodeJS.Timeout | null>(null);
-  const hasInitialized = useRef(false);
-
-  // Determine if we should play the video
-  const shouldPlay = (isHovered || forceHover) && project.category === 'video' && !!project.videoId && !isModalOpen;
-
-  // Delay video mounting to avoid flickering on quick hovers
-  useEffect(() => {
-    let timeout: NodeJS.Timeout;
-    if (shouldPlay) {
-      timeout = setTimeout(() => setShowVideo(true), 300);
-    } else {
-      setShowVideo(false);
-      hasInitialized.current = false; // Reset when video unmounts
-    }
-    return () => clearTimeout(timeout);
-  }, [shouldPlay]);
-
-  const { isReady, getCurrentTime, pause, seekTo, mute } = useYouTubePlayer({
-    videoId: showVideo ? project.videoId || '' : '',
-    elementId: `portfolio-card-player-${project.id}`,
-    autoPlay: true,
-    // Don't pass startTime here - it causes player to reinitialize every second!
-  });
-
-  // Mute the preview video ONLY on initial mount
-  useEffect(() => {
-    if (isReady && showVideo && !hasInitialized.current) {
-      hasInitialized.current = true;
-      // Small delay to ensure all player methods are available
-      const timer = setTimeout(() => {
-        mute();
-        // Only seek if we have a saved position > 0
-        if (lastPosition > 0) {
-          seekTo(lastPosition);
-        }
-      }, 100);
-
-      return () => clearTimeout(timer);
-    }
-  }, [isReady, showVideo, mute, seekTo]); // Removed lastPosition from dependencies
-
-  // Track playback position every second
-  useEffect(() => {
-    if (showVideo && isReady) {
-      positionInterval.current = setInterval(() => {
-        const currentPos = getCurrentTime();
-        setLastPosition(currentPos);
-      }, 1000);
-    } else {
-      if (positionInterval.current) {
-        clearInterval(positionInterval.current);
-        positionInterval.current = null;
-      }
-    }
-
-    return () => {
-      if (positionInterval.current) {
-        clearInterval(positionInterval.current);
-      }
-    };
-  }, [showVideo, isReady, getCurrentTime]);
-
-  // Stop video when modal opens
-  useEffect(() => {
-    if (isModalOpen && showVideo && isReady) {
-      const currentPos = getCurrentTime();
-      setLastPosition(currentPos);
-      pause();
-    }
-  }, [isModalOpen, showVideo, isReady, pause, getCurrentTime]);
-
-  const handleCardClick = () => {
-    const currentTime = showVideo && isReady ? getCurrentTime() : lastPosition;
-    onClick(currentTime);
-  };
+export const PortfolioCard: React.FC<PortfolioCardProps> = ({ project, onClick }) => {
+  const isVideo = project.category === 'video';
 
   return (
     <div
-      className="portfolio-item group relative overflow-hidden rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 h-full flex flex-col"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onClick={() => onClick(0)}
+      data-cursor
+      data-cursor-text={isVideo ? 'PLAY' : 'VIEW'}
+      className="group relative h-full flex flex-col justify-between rounded-3xl bg-card border border-powder-blue/15 hover:border-chartreuse/60 transition-all duration-500 overflow-hidden cursor-pointer shadow-lg hover:shadow-glow-chartreuse"
     >
-      <div
-        className={`aspect-[4/3] overflow-hidden cursor-pointer relative ${project.category === 'video'
-          ? 'bg-gradient-to-br from-primary to-accent'
-          : project.category === 'web'
-            ? 'bg-gradient-to-br from-blue-500 to-cyan-400'
-            : 'bg-gradient-to-br from-purple-500 to-pink-500'
-          }`}
-        onClick={handleCardClick}
-      >
-        {/* Video Player Container */}
-        {showVideo && (
-          <div className="absolute inset-0 z-10 bg-black overflow-hidden">
-            <div
-              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[177.77%] h-full"
-            >
-              <div id={`portfolio-card-player-${project.id}`} className="w-full h-full" />
-            </div>
-            {/* Interaction overlay to capture clicks since iframe might block them */}
-            <div className="absolute inset-0 z-20 bg-transparent" onClick={handleCardClick} />
-          </div>
-        )}
-
+      {/* Thumbnail Container */}
+      <div className="relative w-full h-56 bg-ink-black overflow-hidden">
         <Image
-          src={project.thumbnailUrl}
+          src={project.thumbnailUrl || '/me/cam.jpg'}
           alt={project.title}
           fill
-          className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${forceHover ? 'scale-110' : ''
-            } ${showVideo && isReady ? 'opacity-0' : 'opacity-100'}`}
+          className="object-cover transition-transform duration-700 group-hover:scale-105 opacity-85 group-hover:opacity-100"
         />
+        <div className="absolute inset-0 bg-gradient-to-t from-card via-card/40 to-transparent" />
 
-        <div
-          className={`absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent transition-opacity duration-300 flex flex-col justify-end p-6 ${forceHover || isHovered ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-            } z-30 pointer-events-none`}
-        >
-          <div className={`transition-transform duration-300 ${forceHover || isHovered ? 'translate-y-0' : 'translate-y-4 group-hover:translate-y-0'
-            }`}>
-            <div className="flex flex-wrap gap-2 mb-3">
-              {project.tags.map((tag, index) => (
-                <span key={tag} className={`px-3 py-1 text-xs font-medium rounded-full ${getTagColor(tag, index)}`}>
-                  {tag}
-                </span>
-              ))}
-            </div>
-            <h3 className="text-xl font-bold text-white mb-2">{project.title}</h3>
-            <p className="text-gray-200 text-sm line-clamp-2">{project.description}</p>
-          </div>
+        {/* Category Pill Tag */}
+        <div className="absolute top-4 left-4 z-10">
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-mono font-bold tracking-wider uppercase bg-ink-black/80 border border-powder-blue/20 text-powder-blue">
+            {project.category === 'video' ? '🎬 Film / Media' : '💻 Software / AI'}
+          </span>
         </div>
-        {project.category === 'video' && !showVideo && (
-          <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${forceHover || isHovered ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-            } z-30`}>
-            <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-              <PlayCircleIcon className="w-8 h-8 text-white" />
+
+        {/* Play icon overlay for videos */}
+        {isVideo && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="w-12 h-12 rounded-full bg-chartreuse/90 text-ink-black flex items-center justify-center transform group-hover:scale-110 transition-transform shadow-lg">
+              <Play className="w-5 h-5 fill-current ml-0.5" />
             </div>
           </div>
         )}
+      </div>
+
+      {/* Card Body */}
+      <div className="p-6 sm:p-7 flex-1 flex flex-col justify-between">
+        <div>
+          <h3 className="text-xl font-bold text-ghost-white mb-2 group-hover:text-chartreuse transition-colors">
+            {project.title}
+          </h3>
+          <p className="text-sm text-powder-blue/80 line-clamp-2 leading-relaxed mb-4">
+            {project.description}
+          </p>
+
+          {/* Tags */}
+          <div className="flex flex-wrap gap-1.5 mb-6">
+            {project.tags.slice(0, 4).map((tag, idx) => (
+              <span
+                key={idx}
+                className="px-2.5 py-0.5 rounded-md font-mono text-[10px] bg-ink-black border border-powder-blue/10 text-powder-blue/90"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Footer Action */}
+        <div className="pt-4 border-t border-powder-blue/10 flex items-center justify-between">
+          <span className="text-xs font-mono text-powder-blue/60">
+            {project.hasDetailedCaseStudy ? 'Read Case Study' : 'View Project'}
+          </span>
+          <div className="flex items-center gap-1 text-chartreuse font-mono text-xs font-bold group-hover:translate-x-0.5 transition-transform">
+            <span>Explore</span>
+            <ArrowUpRight className="w-4 h-4" />
+          </div>
+        </div>
       </div>
     </div>
   );
