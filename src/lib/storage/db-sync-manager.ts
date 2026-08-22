@@ -328,7 +328,7 @@ export class DBSyncManager {
         return {
             conversationId: apiConv.id,
             // API list endpoint doesn't return userId, so use override or fallback to manager's userId
-            userId: overrideUserId || apiConv.userId || this.userId,
+            userId: overrideUserId ?? apiConv.userId ?? this.userId!,
             title: apiConv.title,
             createdAt: apiConv.createdAt,
             updatedAt: apiConv.updatedAt,
@@ -463,9 +463,10 @@ export class DBSyncManager {
                 body: JSON.stringify(payload)
             });
 
-            if (res.status === 404) {
-                // Conversation doesn't exist on server -> Create it with POST
-                // We must include the ID to preserve the client-generated UUID
+            // 404 = not found, 403 = P2025 (not found OR wrong owner)
+            // For new conversations, PATCH will fail - fall back to POST
+            if (res.status === 404 || res.status === 403) {
+                console.log(`[DBSyncManager] PATCH returned ${res.status}, creating new conversation with POST`);
                 res = await fetch(`/api/conversations`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -500,6 +501,14 @@ export class DBSyncManager {
                 const mapped = this.mapApiToCache(data);
                 await this.updateCache(mapped, false);
                 this.emitSyncEvent(conversationId, 'synced'); // Updated from server
+
+                // Notify UI that fresh data is available - ChatView can listen to update messages
+                if (typeof window !== 'undefined') {
+                    console.log('[DBSyncManager] Server has newer data, dispatching conversation-revalidated event');
+                    window.dispatchEvent(new CustomEvent('conversation-revalidated', {
+                        detail: { conversationId, messages: mapped.messages }
+                    }));
+                }
             }
         } catch (e) {
             // ignore
@@ -523,26 +532,52 @@ export class DBSyncManager {
                 return;
             }
 
+            // Runtime validation: ensure response is a valid array and not too large
             const serverConversations = await res.json();
-            console.log(`[DBSyncManager] refreshConversationList: API returned ${Array.isArray(serverConversations) ? serverConversations.length : 0} conversations`);
+            if (!Array.isArray(serverConversations)) {
+                console.warn('[DBSyncManager] refreshConversationList: Invalid response format, expected array');
+                return;
+            }
+            if (serverConversations.length > 1000) {
+                console.warn('[DBSyncManager] refreshConversationList: Response too large, potential attack');
+                return;
+            }
+            console.log(`[DBSyncManager] refreshConversationList: API returned ${serverConversations.length} conversations`);
 
             let hasChanges = false;
 
-            if (Array.isArray(serverConversations)) {
-                for (const serverConv of serverConversations) {
-                    const cached = await indexedDBClient.getConversation(serverConv.id);
-                    const serverTime = new Date(serverConv.updatedAt).getTime();
+            // Build set of server conversation IDs for fast lookup
+            const serverIds = new Set(serverConversations.map((c: any) => c.id));
 
-                    // If not in cache, or server is newer, or userId is wrong/missing - save to cache
-                    const needsUpdate = !cached ||
-                        serverTime > new Date(cached.updatedAt).getTime() ||
-                        cached.userId !== userId;
+            for (const serverConv of serverConversations) {
+                const cached = await indexedDBClient.getConversation(serverConv.id);
+                const serverTime = new Date(serverConv.updatedAt).getTime();
 
-                    if (needsUpdate) {
-                        const mapped = this.mapApiToCache(serverConv, userId);
-                        await this.updateCache(mapped, false);
-                        hasChanges = true;
-                    }
+                // If not in cache, or server is newer, or userId is wrong/missing - save to cache
+                const needsUpdate = !cached ||
+                    serverTime > new Date(cached.updatedAt).getTime() ||
+                    cached.userId !== userId;
+
+                if (needsUpdate) {
+                    const mapped = this.mapApiToCache(serverConv, userId);
+                    await this.updateCache(mapped, false);
+                    hasChanges = true;
+                }
+            }
+
+            // Remove local conversations that don't exist on server (were deleted elsewhere)
+            // IMPORTANT: Only delete if isDirty === 0 (already synced before)
+            // If isDirty === 1, it's a NEW conversation that hasn't synced yet - DON'T DELETE IT!
+            const localConversations = await indexedDBClient.listConversations(userId);
+            for (const local of localConversations) {
+                // Note: local uses conversationId, but server uses id - both refer to the same thing
+                const localId = (local as any).conversationId || (local as any).id;
+                const wasAlreadySynced = local.isDirty === 0;
+
+                if (local.userId === userId && !serverIds.has(localId) && wasAlreadySynced) {
+                    console.log(`[DBSyncManager] Removing locally cached conversation ${localId} (deleted on server)`);
+                    await indexedDBClient.deleteConversation(localId);
+                    hasChanges = true;
                 }
             }
 

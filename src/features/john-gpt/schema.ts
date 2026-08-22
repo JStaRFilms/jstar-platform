@@ -41,7 +41,7 @@ const ToolResultPartSchema = z.object({
     type: z.literal('tool-result'),
     toolCallId: z.string(),
     toolName: z.string(),
-    result: z.any(),
+    result: z.unknown(), // Safer than z.any() - requires explicit type narrowing
     isError: z.boolean().optional(),
 });
 
@@ -67,12 +67,17 @@ const StepPartSchema = z.object({
     type: z.union([z.literal('step-start'), z.literal('step-finish')]),
 });
 
+/** Catch-all for unknown part types (AI SDK evolves faster than we can update) */
+const UnknownPartSchema = z.object({
+    type: z.string(),
+}).passthrough();
+
 /**
- * Discriminated union of all known AI SDK message part types.
- * Unknown part types will fail validation, protecting against malformed
- * or malicious data being stored in the database.
+ * Union of known AI SDK message part types with fallback for unknown types.
+ * We use a regular union instead of discriminatedUnion to allow catch-all.
+ * Known types are validated strictly, unknown types are passed through.
  */
-export const MessagePartSchema = z.discriminatedUnion('type', [
+export const MessagePartSchema = z.union([
     TextPartSchema,
     ImagePartSchema,
     FilePartSchema,
@@ -81,19 +86,23 @@ export const MessagePartSchema = z.discriminatedUnion('type', [
     ReasoningPartSchema,
     SourcePartSchema,
     StepPartSchema,
+    UnknownPartSchema, // Catch-all - must be last
 ]);
 
 export const MessageSchema = z.object({
     id: z.string(),
     role: z.enum(['system', 'user', 'assistant', 'data', 'tool']),
-    content: z.string().optional().nullable(), // Simple string content (can be null)
+    content: z.string().nullable().optional(), // Fixed: nullable() first for correct TS inference
     parts: z.array(MessagePartSchema).optional(), // Structured content
     createdAt: z.union([z.string(), z.date()]).optional(),
     metadata: z.record(z.string(), z.any()).optional(),
     // Branching Logic
     parentId: z.string().nullable().optional(),
     childrenIds: z.array(z.string()).optional(),
-}).passthrough(); // Allow additional AI SDK fields we don't explicitly define
+    // AI SDK fields that must be preserved for rendering
+    toolInvocations: z.array(z.any()).optional(),
+    experimental_attachments: z.array(z.any()).optional(),
+}).passthrough(); // Required: AI SDK adds runtime fields we can't predict
 
 // Conversation CRUD schemas
 export const CreateConversationSchema = z.object({

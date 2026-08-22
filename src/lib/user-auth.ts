@@ -36,25 +36,33 @@ export interface AuthResult {
  * ```
  */
 export async function getAuthenticatedUser(): Promise<AuthResult | null> {
-    const { user: workosUser } = await withAuth();
+    try {
+        const { user: workosUser } = await withAuth();
 
-    if (!workosUser) {
+        if (!workosUser) {
+            return null;
+        }
+
+        const internalUser = await prisma.user.findUnique({
+            where: { workosId: workosUser.id },
+            select: { id: true, workosId: true },
+        });
+
+        if (!internalUser) {
+            // Log for debugging - WorkOS user exists but no internal user record
+            console.warn(`[Auth] WorkOS user ${workosUser.id} has no internal user record`);
+            return null;
+        }
+
+        return {
+            internalUser,
+            workosUser,
+        };
+    } catch (error) {
+        // Log and gracefully return null to prevent API route crashes
+        console.error('[Auth] Authentication failed:', error);
         return null;
     }
-
-    const internalUser = await prisma.user.findUnique({
-        where: { workosId: workosUser.id },
-        select: { id: true, workosId: true },
-    });
-
-    if (!internalUser) {
-        return null;
-    }
-
-    return {
-        internalUser,
-        workosUser,
-    };
 }
 
 /**

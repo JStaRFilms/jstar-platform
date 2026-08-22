@@ -140,12 +140,20 @@ The `MessagePartSchema` (`src/features/john-gpt/schema.ts`) validates AI SDK mes
 | `image` | `image: string`, `mimeType?: string` |
 | `file` | `data: string`, `mimeType: string` |
 | `tool-call` | `toolCallId`, `toolName`, `args` |
-| `tool-result` | `toolCallId`, `toolName`, `result`, `isError?` |
+| `tool-result` | `toolCallId`, `toolName`, `result: unknown`, `isError?` |
 | `reasoning` | `reasoning: string` |
 | `source` | `source: { sourceType, id, url?, title? }` |
 | `step-start/finish` | *(no additional fields)* |
 
-> **Note:** If new AI SDK part types are added, update the discriminated union in `schema.ts`.
+### Message-Level Fields
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `toolInvocations` | `any[]` | AI SDK runtime field |
+| `experimental_attachments` | `any[]` | AI SDK experimental feature |
+
+> [!IMPORTANT]
+> **Do NOT remove `.passthrough()`** from `MessageSchema`. The AI SDK adds runtime fields that we cannot predict. Removing `.passthrough()` will strip these fields and break chat persistence.
 
 ---
 
@@ -161,6 +169,14 @@ The `MessagePartSchema` (`src/features/john-gpt/schema.ts`) validates AI SDK mes
 
 | Date | Change |
 |------|--------|
+| 2025-12-15 | **FIX:** Real-time sync - ChatView now listens for `conversation-revalidated` event when server has newer data |
+| 2025-12-15 | **FIX:** New conversations now sync - PATCH fallback to POST on 403 (not just 404) |
+| 2025-12-15 | **FIX:** Unknown message part types handled - added catch-all `UnknownPartSchema` |
+| 2025-12-15 | **FIX:** Auth error handling - added try-catch and logging to `getAuthenticatedUser()` |
+| 2025-12-15 | **FIX:** API response validation in `refreshConversationList` - prevents poisoned data |
+| 2025-12-15 | **FIX:** Schema nullable type - `content` now uses `z.string().nullable().optional()` |
+| 2025-12-15 | **FIX:** ToolResultPartSchema uses `z.unknown()` instead of `z.any()` |
+| 2025-12-15 | **REVERTED:** Kept `.passthrough()` on MessageSchema - removing it broke chat (stripped AI SDK fields) |
 | 2025-12-15 | **FIX:** Sidebar now correctly displays all conversations by adding `userId` mismatch check in `refreshConversationList` |
 | 2025-12-15 | **FIX:** Sync 400 Bad Request error resolved - Zod `.optional()` accepts `undefined` but not `null` |
 | 2025-12-15 | **FIX:** Infinite refresh loop prevented with `isRefreshingList` flag |
