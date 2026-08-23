@@ -28,10 +28,11 @@ export default function ConditionalLayout({ children, authButton, user }: Condit
     };
   }, [startScrollBlur]);
 
-  // Don't show header/footer on admin pages or JohnGPT pages
+  // Don't show header/footer on admin pages, JohnGPT pages, or V2 standalone experience
   const isAdminPage = pathname?.startsWith('/admin');
   const isJohnGPTPage = pathname?.startsWith('/john-gpt');
-  const shouldShowGlobalNav = !isAdminPage && !isJohnGPTPage;
+  const isV2Page = pathname?.startsWith('/v2') || pathname?.startsWith('/21st-dev');
+  const shouldShowGlobalNav = !isAdminPage && !isJohnGPTPage && !isV2Page;
 
   // Don't add padding to homepage since it has its own padding
   const isHomePage = pathname === '/';
