@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>J StaR — Creative Technology Studio | Viewfinder Interface</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- GSAP CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              ink: '#001514',      // Deep Obsidian Green-Black
+              lime: '#B5E619',     // Chartreuse / Electric Lime
+              toffee: '#8E592F',   // Warm Toffee Amber Brown
+              powder: '#AFC2D5',   // Frosted Powder Blue
+              white: '#FBFFFE',    // Crisp Moonlight White
+            }
+          },
+          fontFamily: {
+            mono: ['JetBrains Mono', 'Fira Code', 'Courier New', 'monospace'],
+            sans: ['Cabinet Grotesk', 'Inter', 'system-ui', 'sans-serif'],
+            serif: ['Instrument Serif', 'Playfair Display', 'serif'],
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@300;400;500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+    
+    body {
+      background-color: #001514;
+      color: #FBFFFE;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+    }
+    
+    .font-serif-italic {
+      font-family: 'Instrument Serif', serif;
+      font-style: italic;
+    }
+    
+    .font-mono-tech {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Custom Scanlines & Cinema Grain Overlay */
+    .cinema-overlay {
+      background: radial-gradient(circle at 50% 50%, rgba(181, 230, 25, 0.03) 0%, rgba(0, 21, 20, 0.8) 100%),
+                  linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                  linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+      background-size: 100% 100%, 100% 4px, 6px 100%;
+      pointer-events: none;
+    }
+
+    /* Custom Cursor */
+    .custom-cursor {
+      pointer-events: none;
+      transition: transform 0.15s ease-out, width 0.2s ease, height 0.2s ease, border-color 0.2s ease;
+      transform: translate(-50%, -50%);
+    }
+
+    /* Glow Utilities */
+    .glow-lime {
+      box-shadow: 0 0 35px -5px rgba(181, 230, 25, 0.35);
+    }
+    .glow-toffee {
+      box-shadow: 0 0 30px -5px rgba(142, 89, 47, 0.4);
+    }
+    .text-glow-lime {
+      text-shadow: 0 0 20px rgba(181, 230, 25, 0.5);
+    }
+
+    /* Glass Panels */
+    .glass-hud {
+      background: rgba(0, 21, 20, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(175, 194, 213, 0.12);
+    }
+
+    /* Audio wave animation */
+    @keyframes wavePulse {
+      0%, 100% { height: 4px; }
+      50% { height: 22px; }
+    }
+    .audio-bar {
+      animation: wavePulse 1.2s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="relative selection:bg-brand-lime selection:text-brand-ink">
+
+  <!-- Interactive Background Canvas (WebGL Neural Field) -->
+  <canvas id="neuralCanvas" class="fixed inset-0 pointer-events-none z-0 opacity-40"></canvas>
+
+  <!-- Cinema HUD Viewfinder Frame (Fixed Ambient Overlay) -->
+  <div class="cinema-overlay fixed inset-0 z-40 pointer-events-none"></div>
+
+  <!-- HUD Viewfinder Fixed Framing Marks -->
+  <div class="fixed inset-0 z-30 pointer-events-none p-4 md:p-8 flex flex-col justify-between">
+    <!-- Top HUD Bar -->
+    <div class="flex items-center justify-between font-mono-tech text-[11px] tracking-wider text-brand-powder/60">
+      <div class="flex items-center space-x-3">
+        <span class="inline-flex items-center space-x-1.5 px-2 py-0.5 rounded bg-brand-ink/80 border border-brand-powder/20">
+          <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+          <span class="text-brand-white font-bold tracking-widest">LIVE REC</span>
+        </span>
+        <span class="hidden sm:inline">RAW 4K // 23.976 FPS</span>
+        <span class="text-brand-lime font-semibold">ISO 800</span>
+      </div>
+      <div class="flex items-center space-x-4">
+        <span id="timecodeDisplay" class="text-brand-lime font-mono">00:00:00:00</span>
+        <span class="hidden md:inline text-brand-powder/40">ANAMORPHIC 1.33X</span>
+      </div>
+    </div>
+
+    <!-- Center Screen Framing Targets -->
+    <div class="w-full flex justify-between items-center opacity-30 text-brand-lime font-mono-tech text-xs">
+      <div class="w-4 h-4 border-l border-t border-brand-lime"></div>
+      <div class="w-4 h-4 border-r border-t border-brand-lime"></div>
+    </div>
+    <div class="w-full flex justify-between items-center opacity-30 text-brand-lime font-mono-tech text-xs">
+      <div class="w-4 h-4 border-l border-b border-brand-lime"></div>
+      <div class="w-4 h-4 border-r border-b border-brand-lime"></div>
+    </div>
+
+    <!-- Bottom HUD Bar -->
+    <div class="flex items-center justify-between font-mono-tech text-[11px] tracking-wider text-brand-powder/60">
+      <div class="flex items-center space-x-3">
+        <span class="text-brand-lime">35mm f/1.4</span>
+        <span class="hidden sm:inline">SHUTTER 1/48</span>
+        <span class="text-brand-toffee font-medium">LOG // 10-BIT 4:2:2</span>
+      </div>
+      <!-- Ambient Audio Meter Visualizer -->
+      <div class="flex items-end space-x-1 h-6">
+        <span class="w-0.5 bg-brand-lime audio-bar" style="animation-delay: 0.1s"></span>
+        <span class="w-0.5 bg-brand-lime audio-bar" style="animation-delay: 0.4s"></span>
+        <span class="w-0.5 bg-brand-lime audio-bar" style="animation-delay: 0.2s"></span>
+        <span class="w-0.5 bg-brand-lime audio-bar" style="animation-delay: 0.6s"></span>
+        <span class="w-0.5 bg-brand-lime audio-bar" style="animation-delay: 0.3s"></span>
+        <span class="w-0.5 bg-brand-lime audio-bar" style="animation-delay: 0.5s"></span>
+        <span class="text-[10px] ml-1 text-brand-powder/50">CH 1/2</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Contextual Cursor -->
+  <div id="customCursor" class="custom-cursor fixed w-8 h-8 rounded-full border border-brand-lime/70 z-50 pointer-events-none flex items-center justify-center text-[9px] font-mono-tech text-brand-lime">
+    <div class="w-1.5 h-1.5 bg-brand-lime rounded-full"></div>
+  </div>
+
+  <!-- Master Site Wrapper -->
+  <div class="relative z-10 min-h-screen flex flex-col">
+
+    <!-- Top Sticky Header Navigation -->
+    <header class="sticky top-0 z-40 w-full px-6 lg:px-12 py-4 flex items-center justify-between glass-hud border-b border-brand-powder/10">
+      <div class="flex items-center space-x-4">
+        <a href="#hero" class="flex items-center space-x-2.5 group">
+          <div class="w-8 h-8 rounded-md bg-brand-lime text-brand-ink flex items-center justify-center font-bold font-mono-tech text-base tracking-tighter group-hover:scale-105 transition-transform">
+            J★
+          </div>
+          <div class="flex flex-col">
+            <span class="font-bold text-sm tracking-tight text-brand-white group-hover:text-brand-lime transition-colors">J StaR</span>
+            <span class="font-mono-tech text-[9px] text-brand-powder/60 uppercase tracking-widest">Creative Tech Studio</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="hidden md:flex items-center space-x-8 font-mono-tech text-xs tracking-wider text-brand-powder/80">
+        <a href="#manifesto" class="hover:text-brand-lime transition-colors">01// MANIFESTO</a>
+        <a href="#triad" class="hover:text-brand-lime transition-colors">02// CAPABILITIES</a>
+        <a href="#work" class="hover:text-brand-lime transition-colors">03// SELECTED WORK</a>
+        <a href="#founder" class="hover:text-brand-lime transition-colors">04// THE FOUNDER</a>
+        <a href="#contact" class="hover:text-brand-lime transition-colors">05// INTAKE</a>
+      </nav>
+
+      <!-- Quick Action CTA -->
+      <div class="flex items-center space-x-3">
+        <button onclick="toggleAudio()" id="audioBtn" class="p-2 rounded-full glass-hud text-brand-powder/70 hover:text-brand-lime hover:border-brand-lime/40 transition-all text-xs" title="Toggle Cinematic Soundscape">
+          <i data-lucide="volume-2" class="w-4 h-4"></i>
+        </button>
+        <a href="#contact" class="px-4 py-2 rounded-md bg-brand-lime text-brand-ink font-bold font-mono-tech text-xs tracking-wider uppercase hover:bg-brand-white transition-all glow-lime flex items-center space-x-1.5">
+          <span>Start Project</span>
+          <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+        </a>
+      </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section id="hero" class="relative min-h-[90vh] flex flex-col justify-center px-6 lg:px-16 pt-12 pb-20 max-w-7xl mx-auto w-full">
+      <!-- Ambient Studio Pill -->
+      <div class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full glass-hud border border-brand-lime/30 w-fit mb-6 animate-pulse">
+        <span class="w-1.5 h-1.5 rounded-full bg-brand-lime"></span>
+        <span class="font-mono-tech text-[11px] text-brand-lime tracking-widest uppercase">FILM · SOFTWARE · ARTIFICIAL INTELLIGENCE</span>
+      </div>
+
+      <!-- Hero Headline -->
+      <h1 class="text-4xl sm:text-6xl lg:text-8xl font-extrabold tracking-tight leading-[1.03] text-brand-white mb-6">
+        We build things <br />
+        <span class="font-serif-italic font-normal text-brand-lime text-glow-lime">worth watching.</span>
+      </h1>
+
+      <p class="max-w-2xl text-lg sm:text-xl text-brand-powder/80 font-normal leading-relaxed mb-10">
+        J StaR is a creative technology studio operating at the collision of <span class="text-brand-white font-medium">cinematic storytelling</span>, <span class="text-brand-white font-medium">bespoke software engineering</span>, and <span class="text-brand-white font-medium">generative AI systems</span>.
+      </p>
+
+      <!-- Hero Actions -->
+      <div class="flex flex-wrap items-center gap-4 mb-16">
+        <a href="#work" class="px-7 py-4 rounded-lg bg-brand-lime text-brand-ink font-bold font-mono-tech text-sm tracking-wider uppercase hover:bg-brand-white transition-all glow-lime flex items-center space-x-2">
+          <span>Explore Selected Work</span>
+          <i data-lucide="arrow-down-right" class="w-4 h-4"></i>
+        </a>
+        <a href="#contact" class="px-7 py-4 rounded-lg glass-hud border border-brand-powder/20 text-brand-white font-bold font-mono-tech text-sm tracking-wider uppercase hover:border-brand-lime hover:text-brand-lime transition-all flex items-center space-x-2">
+          <span>Initiate Commission</span>
+          <i data-lucide="sparkles" class="w-4 h-4 text-brand-lime"></i>
+        </a>
+      </div>
+
+      <!-- Canonical Proof Ticker (Single Source of Truth) -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-8 border-t border-brand-powder/15 font-mono-tech">
+        <div class="p-4 rounded-lg glass-hud">
+          <div class="text-2xl lg:text-3xl font-bold text-brand-lime">176K+</div>
+          <div class="text-xs text-brand-powder/60 tracking-wider mt-1 uppercase">Views Generated</div>
+        </div>
+        <div class="p-4 rounded-lg glass-hud">
+          <div class="text-2xl lg:text-3xl font-bold text-brand-white">280+</div>
+          <div class="text-xs text-brand-powder/60 tracking-wider mt-1 uppercase">Videos & Films Edited</div>
+        </div>
+        <div class="p-4 rounded-lg glass-hud">
+          <div class="text-2xl lg:text-3xl font-bold text-brand-toffee">8+</div>
+          <div class="text-xs text-brand-powder/60 tracking-wider mt-1 uppercase">Verified Client Partners</div>
+        </div>
+        <div class="p-4 rounded-lg glass-hud">
+          <div class="text-2xl lg:text-3xl font-bold text-brand-powder">6+</div>
+          <div class="text-xs text-brand-powder/60 tracking-wider mt-1 uppercase">Years Engineering & Art</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 1: THE MANIFESTO (THE CONTRADICTION) -->
+    <section id="manifesto" class="py-24 px-6 lg:px-16 border-t border-brand-powder/10 bg-brand-ink/90 relative">
+      <div class="max-w-6xl mx-auto">
+        <div class="flex items-center space-x-2 text-brand-lime font-mono-tech text-xs tracking-widest uppercase mb-4">
+          <span>01 // THE MANIFESTO</span>
+          <span class="w-12 h-px bg-brand-lime/40"></span>
+        </div>
+
+        <h2 class="text-3xl sm:text-5xl font-bold text-brand-white tracking-tight leading-tight max-w-4xl mb-12">
+          Most agencies force you to choose between <span class="text-brand-toffee font-serif-italic">cinematic emotion</span> and <span class="text-brand-lime font-mono-tech">technical rigor</span>. We refuse that compromise.
+        </h2>
+
+        <!-- The 3 Minds Interactive Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Mind 1: Film Brain -->
+          <div class="p-8 rounded-xl glass-hud border-l-4 border-brand-toffee hover:border-brand-lime transition-all group">
+            <div class="text-brand-toffee mb-4 flex items-center justify-between">
+              <i data-lucide="clapperboard" class="w-8 h-8 group-hover:scale-110 transition-transform"></i>
+              <span class="font-mono-tech text-xs text-brand-powder/50">01 // ANALOG</span>
+            </div>
+            <h3 class="text-xl font-bold text-brand-white mb-2">Film Brain</h3>
+            <p class="text-sm text-brand-powder/80 leading-relaxed">
+              Pacing, anamorphic framing, emotional cadence, color grading, and narrative structure. We make audiences feel before they think.
+            </p>
+          </div>
+
+          <!-- Mind 2: Engineer Brain -->
+          <div class="p-8 rounded-xl glass-hud border-l-4 border-brand-powder hover:border-brand-lime transition-all group">
+            <div class="text-brand-powder mb-4 flex items-center justify-between">
+              <i data-lucide="binary" class="w-8 h-8 group-hover:scale-110 transition-transform"></i>
+              <span class="font-mono-tech text-xs text-brand-powder/50">02 // ARCHITECTURE</span>
+            </div>
+            <h3 class="text-xl font-bold text-brand-white mb-2">Engineer Brain</h3>
+            <p class="text-sm text-brand-powder/80 leading-relaxed">
+              Full-stack TypeScript, WebGL shaders, distributed databases, clean architectures, and 60fps interaction performance.
+            </p>
+          </div>
+
+          <!-- Mind 3: AI / Intelligence Brain -->
+          <div class="p-8 rounded-xl glass-hud border-l-4 border-brand-lime hover:border-brand-white transition-all group">
+            <div class="text-brand-lime mb-4 flex items-center justify-between">
+              <i data-lucide="cpu" class="w-8 h-8 group-hover:scale-110 transition-transform"></i>
+              <span class="font-mono-tech text-xs text-brand-powder/50">03 // SYNAPSE</span>
+            </div>
+            <h3 class="text-xl font-bold text-brand-white mb-2">AI / Machine Brain</h3>
+            <p class="text-sm text-brand-powder/80 leading-relaxed">
+              Autonomous agent orchestration, multimodal workflows, prompt-engineered pipelines, and custom intelligence tools for creators.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: THE 3 CAPABILITY DIVISIONS (INTERACTIVE SWITCHER) -->
+    <section id="triad" class="py-24 px-6 lg:px-16 border-t border-brand-powder/10 relative">
+      <div class="max-w-6xl mx-auto">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+          <div>
+            <div class="flex items-center space-x-2 text-brand-lime font-mono-tech text-xs tracking-widest uppercase mb-2">
+              <span>02 // THE CAPABILITY DIVISIONS</span>
+            </div>
+            <h2 class="text-3xl sm:text-4xl font-bold text-brand-white tracking-tight">
+              Three Disciplines. One Unified Studio.
+            </h2>
+          </div>
+          <p class="text-sm text-brand-powder/70 max-w-md mt-4 md:mt-0 font-mono-tech">
+            Click to switch the studio viewport mode:
+          </p>
+        </div>
+
+        <!-- Capability Switcher Buttons -->
+        <div class="flex flex-wrap gap-3 mb-8">
+          <button onclick="setCapabilityMode('films')" id="tab-films" class="px-5 py-3 rounded-lg font-mono-tech text-xs font-bold uppercase tracking-wider transition-all bg-brand-toffee/20 text-brand-toffee border border-brand-toffee/40 hover:bg-brand-toffee hover:text-brand-white">
+            🎬 01 // J StaR Films
+          </button>
+          <button onclick="setCapabilityMode('labs')" id="tab-labs" class="px-5 py-3 rounded-lg font-mono-tech text-xs font-bold uppercase tracking-wider transition-all bg-brand-powder/10 text-brand-powder border border-brand-powder/20 hover:bg-brand-powder hover:text-brand-ink">
+            💻 02 // J StaR Labs (Build)
+          </button>
+          <button onclick="setCapabilityMode('ai')" id="tab-ai" class="px-5 py-3 rounded-lg font-mono-tech text-xs font-bold uppercase tracking-wider transition-all bg-brand-lime/20 text-brand-lime border border-brand-lime/40 hover:bg-brand-lime hover:text-brand-ink glow-lime">
+            🤖 03 // J StaR Intelligence
+          </button>
+        </div>
+
+        <!-- Capability Display Stage -->
+        <div id="capabilityStage" class="p-8 lg:p-12 rounded-2xl glass-hud border border-brand-lime/30 relative overflow-hidden transition-all duration-300">
+          <div id="capContent" class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+            <!-- Dynamic Content Injected by JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: SELECTED WORK (PROBLEM -> BUILD -> OUTCOME) -->
+    <section id="work" class="py-24 px-6 lg:px-16 border-t border-brand-powder/10 bg-brand-ink relative">
+      <div class="max-w-6xl mx-auto">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-16">
+          <div>
+            <div class="flex items-center space-x-2 text-brand-lime font-mono-tech text-xs tracking-widest uppercase mb-2">
+              <span>03 // SELECTED WORK & ARTIFACTS</span>
+            </div>
+            <h2 class="text-3xl sm:text-5xl font-bold text-brand-white tracking-tight">
+              Evidence Over Adjectives.
+            </h2>
+          </div>
+          <div class="font-mono-tech text-xs text-brand-powder/60 mt-4 md:mt-0">
+            [PROVEN CASE STUDIES]
+          </div>
+        </div>
+
+        <!-- Projects Grid -->
+        <div class="space-y-12">
+
+          <!-- Project 1: BLINK -->
+          <div class="p-8 lg:p-10 rounded-2xl glass-hud border border-brand-powder/15 hover:border-brand-lime/50 transition-all group">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-brand-powder/10">
+              <div>
+                <div class="flex items-center space-x-3 mb-2">
+                  <span class="px-2.5 py-0.5 rounded bg-brand-lime/20 text-brand-lime font-mono-tech text-[11px] font-bold">AI / DESKTOP UTILITY</span>
+                  <span class="text-brand-powder/40 font-mono-tech text-xs">2025</span>
+                </div>
+                <h3 class="text-2xl sm:text-3xl font-bold text-brand-white group-hover:text-brand-lime transition-colors">
+                  Blink — Local AI Workflow Assistant
+                </h3>
+              </div>
+              <a href="#contact" class="inline-flex items-center space-x-2 text-brand-lime font-mono-tech text-xs font-bold hover:underline">
+                <span>REQUEST DEMO</span>
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+              </a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 font-mono-tech text-xs">
+              <div class="p-4 rounded-lg bg-brand-ink/60 border border-brand-powder/10">
+                <div class="text-brand-toffee font-bold mb-1">// THE PROBLEM</div>
+                <p class="text-brand-powder/80 font-sans text-sm">
+                  Creative directors waste up to 2 hours daily context-switching across browser tabs to summarize video transcripts and manage assets.
+                </p>
+              </div>
+              <div class="p-4 rounded-lg bg-brand-ink/60 border border-brand-powder/10">
+                <div class="text-brand-powder font-bold mb-1">// THE BUILD</div>
+                <p class="text-brand-powder/80 font-sans text-sm">
+                  Lightweight local desktop app with global keystroke HUD, zero-latency local LLM routing, and direct file-system clipboard integration.
+                </p>
+              </div>
+              <div class="p-4 rounded-lg bg-brand-ink/60 border border-brand-powder/10">
+                <div class="text-brand-lime font-bold mb-1">// THE OUTCOME</div>
+                <p class="text-brand-powder/80 font-sans text-sm">
+                  10x acceleration in daily asset organization with 100% privacy and offline-first execution.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Project 2: ADAPTIVE AI STUDY GAME -->
+          <div class="p-8 lg:p-10 rounded-2xl glass-hud border border-brand-powder/15 hover:border-brand-lime/50 transition-all group">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-brand-powder/10">
+              <div>
+                <div class="flex items-center space-x-3 mb-2">
+                  <span class="px-2.5 py-0.5 rounded bg-brand-powder/20 text-brand-powder font-mono-tech text-[11px] font-bold">SOFTWARE / INTERACTIVE PLATFORM</span>
+                  <span class="text-brand-powder/40 font-mono-tech text-xs">2025</span>
+                </div>
+                <h3 class="text-2xl sm:text-3xl font-bold text-brand-white group-hover:text-brand-powder transition-colors">
+                  Adaptive AI Study Engine
+                </h3>
+              </div>
+              <a href="#contact" class="inline-flex items-center space-x-2 text-brand-powder font-mono-tech text-xs font-bold hover:underline">
+                <span>VIEW REPOSITORY</span>
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+              </a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 font-mono-tech text-xs">
+              <div class="p-4 rounded-lg bg-brand-ink/60 border border-brand-powder/10">
+                <div class="text-brand-toffee font-bold mb-1">// THE PROBLEM</div>
+                <p class="text-brand-powder/80 font-sans text-sm">
+                  Traditional flashcards and quiz apps suffer from high drop-off rates due to static difficulty curves and lack of dopamine feedback loops.
+                </p>
+              </div>
+              <div class="p-4 rounded-lg bg-brand-ink/60 border border-brand-powder/10">
+                <div class="text-brand-powder font-bold mb-1">// THE BUILD</div>
+                <p class="text-brand-powder/80 font-sans text-sm">
+                  Gamified real-time web application featuring dynamic LLM difficulty scaling, arcade score streaks, and procedural question generation.
+                </p>
+              </div>
+              <div class="p-4 rounded-lg bg-brand-ink/60 border border-brand-powder/10">
+                <div class="text-brand-lime font-bold mb-1">// THE OUTCOME</div>
+                <p class="text-brand-powder/80 font-sans text-sm">
+                  85% sustained retention increase during high-stakes examination testing cycles.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Project 3: SAMSUNG GALAXY MOBILE CINEMA -->
+          <div class="p-8 lg:p-10 rounded-2xl glass-hud border border-brand-powder/15 hover:border-brand-toffee/50 transition-all group">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-brand-powder/10">
+              <div>
+                <div class="flex items-center space-x-3 mb-2">
+                  <span class="px-2.5 py-0.5 rounded bg-brand-toffee/30 text-brand-toffee font-mono-tech text-[11px] font-bold">FILM / MOBILE CINEMATOGRAPHY</span>
+                  <span class="text-brand-powder/40 font-mono-tech text-xs">2024</span>
+                </div>
+                <h3 class="text-2xl sm:text-3xl font-bold text-brand-white group-hover:text-brand-toffee transition-colors">
+                  Samsung Galaxy — Cinematic Visual Showcase
+                </h3>
+              </div>
+              <a href="#contact" class="inline-flex items-center space-x-2 text-brand-toffee font-mono-tech text-xs font-bold hover:underline">
+                <span>WATCH FILM</span>
+                <i data-lucide="play" class="w-4 h-4"></i>
+              </a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 font-mono-tech text-xs">
+              <div class="p-4 rounded-lg bg-brand-ink/60 border border-brand-powder/10">
+                <div class="text-brand-toffee font-bold mb-1">// THE PROBLEM</div>
+                <p class="text-brand-powder/80 font-sans text-sm">
+                  Consumer skepticism surrounding mobile camera sensors performing in low-light and commercial-tier anamorphic workflows.
+                </p>
+              </div>
+              <div class="p-4 rounded-lg bg-brand-ink/60 border border-brand-powder/10">
+                <div class="text-brand-powder font-bold mb-1">// THE BUILD</div>
+                <p class="text-brand-powder/80 font-sans text-sm">
+                  Directed and graded an intense 4K narrative film shot entirely on mobile sensor with custom LUT color pipelines and sound design.
+                </p>
+              </div>
+              <div class="p-4 rounded-lg bg-brand-ink/60 border border-brand-powder/10">
+                <div class="text-brand-lime font-bold mb-1">// THE OUTCOME</div>
+                <p class="text-brand-powder/80 font-sans text-sm">
+                  Over 45K+ organic views and critical acclaim from mobile filmmaker communities.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Project 4: ELIZADE UNIVERSITY DOCUMENTARY -->
+          <div class="p-8 lg:p-10 rounded-2xl glass-hud border border-brand-powder/15 hover:border-brand-lime/50 transition-all group">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-brand-powder/10">
+              <div>
+                <div class="flex items-center space-x-3 mb-2">
+                  <span class="px-2.5 py-0.5 rounded bg-brand-toffee/30 text-brand-toffee font-mono-tech text-[11px] font-bold">FILM / BRAND DOCUMENTARY</span>
+                  <span class="text-brand-powder/40 font-mono-tech text-xs">2024</span>
+                </div>
+                <h3 class="text-2xl sm:text-3xl font-bold text-brand-white group-hover:text-brand-lime transition-colors">
+                  Elizade University — Institutional Documentary
+                </h3>
+              </div>
+              <a href="#contact" class="inline-flex items-center space-x-2 text-brand-lime font-mono-tech text-xs font-bold hover:underline">
+                <span>WATCH DOCUMENTARY</span>
+                <i data-lucide="play" class="w-4 h-4"></i>
+              </a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 font-mono-tech text-xs">
+              <div class="p-4 rounded-lg bg-brand-ink/60 border border-brand-powder/10">
+                <div class="text-brand-toffee font-bold mb-1">// THE PROBLEM</div>
+                <p class="text-brand-powder/80 font-sans text-sm">
+                  Traditional university promo videos felt generic, overly corporate, and disconnected from genuine student culture.
+                </p>
+              </div>
+              <div class="p-4 rounded-lg bg-brand-ink/60 border border-brand-powder/10">
+                <div class="text-brand-powder font-bold mb-1">// THE BUILD</div>
+                <p class="text-brand-powder/80 font-sans text-sm">
+                  A high-velocity documentary blending student interviews, kinetic drone choreography, and an original synth-orchestral score.
+                </p>
+              </div>
+              <div class="p-4 rounded-lg bg-brand-ink/60 border border-brand-powder/10">
+                <div class="text-brand-lime font-bold mb-1">// THE OUTCOME</div>
+                <p class="text-brand-powder/80 font-sans text-sm">
+                  Premiered at university convocation and adopted as the primary international admissions centerpiece.
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: MEET JOHN (THE FOUNDER / POLYMATH) -->
+    <section id="founder" class="py-24 px-6 lg:px-16 border-t border-brand-powder/10 relative">
+      <div class="max-w-5xl mx-auto">
+        <div class="p-8 lg:p-14 rounded-3xl glass-hud border border-brand-lime/30 relative overflow-hidden">
+          <!-- Background Decorative Tag -->
+          <div class="absolute top-4 right-6 font-mono-tech text-6xl lg:text-8xl font-black text-brand-powder/5 select-none pointer-events-none">
+            POLYMATH
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+            <!-- Left Portrait / Badge -->
+            <div class="lg:col-span-4 flex flex-col items-center lg:items-start text-center lg:text-left">
+              <div class="relative w-44 h-44 rounded-2xl overflow-hidden border-2 border-brand-lime p-1 bg-brand-ink glow-lime mb-6">
+                <!-- SVG Avatar Graphic with Stylized Lighting -->
+                <div class="w-full h-full rounded-xl bg-gradient-to-br from-brand-ink via-brand-toffee/40 to-brand-lime/40 flex items-center justify-center text-5xl font-mono font-black text-brand-white">
+                  JO
+                </div>
+                <div class="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-brand-lime text-brand-ink font-mono-tech text-[10px] font-bold">
+                  FOUNDER
+                </div>
+              </div>
+
+              <!-- Quick Badges -->
+              <div class="space-y-1.5 font-mono-tech text-xs text-brand-powder/80">
+                <div class="flex items-center space-x-2">
+                  <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-brand-lime"></i>
+                  <span>Software Engineer</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-brand-toffee"></i>
+                  <span>Cinematographer & Editor</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-brand-powder"></i>
+                  <span>National Speedcuber</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-brand-white"></i>
+                  <span>ABRSM Saxophonist</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Narrative -->
+            <div class="lg:col-span-8">
+              <div class="font-mono-tech text-xs text-brand-lime tracking-widest uppercase mb-2">
+                04 // THE ARCHITECT
+              </div>
+              <h2 class="text-3xl sm:text-4xl font-bold text-brand-white mb-6">
+                "I like building things that shouldn't logically belong together."
+              </h2>
+              <div class="space-y-4 text-brand-powder/90 text-base leading-relaxed">
+                <p>
+                  I'm John Oluleke-Oke. Most people spend their careers staying in one lane — they either write code, direct cameras, or train algorithms.
+                </p>
+                <p>
+                  I believe the most extraordinary breakthroughs happen at the messy intersection. When you approach a film with the algorithmic precision of a software engineer, or build software with the emotional rhythm of a film director, the output is unmistakably distinct.
+                </p>
+                <p class="font-mono-tech text-xs text-brand-lime pt-2">
+                  // Lagos, Nigeria · Available Worldwide for Direct Commissions
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5: CONTACT & PROJECT INGESTION -->
+    <section id="contact" class="py-24 px-6 lg:px-16 border-t border-brand-powder/10 bg-brand-ink relative">
+      <div class="max-w-4xl mx-auto text-center">
+        <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-brand-lime/10 border border-brand-lime/30 text-brand-lime font-mono-tech text-xs tracking-widest uppercase mb-6">
+          <span>05 // COMMISSIONS & PARTNERSHIPS</span>
+        </div>
+
+        <h2 class="text-4xl sm:text-6xl font-extrabold text-brand-white tracking-tight mb-6">
+          Got something weird or ambitious in mind? <br />
+          <span class="font-serif-italic font-normal text-brand-lime text-glow-lime">Let's build it.</span>
+        </h2>
+
+        <p class="text-brand-powder/80 text-lg max-w-xl mx-auto mb-10">
+          We accept a limited number of high-impact commissions each quarter across cinematic production, custom software, and AI systems.
+        </p>
+
+        <!-- Interactive Direct Intake Form -->
+        <div class="p-8 sm:p-10 rounded-2xl glass-hud border border-brand-powder/20 text-left max-w-2xl mx-auto">
+          <form onsubmit="handleInquiry(event)" class="space-y-6 font-mono-tech text-xs">
+            <div>
+              <label class="block text-brand-powder/70 uppercase tracking-wider mb-2">// 01: What are you looking to build?</label>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <label class="flex items-center space-x-2 p-3 rounded-lg bg-brand-ink/80 border border-brand-powder/20 cursor-pointer hover:border-brand-lime">
+                  <input type="radio" name="project_type" value="film" checked class="text-brand-lime focus:ring-0">
+                  <span class="text-brand-white">Cinematic Film</span>
+                </label>
+                <label class="flex items-center space-x-2 p-3 rounded-lg bg-brand-ink/80 border border-brand-powder/20 cursor-pointer hover:border-brand-lime">
+                  <input type="radio" name="project_type" value="software" class="text-brand-lime focus:ring-0">
+                  <span class="text-brand-white">Web / Software</span>
+                </label>
+                <label class="flex items-center space-x-2 p-3 rounded-lg bg-brand-ink/80 border border-brand-powder/20 cursor-pointer hover:border-brand-lime">
+                  <input type="radio" name="project_type" value="ai" class="text-brand-lime focus:ring-0">
+                  <span class="text-brand-white">AI / Automation</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-brand-powder/70 uppercase tracking-wider mb-2">// 02: Your Name</label>
+                <input type="text" required placeholder="e.g. Alex Vance" class="w-full px-4 py-3 rounded-lg bg-brand-ink/90 border border-brand-powder/20 text-brand-white focus:outline-none focus:border-brand-lime text-sm">
+              </div>
+              <div>
+                <label class="block text-brand-powder/70 uppercase tracking-wider mb-2">// 03: Direct Email</label>
+                <input type="email" required placeholder="alex@company.com" class="w-full px-4 py-3 rounded-lg bg-brand-ink/90 border border-brand-powder/20 text-brand-white focus:outline-none focus:border-brand-lime text-sm">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-brand-powder/70 uppercase tracking-wider mb-2">// 04: Brief Project Details & Timeline</label>
+              <textarea rows="3" required placeholder="Tell us about the vision, target scope, and timeline..." class="w-full px-4 py-3 rounded-lg bg-brand-ink/90 border border-brand-powder/20 text-brand-white focus:outline-none focus:border-brand-lime text-sm"></textarea>
+            </div>
+
+            <button type="submit" class="w-full py-4 rounded-xl bg-brand-lime text-brand-ink font-bold font-mono-tech text-sm uppercase tracking-widest hover:bg-brand-white transition-all glow-lime flex items-center justify-center space-x-2">
+              <span>Transmit Project Intake</span>
+              <i data-lucide="send" class="w-4 h-4"></i>
+            </button>
+          </form>
+          <div id="inquirySuccess" class="hidden mt-4 p-4 rounded-lg bg-brand-lime/20 border border-brand-lime text-brand-lime font-mono-tech text-xs text-center">
+            ✓ INTAKE RECEIVED. John will personally review your brief within 24 hours.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="py-12 px-6 lg:px-16 border-t border-brand-powder/10 font-mono-tech text-xs text-brand-powder/60">
+      <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div class="flex items-center space-x-3">
+          <div class="w-6 h-6 rounded bg-brand-lime text-brand-ink flex items-center justify-center font-bold">J★</div>
+          <span class="text-brand-white font-bold">J StaR Studios</span>
+          <span>© 2026. All Rights Reserved.</span>
+        </div>
+        <div class="flex items-center space-x-6">
+          <a href="#" class="hover:text-brand-lime transition-colors">YouTube</a>
+          <a href="#" class="hover:text-brand-lime transition-colors">GitHub</a>
+          <a href="#" class="hover:text-brand-lime transition-colors">Twitter / X</a>
+          <a href="#" class="hover:text-brand-lime transition-colors">LinkedIn</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Client-Side Scripts (Shaders, Audio, HUD & Capability Switcher) -->
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    // Live Timecode Counter
+    let frameCount = 0;
+    setInterval(() => {
+      frameCount++;
+      const frames = String(frameCount % 24).padStart(2, '0');
+      const totalSec = Math.floor(frameCount / 24);
+      const sec = String(totalSec % 60).padStart(2, '0');
+      const min = String(Math.floor((totalSec / 60) % 60)).padStart(2, '0');
+      const hrs = String(Math.floor(totalSec / 3600)).padStart(2, '0');
+      const tc = `${hrs}:${min}:${sec}:${frames}`;
+      const el = document.getElementById('timecodeDisplay');
+      if (el) el.textContent = tc;
+    }, 1000 / 24);
+
+    // Custom Cursor Tracking
+    const cursor = document.getElementById('customCursor');
+    window.addEventListener('mousemove', (e) => {
+      if (cursor) {
+        cursor.style.left = `${e.clientX}px`;
+        cursor.style.top = `${e.clientY}px`;
+      }
+    });
+
+    // Capability Data
+    const capabilityData = {
+      films: {
+        title: "J StaR Films",
+        badge: "01 // CINEMATIC PRODUCTION",
+        badgeColor: "text-brand-toffee bg-brand-toffee/20",
+        desc: "From commercial video production to brand documentaries and high-retention YouTube formats, we engineer films with relentless attention to visual rhythm, lighting, color grading, and acoustic storytelling.",
+        bullets: [
+          "Commercial & Brand Films",
+          "4K Anamorphic Mobile Cinematography",
+          "Documentary Narrative Production",
+          "YouTube High-Retention Editing & Sound Design",
+          "Bespoke Cinematic LUT Creation"
+        ],
+        stats: "280+ Videos Produced · 176K+ Views"
+      },
+      labs: {
+        title: "J StaR Labs",
+        badge: "02 // SOFTWARE & DIGITAL PRODUCTS",
+        badgeColor: "text-brand-powder bg-brand-powder/20",
+        desc: "We engineer bespoke web applications, interactive WebGL 3D environments, and creator platforms built for sub-second speeds and bulletproof stability.",
+        bullets: [
+          "Full-Stack TypeScript & Next.js Platforms",
+          "WebGL & Shader-Driven Interactive Experiences",
+          "Custom API Architecture & Real-Time Sync",
+          "Design Systems & Component Libraries",
+          "High-Performance Database Architectures"
+        ],
+        stats: "Sub-Second Latency · Modern Stack"
+      },
+      ai: {
+        title: "J StaR Intelligence",
+        badge: "03 // AI SYSTEMS & WORKFLOWS",
+        badgeColor: "text-brand-lime bg-brand-lime/20",
+        desc: "We construct autonomous AI agents, semantic knowledge graphs, and multimodal generative pipelines that automate hours of tedious human production.",
+        bullets: [
+          "Autonomous Agent Workflows & Tool Loops",
+          "Custom RAG & Vector Embeddings Infrastructure",
+          "Local Desktop AI Utilities (Blink Engine)",
+          "Automated Content Taxonomy & Tagging",
+          "Multi-Model Routing (Claude, GPT, Gemini)"
+        ],
+        stats: "10x Production Acceleration"
+      }
+    };
+
+    function setCapabilityMode(mode) {
+      const data = capabilityData[mode];
+      const stage = document.getElementById('capContent');
+      if (!stage) return;
+
+      // Update button styles
+      ['films', 'labs', 'ai'].forEach(m => {
+        const btn = document.getElementById(`tab-${m}`);
+        if (btn) {
+          if (m === mode) {
+            btn.classList.add('glow-lime', 'ring-2', 'ring-brand-lime');
+          } else {
+            btn.classList.remove('glow-lime', 'ring-2', 'ring-brand-lime');
+          }
+        }
+      });
+
+      stage.innerHTML = `
+        <div>
+          <span class="inline-block px-3 py-1 rounded font-mono-tech text-xs font-bold uppercase tracking-wider mb-4 ${data.badgeColor}">
+            ${data.badge}
+          </span>
+          <h3 class="text-3xl lg:text-4xl font-extrabold text-brand-white mb-4">
+            ${data.title}
+          </h3>
+          <p class="text-brand-powder/80 text-base leading-relaxed mb-6 font-sans">
+            ${data.desc}
+          </p>
+          <div class="font-mono-tech text-xs text-brand-lime font-bold">
+            ${data.stats}
+          </div>
+        </div>
+        <div class="p-6 rounded-xl bg-brand-ink/80 border border-brand-powder/15 space-y-3 font-mono-tech text-xs">
+          <div class="text-brand-powder/50 uppercase tracking-widest mb-2">// CORE CAPABILITIES</div>
+          ${data.bullets.map(b => `
+            <div class="flex items-center space-x-2.5 text-brand-white">
+              <span class="text-brand-lime">▸</span>
+              <span>${b}</span>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    // Initialize Default Capability
+    setCapabilityMode('films');
+
+    // Simple WebGL Neural Shader Implementation
+    const canvas = document.getElementById('neuralCanvas');
+    if (canvas) {
+      const gl = canvas.getContext('webgl');
+      if (gl) {
+        function resize() {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+          gl.viewport(0, 0, canvas.width, canvas.height);
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        const vs = `
+          attribute vec2 position;
+          varying vec2 uv;
+          void main() {
+            uv = position * 0.5 + 0.5;
+            gl_Position = vec4(position, 0.0, 1.0);
+          }
+        `;
+        const fs = `
+          precision mediump float;
+          varying vec2 uv;
+          uniform float time;
+          uniform vec2 mouse;
+          void main() {
+            vec2 p = uv * 2.0 - 1.0;
+            p.x *= 1.5;
+            float d = length(p - (mouse * 2.0 - 1.0));
+            float c = sin(p.x * 3.0 + time * 0.5) * cos(p.y * 3.0 + time * 0.5);
+            c += sin(d * 6.0 - time);
+            vec3 col = mix(vec3(0.0, 0.08, 0.08), vec3(0.71, 0.90, 0.10), c * 0.15);
+            gl_FragColor = vec4(col, 0.25);
+          }
+        `;
+
+        function createShader(type, src) {
+          const s = gl.createShader(type);
+          gl.shaderSource(s, src);
+          gl.compileShader(s);
+          return s;
+        }
+
+        const prog = gl.createProgram();
+        gl.attachShader(prog, createShader(gl.VERTEX_SHADER, vs));
+        gl.attachShader(prog, createShader(gl.FRAGMENT_SHADER, fs));
+        gl.linkProgram(prog);
+        gl.useProgram(prog);
+
+        const buf = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+
+        const pos = gl.getAttribLocation(prog, 'position');
+        gl.enableVertexAttribArray(pos);
+        gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+
+        const uTime = gl.getUniformLocation(prog, 'time');
+        const uMouse = gl.getUniformLocation(prog, 'mouse');
+
+        let mouseX = 0.5, mouseY = 0.5;
+        window.addEventListener('mousemove', (e) => {
+          mouseX = e.clientX / window.innerWidth;
+          mouseY = 1.0 - (e.clientY / window.innerHeight);
+        });
+
+        function render(now) {
+          gl.uniform1f(uTime, now * 0.001);
+          gl.uniform2f(uMouse, mouseX, mouseY);
+          gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+          requestAnimationFrame(render);
+        }
+        requestAnimationFrame(render);
+      }
+    }
+
+    // Audio Synthesizer via Web Audio API
+    let audioCtx = null;
+    let isMuted = true;
+    function toggleAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      isMuted = !isMuted;
+      const btn = document.getElementById('audioBtn');
+      if (btn) {
+        btn.innerHTML = isMuted ? '<i data-lucide="volume-x" class="w-4 h-4"></i>' : '<i data-lucide="volume-2" class="w-4 h-4 text-brand-lime"></i>';
+        lucide.createIcons();
+      }
+      if (!isMuted && audioCtx) {
+        // Play subtle ambient harmonic chime
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.6);
+        gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.8);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.8);
+      }
+    }
+
+    // Form Handling
+    function handleInquiry(e) {
+      e.preventDefault();
+      document.getElementById('inquirySuccess').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>

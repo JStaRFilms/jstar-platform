@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>J StaR Platform — Next-Gen Landing Page Design Suite</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              ink: '#001514',      // Deep Obsidian Green-Black
+              lime: '#B5E619',     // Electric Lime / Chartreuse
+              toffee: '#8E592F',   // Warm Toffee Amber Brown
+              powder: '#AFC2D5',   // Frosted Powder Blue
+              white: '#FBFFFE',    // Crisp Moonlight White
+            }
+          },
+          fontFamily: {
+            mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+            sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+            display: ['Syne', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800;900&display=swap');
+    body {
+      background-color: #001514;
+      color: #FBFFFE;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .glass-card {
+      background: rgba(0, 21, 20, 0.85);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(175, 194, 213, 0.15);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-brand-lime selection:text-brand-ink">
+
+  <!-- Top Master Bar -->
+  <header class="px-6 py-4 border-b border-brand-powder/15 glass-card sticky top-0 z-50 flex flex-wrap items-center justify-between gap-4">
+    <div class="flex items-center space-x-3">
+      <div class="w-9 h-9 rounded-lg bg-brand-lime text-brand-ink flex items-center justify-center font-display font-black text-lg">
+        J★
+      </div>
+      <div>
+        <h1 class="font-bold text-base tracking-tight text-brand-white">J StaR Platform — Design Suite</h1>
+        <div class="font-mono text-[11px] text-brand-lime font-bold">NEXT-GEN LANDING PAGE EXHIBITION</div>
+      </div>
+    </div>
+
+    <!-- Concept Switcher Tabs -->
+    <div class="flex items-center bg-brand-ink/95 p-1 rounded-xl border border-brand-powder/20 font-mono text-xs overflow-x-auto">
+      <button onclick="switchConcept('concept-4-master-synthesis.html', 'Concept 4: Master Synthesis Flagship')" id="btn-c4" class="px-4 py-2 rounded-lg font-bold transition-all bg-brand-lime text-brand-ink shadow-lg flex items-center space-x-1.5">
+        <span>★ 04. Master Synthesis</span>
+      </button>
+      <button onclick="switchConcept('concept-1-cinematic-viewfinder.html', 'Concept 1: Director-Architect Viewfinder')" id="btn-c1" class="px-4 py-2 rounded-lg font-bold transition-all text-brand-powder/80 hover:text-brand-white">
+        01. Viewfinder HUD
+      </button>
+      <button onclick="switchConcept('concept-2-spatial-hypergrid.html', 'Concept 2: Spatial Kinetic Hypergrid')" id="btn-c2" class="px-4 py-2 rounded-lg font-bold transition-all text-brand-powder/80 hover:text-brand-white">
+        02. Hypergrid & LUT
+      </button>
+      <button onclick="switchConcept('concept-3-creative-os.html', 'Concept 3: CreativeOS Polymath Matrix')" id="btn-c3" class="px-4 py-2 rounded-lg font-bold transition-all text-brand-powder/80 hover:text-brand-white">
+        03. Split-Horizon
+      </button>
+    </div>
+
+    <!-- Responsive Viewport Switcher & External Link -->
+    <div class="flex items-center space-x-2 font-mono text-xs">
+      <div class="flex items-center bg-brand-ink/90 p-1 rounded-lg border border-brand-powder/20">
+        <button onclick="setViewport('100%')" id="vp-desktop" class="p-2 rounded bg-brand-powder/20 text-brand-white" title="Desktop View">
+          <i data-lucide="monitor" class="w-4 h-4"></i>
+        </button>
+        <button onclick="setViewport('768px')" id="vp-tablet" class="p-2 rounded text-brand-powder/60 hover:text-brand-white" title="Tablet View (768px)">
+          <i data-lucide="tablet" class="w-4 h-4"></i>
+        </button>
+        <button onclick="setViewport('390px')" id="vp-mobile" class="p-2 rounded text-brand-powder/60 hover:text-brand-white" title="Mobile View (390px)">
+          <i data-lucide="smartphone" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <a id="openNewTabBtn" href="concept-4-master-synthesis.html" target="_blank" class="px-4 py-2 rounded-lg bg-brand-powder/15 border border-brand-powder/30 hover:border-brand-lime text-brand-lime font-bold flex items-center space-x-1.5 transition-all">
+        <span>Open Fullscreen</span>
+        <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Viewport Section -->
+  <main class="flex-1 flex flex-col items-center justify-start p-4 sm:p-6 bg-[#000d0c]">
+    
+    <!-- Viewport Container -->
+    <div id="previewWrapper" class="w-full flex-1 rounded-2xl overflow-hidden border border-brand-powder/20 shadow-2xl transition-all duration-300 relative min-h-[750px] bg-brand-ink">
+      <iframe id="previewFrame" src="concept-4-master-synthesis.html" class="w-full h-full border-0 absolute inset-0"></iframe>
+    </div>
+
+    <!-- Bottom Reference & Color Palette Drawer -->
+    <div class="w-full max-w-7xl mt-8 grid grid-cols-1 md:grid-cols-5 gap-4 font-mono text-xs">
+      
+      <!-- Color 1 -->
+      <div class="p-4 rounded-xl glass-card flex items-center justify-between border-l-4 border-brand-ink">
+        <div>
+          <div class="font-bold text-brand-white">Ink Black</div>
+          <div class="text-brand-powder/60">#001514</div>
+        </div>
+        <div class="w-7 h-7 rounded-lg bg-[#001514] border border-brand-powder/30"></div>
+      </div>
+
+      <!-- Color 2 -->
+      <div class="p-4 rounded-xl glass-card flex items-center justify-between border-l-4 border-brand-lime">
+        <div>
+          <div class="font-bold text-brand-white">Chartreuse</div>
+          <div class="text-brand-lime">#B5E619</div>
+        </div>
+        <div class="w-7 h-7 rounded-lg bg-[#B5E619] shadow-[0_0_10px_#B5E619]"></div>
+      </div>
+
+      <!-- Color 3 -->
+      <div class="p-4 rounded-xl glass-card flex items-center justify-between border-l-4 border-brand-toffee">
+        <div>
+          <div class="font-bold text-brand-white">Toffee Brown</div>
+          <div class="text-brand-toffee">#8E592F</div>
+        </div>
+        <div class="w-7 h-7 rounded-lg bg-[#8E592F]"></div>
+      </div>
+
+      <!-- Color 4 -->
+      <div class="p-4 rounded-xl glass-card flex items-center justify-between border-l-4 border-brand-powder">
+        <div>
+          <div class="font-bold text-brand-white">Powder Blue</div>
+          <div class="text-brand-powder">#AFC2D5</div>
+        </div>
+        <div class="w-7 h-7 rounded-lg bg-[#AFC2D5]"></div>
+      </div>
+
+      <!-- Color 5 -->
+      <div class="p-4 rounded-xl glass-card flex items-center justify-between border-l-4 border-brand-white">
+        <div>
+          <div class="font-bold text-brand-white">Moonlight White</div>
+          <div class="text-brand-white">#FBFFFE</div>
+        </div>
+        <div class="w-7 h-7 rounded-lg bg-[#FBFFFE]"></div>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    lucide.createIcons();
+
+    let currentFile = 'concept-4-master-synthesis.html';
+
+    function switchConcept(fileName, label) {
+      currentFile = fileName;
+      const frame = document.getElementById('previewFrame');
+      const openBtn = document.getElementById('openNewTabBtn');
+      if (frame) frame.src = fileName;
+      if (openBtn) openBtn.href = fileName;
+
+      // Update button active state
+      const buttons = {
+        'concept-4-master-synthesis.html': 'btn-c4',
+        'concept-1-cinematic-viewfinder.html': 'btn-c1',
+        'concept-2-spatial-hypergrid.html': 'btn-c2',
+        'concept-3-creative-os.html': 'btn-c3',
+      };
+
+      Object.entries(buttons).forEach(([file, btnId]) => {
+        const btn = document.getElementById(btnId);
+        if (btn) {
+          if (file === fileName) {
+            btn.className = 'px-4 py-2 rounded-lg font-bold transition-all bg-brand-lime text-brand-ink shadow-lg';
+          } else {
+            btn.className = 'px-4 py-2 rounded-lg font-bold transition-all text-brand-powder/80 hover:text-brand-white';
+          }
+        }
+      });
+    }
+
+    function setViewport(width) {
+      const wrapper = document.getElementById('previewWrapper');
+      if (!wrapper) return;
+      wrapper.style.maxWidth = width;
+
+      ['vp-desktop', 'vp-tablet', 'vp-mobile'].forEach(id => {
+        const b = document.getElementById(id);
+        if (b) b.className = 'p-2 rounded text-brand-powder/60 hover:text-brand-white';
+      });
+
+      if (width === '100%') document.getElementById('vp-desktop').className = 'p-2 rounded bg-brand-powder/20 text-brand-white';
+      if (width === '768px') document.getElementById('vp-tablet').className = 'p-2 rounded bg-brand-powder/20 text-brand-white';
+      if (width === '390px') document.getElementById('vp-mobile').className = 'p-2 rounded bg-brand-powder/20 text-brand-white';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>J StaR — Creative Technology Studio | Spatial Hypergrid</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              ink: '#001514',      // Deep Obsidian
+              lime: '#B5E619',     // Electric Lime / Chartreuse
+              toffee: '#8E592F',   // Warm Toffee Amber
+              powder: '#AFC2D5',   // Frosted Powder Blue
+              white: '#FBFFFE',    // Pure White
+            }
+          },
+          fontFamily: {
+            mono: ['Space Mono', 'JetBrains Mono', 'monospace'],
+            sans: ['Syne', 'Inter', 'system-ui', 'sans-serif'],
+            display: ['Syne', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800;900&display=swap');
+
+    body {
+      background-color: #001514;
+      color: #FBFFFE;
+      font-family: 'Syne', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* 3D Tilt Card Base */
+    .tilt-card {
+      transform-style: preserve-3d;
+      transition: transform 0.1s ease-out, box-shadow 0.2s ease;
+      will-change: transform;
+    }
+    
+    .tilt-content {
+      transform: translateZ(30px);
+    }
+
+    /* Specular Light Reflection */
+    .specular-glare {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(circle 300px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(181, 230, 25, 0.15), transparent 70%);
+      border-radius: inherit;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .tilt-card:hover .specular-glare {
+      opacity: 1;
+    }
+
+    /* Glass Effect */
+    .glass-dark {
+      background: rgba(0, 21, 20, 0.75);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(175, 194, 213, 0.15);
+    }
+
+    /* Infinite Marquee */
+    @keyframes marquee {
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-50%); }
+    }
+    .animate-marquee {
+      display: flex;
+      width: 200%;
+      animation: marquee 25s linear infinite;
+    }
+    .animate-marquee:hover {
+      animation-play-state: paused;
+    }
+
+    /* LUT Slider Styling */
+    .lut-container {
+      position: relative;
+      user-select: none;
+    }
+    .lut-after {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 50%;
+      overflow: hidden;
+    }
+    .lut-handle {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 3px;
+      background: #B5E619;
+      cursor: ew-resize;
+      transform: translateX(-50%);
+    }
+
+    /* Dot Grid Background */
+    .bg-dot-grid {
+      background-image: radial-gradient(rgba(175, 194, 213, 0.1) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+  </style>
+</head>
+<body class="bg-dot-grid selection:bg-brand-lime selection:text-brand-ink">
+
+  <!-- Floating Minimal Header -->
+  <header class="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-5xl px-6 py-3.5 rounded-full glass-dark border border-brand-powder/20 flex items-center justify-between shadow-2xl">
+    <a href="#" class="flex items-center space-x-2 font-mono font-bold text-sm tracking-tight text-brand-white group">
+      <span class="w-3 h-3 rounded-full bg-brand-lime group-hover:scale-125 transition-transform"></span>
+      <span>J StaR</span>
+      <span class="text-brand-powder/50 text-xs hidden sm:inline">// STUDIO</span>
+    </a>
+
+    <nav class="hidden md:flex items-center space-x-6 font-mono text-xs text-brand-powder/70">
+      <a href="#about" class="hover:text-brand-lime transition-colors">THESIS</a>
+      <a href="#divisions" class="hover:text-brand-lime transition-colors">DIVISIONS</a>
+      <a href="#interactive-grade" class="hover:text-brand-lime transition-colors">LUT LAB</a>
+      <a href="#work" class="hover:text-brand-lime transition-colors">PROJECTS</a>
+      <a href="#metrics" class="hover:text-brand-lime transition-colors">VERIFICATION</a>
+    </nav>
+
+    <a href="#contact" class="px-4 py-2 rounded-full bg-brand-lime text-brand-ink font-mono text-xs font-bold uppercase tracking-wider hover:bg-brand-white transition-all shadow-[0_0_20px_rgba(181,230,25,0.4)]">
+      Start A Project
+    </a>
+  </header>
+
+  <!-- HERO SECTION -->
+  <section class="relative min-h-screen flex flex-col justify-center items-center text-center px-6 pt-32 pb-20">
+    <div class="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full glass-dark border border-brand-lime/40 text-brand-lime font-mono text-xs uppercase tracking-widest mb-8">
+      <span class="w-2 h-2 rounded-full bg-brand-lime animate-ping"></span>
+      <span>CREATIVE TECHNOLOGY & CINEMATIC SYSTEMS</span>
+    </div>
+
+    <h1 class="text-5xl sm:text-7xl lg:text-9xl font-black tracking-tight text-brand-white uppercase leading-[0.95] mb-8">
+      Films <span class="text-brand-toffee">·</span> Apps <span class="text-brand-powder">·</span> <br />
+      <span class="text-brand-lime underline decoration-brand-toffee/40">Intelligence</span>
+    </h1>
+
+    <p class="max-w-2xl text-base sm:text-xl text-brand-powder/80 font-medium leading-relaxed mb-12">
+      We build things worth watching. J StaR merges high-retention cinematic storytelling with full-stack software architectures and generative AI engines.
+    </p>
+
+    <!-- Kinetic Hero Buttons -->
+    <div class="flex flex-wrap items-center justify-center gap-4">
+      <a href="#work" class="px-8 py-4 rounded-xl bg-brand-lime text-brand-ink font-mono text-sm font-bold uppercase tracking-wider hover:scale-105 transition-all shadow-[0_0_30px_rgba(181,230,25,0.4)] flex items-center space-x-2">
+        <span>Explore Portfolio</span>
+        <i data-lucide="arrow-down-right" class="w-4 h-4"></i>
+      </a>
+      <a href="#interactive-grade" class="px-8 py-4 rounded-xl glass-dark border border-brand-powder/30 text-brand-white font-mono text-sm font-bold uppercase tracking-wider hover:border-brand-lime hover:text-brand-lime transition-all flex items-center space-x-2">
+        <span>Interactive Grade Demo</span>
+        <i data-lucide="sliders" class="w-4 h-4 text-brand-lime"></i>
+      </a>
+    </div>
+
+    <!-- Scroll Indicator -->
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center space-y-2 text-brand-powder/40 font-mono text-xs">
+      <span>SCROLL TO DISCOVER</span>
+      <i data-lucide="chevron-down" class="w-4 h-4 animate-bounce text-brand-lime"></i>
+    </div>
+  </section>
+
+  <!-- KINETIC MARQUEE BANNER -->
+  <div class="py-6 border-y border-brand-powder/15 bg-brand-ink/90 overflow-hidden">
+    <div class="animate-marquee font-mono text-sm uppercase tracking-widest text-brand-powder/70">
+      <span class="mx-8 text-brand-lime font-bold">★ J StaR FILMS</span>
+      <span class="mx-8">· COMMERCIAL PRODUCTION</span>
+      <span class="mx-8 text-brand-powder font-bold">★ J StaR LABS</span>
+      <span class="mx-8">· CUSTOM WEB APPS & SHADERS</span>
+      <span class="mx-8 text-brand-toffee font-bold">★ J StaR INTELLIGENCE</span>
+      <span class="mx-8">· AUTONOMOUS AGENT PIPELINES</span>
+      <span class="mx-8 text-brand-lime font-bold">★ J StaR FILMS</span>
+      <span class="mx-8">· COMMERCIAL PRODUCTION</span>
+      <span class="mx-8 text-brand-powder font-bold">★ J StaR LABS</span>
+      <span class="mx-8">· CUSTOM WEB APPS & SHADERS</span>
+      <span class="mx-8 text-brand-toffee font-bold">★ J StaR INTELLIGENCE</span>
+      <span class="mx-8">· AUTONOMOUS AGENT PIPELINES</span>
+    </div>
+  </div>
+
+  <!-- SECTION 1: THE J STAR TRIAD (3D TILT CARDS) -->
+  <section id="divisions" class="py-28 px-6 max-w-7xl mx-auto">
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <div class="font-mono text-xs text-brand-lime tracking-widest uppercase mb-3">// 01: THE CORE DISCIPLINES</div>
+      <h2 class="text-4xl sm:text-6xl font-black text-brand-white tracking-tight uppercase mb-4">
+        Not 15 Services. <br /><span class="text-brand-toffee">Three Powerhouses.</span>
+      </h2>
+      <p class="text-brand-powder/80 text-base">
+        Eliminating the generic agency agency clutter. Each division operates with uncompromising domain mastery.
+      </p>
+    </div>
+
+    <!-- 3D Tilt Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      
+      <!-- Card 1: J StaR Films -->
+      <div class="tilt-card p-8 sm:p-10 rounded-3xl glass-dark border border-brand-toffee/30 hover:border-brand-toffee transition-all relative overflow-hidden group">
+        <div class="specular-glare"></div>
+        <div class="tilt-content flex flex-col h-full justify-between relative z-10">
+          <div>
+            <div class="flex items-center justify-between mb-8">
+              <span class="w-12 h-12 rounded-2xl bg-brand-toffee/20 text-brand-toffee flex items-center justify-center font-bold font-mono">
+                <i data-lucide="film" class="w-6 h-6"></i>
+              </span>
+              <span class="font-mono text-xs text-brand-powder/40 font-bold">01 // PRODUCTION</span>
+            </div>
+            <h3 class="text-3xl font-black text-brand-white uppercase mb-4 group-hover:text-brand-toffee transition-colors">
+              J StaR Films
+            </h3>
+            <p class="text-brand-powder/80 text-sm leading-relaxed mb-6">
+              Commercial films, brand documentaries, high-retention YouTube storytelling, and bespoke 4K anamorphic mobile cinematography.
+            </p>
+          </div>
+          <div class="pt-6 border-t border-brand-powder/10 font-mono text-xs space-y-2 text-brand-powder/70">
+            <div>▸ Narrative Direction & Grading</div>
+            <div>▸ 280+ High-Retention Edits</div>
+            <div>▸ 176K+ Organic Reach</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: J StaR Labs -->
+      <div class="tilt-card p-8 sm:p-10 rounded-3xl glass-dark border border-brand-powder/30 hover:border-brand-powder transition-all relative overflow-hidden group">
+        <div class="specular-glare"></div>
+        <div class="tilt-content flex flex-col h-full justify-between relative z-10">
+          <div>
+            <div class="flex items-center justify-between mb-8">
+              <span class="w-12 h-12 rounded-2xl bg-brand-powder/20 text-brand-powder flex items-center justify-center font-bold font-mono">
+                <i data-lucide="terminal" class="w-6 h-6"></i>
+              </span>
+              <span class="font-mono text-xs text-brand-powder/40 font-bold">02 // ARCHITECTURE</span>
+            </div>
+            <h3 class="text-3xl font-black text-brand-white uppercase mb-4 group-hover:text-brand-powder transition-colors">
+              J StaR Labs
+            </h3>
+            <p class="text-brand-powder/80 text-sm leading-relaxed mb-6">
+              Custom web applications, interactive WebGL 3D experiences, high-performance TypeScript backends, and responsive design systems.
+            </p>
+          </div>
+          <div class="pt-6 border-t border-brand-powder/10 font-mono text-xs space-y-2 text-brand-powder/70">
+            <div>▸ WebGL & Custom Shaders</div>
+            <div>▸ Full-Stack Next.js & TypeScript</div>
+            <div>▸ Microsecond Latency Optimization</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3: J StaR Intelligence -->
+      <div class="tilt-card p-8 sm:p-10 rounded-3xl glass-dark border border-brand-lime/30 hover:border-brand-lime transition-all relative overflow-hidden group shadow-[0_0_30px_rgba(181,230,25,0.15)]">
+        <div class="specular-glare"></div>
+        <div class="tilt-content flex flex-col h-full justify-between relative z-10">
+          <div>
+            <div class="flex items-center justify-between mb-8">
+              <span class="w-12 h-12 rounded-2xl bg-brand-lime/20 text-brand-lime flex items-center justify-center font-bold font-mono">
+                <i data-lucide="cpu" class="w-6 h-6"></i>
+              </span>
+              <span class="font-mono text-xs text-brand-lime font-bold">03 // AI ENGINES</span>
+            </div>
+            <h3 class="text-3xl font-black text-brand-white uppercase mb-4 group-hover:text-brand-lime transition-colors">
+              J StaR Intelligence
+            </h3>
+            <p class="text-brand-powder/80 text-sm leading-relaxed mb-6">
+              Custom autonomous AI tools, creator automation utilities (Blink Engine), semantic RAG knowledge systems, and multi-model routing.
+            </p>
+          </div>
+          <div class="pt-6 border-t border-brand-powder/10 font-mono text-xs space-y-2 text-brand-lime font-semibold">
+            <div>▸ Autonomous Agent Workflows</div>
+            <div>▸ Local Offline AI Desktop Utilities</div>
+            <div>▸ 10x Workflow Acceleration</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECTION 2: INTERACTIVE COLOR GRADE LUT COMPARATOR -->
+  <section id="interactive-grade" class="py-24 px-6 bg-brand-ink/80 border-y border-brand-powder/10">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-12">
+        <div class="font-mono text-xs text-brand-lime tracking-widest uppercase mb-2">// 02: PROOF OF CRAFT</div>
+        <h2 class="text-3xl sm:text-5xl font-black text-brand-white uppercase tracking-tight mb-4">
+          The Anamorphic Color Engine
+        </h2>
+        <p class="text-brand-powder/80 text-sm max-w-xl mx-auto">
+          Drag the slider to compare raw uncorrected camera sensor log with the custom J StaR cinematic master color grade.
+        </p>
+      </div>
+
+      <!-- Interactive Comparison Container -->
+      <div id="lutContainer" class="lut-container w-full h-[380px] sm:h-[480px] rounded-3xl overflow-hidden border border-brand-powder/20 shadow-2xl relative cursor-ew-resize">
+        <!-- Before: Raw Log View -->
+        <div class="absolute inset-0 bg-[#3a4441] flex items-center justify-center p-8 text-center filter saturate-50 brightness-90">
+          <div class="space-y-3 opacity-60">
+            <div class="font-mono text-xs text-brand-powder uppercase tracking-widest">[RAW S-LOG3 FLAT PROFILE]</div>
+            <div class="text-2xl sm:text-4xl font-black text-brand-white uppercase">Raw Camera Sensor</div>
+            <div class="font-mono text-xs text-brand-powder">10-BIT 4:2:2 · NO LUT APPLIED</div>
+          </div>
+        </div>
+
+        <!-- After: J StaR Master Grade (Clipped via Width) -->
+        <div id="lutAfter" class="lut-after bg-gradient-to-tr from-brand-ink via-[#2a1b12] to-[#12261f] border-r-2 border-brand-lime flex items-center justify-center p-8 text-center">
+          <div class="space-y-3">
+            <div class="font-mono text-xs text-brand-lime uppercase tracking-widest font-bold">[J STAR MASTER CINEMATIC GRADE]</div>
+            <div class="text-2xl sm:text-4xl font-black text-brand-white uppercase">Anamorphic Gold</div>
+            <div class="font-mono text-xs text-brand-lime font-bold">CUSTOM TOFFEE AMBER & INK OBSIDIAN MATRIX</div>
+          </div>
+        </div>
+
+        <!-- Draggable Handle Bar -->
+        <div id="lutHandle" class="lut-handle flex items-center justify-center">
+          <div class="w-8 h-8 rounded-full bg-brand-lime text-brand-ink flex items-center justify-center font-bold text-xs shadow-lg">
+            <i data-lucide="chevrons-left-right" class="w-4 h-4"></i>
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-between font-mono text-xs text-brand-powder/50 mt-3 px-2">
+        <span>◀ RAW S-LOG PROFILE</span>
+        <span class="text-brand-lime">DRAG INTERACTIVE SLIDER</span>
+        <span>J STAR MASTER COLOR GRADE ▶</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 3: SELECTED WORK SHOWCASE -->
+  <section id="work" class="py-28 px-6 max-w-7xl mx-auto">
+    <div class="flex flex-col md:flex-row md:items-end justify-between mb-16">
+      <div>
+        <div class="font-mono text-xs text-brand-lime tracking-widest uppercase mb-2">// 03: VERIFIED PORTFOLIO</div>
+        <h2 class="text-4xl sm:text-6xl font-black text-brand-white uppercase tracking-tight">
+          Selected Builds & Films
+        </h2>
+      </div>
+      <div class="font-mono text-xs text-brand-powder/60 mt-4 md:mt-0">
+        [PROVEN OUTCOMES ONLY]
+      </div>
+    </div>
+
+    <!-- Case Studies List -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      
+      <!-- Project 1 -->
+      <div class="p-8 sm:p-10 rounded-3xl glass-dark border border-brand-lime/30 hover:border-brand-lime transition-all group flex flex-col justify-between">
+        <div>
+          <div class="flex items-center space-x-3 mb-4">
+            <span class="px-3 py-1 rounded-full bg-brand-lime/20 text-brand-lime font-mono text-xs font-bold uppercase">AI Utility</span>
+            <span class="text-brand-powder/50 font-mono text-xs">J StaR Intelligence</span>
+          </div>
+          <h3 class="text-3xl font-black text-brand-white uppercase mb-4 group-hover:text-brand-lime transition-colors">
+            Blink Desktop AI
+          </h3>
+          <p class="text-brand-powder/80 text-sm leading-relaxed mb-6">
+            Zero-latency local desktop application for creators. Transforms voice notes, clipboard buffers, and raw footage transcripts into structured editorial assets.
+          </p>
+        </div>
+        <div class="pt-6 border-t border-brand-powder/10 flex items-center justify-between font-mono text-xs">
+          <span class="text-brand-lime font-bold">10x Speed Acceleration</span>
+          <span class="text-brand-white group-hover:translate-x-1 transition-transform flex items-center space-x-1">
+            <span>EXPLORE</span>
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </span>
+        </div>
+      </div>
+
+      <!-- Project 2 -->
+      <div class="p-8 sm:p-10 rounded-3xl glass-dark border border-brand-powder/30 hover:border-brand-powder transition-all group flex flex-col justify-between">
+        <div>
+          <div class="flex items-center space-x-3 mb-4">
+            <span class="px-3 py-1 rounded-full bg-brand-powder/20 text-brand-powder font-mono text-xs font-bold uppercase">Web Application</span>
+            <span class="text-brand-powder/50 font-mono text-xs">J StaR Labs</span>
+          </div>
+          <h3 class="text-3xl font-black text-brand-white uppercase mb-4 group-hover:text-brand-powder transition-colors">
+            Adaptive AI Study Game
+          </h3>
+          <p class="text-brand-powder/80 text-sm leading-relaxed mb-6">
+            Gamified learning software utilizing real-time procedural LLM question generation and dynamic difficulty adaptation algorithms.
+          </p>
+        </div>
+        <div class="pt-6 border-t border-brand-powder/10 flex items-center justify-between font-mono text-xs">
+          <span class="text-brand-powder font-bold">85% Retention Spike</span>
+          <span class="text-brand-white group-hover:translate-x-1 transition-transform flex items-center space-x-1">
+            <span>EXPLORE</span>
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </span>
+        </div>
+      </div>
+
+      <!-- Project 3 -->
+      <div class="p-8 sm:p-10 rounded-3xl glass-dark border border-brand-toffee/30 hover:border-brand-toffee transition-all group flex flex-col justify-between">
+        <div>
+          <div class="flex items-center space-x-3 mb-4">
+            <span class="px-3 py-1 rounded-full bg-brand-toffee/20 text-brand-toffee font-mono text-xs font-bold uppercase">Commercial Film</span>
+            <span class="text-brand-powder/50 font-mono text-xs">J StaR Films</span>
+          </div>
+          <h3 class="text-3xl font-black text-brand-white uppercase mb-4 group-hover:text-brand-toffee transition-colors">
+            Samsung Galaxy Cinema
+          </h3>
+          <p class="text-brand-powder/80 text-sm leading-relaxed mb-6">
+            4K mobile cinematography showcase pushing mobile sensors to cinema-grade limits with anamorphic lens simulation and original score.
+          </p>
+        </div>
+        <div class="pt-6 border-t border-brand-powder/10 flex items-center justify-between font-mono text-xs">
+          <span class="text-brand-toffee font-bold">45K+ Organic Views</span>
+          <span class="text-brand-white group-hover:translate-x-1 transition-transform flex items-center space-x-1">
+            <span>WATCH</span>
+            <i data-lucide="play" class="w-3.5 h-3.5"></i>
+          </span>
+        </div>
+      </div>
+
+      <!-- Project 4 -->
+      <div class="p-8 sm:p-10 rounded-3xl glass-dark border border-brand-powder/30 hover:border-brand-lime transition-all group flex flex-col justify-between">
+        <div>
+          <div class="flex items-center space-x-3 mb-4">
+            <span class="px-3 py-1 rounded-full bg-brand-lime/20 text-brand-lime font-mono text-xs font-bold uppercase">Documentary</span>
+            <span class="text-brand-powder/50 font-mono text-xs">J StaR Films</span>
+          </div>
+          <h3 class="text-3xl font-black text-brand-white uppercase mb-4 group-hover:text-brand-lime transition-colors">
+            Elizade University Film
+          </h3>
+          <p class="text-brand-powder/80 text-sm leading-relaxed mb-6">
+            Full institutional brand documentary replacing generic corporate promos with narrative depth and kinetic choreography.
+          </p>
+        </div>
+        <div class="pt-6 border-t border-brand-powder/10 flex items-center justify-between font-mono text-xs">
+          <span class="text-brand-lime font-bold">Campus Premiered</span>
+          <span class="text-brand-white group-hover:translate-x-1 transition-transform flex items-center space-x-1">
+            <span>WATCH</span>
+            <i data-lucide="play" class="w-3.5 h-3.5"></i>
+          </span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECTION 4: CANONICAL METRICS -->
+  <section id="metrics" class="py-20 px-6 border-t border-brand-powder/15 bg-brand-ink/90">
+    <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center font-mono">
+      <div class="p-6 rounded-2xl glass-dark">
+        <div class="text-4xl sm:text-5xl font-black text-brand-lime mb-2">176K+</div>
+        <div class="text-xs text-brand-powder/60 uppercase tracking-widest">Views Generated</div>
+      </div>
+      <div class="p-6 rounded-2xl glass-dark">
+        <div class="text-4xl sm:text-5xl font-black text-brand-white mb-2">280+</div>
+        <div class="text-xs text-brand-powder/60 uppercase tracking-widest">Films & Edits</div>
+      </div>
+      <div class="p-6 rounded-2xl glass-dark">
+        <div class="text-4xl sm:text-5xl font-black text-brand-toffee mb-2">8+</div>
+        <div class="text-xs text-brand-powder/60 uppercase tracking-widest">Client Partners</div>
+      </div>
+      <div class="p-6 rounded-2xl glass-dark">
+        <div class="text-4xl sm:text-5xl font-black text-brand-powder mb-2">6+</div>
+        <div class="text-xs text-brand-powder/60 uppercase tracking-widest">Years Polymath Craft</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT & INGESTION -->
+  <section id="contact" class="py-28 px-6 max-w-4xl mx-auto text-center">
+    <div class="font-mono text-xs text-brand-lime tracking-widest uppercase mb-4">// READY TO BUILD</div>
+    <h2 class="text-4xl sm:text-7xl font-black text-brand-white uppercase tracking-tight mb-6">
+      Let's Create <br /><span class="text-brand-lime">The Exceptional.</span>
+    </h2>
+    <p class="text-brand-powder/80 text-base sm:text-lg max-w-xl mx-auto mb-10">
+      Direct commissions for films, custom software architectures, and AI creator systems.
+    </p>
+
+    <a href="mailto:contact@jstarstudios.com" class="inline-flex items-center space-x-3 px-8 py-5 rounded-2xl bg-brand-lime text-brand-ink font-mono text-sm font-bold uppercase tracking-wider hover:bg-brand-white transition-all shadow-[0_0_40px_rgba(181,230,25,0.5)]">
+      <span>Initiate Studio Dialogue</span>
+      <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+    </a>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="py-12 px-6 border-t border-brand-powder/10 font-mono text-xs text-brand-powder/50 text-center">
+    <p>© 2026 J StaR Studios. Designed from pure conviction.</p>
+  </footer>
+
+  <!-- Interactive Scripts -->
+  <script>
+    lucide.createIcons();
+
+    // 3D Tilt Card Motion Logic
+    document.querySelectorAll('.tilt-card').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotateX = (centerY - y) / 10;
+        const rotateY = (x - centerX) / 10;
+
+        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        card.style.setProperty('--mouse-x', `${(x / rect.width) * 100}%`);
+        card.style.setProperty('--mouse-y', `${(y / rect.height) * 100}%`);
+      });
+
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+      });
+    });
+
+    // Interactive LUT Slider Logic
+    const lutContainer = document.getElementById('lutContainer');
+    const lutAfter = document.getElementById('lutAfter');
+    const lutHandle = document.getElementById('lutHandle');
+    let isDragging = false;
+
+    function updateLut(xPos) {
+      const rect = lutContainer.getBoundingClientRect();
+      let pos = (xPos - rect.left) / rect.width;
+      pos = Math.max(0.05, Math.min(0.95, pos));
+      const percentage = pos * 100;
+      lutAfter.style.width = `${percentage}%`;
+      lutHandle.style.left = `${percentage}%`;
+    }
+
+    lutContainer.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      updateLut(e.clientX);
+    });
+    window.addEventListener('mousemove', (e) => {
+      if (isDragging) updateLut(e.clientX);
+    });
+    window.addEventListener('mouseup', () => {
+      isDragging = false;
+    });
+
+    // Touch Support
+    lutContainer.addEventListener('touchmove', (e) => {
+      if (e.touches[0]) updateLut(e.touches[0].clientX);
+    });
+  </script>
+</body>
+</html>
