@@ -60,12 +60,11 @@
 .firstLine { top: var(--active-word-top); font-size: var(--active-word-size); transform: translateX(calc(var(--intro-shift) * 1vw - var(--progress) * 105vw)); }
 .secondLine { top: calc(var(--active-word-top) + var(--active-word-size) * 0.9); font-size: calc(var(--active-word-size) * 1.58); transform: translateX(calc(var(--intro-shift) * 1vw + var(--progress) * 105vw)); }
 .description {
-  position: absolute; left: 4.6vw; top: calc(var(--active-word-top) + var(--active-word-size) * 2.3);
-  font-family: Georgia, 'Times New Roman', serif; letter-spacing: -0.025em;
-  font-size: calc(2.55vw * (1 - var(--arrival)) + clamp(15px, 1.13vw, 19px) * var(--arrival));
+  position: absolute; left: 4.6vw; top: calc(var(--active-word-top) + var(--active-word-size) * 2.3 + 8px);
+  font-family: 'Segoe UI Variable', 'Segoe UI', 'Trebuchet MS', sans-serif; font-weight: 500; letter-spacing: -0.015em;
+  font-size: calc(clamp(22px, 2vw, 32px) * (1 - var(--arrival)) + clamp(15px, 1.13vw, 19px) * var(--arrival));
   line-height: 1.2; width: calc(100% - 9.2vw); white-space: nowrap;
   transform: translateX(calc(var(--intro-shift) * 1vw + var(--progress) * 105vw));
-  filter: blur(calc(var(--motion-blur) * 0.55));
 }
 .filmFrame {
   position: absolute; z-index: 2;
@@ -73,22 +72,21 @@
   top: calc(var(--film-top) * (1 - var(--progress)));
   width: calc(var(--film-width) * (1 - var(--progress)) + var(--progress) * 100%);
   height: calc(var(--film-width) * 0.5625 * (1 - var(--progress)) + var(--progress) * 100svh);
-  background: var(--ink); overflow: hidden;
+  background: var(--ink); overflow: hidden; filter: blur(var(--motion-blur));
 }
-.video { display: block; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: center; }
+.video { display: block; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: 50% 35%; }
 .video:focus-visible { outline: 3px solid var(--accent); outline-offset: -5px; }
 .srOnly { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .soundControl {
   position: absolute; z-index: 4; bottom: 24px; right: 24px;
-  opacity: 0; pointer-events: none; transform: translateY(4px);
-  transition: opacity 220ms ease, transform 220ms ease;
+  opacity: 0.72; transition: opacity 220ms ease;
 }
-.soundControl[data-awake="true"], .soundControl:has(:focus-visible) { opacity: 1; pointer-events: auto; transform: none; }
+.soundControl[data-awake="true"], .soundControl:hover, .soundControl:has(:focus-visible) { opacity: 1; }
 .soundControl[inert] { visibility: hidden; }
 .soundControl button {
   display: flex; align-items: center; justify-content: flex-end; gap: 0;
   min-width: 44px; height: 44px; padding: 0 14px; border: 0; border-radius: 4px;
-  color: var(--paper); background: rgb(0 21 20 / 58%);
+  color: var(--paper); background: rgb(0 21 20 / 74%);
 }
 .soundControl button:hover, .soundControl button:focus-visible { background: rgb(0 21 20 / 82%); }
 .soundLabel { font-size: 11px; opacity: 0; max-width: 0; overflow: hidden; white-space: nowrap; transition: max-width 180ms ease, opacity 180ms ease, margin-right 180ms ease; }
@@ -104,6 +102,7 @@
   .track { height: 100svh; }
   .stage { position: relative; }
   .header, .firstLine, .secondLine, .description { transform: none; filter: none; }
+  .filmFrame { filter: none; }
   .soundControl, .soundLabel { transition: none; }
   .root[data-static-expanded="true"] .introduction { visibility: hidden; }
   .root[data-static-expanded="true"] .filmFrame { left: 0; top: 0; width: 100%; height: 100svh; }

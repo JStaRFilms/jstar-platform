@@ -120,9 +120,18 @@ export default function Hero() {
       lastTime = now;
       // Time-based follow feels the same at different refresh rates and stops at rest.
       const previous = progress;
-      progress += (target - progress) * (1 - Math.exp(-Math.min(delta, 64) / 110));
+      const elapsed = Math.min(delta, 64);
+      const follow = (target - progress) * (1 - Math.exp(-elapsed / 1000));
+      // Cap travel too: a jump to the bottom must not compress the takeover into a snap.
+      progress += Math.sign(follow) * Math.min(Math.abs(follow), elapsed / 900);
       if (Math.abs(target - progress) < 0.0001) progress = target;
-      const blur = progress === target ? 0 : Math.min(2.5, Math.abs(progress - previous) / delta * 8000);
+      const travel = Math.max(
+        Math.abs(ease(clamp(progress / 0.25)) - ease(clamp(previous / 0.25))) * 0.41,
+        Math.abs(ease(clamp((progress - 0.25) / 0.55)) - ease(clamp((previous - 0.25) / 0.55))) * 1.05,
+      );
+      const speed = travel * window.innerWidth / delta;
+      // Only fast travel softens the composition, never a gentle scroll or settled frame.
+      const blur = progress === target ? 0 : clamp((speed - 1.2) / 2) * 2.5;
       element.style.setProperty('--motion-blur', `${blur}px`);
       paint();
       frame = progress === target ? 0 : requestAnimationFrame(tick);
@@ -248,7 +257,7 @@ export default function Hero() {
               <span className={styles.firstLine}>J StaR Films</span>
               <span className={styles.secondLine}>Studios</span>
             </h1>
-            <p className={styles.description}>A creative and technology studio making films, websites, and software for businesses.</p>
+            <p className={styles.description}>Films, websites and software. One creative team.</p>
           </div>
 
           <div className={styles.filmFrame}>
@@ -265,7 +274,7 @@ export default function Hero() {
             <button id="film-sound" ref={soundButton} onPointerEnter={() => wakeSound()} onFocus={() => wakeSound()}
               onClick={() => { setMuted(!muted); setSoundHint(false); wakeSound(); }}
               aria-label={muted ? 'Enable sound' : 'Mute sound'} aria-pressed={!muted} title={muted ? 'Enable sound' : 'Mute sound'}>
-              <span className={styles.soundLabel}>{soundHint && muted ? 'Click to listen' : muted ? 'Sound off' : 'Sound on'}</span>
+              <span className={styles.soundLabel}>{muted ? 'Sound on' : 'Sound off'}</span>
               {muted ? <VolumeX size={16} aria-hidden="true" /> : <Volume2 size={16} aria-hidden="true" />}
             </button>
           </div>
