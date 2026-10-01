@@ -37,6 +37,11 @@ export default function ConditionalLayout({ children, authButton, user }: Condit
   const isHomePage = pathname === '/';
   const shouldAddPadding = shouldShowGlobalNav && !isHomePage;
 
+  // The isolated redesign review supplies its own chrome. Existing routes are unchanged.
+  if (pathname === '/redesign') {
+    return <main>{children}</main>;
+  }
+
   return (
     <Providers>
       {shouldShowGlobalNav && <Header authButton={authButton} />}
