@@ -8,7 +8,7 @@ import { ChatInput } from './ChatInput';
 import { ChatMessages } from './ChatMessages';
 import { EmptyState } from './EmptyState';
 import { ModelSelector } from './ModelSelector';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import type { User as WorkOSUser } from '@workos-inc/node';
 import { cn } from '@/lib/utils';
 import { useSmartAutoScroll } from '@/hooks/useSmartAutoScroll';
@@ -37,29 +37,20 @@ export function ChatView({ user, className, conversationId: conversationIdProp, 
     const router = useRouter();
     const { deactivateFollowMe, isFollowMeActive } = useActiveChat();
 
-    // Track if this is the initial mount (arriving at page, not button click from same page)
-    const hasCheckedFollowMeRef = React.useRef(false);
+    const initialFollowMe = React.useRef({ isFollowMeActive, deactivateFollowMe });
 
     // Clear follow-me state ONLY on initial mount when arriving at the page
     // This prevents the race condition where minimize button sets follow-me,
     // but then this effect immediately clears it before navigation completes
     useEffect(() => {
-        // Only check once on mount - if we're arriving at the full JohnGPT page
-        // and follow-me WAS active from a previous session (localStorage), clear it
-        if (!hasCheckedFollowMeRef.current) {
-            hasCheckedFollowMeRef.current = true;
+        // Use the arrival state so minimizing on this page does not clear follow-me.
+        const { isFollowMeActive, deactivateFollowMe } = initialFollowMe.current;
+        const timeoutId = setTimeout(() => {
+            if (isFollowMeActive) deactivateFollowMe();
+        }, 100);
 
-            // Small delay to allow navigation to complete first
-            const timeoutId = setTimeout(() => {
-                if (isFollowMeActive) {
-                    // console.log('[ChatView] Clearing follow-me state - arrived at full JohnGPT page');
-                    deactivateFollowMe();
-                }
-            }, 100);
-
-            return () => clearTimeout(timeoutId);
-        }
-    }, []); // Empty deps - only run on mount
+        return () => clearTimeout(timeoutId);
+    }, []);
 
     // Internal conversation ID state - generate on first message if not provided
     const [internalConversationId, setInternalConversationId] = React.useState<string | undefined>(conversationIdProp);
@@ -72,15 +63,10 @@ export function ChatView({ user, className, conversationId: conversationIdProp, 
     }, [conversationIdProp]);
 
     // Hooks
-    const {
-        conversationIdRef,
-        deduplicateMessages,
-    } = useConversationManagement(conversationIdProp);
+    useConversationManagement(conversationIdProp);
 
     const {
         loadConversation,
-        isLoading: isLoadingConversation,
-        syncStatus,
     } = useConversationPersistence(user.id, internalConversationId);
 
     // Local state
@@ -89,7 +75,7 @@ export function ChatView({ user, className, conversationId: conversationIdProp, 
 
     // Smart auto-scroll - hook MUST be in component that OWNS the scroll container
     // isFollowing and scrollToBottom are available for future "scroll to bottom" button
-    const { scrollContainerRef, scrollAnchorRef, isFollowing: _isFollowing, scrollToBottom: _scrollToBottom } = useSmartAutoScroll({
+    const { scrollContainerRef, scrollAnchorRef } = useSmartAutoScroll({
         enabled: true,
         threshold: 150, // Slightly higher threshold for better UX
         debounceMs: 50,
@@ -139,7 +125,7 @@ export function ChatView({ user, className, conversationId: conversationIdProp, 
 
 
     // Initialize useChat with persistence
-    const { messages, sendMessageWithModel, status, stop, setMessages, addToolResult, editMessage, navigateBranch, currentMode } = useBranchingChat({
+    const { messages, sendMessageWithModel, status, stop, setMessages, editMessage, navigateBranch, currentMode } = useBranchingChat({
         api: '/api/chat',
         conversationId: internalConversationId, // Use internal state
         userId: user.id, // User ID for storage

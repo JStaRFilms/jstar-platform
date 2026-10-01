@@ -36,15 +36,17 @@ export default async function DashboardPage() {
         console.warn(`User ${user.id} not found in local DB.`);
     }
 
-    const projects = localUser ? await prisma.project.findMany({
-        where: { userId: localUser.id },
-        include: {
-            chapters: {
-                select: { isCompleted: true },
+    if (localUser) {
+        await prisma.project.findMany({
+            where: { userId: localUser.id },
+            include: {
+                chapters: {
+                    select: { isCompleted: true },
+                },
             },
-        },
-        orderBy: { updatedAt: 'desc' },
-    }) : [];
+            orderBy: { updatedAt: 'desc' },
+        });
+    }
 
     // Transform for UI if needed or match types
     // ProjectGrid expects (Project & { chapters: Chapter[] })[]

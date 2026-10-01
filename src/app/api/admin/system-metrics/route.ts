@@ -449,7 +449,7 @@ async function checkOllamaStatus(): Promise<{
             activeModel = runningData.models[0].name || runningData.models[0].model || '';
           }
         }
-      } catch (psError) {
+      } catch {
         // If we can't get running models, use the first available model as fallback
         if (models.length > 0) {
           activeModel = models[0].name;
@@ -525,7 +525,7 @@ async function getGPUInfo(): Promise<{
           };
         }
       }
-    } catch (error) {
+    } catch {
       // Try AMD ROCm
       try {
         const { stdout } = await execAsync('rocm-smi --showmeminfo vram --json');
@@ -539,7 +539,7 @@ async function getGPUInfo(): Promise<{
             utilization: gpu['gpu_usage'] || 0
           };
         }
-      } catch (amdError) {
+      } catch {
         // No GPU monitoring available
       }
     }
@@ -559,7 +559,7 @@ async function getGPUInfo(): Promise<{
           };
         }
       }
-    } catch (error) {
+    } catch {
       // Try AMD ROCm on Linux
       try {
         const { stdout } = await execAsync('rocm-smi --showmeminfo vram --json');
@@ -572,7 +572,7 @@ async function getGPUInfo(): Promise<{
             utilization: gpu['gpu_usage'] || 0
           };
         }
-      } catch (amdError) {
+      } catch {
         // No GPU monitoring available
       }
     }
@@ -836,7 +836,7 @@ async function runGPUBenchmark(): Promise<{
         utilization
       };
     }
-  } catch (error) {
+  } catch {
     // No NVIDIA GPU available
   }
 
@@ -942,10 +942,10 @@ async function runStorageBenchmark(): Promise<{
         // Cleanup
         try {
           await execAsync('rm -f /tmp/benchmark_test');
-        } catch (e) {
+        } catch {
           // Ignore cleanup errors
         }
-      } catch (ddError) {
+      } catch {
         // Fallback to simple file operations in temp directory
         const testFile = `/tmp/benchmark_test_${Date.now()}.dat`;
         const testData = Buffer.alloc(3 * 1024 * 1024); // 3MB test file
@@ -1015,7 +1015,7 @@ async function runNetworkBenchmark(): Promise<{
       if (match) {
         latency = Math.round(parseFloat(match[1]));
       }
-    } catch (pingError) {
+    } catch {
       // Try alternative ping command
       try {
         const { stdout } = await execAsync('ping 8.8.8.8 -n 4');
@@ -1023,7 +1023,7 @@ async function runNetworkBenchmark(): Promise<{
         if (match) {
           latency = Math.round(parseFloat(match[1]));
         }
-      } catch (altPingError) {
+      } catch {
         latency = Math.floor(Math.random() * 50) + 10; // Fallback
       }
     }
@@ -1056,7 +1056,7 @@ async function runNetworkBenchmark(): Promise<{
   }
 }
 
-export async function GET(request: Request) {
+export async function GET(...[]: [request: Request]) {
   const cacheKey = generateCacheKey('/api/admin/system-metrics');
 
   try {

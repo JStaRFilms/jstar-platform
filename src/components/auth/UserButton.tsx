@@ -1,5 +1,5 @@
-import { getSignInUrl, signOut } from '@workos-inc/authkit-nextjs';
-import Link from 'next/link';
+import { signOut } from '@workos-inc/authkit-nextjs';
+import Image from 'next/image';
 
 interface UserButtonProps {
     user: {
@@ -14,8 +14,12 @@ export async function UserButton({ user }: UserButtonProps) {
         <div className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-all duration-200 group hover:border-white/20">
             <div className="flex items-center gap-2">
                 {user.profilePictureUrl ? (
-                    <img
+                    <Image
                         src={user.profilePictureUrl}
+                        width={32}
+                        height={32}
+                        unoptimized
+                        loading="eager"
                         alt="Profile"
                         className="h-8 w-8 rounded-full border border-white/10 object-cover"
                     />

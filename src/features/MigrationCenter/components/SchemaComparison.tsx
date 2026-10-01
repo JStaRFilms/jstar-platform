@@ -104,7 +104,7 @@ export const SchemaComparison: React.FC = () => {
           <div key={index} className={`schema-diff ${getDiffClass(change.type)} p-3 rounded-lg hover:bg-opacity-80 transition-colors`}>
             <div className="flex justify-between">
               <div className="font-mono text-gray-900 dark:text-white">
-                {getTypeIcon(change.type)} TABLE "{change.table}"
+                {getTypeIcon(change.type)} TABLE &quot;{change.table}&quot;
               </div>
               <span className={`text-xs px-2 py-1 rounded ${getTypeColor(change.type)}`}>
                 {getTypeLabel(change.type)}

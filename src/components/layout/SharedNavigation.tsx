@@ -53,7 +53,6 @@ export const NavigationProvider = ({ children }: { children: React.ReactNode }) 
 export const SharedNavigation = ({
     variant = 'default',
     customItems = [],
-    showBreadcrumbs = false,
     className
 }: SharedNavigationProps) => {
     const pathname = usePathname();

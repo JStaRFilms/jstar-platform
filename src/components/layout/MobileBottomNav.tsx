@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation';
 import MobileNavItem from './MobileNavItem';
 import Tooltip from '@/components/ui/Tooltip'; // Import Tooltip
 import { useScrollSpy } from '@/hooks/useScrollSpy';
-import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 export interface NavItemConfig {
   href?: string; // Optional for action-only items

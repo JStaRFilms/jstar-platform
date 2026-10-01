@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { useScrollAnimationMulti } from '@/hooks/useScrollAnimationMulti';
 import { PROFILE_DATA } from '../data/portfolio';
@@ -40,12 +41,16 @@ const Testimonials = () => {
                             </div>
 
                             <p className="text-gray-300 text-lg leading-relaxed mb-8 relative z-10">
-                                "{testi.text}"
+                                &quot;{testi.text}&quot;
                             </p>
 
                             <div className="flex items-center gap-4">
-                                <img
+                                <Image
                                     src={testi.image}
+                                    width={48}
+                                    height={48}
+                                    unoptimized
+                                    loading="eager"
                                     alt={testi.name}
                                     className="w-12 h-12 rounded-full object-cover border-2 border-white/10"
                                 />

@@ -45,10 +45,6 @@ export default async function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Momo+Signature&display=swap"
-          rel="stylesheet"
-        />
       </head>
       <body className={`${inter.className} bg-background transition-colors duration-300`}>
         <ConditionalLayout authButton={authButton} user={user}>

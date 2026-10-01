@@ -41,7 +41,6 @@ export const HeroSlidesGrid: React.FC<HeroSlidesGridProps> = ({
   onSlideDelete,
   onSlideToggle,
 }) => {
-  const [filter, setFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [selectedSlideForPreview, setSelectedSlideForPreview] = useState<HeroSlide | null>(null);
   const [localSlides, setLocalSlides] = useState<HeroSlide[]>(slides);
 
@@ -153,7 +152,6 @@ export const HeroSlidesGrid: React.FC<HeroSlidesGridProps> = ({
           } else if (file.name.endsWith('.csv')) {
             // Parse CSV (simple implementation)
             const lines = content.split('\n');
-            const headers = lines[0].split(',');
             importedSlides = lines.slice(1).map(line => {
               const values = line.split(',');
               return {

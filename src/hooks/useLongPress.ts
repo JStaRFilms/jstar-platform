@@ -58,7 +58,7 @@ export function useLongPress(options: LongPressOptions = {}) {
         return;
       }
 
-      timeout.current && clearTimeout(timeout.current);
+      if (timeout.current) clearTimeout(timeout.current);
       onPressEnd?.();
 
       // Only trigger tap if we should handle click and haven't already done long press

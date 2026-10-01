@@ -25,7 +25,7 @@ export const SystemHealth: React.FC = () => {
   const [systemStatus, setSystemStatus] = useState<'healthy' | 'warning' | 'critical'>('healthy');
   const [lastUpdated, setLastUpdated] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [, setIsRefreshing] = useState(false);
 
   // Cache management functions
   const saveToCache = useCallback((data: CacheData) => {
@@ -397,7 +397,7 @@ export const SystemHealth: React.FC = () => {
                 if (response.ok) {
                   alert('System optimization started!');
                 }
-              } catch (error) {
+              } catch {
                 alert('Optimization failed to start');
               }
             }}

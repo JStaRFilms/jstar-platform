@@ -154,10 +154,6 @@ const SystemDiagnostic: React.FC<SystemDiagnosticProps> = ({ className = '' }) =
     runDiagnosticsMutation.mutate();
   };
 
-  const handleDiagnosticComplete = () => {
-    setDiagnosticRefreshTrigger(prev => prev + 1);
-  };
-
   return (
       <div className={`space-y-6 ${className}`}>
         {/* Header */}

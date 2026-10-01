@@ -5,12 +5,9 @@ import {
     Layout,
     Cpu,
     Globe,
-    Award,
     Zap,
-    Briefcase,
     Users,
     Mic,
-    BookOpen,
     Camera,
     Smartphone
 } from "lucide-react";

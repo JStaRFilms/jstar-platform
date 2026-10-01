@@ -11,7 +11,7 @@ interface UseScrollSpyOptions {
   threshold?: number;
 }
 
-export const useScrollSpy = ({ sections, offset = 100, threshold = 0.1 }: UseScrollSpyOptions) => {
+export const useScrollSpy = ({ sections, offset = 100 }: UseScrollSpyOptions) => {
   const [activeSection, setActiveSection] = useState<string>('');
 
   useEffect(() => {

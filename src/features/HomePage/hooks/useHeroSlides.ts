@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 /**
  * Interface for hero slide data from the database
@@ -46,7 +46,7 @@ export const useHeroSlides = () => {
   const [error, setError] = useState<string | null>(null);
 
   // Default fallback slides
-  const defaultSlides: DatabaseHeroSlide[] = [
+  const defaultSlides = useMemo<DatabaseHeroSlide[]>(() => [
     {
       id: 'default-0',
       titleLine1: 'Elevate Your Story',
@@ -89,7 +89,7 @@ export const useHeroSlides = () => {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     },
-  ];
+  ], []);
 
   useEffect(() => {
     const fetchSlides = async () => {
@@ -124,7 +124,7 @@ export const useHeroSlides = () => {
     };
 
     fetchSlides();
-  }, []);
+  }, [defaultSlides]);
 
   return {
     slides,

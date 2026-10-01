@@ -318,7 +318,7 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
         // Add a small debounce to batch rapid state changes
         const debounceTimer = setTimeout(saveConversation, 500);
         return () => clearTimeout(debounceTimer);
-    }, [messages.length, chatHelpers.status, tree, conversationId, userId, options.isWidget, options.modelId]);
+    }, [messages, chatHelpers.status, tree, conversationId, userId, options.isWidget, options.modelId]);
 
     // 3.7. Auto-generate AI title after 6 messages (3 exchanges)
     useEffect(() => {
@@ -377,7 +377,7 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
         // Debounce to ensure streaming is complete
         const timer = setTimeout(generateTitle, 3000);
         return () => clearTimeout(timer);
-    }, [messages.length, conversationId, userId, options.isWidget]);
+    }, [messages, tree, conversationId, userId, options.isWidget]);
 
 
     // 4. Branching Logic

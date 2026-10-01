@@ -34,7 +34,7 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({ testimonial }) => {
         </div>
       </div>
       <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 italic">
-        "{testimonial.quote}"
+        &quot;{testimonial.quote}&quot;
       </p>
       <div className="mt-4 md:mt-6 pt-4 md:pt-6 border-t border-gray-200 dark:border-gray-700">
         <div className="flex flex-wrap gap-2">

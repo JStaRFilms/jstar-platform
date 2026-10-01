@@ -48,7 +48,7 @@ interface SectionResult {
 export async function findDestination(
     query: string,
     currentPath: string = '/',
-    userTier: UserTier = 'GUEST'
+    ...[]: [userTier?: UserTier]
 ): Promise<DestinationMatch | null> {
     try {
         // Generate embedding for the query

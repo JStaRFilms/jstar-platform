@@ -225,7 +225,7 @@ const ContactSection: React.FC = () => {
             Get In Touch
           </span>
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
-            Let's Create Something Amazing Together
+            Let&apos;s Create Something Amazing Together
           </h2>
           <p className="text-xl text-muted-foreground">
             Have a project in mind or want to discuss how we can work together? Drop us a message and we&apos;ll get back to you as soon as possible.

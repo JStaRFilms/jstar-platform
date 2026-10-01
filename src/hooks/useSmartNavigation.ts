@@ -1,5 +1,5 @@
 // src/hooks/useSmartNavigation.ts
-import { useState, useRef, useCallback, useMemo } from 'react';
+import { useRef, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
 import { useRouter } from 'next/navigation'; // Use next/navigation for App Router
 

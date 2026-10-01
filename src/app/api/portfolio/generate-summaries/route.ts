@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { getYouTubeTranscript } from '@/services/portfolio/transcript.service';
 import { generateAISummary } from '@/services/portfolio/summary.service';
 
-export async function POST(request: NextRequest) {
+export async function POST(...[]: [request: NextRequest]) {
     // TODO: Add robust authentication (Admin only)
     // For now, this is an internal utility.
 

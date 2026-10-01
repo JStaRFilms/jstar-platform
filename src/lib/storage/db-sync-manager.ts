@@ -510,7 +510,7 @@ export class DBSyncManager {
                     }));
                 }
             }
-        } catch (e) {
+        } catch {
             // ignore
         }
     }
@@ -620,7 +620,7 @@ export class DBSyncManager {
         }
     }
 
-    private scheduleRetry(conversationId: string, retryCount: number) {
+    private scheduleRetry(...[]: [conversationId: string, retryCount: number]) {
         // Logic similar to original SyncManager
     }
 

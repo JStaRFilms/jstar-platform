@@ -2,7 +2,7 @@
 
 import useSWR from 'swr';
 import { useMemo } from 'react';
-import { ContactFilters, ContactSubmission, ContactListResponse, MessageStats, MessageFilter, ApiError } from '../types';
+import { ContactFilters, ContactSubmission, ContactListResponse, MessageStats, MessageFilter } from '../types';
 import { fetchContacts, updateContact, archiveContact, handleApiError, getErrorMessage } from '@/lib/communications-api';
 
 /**
@@ -45,7 +45,7 @@ export const useContacts = (filters: ContactFilters = {}) => {
   );
 
   // Extract data from response
-  const contacts = response?.data?.submissions || [];
+  const contacts = useMemo(() => response?.data?.submissions || [], [response?.data?.submissions]);
   const pagination = response?.data ? {
     total: response.data.total,
     page: response.data.page,

@@ -44,7 +44,7 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({ item, onTooltipChange, is
   const [isJohnGPTModalOpen, setIsJohnGPTModalOpen] = useState(false);
 
   // Special handling for JohnGPT long-press (nav to page) vs tap (open modal)
-  const { isLongPressActive: isJohnGPTLongPressActive, ...longPressHandlers } = useLongPress({
+  const longPressHandlers = useLongPress({
     onLongPress: () => {
       // Long-press: navigate to JohnGPT dashboard page
       router.push('/john-gpt');
@@ -55,17 +55,6 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({ item, onTooltipChange, is
     },
     delay: 500,
   });
-
-  // For action items with callbacks, handle them with preventDefault/stopPropagation
-  const handleActionClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (item.onClick) item.onClick();
-  };
-
-  const handleActionLongPress = () => {
-    if (item.onLongPress) item.onLongPress();
-  };
 
   // 1. Create a ref for the animated icon
   const iconRef = useRef<AnimatedIconHandle>(null);
@@ -95,7 +84,7 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({ item, onTooltipChange, is
   };
 
   // Combined press handler for JohnGPT that handles both animation and long-press
-  const handleJohnGPTPressStart = (e: React.MouseEvent | React.TouchEvent) => {
+  const handleJohnGPTPressStart = () => {
     iconRef.current?.startAnimation();
     // Don't call smart navigation for JohnGPT - it uses long press logic
   };
@@ -129,7 +118,9 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({ item, onTooltipChange, is
       case 'sparkles': return SparklesIcon;
       case 'mail': return MailIcon;
       case 'brain': return BrainIcon;
-      default: return () => <div className="w-6 h-6" />;
+      default: return function EmptyIcon() {
+        return <div className="w-6 h-6" />;
+      };
     }
   }, [item.iconName]);
 
@@ -155,13 +146,15 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({ item, onTooltipChange, is
   if (item.isAction) {
     // Combine long-press handlers with animation handler
     const johnGPTHandlers = {
-      ...longPressHandlers,
+      onMouseUp: longPressHandlers.onMouseUp,
+      onMouseLeave: longPressHandlers.onMouseLeave,
+      onTouchEnd: longPressHandlers.onTouchEnd,
       onMouseDown: (e: React.MouseEvent) => {
-        handleJohnGPTPressStart(e);
+        handleJohnGPTPressStart();
         longPressHandlers.onMouseDown(e);
       },
       onTouchStart: (e: React.TouchEvent) => {
-        handleJohnGPTPressStart(e);
+        handleJohnGPTPressStart();
         longPressHandlers.onTouchStart(e);
       },
     };

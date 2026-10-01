@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { PortfolioProject } from '../../../content/portfolio';
@@ -49,7 +49,7 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ project, onClose, isOpe
   const [showControls, setShowControls] = useState(false);
 
   // Hook for YouTube Player
-  const { isReady, isPlaying, isMuted, togglePlay, toggleMute } = useYouTubePlayer({
+  const { isPlaying, isMuted, togglePlay, toggleMute } = useYouTubePlayer({
     videoId: project?.videoId || '',
     elementId: 'youtube-player-container',
     autoPlay: true,

@@ -17,7 +17,6 @@ export const AnimatedPlayIcon: React.FC<AnimatedIconProps> = ({
   className,
   onClick,
   duration = 300,
-  trigger = 'hover',
   'aria-label': ariaLabel = 'Play',
   'aria-hidden': ariaHidden,
   role = 'button'
@@ -56,7 +55,6 @@ export const AnimatedPlayIcon: React.FC<AnimatedIconProps> = ({
  */
 export const AnimatedCheckIcon: React.FC<AnimatedIconProps> = ({
   className,
-  onClick,
   duration = 500,
   trigger = 'load',
   'aria-label': ariaLabel = 'Success',
@@ -95,7 +93,6 @@ export const AnimatedArrowRightIcon: React.FC<AnimatedIconProps> = ({
   className,
   onClick,
   duration = 600,
-  trigger = 'hover',
   'aria-label': ariaLabel = 'Next',
   'aria-hidden': ariaHidden,
   role = 'button'
@@ -129,12 +126,11 @@ export const AnimatedCloseIcon: React.FC<AnimatedIconProps> = ({
   className,
   onClick,
   duration = 300,
-  trigger = 'hover',
   'aria-label': ariaLabel = 'Close',
   'aria-hidden': ariaHidden,
   role = 'button'
 }) => {
-  const [isHovered, setIsHovered] = React.useState(false);
+  const [, setIsHovered] = React.useState(false);
 
   return (
     <button
@@ -163,7 +159,6 @@ export const AnimatedStarIcon: React.FC<AnimatedIconProps> = ({
   className,
   onClick,
   duration = 1000,
-  trigger = 'hover',
   'aria-label': ariaLabel = 'Favorite',
   'aria-hidden': ariaHidden,
   role = 'button'
@@ -200,7 +195,6 @@ export const AnimatedChevronLeftIcon: React.FC<AnimatedIconProps> = ({
   className,
   onClick,
   duration = 400,
-  trigger = 'hover',
   'aria-label': ariaLabel = 'Previous',
   'aria-hidden': ariaHidden,
   role = 'button'
@@ -234,7 +228,6 @@ export const AnimatedChevronRightIcon: React.FC<AnimatedIconProps> = ({
   className,
   onClick,
   duration = 400,
-  trigger = 'hover',
   'aria-label': ariaLabel = 'Next',
   'aria-hidden': ariaHidden,
   role = 'button'

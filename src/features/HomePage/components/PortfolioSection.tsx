@@ -85,15 +85,6 @@ const PortfolioSection = () => {
     onlyOneActive: true, // Enforce mutual exclusivity for active state
   });
 
-  const getCategoryLabel = (category: string) => {
-    switch (category) {
-      case 'video': return 'Video Production';
-      case 'web': return 'Web Development';
-      case 'branding': return 'Branding';
-      default: return category;
-    }
-  };
-
   const getTagColor = (tag: string, index: number) => {
     const colors = [
       'bg-primary/20 text-primary dark:text-accent',

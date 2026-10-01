@@ -4,15 +4,6 @@ import { getClassifierModel } from '../ai-providers';
 
 export type DetectedIntent = 'code' | 'roast' | 'simplify' | 'bible' | 'Universal';
 
-// Keywords that suggest specific intents without needing AI
-const INTENT_KEYWORDS: Record<DetectedIntent, string[]> = {
-    code: ['code', 'debug', 'programming', 'javascript', 'typescript', 'python', 'function', 'api', 'bug', 'error', 'syntax'],
-    roast: ['roast', 'roast me', 'mock me', 'critique'],
-    simplify: ['eli5', 'explain like', 'simple terms', 'simplify', 'break down', 'dumb it down'],
-    bible: ['bible', 'scripture', 'biblical', 'verse', 'god says', 'jesus', 'proverbs', 'psalm', 'spiritual'],
-    Universal: [],
-};
-
 export async function classifyIntent(messages: any[]): Promise<DetectedIntent> {
     // 1. Get the last 3 messages for better context
     const recentMessages = messages.slice(-3);

@@ -76,7 +76,7 @@ export function EmptyState({ suggestions, onSuggestionClick, user, isLocked = fa
 
                 {!isLocked && (
                     <p className="text-muted-foreground text-lg max-w-lg mx-auto">
-                        Select a mode to get started, or just start chatting and I'll figure out what you need.
+                        Select a mode to get started, or just start chatting and I&apos;ll figure out what you need.
                     </p>
                 )}
 

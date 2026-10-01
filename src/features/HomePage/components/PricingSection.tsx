@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import Link from 'next/link';
 import { CheckCircleIcon, CheckIcon, ArrowRightIcon } from '../../../components/icons/static-icons';
 
@@ -157,22 +157,6 @@ const PricingSection: React.FC<PricingSectionProps> = React.memo(({
   highlightedPlan
 }) => {
   /**
-   * Memoized featured/popular plan for performance
-   */
-  const featuredPlan = useMemo(() =>
-    plans.find((p) => p.popular),
-    [plans]
-  );
-
-  /**
-   * Memoized regular plans (non-featured) for performance
-   */
-  const regularPlans = useMemo(() =>
-    plans.filter((p) => !p.popular),
-    [plans]
-  );
-
-  /**
    * Handle plan selection with proper callback
    */
   const handlePlanSelect = useCallback((planId: string) => {
@@ -200,7 +184,7 @@ const PricingSection: React.FC<PricingSectionProps> = React.memo(({
   /**
    * Render individual pricing card
    */
-  const renderPricingCard = useCallback((plan: PricingPlan, index: number) => {
+  const renderPricingCard = useCallback((plan: PricingPlan) => {
     const isHighlighted = highlightedPlan === plan.id;
     const isPopular = plan.popular;
 
@@ -348,7 +332,7 @@ const PricingSection: React.FC<PricingSectionProps> = React.memo(({
               const order = { essential: 0, professional: 1, custom: 2 };
               return (order[a.id as keyof typeof order] ?? 99) - (order[b.id as keyof typeof order] ?? 99);
             }).
-            map((plan, index) => renderPricingCard(plan, index))}
+            map((plan) => renderPricingCard(plan))}
         </div>
 
         {/* Feature Comparison Table */}

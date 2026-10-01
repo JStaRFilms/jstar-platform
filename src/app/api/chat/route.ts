@@ -8,7 +8,7 @@ import { searchKnowledgeBase, formatSearchResults } from '../../../lib/ai/rag-ut
 import { findDestination } from '../../../lib/ai/findDestination';
 import { PromptManager, ChatContext } from '../../../lib/ai/prompt-manager';
 import { classifyIntent } from '../../../lib/ai/intent-classifier';
-import { canAccessModel, canUsePremiumModel, PAID_MODEL_DAILY_LIMITS } from '../../../lib/ai/types';
+import { canAccessModel, canUsePremiumModel } from '../../../lib/ai/types';
 
 export const runtime = 'nodejs';
 // Allow streaming responses up to 60 seconds (max for Vercel Hobby plan)
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
       const refererUrl = new URL(referer);
       currentPath = refererUrl.pathname;
     }
-  } catch (e) {
+  } catch {
     // Fallback to body or default
     currentPath = bodyCurrentPath || '/';
   }

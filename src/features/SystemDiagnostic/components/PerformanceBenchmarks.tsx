@@ -89,8 +89,6 @@ const PerformanceBenchmarks: React.FC = () => {
   const generateSimulatedBenchmarks = (systemData: any): BenchmarkData => {
     // Generate realistic benchmark scores based on system specs
     const cpuScore = systemData.cpu.cores * 2000 + Math.random() * 1000; // Base score per core
-    const aiScore = systemData.aiModels.running ?
-      (systemData.aiHealth.gpu?.utilization || 50) * 150 + Math.random() * 500 : 2000;
 
     return {
       cpu: {

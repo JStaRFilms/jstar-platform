@@ -6,16 +6,15 @@ import {
     MessageSquare,
     Search,
     Plus,
-    MoreHorizontal,
     Trash2,
     Edit2,
-    LogOut,
     Home,
     Sun,
     Moon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import Image from 'next/image';
 import type { User as WorkOSUser } from '@workos-inc/node';
 import { dbSyncManager } from '@/lib/storage/db-sync-manager';
 
@@ -33,7 +32,7 @@ type ConversationSidebarProps = {
     activeConversationId?: string; // Highlight active conversation
 };
 
-export function ConversationSidebar({ user, isDriveConnected, className, activeConversationId }: ConversationSidebarProps) {
+export function ConversationSidebar({ user, className, activeConversationId }: ConversationSidebarProps) {
     const router = useRouter();
     const [searchQuery, setSearchQuery] = useState('');
     const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -177,7 +176,7 @@ export function ConversationSidebar({ user, isDriveConnected, className, activeC
         setDeletingId(convId);
     };
 
-    const handleSaveEdit = async (e: React.FormEvent, convId: string) => {
+    const handleSaveEdit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!editTitle.trim()) return;
 
@@ -342,12 +341,12 @@ export function ConversationSidebar({ user, isDriveConnected, className, activeC
                                         )} />
                                         <div className="flex-1 min-w-0">
                                             {editingId === conv.id ? (
-                                                <form onSubmit={(e) => handleSaveEdit(e, conv.id)} onClick={(e) => e.stopPropagation()}>
+                                                <form onSubmit={(e) => handleSaveEdit(e)} onClick={(e) => e.stopPropagation()}>
                                                     <input
                                                         type="text"
                                                         value={editTitle}
                                                         onChange={(e) => setEditTitle(e.target.value)}
-                                                        onBlur={(e) => handleSaveEdit(e as any, conv.id)}
+                                                        onBlur={(e) => handleSaveEdit(e)}
                                                         onKeyDown={(e) => e.key === 'Escape' && handleCancelEdit()}
                                                         className="w-full text-sm font-medium bg-background border border-primary rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary/50"
                                                         autoFocus
@@ -406,7 +405,7 @@ export function ConversationSidebar({ user, isDriveConnected, className, activeC
                     <div className="flex-1 flex items-center gap-3 p-2 rounded-xl hover:bg-accent/50 cursor-pointer transition-colors border border-transparent hover:border-border/50">
                         <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gray-100 to-gray-300 dark:from-gray-700 dark:to-gray-900 flex items-center justify-center font-bold text-sm text-foreground overflow-hidden ring-2 ring-background shadow-sm">
                             {user.profilePictureUrl ? (
-                                <img src={user.profilePictureUrl} alt="Profile" className="w-full h-full object-cover" />
+                                <Image src={user.profilePictureUrl} alt="Profile" width={36} height={36} unoptimized loading="eager" className="w-full h-full object-cover" />
                             ) : (
                                 <span>{user.firstName?.[0] || user.email[0].toUpperCase()}</span>
                             )}

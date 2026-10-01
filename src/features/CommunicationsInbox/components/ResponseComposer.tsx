@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PaperAirplaneIcon } from '@/components/icons';
 import { ContactSubmission, ResponseType } from '../types';
 import { usePrecisionModeContext } from '../contexts/PrecisionModeContext';
@@ -84,7 +84,7 @@ export const ResponseComposer: React.FC<ResponseComposerProps> = ({
   isFullscreen
 }) => {
   const [selectedTemplate, setSelectedTemplate] = useState('');
-  const [responseType, setResponseType] = useState<ResponseType>('EMAIL' as ResponseType);
+  const [responseType] = useState<ResponseType>('EMAIL' as ResponseType);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const { precisionState } = usePrecisionModeContext();

@@ -1,12 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 /**
  * Migration Workflow Component
  * Displays the 4-step migration process with progress tracking
  */
 export const MigrationWorkflow: React.FC = () => {
-  const [currentStep, setCurrentStep] = useState(2); // Step 2 is "In Progress"
-
   const steps = [
     {
       id: 1,

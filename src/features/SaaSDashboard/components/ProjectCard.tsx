@@ -1,7 +1,7 @@
 'use client';
 
 import { formatDistanceToNow } from 'date-fns';
-import { MoreHorizontal, Edit, Trash2, ArrowRight } from 'lucide-react';
+import { MoreHorizontal, Edit } from 'lucide-react';
 import Link from 'next/link';
 import { Project, Chapter, ProjectStatus } from '@prisma/client';
 

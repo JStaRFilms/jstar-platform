@@ -46,7 +46,6 @@ export const useSystemStatus = () => {
     setTimeout(() => {
       const now = new Date();
       const timeDiff = Math.floor(Math.random() * 300) + 60; // 1-6 minutes ago
-      const lastSubmission = new Date(now.getTime() - timeDiff * 1000);
 
       setSystemStatus(prev => ({
         ...prev,

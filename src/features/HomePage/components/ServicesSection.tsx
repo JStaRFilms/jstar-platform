@@ -57,7 +57,7 @@ const ServicesSection: React.FC = React.memo(() => {
         <div className="bg-gradient-to-br from-primary to-secondary rounded-2xl p-8 md:p-12 text-center text-white shadow-xl">
           <h3 className="text-2xl md:text-3xl font-bold mb-4">Have a Different Project in Mind?</h3>
           <p className="text-white/90 mb-8 max-w-2xl mx-auto text-lg">
-            Our tiers are just the beginning. We thrive on unique challenges. Let's discuss your specific vision and build a custom solution together.
+            Our tiers are just the beginning. We thrive on unique challenges. Let&apos;s discuss your specific vision and build a custom solution together.
           </p>
           <Link
             href="#contact"

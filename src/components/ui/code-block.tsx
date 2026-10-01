@@ -109,9 +109,7 @@ const MermaidDiagram: React.FC<{ code: string }> = ({ code }) => {
 export const CodeBlock: React.FC<CodeBlockProps> = ({
   code,
   language = 'text',
-  showLineNumbers = false,
   className = '',
-  variant = 'default',
 }) => {
   const [copied, setCopied] = useState(false);
   const codeRef = useRef<HTMLElement>(null);

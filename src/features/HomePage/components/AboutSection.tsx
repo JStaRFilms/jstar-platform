@@ -65,7 +65,7 @@ const AboutSection = () => {
           {/* Right Column - Content */}
           <div className="lg:pl-12">
             <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-6">
-              We're a creative studio passionate about storytelling through video and digital experiences
+              We&apos;re a creative studio passionate about storytelling through video and digital experiences
             </h3>
             <p className="text-muted-foreground mb-6">
               At J StaR Films, we believe in the power of visual storytelling to connect, engage, and inspire. Our team of experienced filmmakers, designers, and developers work together to create compelling content that resonates with your audience and achieves your business goals.
@@ -79,7 +79,7 @@ const AboutSection = () => {
                 </div>
                 <div className="ml-3">
                   <h4 className="text-lg font-medium text-foreground">Client-Focused Approach</h4>
-                  <p className="text-muted-foreground">Your vision is our priority, and we're committed to bringing it to life.</p>
+                  <p className="text-muted-foreground">Your vision is our priority, and we&apos;re committed to bringing it to life.</p>
                 </div>
               </div>
               <div className="flex items-start">
@@ -146,7 +146,7 @@ const AboutSection = () => {
           <div className="text-center mb-12">
             <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">Trusted By Industry Leaders</h3>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              We've had the privilege of working with amazing companies across various industries
+              We&apos;ve had the privilege of working with amazing companies across various industries
             </p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center">

@@ -43,7 +43,7 @@ const FeaturedProducts = () => {
               </div>
               <p className="text-muted text-sm mb-4">
                 The complete system for creating viral YouTube content, from ideation to optimization.
-                Used by creators who've grown to 100K+ subscribers.
+                Used by creators who&apos;ve grown to 100K+ subscribers.
               </p>
               <div className="flex items-center mb-4">
                 <div className="flex text-yellow-400">

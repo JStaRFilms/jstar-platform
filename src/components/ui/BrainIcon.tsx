@@ -24,7 +24,6 @@ interface BrainProps extends HTMLMotionProps<"div"> {
 const BrainIcon = forwardRef<BrainHandle, BrainProps>(
 	(
 		{
-			onMouseEnter,
 			onMouseLeave,
 			className,
 			size = 28,
@@ -75,7 +74,7 @@ const BrainIcon = forwardRef<BrainHandle, BrainProps>(
 					sparkControlsR.start("animate");
 				} else onMouseLeave?.(e as any);
 			},
-			[groupControls, pulseControls, sparkControlsL, sparkControlsR],
+			[groupControls, pulseControls, sparkControlsL, sparkControlsR, onMouseLeave, reduced],
 		);
 
 		const handleLeave = useCallback(
@@ -87,7 +86,7 @@ const BrainIcon = forwardRef<BrainHandle, BrainProps>(
 					sparkControlsR.start("normal");
 				} else onMouseLeave?.(e as any);
 			},
-			[groupControls, pulseControls, sparkControlsL, sparkControlsR],
+			[groupControls, pulseControls, sparkControlsL, sparkControlsR, onMouseLeave],
 		);
 
 		const microTilt: Variants = useMemo(
@@ -99,7 +98,7 @@ const BrainIcon = forwardRef<BrainHandle, BrainProps>(
 					transition: { duration: 0.7 * duration, ease: "easeInOut" },
 				},
 			}),
-			[],
+			[duration],
 		);
 
 		const spinePulse: Variants = useMemo(
@@ -115,7 +114,7 @@ const BrainIcon = forwardRef<BrainHandle, BrainProps>(
 					},
 				},
 			}),
-			[],
+			[duration],
 		);
 
 		const lobeBreatheA: Variants = useMemo(
@@ -132,7 +131,7 @@ const BrainIcon = forwardRef<BrainHandle, BrainProps>(
 					},
 				},
 			}),
-			[],
+			[duration],
 		);
 
 		const lobeBreatheB: Variants = useMemo(
@@ -149,7 +148,7 @@ const BrainIcon = forwardRef<BrainHandle, BrainProps>(
 					},
 				},
 			}),
-			[],
+			[duration],
 		);
 
 		const synapseSparkL: Variants = useMemo(
@@ -165,7 +164,7 @@ const BrainIcon = forwardRef<BrainHandle, BrainProps>(
 					},
 				},
 			}),
-			[],
+			[duration],
 		);
 
 		const synapseSparkR: Variants = useMemo(
@@ -181,15 +180,15 @@ const BrainIcon = forwardRef<BrainHandle, BrainProps>(
 					},
 				},
 			}),
-			[],
+			[duration],
 		);
 
 		return (
 			<motion.div
 				className={cn("inline-flex items-center justify-center", className)}
+				{...props}
 				onMouseEnter={handleEnter}
 				onMouseLeave={handleLeave}
-				{...props}
 			>
 				<motion.svg
 					xmlns="http://www.w3.org/2000/svg"

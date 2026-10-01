@@ -60,35 +60,6 @@ interface HeroSectionProps {
   slideInterval?: number;
 }
 
-const slides = [
-  {
-    id: 0,
-    tagline: 'Creative Vision, Technical Excellence',
-    titleLine1: 'Elevate Your Story',
-    titleLine2: 'With Purpose & Excellence',
-    description: 'Transform your ideas into stunning visual experiences with professional video production, custom app development, and AI-powered creator tools.',
-    image: undefined,
-    gradient: 'from-primary to-accent',
-    buttonGradient: 'from-primary to-accent',
-    buttonBorder: 'border-primary dark:border-accent',
-    buttonText: 'text-primary dark:text-accent',
-    buttonHover: 'hover:bg-primary/10 dark:hover:bg-accent/10',
-  },
-  {
-    id: 1,
-    tagline: 'Faith-Driven Creative Solutions',
-    titleLine1: 'Where Faith Meets',
-    titleLine2: 'Innovation & Creativity',
-    description: 'Empowering creators and businesses with purpose-driven content and technology solutions that make a lasting impact.',
-    image: undefined,
-    gradient: 'from-jstar-blue to-faith-purple',
-    buttonGradient: 'from-jstar-blue to-faith-purple',
-    buttonBorder: 'border-jstar-blue dark:border-faith-purple',
-    buttonText: 'text-jstar-blue dark:text-faith-purple',
-    buttonHover: 'hover:bg-jstar-blue/10 dark:hover:bg-faith-purple/10',
-  },
-];
-
 /**
  * HeroSection - Main hero component for the homepage
  *
@@ -113,7 +84,6 @@ const slides = [
  */
 const HeroSection: React.FC<HeroSectionProps> = ({
   customSlides,
-  showStats = true,
   slideInterval = 7000
 }) => {
   // ALL HOOKS MUST BE CALLED AT THE TOP LEVEL - Rules of Hooks

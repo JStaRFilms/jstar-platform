@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { PortfolioProject } from '../../../content/portfolio';
-import { PlayCircleIcon, ArrowRightIcon } from '../../../components/icons/static-icons';
+import { PlayCircleIcon } from '../../../components/icons/static-icons';
 import { useYouTubePlayer } from '@/hooks/useYouTubePlayer';
 
 interface PortfolioCardProps {
@@ -15,8 +15,7 @@ interface PortfolioCardProps {
 const PortfolioCard: React.FC<PortfolioCardProps> = ({ project, onClick, getTagColor, forceHover = false, isModalOpen = false }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
-  const [lastPosition, setLastPosition] = useState(0);
-  const playerContainerRef = useRef<HTMLDivElement>(null);
+  const lastPosition = useRef(0);
   const positionInterval = useRef<NodeJS.Timeout | null>(null);
   const hasInitialized = useRef(false);
 
@@ -50,21 +49,21 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({ project, onClick, getTagC
       const timer = setTimeout(() => {
         mute();
         // Only seek if we have a saved position > 0
-        if (lastPosition > 0) {
-          seekTo(lastPosition);
+        if (lastPosition.current > 0) {
+          seekTo(lastPosition.current);
         }
       }, 100);
 
       return () => clearTimeout(timer);
     }
-  }, [isReady, showVideo, mute, seekTo]); // Removed lastPosition from dependencies
+  }, [isReady, showVideo, mute, seekTo]);
 
   // Track playback position every second
   useEffect(() => {
     if (showVideo && isReady) {
       positionInterval.current = setInterval(() => {
         const currentPos = getCurrentTime();
-        setLastPosition(currentPos);
+        lastPosition.current = currentPos;
       }, 1000);
     } else {
       if (positionInterval.current) {
@@ -84,13 +83,13 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({ project, onClick, getTagC
   useEffect(() => {
     if (isModalOpen && showVideo && isReady) {
       const currentPos = getCurrentTime();
-      setLastPosition(currentPos);
+      lastPosition.current = currentPos;
       pause();
     }
   }, [isModalOpen, showVideo, isReady, pause, getCurrentTime]);
 
   const handleCardClick = () => {
-    const currentTime = showVideo && isReady ? getCurrentTime() : lastPosition;
+    const currentTime = showVideo && isReady ? getCurrentTime() : lastPosition.current;
     onClick(currentTime);
   };
 

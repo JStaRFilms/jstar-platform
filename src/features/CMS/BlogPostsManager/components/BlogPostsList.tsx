@@ -97,22 +97,6 @@ export const BlogPostsList: React.FC<BlogPostsListProps> = ({
     return matchesSearch && matchesFilter;
   });
 
-  const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      published: { color: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200', label: 'Published' },
-      draft: { color: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200', label: 'Draft' },
-      scheduled: { color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200', label: 'Scheduled' }
-    };
-
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.draft;
-
-    return (
-      <span className={`text-xs bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 px-2 py-1 rounded`}>
-        Published
-      </span>
-    );
-  };
-
   const getSelectedPost = () => {
     return mockPosts.find(post => post.id === selectedPost) || mockPosts[0];
   };
