@@ -126,6 +126,7 @@
   position: absolute; z-index: 2; left: var(--game-left, 0px); top: var(--game-top, 0px);
   width: var(--game-width, 0px); height: var(--game-height, 0px);
   overflow: hidden; visibility: hidden;
+  transform-origin: 0 0;
 }
 .root[data-game-visible="true"] .gameFrame { visibility: visible; }
 .root[data-game-emerging="true"] .gameFrame { z-index: 4; }
@@ -161,9 +162,28 @@
 .message { position: absolute; z-index: 4; left: 4.6vw; bottom: 105px; background: var(--paper); color: var(--ink); padding: 8px; font-size: 13px; }
 .message:empty { display: none; }
 
+.gameFrame[data-play="true"] {
+  --game-mini: 0; box-sizing: border-box; position: fixed; inset: 3vh 3vw !important; margin: 0;
+  width: 94vw !important; height: 94vh !important; padding: 54px 0 0; border: 0;
+  transform: none !important; visibility: visible !important; z-index: 100 !important;
+  background: #f7f9f3; color: #001514;
+}
+.gameFrame[data-play="true"]::backdrop { background: #001514e8; }
+.gameFrame[data-play="true"] .gameCanvas { width: 100%; height: 100%; transform: none; --game-mini: 0; --game-layout-height: 90vh; overscroll-behavior: contain; }
+.backToBrowse { position: absolute; top: 10px; left: 20px; padding: 9px 14px; border: 1px solid #001514; background: #b5e619; color: #001514; font-size: 13px !important; }
+.root[data-gallery-mode="play"] .stage { overflow: visible; }
+.galleryEnd { background: #001514; color: #c4d1ca; min-height: 45vh; padding: 95px 5vw; font: 400 10px 'Study DM Sans', Arial, sans-serif; letter-spacing: 2px; }
+.filmViewer { width: min(1000px, 94vw); max-height: 94vh; margin: auto; padding: 24px; border: 1px solid #ffffff33; background: #0e2420; color: #fbfffe; }
+.filmViewer::backdrop { background: #001514e8; }
+.filmViewer button { border: 1px solid #fbfffe; padding: 10px 14px; background: none; color: inherit; }
+.filmViewer h2 { font: 500 36px 'Study Outfit', Arial, sans-serif; margin: 20px 0; }
+.filmViewer p { font-size: 13px; }
+.filmViewer video { display: block; width: 100%; max-height: 65vh; }
+.root[data-gallery-mode="film"] .filmViewer button:focus-visible { outline-color: #b5e619; }
+
 @media (prefers-reduced-motion: reduce) {
-  .track { height: 100svh; }
-  .stage { position: relative; }
+  .track { height: auto; }
+  .stage { position: relative; height: auto; min-height: 100svh; }
   .header, .firstLine, .secondLine, .description { transform: none; filter: none; }
   .filmFrame { filter: none; }
   .soundControl, .soundLabel { transition: none; }

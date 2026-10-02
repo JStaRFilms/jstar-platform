@@ -1,0 +1,110 @@
+.gallery {
+  --entrance: 0;
+  --heading-size: clamp(46px, 5.5vw, 94px);
+  --name-size: clamp(19px, 2vw, 35px);
+  font-synthesis: none;
+  position: absolute; inset: 0;
+  color: #fbfffe; font-family: 'Study DM Sans', Arial, sans-serif;
+  visibility: hidden; pointer-events: none;
+}
+.gallery[data-visible="true"] { visibility: visible; pointer-events: auto; }
+.gallery, .gallery * { box-sizing: border-box; }
+.gallery button, .gallery a { color: inherit; background: none; border: 0; text-decoration: none; }
+.gallery button:focus-visible, .gallery a:focus-visible, .catalog:focus-visible { outline: 2px solid #b5e619; outline-offset: -2px; }
+.wash { position: absolute; inset: 0; z-index: 5; opacity: var(--entrance); transition: background-color 280ms ease; }
+.header { position: absolute; top: 0; left: 0; width: 100%; height: 84px; padding: 0 4.5vw; display: flex; align-items: center; justify-content: space-between; z-index: 30; opacity: var(--entrance); }
+.brand { font-size: 25px; font-weight: 700; letter-spacing: -1.2px; }
+.brand span { font-size: 11px; font-weight: 400; letter-spacing: 0; margin-left: 12px; }
+.edition { font-size: 10px; letter-spacing: 2px; }
+.header button { font-size: 12px; padding: 12px 0; border-bottom: 1px solid currentColor; }
+.catalog { position: absolute; z-index: 20; left: 4.5vw; top: 18vh; width: 33vw; opacity: var(--entrance); transform: translateY(calc((1 - var(--entrance)) * 35px)); }
+.sectionLabel { display: flex; justify-content: space-between; font-size: 10px; letter-spacing: 2px; color: #b8c7c2; }
+.catalog h2 { font: 500 var(--heading-size)/.96 'Study Outfit', Arial, sans-serif; letter-spacing: -.055em; margin: 25px 0 32px; }
+.catalog h2 em { font-style: normal; color: #b5e619; }
+.filters { display: flex; gap: 25px; border-bottom: 1px solid #ffffff26; padding-bottom: 16px; }
+.filters button { padding: 0; color: #a6b6b0; font-size: 13px; line-height: 1.3; }
+.filters button[aria-pressed="true"] { color: white; }
+.filters sup { font-size: 8px; margin-left: 3px; }
+.window {
+  --row-height: min(clamp(74px, 9.4vh, 92px), calc((82vh - 208px - var(--heading-size) * 1.92) / max(var(--rows), 1)));
+  height: calc(var(--rows) * var(--row-height)); overflow: clip; margin-top: 13px; padding-right: 9px;
+}
+.row { width: 100%; height: var(--row-height); text-align: left; display: grid; grid-template-columns: 25px 1fr 20px; gap: 6px; align-items: center; border-bottom: 1px solid #ffffff20 !important; padding: min(15px, max(3px, calc((var(--row-height) - var(--name-size) * 1.25 - 18px) / 2))) 0; color: #91a39d !important; transition: color 180ms ease, transform 180ms ease; }
+.row[data-displayed="true"] { color: #fff !important; transform: translateX(9px); }
+.row[aria-current="true"] .index { color: #b5e619; }
+.row strong { font: 400 var(--name-size)/1.25 'Study Outfit', Arial, sans-serif; letter-spacing: -.035em; display: block; }
+.row small { display: block; font-size: 9px; letter-spacing: 1.5px; margin-top: 5px; text-transform: uppercase; line-height: 1.3; }
+.row > span:last-child { opacity: 0; }
+.row[data-displayed="true"] > span:last-child { opacity: 1; }
+.index { font-size: 9px; }
+.listNote { font-size: 11px; color: #92a69e; margin-top: 18px; }
+.stack { position: absolute; inset: 0; pointer-events: none; }
+.panel { position: absolute; top: 0; left: 0; transform-origin: 0 0; overflow: hidden; background: #fbfffe; box-shadow: 0 20px 70px #0003; opacity: var(--entrance); }
+.panel video { display: block; width: 100%; height: 100%; object-fit: cover; }
+.staticImage { object-fit: contain; }
+.filmTitle { position: absolute; bottom: 7%; left: 6%; color: white; text-shadow: 0 2px 30px #0009; }
+.filmTitle span { font-size: 17px; letter-spacing: 4px; text-transform: uppercase; }
+.filmTitle h3 { font: 500 120px/1 'Study Outfit', Arial, sans-serif; letter-spacing: -6px; margin: 10px 0 0; }
+.school { height: 100%; padding: 5% 7%; position: relative; color: #173526; background: #dce7ce; }
+.school > span { font-size: 15px; letter-spacing: 3px; }
+.school h3 { font: 500 100px/.95 'Study Outfit', Arial, sans-serif; letter-spacing: -5px; position: absolute; bottom: 15%; margin: 0; }
+.school p { position: absolute; bottom: 5%; font-size: 16px; }
+.symbol { position: absolute; right: 9%; top: 15%; font: 500 230px/1 'Study Outfit', Arial, sans-serif; color: #406241; }
+.symbol span { font-size: 110px; vertical-align: top; }
+.caption { position: absolute; left: 44vw; right: 4.5vw; top: 78vh; display: flex; justify-content: space-between; align-items: flex-end; color: #fff; opacity: var(--entrance); z-index: 20; gap: 24px; }
+.caption span { font-size: 9px; letter-spacing: 2px; color: #bccac2; text-transform: uppercase; }
+.caption p { font-size: 14px; line-height: 1.5; max-width: 380px; margin: 10px 0 0; }
+.actions { display: flex; gap: 16px; }
+.actions button, .actions a { font-size: 12px; border-bottom: 1px solid #ffffff70; padding: 10px 0; white-space: nowrap; }
+.footer { position: absolute; bottom: 25px; left: 4.5vw; right: 4.5vw; display: flex; justify-content: space-between; align-items: center; color: #9aafa5; opacity: var(--entrance); font-size: 10px; letter-spacing: 1px; z-index: 20; }
+.footer > span:first-child { font: 400 42px 'Study Outfit', Arial, sans-serif; letter-spacing: -2px; color: #e9f2e8; }
+.footer button { font-size: 12px; padding: 10px 0; border-bottom: 1px solid; }
+.staticStudy { position: absolute; z-index: 10; left: 44vw; top: 32vh; width: 50vw; padding: 30px; background: #f7f9f3; color: #001514; font: 500 28px 'Study Outfit', Arial, sans-serif; }
+.staticStudy p { font: 400 16px 'Study DM Sans', Arial, sans-serif; }
+@media (max-height: 750px) and (min-width: 801px) {
+  .gallery { --name-size: clamp(16px, 3.4vh, 24px); }
+  .header { height: 60px; }
+  .catalog { top: max(70px, 12vh); }
+  .catalog h2 { font-size: min(4.5vw, 9vh); margin: 10px 0; }
+  .filters { padding-bottom: 8px; }
+  .window { --row-height: clamp(32px, 7vh, 46px); margin-top: 8px; }
+  .row { padding: 2px 0; }
+  .row strong { font-size: clamp(16px, 3.4vh, 24px); }
+  .row small { font-size: 8px; margin-top: 2px; }
+  .listNote { display: none; }
+  .caption { top: 79vh; }
+}
+@media (max-width: 800px) {
+  .gallery { --name-size: 17px; }
+  .header { height: 56px; padding: 0 5vw; }
+  .brand { font-size: 23px; }
+  .brand span, .edition { display: none; }
+  .header button { font-size: 11px; }
+  .catalog { top: max(66px, 10vh); left: 5vw; width: 90vw; }
+  .catalog h2 { font-size: 36px; margin: 12px 0; }
+  .sectionLabel { font-size: 9px; }
+  .filters { position: absolute; right: 0; top: 40px; border: 0; gap: 14px; }
+  .window { --row-height: 39px; margin-top: 10px; }
+  .row { padding: 2px 0; }
+  .row strong { font-size: 17px; }
+  .row small { font-size: 8px; margin-top: 3px; }
+  .listNote { display: none; }
+  .caption { left: 5vw; right: 5vw; top: 83vh; gap: 12px; }
+  .caption p { font-size: 11px; margin-top: 5px; }
+  .caption span { font-size: 8px; }
+  .footer { bottom: 10px; }
+  .footer > span:first-child { font-size: 28px; }
+  .footer > span:nth-child(2) { display: none; }
+  .filmTitle h3 { font-size: 54px; letter-spacing: -2px; }
+  .filmTitle span { font-size: 11px; }
+  .school h3 { font-size: 44px; letter-spacing: -2px; bottom: 23%; }
+  .school > span, .school p { font-size: 10px; letter-spacing: 0; }
+  .school p { left: 7%; right: 7%; }
+  .symbol { font-size: 65px; }
+  .symbol span { font-size: 32px; }
+  .staticStudy { left: 5vw; top: 53vh; width: 90vw; font-size: 23px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gallery { position: relative; height: 100svh; margin-top: 100svh; --entrance: 1 !important; visibility: visible; }
+  .wash, .row { transition: none; }
+}
