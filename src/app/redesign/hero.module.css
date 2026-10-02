@@ -51,7 +51,7 @@
 .header nav a { text-decoration: none; }
 .header nav a:hover { text-decoration: underline; text-underline-offset: 5px; }
 .header .projectLink { background: var(--accent); color: var(--ink); padding: 14px 19px; display: flex; gap: 24px; }
-.track { position: relative; height: 270svh; }
+.track { position: relative; height: 474svh; }
 .stage { position: sticky; top: 0; height: 100svh; overflow: clip; isolation: isolate; background: var(--paper); }
 .introduction { position: absolute; inset: 0; }
 .eyebrow { position: absolute; top: calc(var(--word-top) - 32px); left: 4.6vw; font-size: 12px; letter-spacing: 0.03em; opacity: calc(1 - var(--progress) * 3); }
@@ -74,6 +74,26 @@
   height: calc(var(--film-width) * 0.5625 * (1 - var(--progress)) + var(--progress) * 100svh);
   background: var(--ink); overflow: hidden; filter: blur(var(--motion-blur));
 }
+.root[data-tablet="true"] .filmFrame {
+  left: var(--pullback-left); top: var(--pullback-top);
+  width: var(--pullback-width); height: var(--pullback-height);
+}
+.tabletScene {
+  position: absolute; z-index: 3; left: 0; top: 0; width: 1672px; height: 941px;
+  transform-origin: 0 0;
+  transform: translate(var(--scene-x, 0px), var(--scene-y, 0px)) scale(var(--scene-scale, 1));
+  visibility: hidden; pointer-events: none;
+}
+.tabletScene img {
+  display: block; width: 100%; height: 100%; max-width: none;
+  mask-image: url('/redesign/tablet-screen-mask.svg');
+  -webkit-mask-image: url('/redesign/tablet-screen-mask.svg');
+  mask-size: 100% 100%; -webkit-mask-size: 100% 100%;
+  mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat;
+  mask-mode: alpha; mask-position: 0 0;
+}
+.root[data-tablet="true"] .tabletScene { visibility: visible; }
+.tabletControl { position: absolute; z-index: 4; bottom: 160px; right: 4.6vw; background: var(--paper); padding: 10px 15px; }
 .video { display: block; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: 50% 35%; }
 .video:focus-visible { outline: 3px solid var(--accent); outline-offset: -5px; }
 .srOnly { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
@@ -106,6 +126,13 @@
   .soundControl, .soundLabel { transition: none; }
   .root[data-static-expanded="true"] .introduction { visibility: hidden; }
   .root[data-static-expanded="true"] .filmFrame { left: 0; top: 0; width: 100%; height: 100svh; }
+  .root[data-static-tablet="true"] .filmFrame {
+    left: var(--tablet-left); top: var(--tablet-top); width: var(--tablet-width); height: var(--tablet-height);
+  }
+  .root[data-static-tablet="true"] .tabletScene {
+    visibility: visible;
+    transform: translate(var(--tablet-scene-x), var(--tablet-scene-y)) scale(var(--tablet-scene-scale));
+  }
   .root[data-static-expanded="true"] .bottomRow { z-index: 4; bottom: 105px; left: auto; right: 4.6vw; }
   .root[data-static-expanded="true"] .expandControl { background: var(--paper); padding: 10px 15px; border: none; }
 }

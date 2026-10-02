@@ -1,10 +1,12 @@
-// Default: verify only. Pass --capture explicitly to create screenshots/recording.
+// Default: verify only. --capture records the hero; --capture-tablet exports the tablet review to WebM and MP4.
 // PLAYWRIGHT_MODULE points to an existing Playwright installation; no project dependency needed.
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const path = require('node:path');
-const capture = process.argv.includes('--capture');
+const { execFileSync } = require('node:child_process');
+const captureTablet = process.argv.includes('--capture-tablet');
+const capture = process.argv.includes('--capture') || captureTablet;
 const viewport = { width: 1860, height: 980 };
 const output = __dirname;
 
@@ -31,17 +33,46 @@ async function scroll(page, to, duration = 900) {
 }
 
 (async () => {
+  if (captureTablet) console.log('Launching tablet recorder…');
   const browser = await chromium.launch({ channel: 'chrome', headless: true });
   try {
+    const recordingBegan = Date.now();
     const page = await browser.newPage({ viewport, ...(capture ? { recordVideo: { dir: output, size: viewport } } : {}) });
+    if (captureTablet) console.log('Recorder ready; opening preview…');
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     assert((await page.goto('http://127.0.0.1:5782/redesign', { waitUntil: 'networkidle' })).status() === 200);
     await page.waitForSelector('[data-settled="true"]');
     // Development tools are not part of the hero and can intercept corner controls.
     await page.addStyleTag({ content: 'nextjs-portal { display: none !important; }' });
+    if (captureTablet) {
+      const distance = await page.evaluate(() => document.querySelector('section').firstElementChild.clientHeight * 2.7 - innerHeight);
+      console.log('Preparing full-screen film…');
+      await scroll(page, distance, 700);
+      await page.waitForFunction(() => !document.querySelector('video').paused);
+      const trimStart = Math.max(0, (Date.now() - recordingBegan) / 1000 - 0.5);
+      await page.evaluate(() => { window.captureFilm = document.querySelector('video'); });
+      await page.waitForTimeout(1500);
+      console.log('Recording pullback…');
+      await scroll(page, distance * 2, 1400);
+      assert(await page.locator('video').evaluate(el => el === window.captureFilm && !el.paused && el.playbackRate === 1), 'Film continuity lost at tablet');
+      await page.waitForTimeout(2500);
+      console.log('Recording reverse scroll…');
+      await scroll(page, distance, 1400);
+      assert(await page.locator('video').evaluate(el => el === window.captureFilm && !el.paused), 'Film continuity lost on retreat');
+      await page.waitForTimeout(1800);
+      assert.deepEqual(errors, [], 'Browser errors during tablet recording');
+      const recording = page.video();
+      await page.close();
+      const webm = path.join(output, 'tablet-pullback.webm');
+      const mp4 = path.join(output, 'tablet-pullback.mp4');
+      await fs.rename(await recording.path(), webm);
+      execFileSync('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', '-ss', String(trimStart), '-i', webm, '-c:v', 'libx264', '-preset', 'medium', '-crf', '21', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', mp4]);
+      console.log('Recorded fullscreen → tablet → fullscreen, with continuous film playback: '+mp4);
+      return;
+    }
     if (capture) {
-      const distance = await page.evaluate(() => document.querySelector('section').offsetHeight - innerHeight);
+      const distance = await page.evaluate(() => document.querySelector('section').firstElementChild.clientHeight * 2.7 - innerHeight);
       await page.waitForTimeout(1600);
       await page.screenshot({ path: path.join(output, 'opening-refined.png') });
       await scroll(page, Math.ceil(distance * 0.25), 1000);
@@ -80,7 +111,7 @@ async function scroll(page, to, duration = 900) {
     }
     await page.setViewportSize(viewport);
     await page.waitForTimeout(150);
-    const distance = await page.evaluate(() => document.querySelector('section').offsetHeight - innerHeight);
+    const distance = await page.evaluate(() => document.querySelector('section').firstElementChild.clientHeight * 2.7 - innerHeight);
     const sound = page.locator('#film-sound');
     const control = sound.locator('..');
     const arriving = scroll(page, Math.ceil(distance * 0.25), 600);
