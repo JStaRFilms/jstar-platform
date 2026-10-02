@@ -7,6 +7,14 @@
   --intro-shift: 0;
   --nav-fold: 0;
   --motion-blur: 0px;
+  --headline-first: 0;
+  --headline-second: 0;
+  --supporting-copy: 0;
+  --text-exit: 0;
+  --swipe: 0;
+  --game-reveal: 0;
+  --game-mini: 1;
+  --portrait-exit: 0;
   --word-size: min(15.2vw, 29vh);
   --word-top: max(136px, 14vh);
   --rest-word-size: min(13vw, 21vh);
@@ -51,7 +59,7 @@
 .header nav a { text-decoration: none; }
 .header nav a:hover { text-decoration: underline; text-underline-offset: 5px; }
 .header .projectLink { background: var(--accent); color: var(--ink); padding: 14px 19px; display: flex; gap: 24px; }
-.track { position: relative; height: 474svh; }
+.track { position: relative; height: 831svh; }
 .stage { position: sticky; top: 0; height: 100svh; overflow: clip; isolation: isolate; background: var(--paper); }
 .introduction { position: absolute; inset: 0; }
 .eyebrow { position: absolute; top: calc(var(--word-top) - 32px); left: 4.6vw; font-size: 12px; letter-spacing: 0.03em; opacity: calc(1 - var(--progress) * 3); }
@@ -81,7 +89,8 @@
 .tabletScene {
   position: absolute; z-index: 3; left: 0; top: 0; width: 1672px; height: 941px;
   transform-origin: 0 0;
-  transform: translate(var(--scene-x, 0px), var(--scene-y, 0px)) scale(var(--scene-scale, 1));
+  transform: translate(calc(var(--scene-x, 0px) + var(--portrait-exit) * 5vw), var(--scene-y, 0px)) scale(var(--scene-scale, 1));
+  opacity: calc(1 - var(--portrait-exit));
   visibility: hidden; pointer-events: none;
 }
 .tabletScene img {
@@ -94,7 +103,41 @@
 }
 .root[data-tablet="true"] .tabletScene { visibility: visible; }
 .tabletControl { position: absolute; z-index: 4; bottom: 160px; right: 4.6vw; background: var(--paper); padding: 10px 15px; }
-.video { display: block; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: 50% 35%; }
+.video { display: block; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: 50% 35%; transform: translateX(calc(var(--swipe) * -100%)); }
+.businessIntro {
+  position: absolute; z-index: 5; left: 5.5vw; top: calc(25% + 4px); width: 45vw;
+  opacity: calc(1 - var(--text-exit));
+  transform: translateX(calc(var(--text-exit) * -75px));
+  visibility: hidden; pointer-events: none;
+}
+.root[data-tablet="true"] .businessIntro { visibility: visible; }
+.businessIntro h2 { font: 700 clamp(52px, 6.55vw, 128px)/.98 Arial, Helvetica, sans-serif; letter-spacing: -0.04em; margin: 0; }
+.lineMask { display: block; overflow: hidden; white-space: nowrap; }
+.lineMask + .lineMask { margin-top: -0.1em; }
+.headlineFirst, .headlineSecond { display: block; }
+.headlineFirst { opacity: var(--headline-first); transform: translateY(calc((1 - var(--headline-first)) * .6em)); }
+.headlineSecond { opacity: var(--headline-second); transform: translateY(calc((1 - var(--headline-second)) * .6em)); }
+.businessIntro p {
+  margin: 28px 0 0; font: 400 clamp(18px, 1.65vw, 30px)/1.3 Arial, Helvetica, sans-serif;
+  opacity: var(--supporting-copy); transform: translateY(calc((1 - var(--supporting-copy)) * 12px));
+  white-space: nowrap;
+}
+.gameFrame {
+  position: absolute; z-index: 2; left: var(--game-left, 0px); top: var(--game-top, 0px);
+  width: var(--game-width, 0px); height: var(--game-height, 0px);
+  overflow: hidden; visibility: hidden;
+}
+.root[data-game-visible="true"] .gameFrame { visibility: visible; }
+.root[data-game-emerging="true"] .gameFrame { z-index: 4; }
+.gameCanvas {
+  width: var(--game-layout-width); height: var(--game-layout-height);
+  transform-origin: 0 0;
+  transform: scale(var(--game-scale, 1)) translateX(calc((1 - var(--swipe)) * 100%));
+  overflow: auto;
+}
+.gameFrame[inert] { pointer-events: none; }
+.gameControl, .staticGameControl { position: absolute; z-index: 4; bottom: 215px; right: 4.6vw; padding: 10px 15px; background: var(--paper); }
+.staticGameControl { top: 20px; bottom: auto; right: 24px; font-size: 13px !important; }
 .video:focus-visible { outline: 3px solid var(--accent); outline-offset: -5px; }
 .srOnly { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .soundControl {
@@ -124,12 +167,21 @@
   .header, .firstLine, .secondLine, .description { transform: none; filter: none; }
   .filmFrame { filter: none; }
   .soundControl, .soundLabel { transition: none; }
+  .video { transform: none; }
+  .businessIntro { display: none; }
+  .root[data-static-tablet="true"]:not([data-static-game="true"]) .businessIntro { display: block; visibility: visible; opacity: 1; transform: none; }
+  .root[data-static-tablet="true"] .headlineFirst, .root[data-static-tablet="true"] .headlineSecond,
+  .root[data-static-tablet="true"] .businessIntro p { opacity: 1; transform: none; }
+  .root[data-static-game="true"] .gameFrame { visibility: visible; left: 0; top: 0; width: 100%; height: 100svh; }
+  .root[data-static-game="true"] .gameCanvas { transform: none; width: 100%; height: 100%; }
+  .root[data-static-game="true"] .gameFrame { --game-mini: 0; --game-layout-height: 100svh; }
+  .root[data-static-game="true"] .tabletScene, .root[data-static-game="true"] .filmFrame, .root[data-static-game="true"] .bottomRow { visibility: hidden; }
   .root[data-static-expanded="true"] .introduction { visibility: hidden; }
   .root[data-static-expanded="true"] .filmFrame { left: 0; top: 0; width: 100%; height: 100svh; }
   .root[data-static-tablet="true"] .filmFrame {
     left: var(--tablet-left); top: var(--tablet-top); width: var(--tablet-width); height: var(--tablet-height);
   }
-  .root[data-static-tablet="true"] .tabletScene {
+  .root[data-static-tablet="true"]:not([data-static-game="true"]) .tabletScene {
     visibility: visible;
     transform: translate(var(--tablet-scene-x), var(--tablet-scene-y)) scale(var(--tablet-scene-scale));
   }
@@ -142,6 +194,10 @@
   .brand span { display: none; }
   .header nav { gap: 16px; font-size: 12px; }
   .header .projectLink { padding: 12px; gap: 8px; }
+  .businessIntro { top: 8%; width: 90vw; }
+  .businessIntro h2 { font-size: 28px; }
+  .lineMask + .lineMask { margin-top: 0; }
+  .businessIntro p { max-width: 70vw; margin-top: 12px; font-size: 14px; white-space: normal; }
   .eyebrow { top: 18vh; left: 5vw; }
   .firstLine { top: 24vh; font-size: 15vw; }
   .secondLine { top: calc(24vh + 15vw); font-size: 23.7vw; }

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Volume2, VolumeX } from 'lucide-react';
 import styles from './hero.module.css';
+import StudyGame from './StudyGame';
 
 const FILM = '/redesign/nifemi.mp4';
 const POSTER = '/redesign/nifemi-poster.jpg';
@@ -25,6 +26,11 @@ export default function Hero() {
   const wantsPlayback = useRef(true);
   const wantsScreeningFocus = useRef(false);
   const inView = useRef(false);
+  const filmConcealed = useRef(false);
+  const gameFrame = useRef<HTMLDivElement>(null);
+  const [gameExpanded, setGameExpanded] = useState(false);
+  const [gameInteractive, setGameInteractive] = useState(false);
+  const [filmAvailable, setFilmAvailable] = useState(true);
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(true);
   const [reduced, setReduced] = useState(false);
@@ -36,7 +42,7 @@ export default function Hero() {
   const [soundAwake, setSoundAwake] = useState(false);
   const [soundHint, setSoundHint] = useState(false);
   const [message, setMessage] = useState('');
-  const controlsVisible = controlsAvailable || (reduced && expanded);
+  const controlsVisible = filmAvailable && (controlsAvailable || (reduced && expanded));
   const navHidden = navFolded || (reduced && expanded);
 
   const wakeSound = useCallback((delay = 1600) => {
@@ -86,6 +92,7 @@ export default function Hero() {
     let target = 0;
     let lastTime = 0;
     let lastFolded = false;
+    let lastInteractive = false;
     let sampledFrames = 0;
     let sampledTime = 0;
     let width = viewport.clientWidth;
@@ -103,7 +110,7 @@ export default function Hero() {
     if (audit) Object.defineProperty(window, '__CREATIVE_AUDIT__', { value: audit, configurable: true });
 
     const resume = () => {
-      if (wantsPlayback.current && inView.current && !document.hidden) {
+      if (wantsPlayback.current && inView.current && !filmConcealed.current && !document.hidden) {
         void film.play().catch(() => {
           if (!disposed) setMessage('Focus the film and press Space to play.');
         });
@@ -132,6 +139,57 @@ export default function Hero() {
         element.style.setProperty('--pullback-top', `${(y + 224 * scale) * crop}px`);
         element.style.setProperty('--pullback-width', `${width * (1 - crop) + 188 * scale * crop}px`);
         element.style.setProperty('--pullback-height', `${height * (1 - crop) + 110 * scale * crop}px`);
+      }
+      if (!motion.matches && (progress > 1.9 || target > 1.9)) {
+        const headlineFirst = ease(clamp((progress - 1.96) / 0.24));
+        const headlineSecond = ease(clamp((progress - 2.03) / 0.27));
+        const supportingCopy = ease(clamp((progress - 2.16) / 0.24));
+        const swipe = ease(clamp((progress - 2.65) / 0.45));
+        const reveal = ease(clamp((progress - 3.3) / 0.8));
+        const textExit = ease(clamp((progress - 3.31) / 0.48));
+        const portraitExit = ease(clamp((progress - 3.36) / 0.69));
+        element.style.setProperty('--headline-first', String(headlineFirst));
+        element.style.setProperty('--headline-second', String(headlineSecond));
+        element.style.setProperty('--supporting-copy', String(supportingCopy));
+        element.style.setProperty('--text-exit', String(textExit));
+        element.style.setProperty('--swipe', String(swipe));
+        element.style.setProperty('--game-reveal', String(reveal));
+        element.style.setProperty('--portrait-exit', String(portraitExit));
+        element.style.setProperty('--game-mini', String(1 - reveal));
+        const screenLeft = endX + 1028 * endScale;
+        const screenTop = endY + 224 * endScale;
+        const screenWidth = 188 * endScale;
+        const screenHeight = 110 * endScale;
+        const gameWidth = screenWidth * (1 - reveal) + width * reveal;
+        const gameHeight = screenHeight * (1 - reveal) + height * reveal;
+        const layoutWidth = width * (0.62 + 0.38 * reveal);
+        const gameScale = gameWidth / layoutWidth;
+        element.style.setProperty('--game-left', `${screenLeft * (1 - reveal)}px`);
+        element.style.setProperty('--game-top', `${screenTop * (1 - reveal)}px`);
+        element.style.setProperty('--game-width', `${gameWidth}px`);
+        element.style.setProperty('--game-height', `${gameHeight}px`);
+        element.style.setProperty('--game-scale', String(gameScale));
+        element.style.setProperty('--game-layout-width', `${layoutWidth}px`);
+        element.style.setProperty('--game-layout-height', `${gameHeight / gameScale}px`);
+        const concealed = progress >= 3.1;
+        if (concealed !== filmConcealed.current) {
+          filmConcealed.current = concealed;
+          setFilmAvailable(!concealed);
+          if (concealed && document.activeElement === film) film.blur();
+          resume();
+        }
+        // The whole final resting interval is usable; tiny scrolls inside it must not revoke input.
+        const interactive = progress >= 4.1 && target >= 4.1;
+        if (interactive !== lastInteractive) {
+          lastInteractive = interactive;
+          setGameInteractive(interactive);
+          if (!interactive && document.activeElement instanceof HTMLElement && gameFrame.current?.contains(document.activeElement)) {
+            document.activeElement.blur();
+          }
+        }
+        element.dataset.gameVisible = String(progress > 2.65);
+        element.dataset.gameEmerging = String(reveal > 0);
+        element.dataset.gameInteractive = String(interactive);
       }
       const fold = ease(clamp((expansion - 0.4) / 0.4));
       element.style.setProperty('--arrival', String(ease(arrival)));
@@ -176,7 +234,13 @@ export default function Hero() {
     const measure = () => {
       // Keep the original 270svh hero's denominator, independent of the added tablet track.
       const distance = height * 2.7 - window.innerHeight;
-      target = motion.matches ? 0 : Math.max(0, Math.min(ready ? 2.2 : 1, -section.getBoundingClientRect().top / distance));
+      target = motion.matches ? 0 : Math.max(0, Math.min(ready ? 4.3 : 1, -section.getBoundingClientRect().top / distance));
+      if (!motion.matches && target < 4.1 && lastInteractive) {
+        lastInteractive = false;
+        setGameInteractive(false);
+        element.dataset.gameInteractive = 'false';
+        if (document.activeElement instanceof HTMLElement && gameFrame.current?.contains(document.activeElement)) document.activeElement.blur();
+      }
       if (audit) {
         audit.maxScroll = document.documentElement.scrollHeight - window.innerHeight;
         audit.isScrollUnlocked = audit.maxScroll > 0;
@@ -198,6 +262,8 @@ export default function Hero() {
       endScale = Math.min(width / 1672, height / 941) * 0.96;
       endX = (width - 1672 * endScale) / 2;
       endY = (height - 941 * endScale) / 2;
+      element.style.setProperty('--game-layout-width', `${width}px`);
+      element.style.setProperty('--game-layout-height', `${height}px`);
       element.style.setProperty('--tablet-left', `${endX + 1028 * endScale}px`);
       element.style.setProperty('--tablet-top', `${endY + 224 * endScale}px`);
       element.style.setProperty('--tablet-width', `${188 * endScale}px`);
@@ -224,6 +290,10 @@ export default function Hero() {
       setReduced(motion.matches);
       setExpanded(false);
       setTabletExpanded(false);
+      setGameExpanded(false);
+      setGameInteractive(false);
+      filmConcealed.current = false;
+      setFilmAvailable(true);
       if (motion.matches) wantsPlayback.current = false;
       film.pause();
       measure();
@@ -236,7 +306,7 @@ export default function Hero() {
       setControlsAvailable(entry.isIntersecting);
       resume();
     }, { threshold: 0.01 });
-    observer.observe(film);
+    observer.observe(film.parentElement ?? film);
     window.addEventListener('scroll', measure, { passive: true });
     window.addEventListener('resize', resize);
     document.addEventListener('visibilitychange', resume);
@@ -258,9 +328,22 @@ export default function Hero() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!reduced) return;
+    filmConcealed.current = gameExpanded;
+    setFilmAvailable(!gameExpanded);
+    if (gameExpanded) {
+      if (document.activeElement === video.current) video.current?.blur();
+      video.current?.pause();
+    }
+    else if (wantsPlayback.current && inView.current && !document.hidden) {
+      void video.current?.play().catch(() => setMessage('Focus the film and press Space to play.'));
+    }
+  }, [reduced, gameExpanded]);
+
   async function togglePlayback() {
     const film = video.current;
-    if (!film) return;
+    if (!film || filmConcealed.current) return;
     setMessage('');
     if (!film.paused) {
       wantsPlayback.current = false;
@@ -279,6 +362,7 @@ export default function Hero() {
     wantsOpeningFocus.current = true;
     setExpanded(false);
     setTabletExpanded(false);
+    setGameExpanded(false);
     if (track.current) window.scrollTo({ top: window.scrollY + track.current.getBoundingClientRect().top, behavior: 'instant' });
     if (!navHidden) {
       wantsOpeningFocus.current = false;
@@ -290,6 +374,7 @@ export default function Hero() {
     if (reduced) {
       setExpanded(!expanded);
       setTabletExpanded(false);
+      setGameExpanded(false);
     } else if (track.current && stage.current) {
       const target = window.scrollY + track.current.getBoundingClientRect().top;
       const distance = stage.current.clientHeight * 2.7 - window.innerHeight;
@@ -303,7 +388,7 @@ export default function Hero() {
   }
 
   return (
-    <div ref={root} className={styles.root} data-static-expanded={reduced && expanded} data-static-tablet={reduced && expanded && tabletExpanded} data-nav-hidden={navHidden}
+    <div ref={root} className={styles.root} data-static-expanded={reduced && expanded} data-static-tablet={reduced && expanded && tabletExpanded} data-nav-hidden={navHidden} data-static-game={reduced && gameExpanded}
       onKeyDown={(event) => { if (event.key === 'Escape') { event.preventDefault(); returnToOpening(); } }}>
       <a className={styles.skip} href="#film-sound" onClick={(event) => {
         event.preventDefault();
@@ -322,7 +407,7 @@ export default function Hero() {
         </nav>
       </header>
 
-      <section ref={track} className={styles.track} aria-label="Studio introduction, film and tablet pullback">
+      <section ref={track} className={styles.track} aria-label="Studio introduction, film, tablet and study game">
         <div ref={stage} className={styles.stage} onPointerMove={() => wakeSound()}>
           <div className={styles.introduction}>
             <p className={styles.eyebrow}>Two ways to move people.</p>
@@ -335,18 +420,37 @@ export default function Hero() {
 
           <div className={styles.filmFrame}>
             <video ref={video} className={styles.video} src={FILM} poster={POSTER} muted={muted} loop playsInline preload="metadata"
-              tabIndex={controlsVisible ? 0 : -1} aria-keyshortcuts="Space Escape" aria-describedby="film-keyboard-help"
+              inert={!filmAvailable} tabIndex={controlsVisible ? 0 : -1} aria-keyshortcuts="Space Escape" aria-describedby="film-keyboard-help"
               aria-label={playing ? 'Nifemi film, playing' : 'Nifemi film, paused'}
               onKeyDown={(event) => { if (event.code === 'Space') { event.preventDefault(); void togglePlayback(); } }}
               onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)}
               onError={() => setMessage('Film unavailable. Please reload this local preview.')}
             />
           </div>
+          <div className={styles.businessIntro}>
+            <h2 aria-label="We build what happens next.">
+              <span className={styles.lineMask} aria-hidden="true"><span className={styles.headlineFirst}>We build what</span></span>
+              <span className={styles.lineMask} aria-hidden="true"><span className={styles.headlineSecond}>happens next.</span></span>
+            </h2>
+            <p>Websites, applications, and systems for your business.</p>
+          </div>
+          <div ref={gameFrame} className={styles.gameFrame} inert={!(reduced ? gameExpanded : gameInteractive)}
+            aria-hidden={!(reduced ? gameExpanded : gameInteractive)}>
+            <div className={styles.gameCanvas}>
+              <StudyGame interactive={reduced ? gameExpanded : gameInteractive} />
+            </div>
+          </div>
           <div className={styles.tabletScene}>
             <Image ref={sceneImage} src={TABLET_SCENE} width={1672} height={941} unoptimized loading="eager"
               alt="A Black woman seated on a plinth holding a landscape tablet showing the film." />
           </div>
-          {reduced && expanded && tabletReady && (
+          {reduced && gameExpanded && (
+            <button className={styles.staticGameControl} onClick={() => setGameExpanded(false)}>Return to tablet</button>
+          )}
+          {reduced && expanded && tabletExpanded && !gameExpanded && (
+            <button className={styles.gameControl} onClick={() => setGameExpanded(true)}>View study game</button>
+          )}
+          {reduced && expanded && tabletReady && !gameExpanded && (
             <button className={styles.tabletControl} onClick={() => setTabletExpanded(!tabletExpanded)}>
               {tabletExpanded ? 'Return to screening' : 'View tablet'}
             </button>
@@ -361,7 +465,7 @@ export default function Hero() {
             </button>
           </div>
 
-          <div className={styles.bottomRow}>
+          <div className={styles.bottomRow} inert={reduced && gameExpanded}>
             <button onClick={changeComposition} className={styles.expandControl}>
               {reduced ? (expanded ? 'Return to opening' : 'Expand film') : 'Go to screening'} <span aria-hidden="true">↓</span>
             </button>
