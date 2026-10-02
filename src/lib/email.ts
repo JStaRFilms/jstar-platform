@@ -108,6 +108,7 @@ export async function sendAdminNotification(submission: {
   id: string;
   name: string;
   email: string;
+  phone?: string | null;
   subject: string;
   service: string;
   message: string;
@@ -117,6 +118,12 @@ export async function sendAdminNotification(submission: {
   const adminEmail = process.env.ADMIN_EMAIL || 'admin@jstarfilms.com';
 
   const subject = `New Contact Form Submission: ${submission.subject}`;
+  const phoneHtml = submission.phone
+    ?.replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
   const html = `
     <!DOCTYPE html>
     <html>
@@ -147,6 +154,13 @@ export async function sendAdminNotification(submission: {
               <div class="label">From:</div>
               <div class="value">${submission.name} <${submission.email}></div>
             </div>
+
+            ${phoneHtml ? `
+            <div class="field">
+              <div class="label">Phone:</div>
+              <div class="value">${phoneHtml}</div>
+            </div>
+            ` : ''}
 
             <div class="field">
               <div class="label">Subject:</div>

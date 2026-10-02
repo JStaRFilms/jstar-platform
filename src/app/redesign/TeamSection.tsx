@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { forwardRef, useEffect, useRef, useState } from 'react';
+import { forwardRef, useCallback, useEffect, useRef, useState } from 'react';
 import { companyData } from '@/content/about-company';
 import styles from './team.module.css';
 
@@ -24,19 +24,28 @@ const ease = (value: number) => { const t = clamp(value); return t * t * (3 - 2 
 const mix = (from: number, to: number, amount: number) => from + (to - from) * amount;
 const finish = 8.3;
 
-const TeamSection = forwardRef<HTMLElement>(function TeamSection(_, forwardedRef) {
+interface Props { onGalleryCovered: (covered: boolean) => void }
+
+const TeamSection = forwardRef<HTMLElement, Props>(function TeamSection({ onGalleryCovered }, forwardedRef) {
   const section = useRef<HTMLElement | null>(null);
+  const stage = useRef<HTMLDivElement>(null);
   const members = useRef<(HTMLButtonElement | null)[]>([]);
   const intro = useRef<HTMLDivElement>(null);
   const spotlight = useRef<HTMLDivElement>(null);
   const groupHeading = useRef<HTMLDivElement>(null);
   const scrollDestination = useRef<number | null>(null);
+  const skipAnimation = useRef<Animation | null>(null);
   const touchSelection = useRef<number | null>(null);
   const [active, setActive] = useState(0);
   const [final, setFinal] = useState(false);
   const activeRef = useRef(0);
   const finalRef = useRef(false);
   const [revealed, setRevealed] = useState<number | null>(null);
+  const cancelSkip = useCallback(() => {
+    skipAnimation.current?.cancel();
+    skipAnimation.current = null;
+    section.current?.removeAttribute('data-skipping');
+  }, []);
 
   useEffect(() => {
     const element = section.current;
@@ -45,13 +54,33 @@ const TeamSection = forwardRef<HTMLElement>(function TeamSection(_, forwardedRef
     let rendered: number | null = null;
     let frame = 0;
     let previousTime = 0;
+    let galleryCovered = false;
     const paint = (now: number) => {
       frame = 0;
       const width = window.innerWidth, height = window.innerHeight, mobile = width <= 800;
-      element.style.height = motion.matches ? '' : `${height * 5.1}px`;
-      const travel = element.offsetHeight - height;
+      const entry = motion.matches ? 0 : height * .8;
+      const exit = motion.matches ? 0 : height * .9;
+      element.style.height = motion.matches ? '' : `${height * 5.1 + entry + exit}px`;
+      element.style.marginTop = motion.matches ? '0px' : `${-height - entry}px`;
+      const travel = motion.matches ? 0 : height * 4.1;
       const bounds = element.getBoundingClientRect();
-      const target = motion.matches ? finish : clamp(-bounds.top / travel) * finish;
+      const wipe = motion.matches ? 1 : clamp(-bounds.top / entry);
+      const cover = motion.matches ? 0 : clamp((-bounds.top - entry - travel) / exit);
+      if (stage.current) {
+        // The fixed irregular edge translates with native scroll, including on reversal.
+        const edge: string[] = [];
+        if (wipe > 0 && wipe < 1) {
+          for (let i = 0; i <= 100; i++) {
+            const x = wipe * 180 - 45 + i * .35 + Math.sin(i * .72) * .65 + Math.sin(i * .26) * 1.8;
+            edge.push(`${x}% ${i}%`);
+          }
+        }
+        stage.current.style.clipPath = wipe === 1 ? 'none' : wipe === 0 ? 'inset(0 100% 0 0)' : `polygon(0 0,${edge.join(',')},0 100%)`;
+        stage.current.inert = wipe < 1 || cover >= .999 || bounds.bottom <= 0 || bounds.top >= height;
+      }
+      const covered = !motion.matches && bounds.top <= 0;
+      if (covered !== galleryCovered) { galleryCovered = covered; onGalleryCovered(covered); }
+      const target = motion.matches ? finish : clamp((-bounds.top - entry) / travel) * finish;
       const gap = target - (rendered ?? target);
       if (rendered === null || motion.matches || Math.abs(gap) > .9) rendered = target;
       else {
@@ -120,6 +149,7 @@ const TeamSection = forwardRef<HTMLElement>(function TeamSection(_, forwardedRef
     };
     const schedule = () => { if (!frame) frame = window.requestAnimationFrame(paint); };
     const interrupt = () => {
+      cancelSkip();
       if (scrollDestination.current === null) return;
       scrollDestination.current = null;
       window.scrollTo({ top: window.scrollY, behavior: 'instant' });
@@ -135,6 +165,7 @@ const TeamSection = forwardRef<HTMLElement>(function TeamSection(_, forwardedRef
     window.addEventListener('keydown', keyInterrupt);
     motion.addEventListener('change', schedule);
     return () => {
+      cancelSkip();
       window.cancelAnimationFrame(frame);
       window.removeEventListener('scroll', schedule);
       window.removeEventListener('resize', schedule);
@@ -143,24 +174,58 @@ const TeamSection = forwardRef<HTMLElement>(function TeamSection(_, forwardedRef
       window.removeEventListener('keydown', keyInterrupt);
       motion.removeEventListener('change', schedule);
     };
-  }, []);
+  }, [onGalleryCovered, cancelSkip]);
 
   function go(progress: number) {
+    cancelSkip();
     const element = section.current;
     if (!element) return;
-    const travel = element.offsetHeight - window.innerHeight;
-    const top = window.scrollY + element.getBoundingClientRect().top + (window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : progress / finish * travel);
+    const height = window.innerHeight;
+    const top = window.scrollY + element.getBoundingClientRect().top + (window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : height * .8 + progress / finish * height * 4.1);
     scrollDestination.current = top;
     window.scrollTo({ top, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
   }
 
+  function skipTo(progress: number) {
+    const element = section.current, pane = stage.current;
+    if (!element || !pane) return;
+    cancelSkip();
+    touchSelection.current = null;
+    setRevealed(null);
+    if (scrollDestination.current !== null) {
+      scrollDestination.current = null;
+      window.scrollTo({ top: window.scrollY, behavior: 'instant' });
+    }
+    const height = window.innerHeight;
+    const top = window.scrollY + element.getBoundingClientRect().top + (window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : height * .8 + progress / finish * height * 4.1);
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      window.scrollTo({ top, behavior: 'instant' });
+      return;
+    }
+    element.dataset.skipping = 'true';
+    const out = pane.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160, easing: 'ease-in', fill: 'forwards' });
+    skipAnimation.current = out;
+    out.finished.then(() => {
+      if (skipAnimation.current !== out) return;
+      window.scrollTo({ top, behavior: 'instant' });
+      requestAnimationFrame(() => {
+        if (skipAnimation.current !== out) return;
+        const incoming = pane.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 240, easing: 'ease-out', fill: 'forwards' });
+        skipAnimation.current = incoming;
+        out.cancel();
+        incoming.finished.then(() => {
+          if (skipAnimation.current === incoming) cancelSkip();
+        }, () => {});
+      });
+    }, () => {});
+  }
+
   return <section ref={node => { section.current = node; if (typeof forwardedRef === 'function') forwardedRef(node); else if (forwardedRef) forwardedRef.current = node; }}
     className={styles.journey} data-team data-team-member="0" data-team-final="false" tabIndex={-1} aria-label="Meet the studio">
-    <div className={styles.stage}>
+    <div ref={stage} className={styles.stage}>
       <header className={styles.header}>
         <a className={styles.brand} href="#studio-navigation">J StaR <span>Films Studios</span></a>
-        <span>THE STUDIO / OUR PEOPLE</span>
-        <button className={styles.skip} onClick={() => go(finish)}>Meet everyone ↘</button>
+        <button className={styles.skip} onClick={() => skipTo(finish)}>Meet everyone ↘</button>
       </header>
       <div ref={intro} className={styles.intro}><span className={styles.eyebrow}>THE PEOPLE BEHIND THE WORK</span><h2>A studio.<br /><em>With character.</em></h2></div>
       <div className={styles.portraits}>
@@ -188,7 +253,7 @@ const TeamSection = forwardRef<HTMLElement>(function TeamSection(_, forwardedRef
         <nav className={styles.steps} aria-label="Meet a team member">{people.map((person, index) => <button key={person.employeeId}
           aria-label={`Meet ${person.name}, ${person.role}`} aria-current={active === index ? 'step' : undefined}
           onClick={() => { touchSelection.current = null; setRevealed(null); if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { setRevealed(index); return; } go(index + .4); }} />)}</nav>
-        <button className={styles.replay} onClick={() => go(0)}>From the beginning ↑</button>
+        <button className={styles.replay} onClick={() => skipTo(0)}>From the beginning ↑</button>
       </footer>
     </div>
   </section>;

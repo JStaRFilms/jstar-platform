@@ -8,6 +8,7 @@ const prisma = new PrismaClient();
 interface ContactFormData {
   name: string;
   email: string;
+  phone?: string | null;
   subject: string;
   service: string;
   message: string;
@@ -23,37 +24,48 @@ interface ContactSubmission extends ContactFormData {
 }
 
 // Validation function (server-side)
-function validateContactData(data: any): { isValid: boolean; errors: string[] } {
-  const errors: string[] = [];
+function validateContactData(data: unknown, errors: string[]): data is ContactFormData {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) {
+    errors.push('Request body must be an object');
+    return false;
+  }
 
-  if (!data.name || typeof data.name !== 'string' || data.name.trim().length < 2) {
+  if (!('name' in data) || typeof data.name !== 'string' || data.name.trim().length < 2) {
     errors.push('Name is required and must be at least 2 characters');
   }
 
-  if (!data.email || typeof data.email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+  if (!('email' in data) || typeof data.email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
     errors.push('Valid email address is required');
   }
 
-  if (!data.subject || typeof data.subject !== 'string' || data.subject.trim().length === 0) {
+  if ('phone' in data && data.phone != null) {
+    if (typeof data.phone !== 'string') {
+      errors.push('Phone must be a string');
+    } else {
+      const phone = data.phone.trim();
+      if (phone.length > 40 || (phone && (!/^[+0-9(). -]+$/.test(phone) || !/[0-9]/.test(phone)))) {
+        errors.push('Phone must be at most 40 characters and contain a valid phone number');
+      }
+    }
+  }
+
+  if (!('subject' in data) || typeof data.subject !== 'string' || data.subject.trim().length === 0) {
     errors.push('Subject is required');
   }
 
-  if (!data.service || typeof data.service !== 'string' || data.service.length === 0) {
+  if (!('service' in data) || typeof data.service !== 'string' || data.service.length === 0) {
     errors.push('Service selection is required');
   }
 
-  if (!data.message || typeof data.message !== 'string' || data.message.trim().length < 10) {
+  if (!('message' in data) || typeof data.message !== 'string' || data.message.trim().length < 10) {
     errors.push('Message is required and must be at least 10 characters');
   }
 
-  if (typeof data.newsletter !== 'boolean') {
+  if (!('newsletter' in data) || typeof data.newsletter !== 'boolean') {
     errors.push('Newsletter preference must be specified');
   }
 
-  return {
-    isValid: errors.length === 0,
-    errors
-  };
+  return errors.length === 0;
 }
 
 // Rate limiting (simple in-memory store - replace with Redis in production)
@@ -100,7 +112,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Parse request body
-    let body;
+    let body: unknown;
     try {
       body = await request.json();
     } catch {
@@ -111,13 +123,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate input data
-    const validation = validateContactData(body);
-    if (!validation.isValid) {
+    const errors: string[] = [];
+    if (!validateContactData(body, errors)) {
       return NextResponse.json(
         {
           status: 'error',
           message: 'Validation failed',
-          errors: validation.errors
+          errors
         },
         { status: 400 }
       );
@@ -126,6 +138,7 @@ export async function POST(request: NextRequest) {
     // Create submission object
     const submission: ContactSubmission = {
       ...body,
+      phone: body.phone?.trim() || null,
       submittedAt: new Date(),
       ipAddress: ip,
       userAgent: request.headers.get('user-agent') || undefined,
@@ -140,6 +153,7 @@ export async function POST(request: NextRequest) {
         data: {
           name: submission.name,
           email: submission.email,
+          phone: submission.phone,
           subject: submission.subject,
           service: submission.service,
           message: submission.message,
@@ -150,6 +164,16 @@ export async function POST(request: NextRequest) {
         }
       });
 
+    } catch (dbError) {
+      console.error('Database error:', dbError);
+      return NextResponse.json(
+        { status: 'error', message: 'Could not save your message. Please try again later.' },
+        { status: 500 }
+      );
+    }
+
+    // Newsletter and analytics updates are best-effort after the contact is saved.
+    try {
       // Handle newsletter signup
       if (submission.newsletter) {
         await prisma.newsletterSubscriber.upsert({
@@ -187,26 +211,23 @@ export async function POST(request: NextRequest) {
       });
 
     } catch (dbError) {
-      console.error('Database error:', dbError);
-      // Continue with success response even if database fails
-      // In production, you might want to implement a fallback or queue system
+      console.error('Newsletter or analytics update failed:', dbError);
     }
 
     // Send email notifications (don't fail the request if emails fail)
     try {
       // Send admin notification
-      if (savedSubmission) {
-        await sendAdminNotification({
-          id: savedSubmission.id,
-          name: submission.name,
-          email: submission.email,
-          subject: submission.subject,
-          service: submission.service,
-          message: submission.message,
-          newsletter: submission.newsletter,
-          submittedAt: submission.submittedAt,
-        });
-      }
+      await sendAdminNotification({
+        id: savedSubmission.id,
+        name: submission.name,
+        email: submission.email,
+        phone: submission.phone,
+        subject: submission.subject,
+        service: submission.service,
+        message: submission.message,
+        newsletter: submission.newsletter,
+        submittedAt: submission.submittedAt,
+      });
 
       // Send user confirmation
       await sendUserConfirmation(submission.email, submission.name, submission.newsletter);
@@ -223,7 +244,7 @@ export async function POST(request: NextRequest) {
 
     // Log submission (in production, use proper logging)
     console.log('Contact form submission saved:', {
-      id: savedSubmission?.id || 'not_saved',
+      id: savedSubmission.id,
       name: submission.name,
       email: submission.email,
       service: submission.service,
@@ -233,9 +254,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       status: 'success',
-      message: 'Message sent successfully',
+      message: 'Message received successfully',
       data: {
-        id: savedSubmission?.id || `contact_${Date.now()}`,
+        id: savedSubmission.id,
         submittedAt: submission.submittedAt,
         status: submission.status
       }

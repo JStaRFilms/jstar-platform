@@ -7,6 +7,7 @@ import { Volume2, VolumeX } from 'lucide-react';
 import styles from './hero.module.css';
 import StudyGame from './StudyGame';
 import TeamSection from './TeamSection';
+import ClosingSequence, { type ClosingHandle } from './ClosingSequence';
 import SelectedWorkGallery, { panelPose, panelWindow, type GalleryFrame, type GalleryHandle } from './SelectedWorkGallery';
 import { selectedWork, type GalleryFilter, type GalleryMode, type GalleryProject } from '@/content/selected-work';
 
@@ -48,6 +49,8 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
   const gameCanvas = useRef<HTMLDivElement>(null);
   const gallery = useRef<GalleryHandle>(null);
   const end = useRef<HTMLElement>(null);
+  const closing = useRef<ClosingHandle>(null);
+  const [teamCovered, setTeamCovered] = useState(false);
   const viewer = useRef<HTMLDialogElement>(null);
   const viewerVideo = useRef<HTMLVideoElement>(null);
   const backButton = useRef<HTMLButtonElement>(null);
@@ -438,7 +441,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
       const distance = height * 2.7 - window.innerHeight;
       const count = collection.current.length;
       const tail = height * .75 + (count > 1 ? ((count - 1) * PROJECT_STRIDE + .35 + .5) * height : 0);
-      if (!motion.matches) section.style.height = `${height + 4.3 * distance + tail}px`;
+      if (!motion.matches) section.style.height = `${height + 4.3 * distance + tail + height * .8}px`;
       else section.style.removeProperty('height');
       section.dataset.galleryEntrance = String(motion.matches ? 0 : height * .75);
       section.dataset.galleryBrowsing = String(motion.matches ? 0 : Math.max(0, count - 1) * height * PROJECT_STRIDE);
@@ -650,7 +653,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
   function continueGallery() {
     clearPreviews();
     if (end.current) {
-      window.scrollTo({ top: window.scrollY + end.current.getBoundingClientRect().top, behavior: 'instant' });
+      window.scrollTo({ top: window.scrollY + end.current.getBoundingClientRect().top + (reduced ? 0 : window.innerHeight * .8), behavior: 'instant' });
       end.current.focus({ preventScroll: true });
     }
   }
@@ -699,17 +702,17 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
           changeComposition();
         }
       }}>Skip to film sound</a>
-      <header id="studio-navigation" className={styles.header} inert={navHidden} aria-hidden={navHidden}>
+      <header id="studio-navigation" className={styles.header} inert={navHidden || teamCovered} aria-hidden={navHidden || teamCovered}>
         <Link href="/redesign" className={styles.brand} aria-label="J StaR Films Studios, hero review">J StaR<span>Films Studios</span></Link>
         <nav aria-label="Main navigation">
           <Link href="/portfolio">Work</Link>
           <Link href="/about">Studio</Link>
-          <Link className={styles.projectLink} href="/contact">Start a Project <span aria-hidden="true">↗</span></Link>
+          <a className={styles.projectLink} href="#project-enquiry" onClick={event => { event.preventDefault(); closing.current?.startProject(); }}>Start a Project <span aria-hidden="true">↗</span></a>
         </nav>
       </header>
 
       <section ref={track} className={styles.track} aria-label="Studio introduction, film, tablet and study game">
-        <div ref={stage} className={styles.stage} onPointerMove={() => wakeSound()}>
+        <div ref={stage} className={styles.stage} inert={teamCovered && galleryState.mode === 'browse'} onPointerMove={() => wakeSound()}>
           <div className={styles.introduction}>
             <p className={styles.eyebrow}>Two ways to move people.</p>
             <h1 className={styles.wordmark}>
@@ -789,8 +792,8 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
             onSelect={selectProject} onAction={projectAction} onContinue={continueGallery} />
         </div>
       </section>
-      <TeamSection ref={end} />
-      <div className={styles.teamBoundary} aria-hidden="true" />
+      <TeamSection ref={end} onGalleryCovered={setTeamCovered} />
+      <ClosingSequence ref={closing} onBackToTop={returnToOpening} />
       {galleryState.mode === 'film' && viewerPresentation && <dialog ref={viewer} className={styles.filmViewer} aria-label={`${viewerProject?.title}${viewerPresentation.fullSrc ? ' film' : ' excerpt'}`}
         onCancel={event => { event.preventDefault(); closeGalleryMode(); }}>
         <button data-back-to-browsing onClick={closeGalleryMode}>← Back to browsing</button>
