@@ -490,12 +490,12 @@ async function recordStandalone() {
     });
     await check('Continue and natural finite release pause/unload, reverse retraces entrance', async () => {
       await page.locator('[data-gallery-continue]').click(); await page.waitForTimeout(200);
-      assert(await page.locator('[data-gallery-end]').evaluate(e => e === document.activeElement));
-      assert(await page.locator('[data-gallery-end]').evaluate(e => e.getBoundingClientRect().top < innerHeight));
+      assert(await page.locator('[data-team]').evaluate(e => e === document.activeElement));
+      assert(await page.locator('[data-team]').evaluate(e => e.getBoundingClientRect().top < innerHeight));
       assert.equal((await bounded()).previews.filter(v => v.src).length, 0);
       await browse(3); const m = await metric(); await page.mouse.move(1200, 300); await page.mouse.wheel(0, 1600); await page.waitForTimeout(300);
       const s = await state(); assert(s.scrollY > m.start + 3 * m.stride, 'Native page scroll blocked at last project');
-      assert(await page.locator('[data-gallery-end]').evaluate(e => e.getBoundingClientRect().top < innerHeight));
+      assert(await page.locator('[data-team]').evaluate(e => e.getBoundingClientRect().top < innerHeight));
       assert.equal(s.previews.filter(v => v.src).length, 0);
       await scroll(m.d * 4.2); await identity(); assert(await page.locator('[data-study-frame]').evaluate(e => !e.inert));
       await browse(0); return s;
@@ -536,7 +536,7 @@ async function recordStandalone() {
       await installFixture(1); await load(base, 1); await browse(0); let s = await bounded(); assert.equal(s.counter, '01 / 01');
       for (const range of ['galleryBrowsing', 'galleryRest', 'galleryExit']) assert.equal(Number(s.track[range]), 0);
       await geometry('fixture-single', 1); await filter('software'); assert.equal((await state()).counter, '01 / 01'); await filter('film'); s = await state(); assert.equal(s.counter, '0 / 0'); assert.equal(s.panels.length, 0); assert.equal(await page.locator('[data-project-action]').count(), 0);
-      await page.locator('[data-gallery-continue]').click(); assert(await page.locator('[data-gallery-end]').isVisible());
+      await page.locator('[data-gallery-continue]').click(); assert(await page.locator('[data-team]').isVisible());
       await restoreFixture(); await load(); await browse(0); await filter('film'); await identity();
       return { singleRange: s.track, pageBytesRestored: fixtureRestored };
     });

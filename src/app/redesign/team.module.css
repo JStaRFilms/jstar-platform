@@ -1,0 +1,65 @@
+.journey { position: relative; height: 510svh; background: #001514; color: #fbfffe; font-family: 'Study DM Sans', Arial, sans-serif; }
+.stage { position: sticky; top: 0; height: 100svh; overflow: clip; isolation: isolate; background: #001514; }
+.journey, .journey * { box-sizing: border-box; }
+.journey button, .journey a { font: inherit; color: inherit; background: none; border: 0; text-decoration: none; }
+.journey button:focus-visible, .journey a:focus-visible { outline: 2px solid #b5e619; outline-offset: 4px; }
+.header { position: absolute; top: 0; left: 5%; right: 5%; height: 85px; display: flex; align-items: center; justify-content: space-between; z-index: 30; }
+.brand { font-size: 26px; font-weight: 600; letter-spacing: -1px; }
+.brand span { font-size: 10px; font-weight: 400; letter-spacing: 0; margin-left: 7px; }
+.header > span { font-size: 9px; letter-spacing: 2px; color: #aab9af; }
+.skip { font-size: 12px !important; padding: 10px 0; border-bottom: 1px solid #84988e !important; }
+.intro { position: absolute; left: 6%; top: 19%; z-index: 2; }
+.eyebrow { font-size: 10px; letter-spacing: 2.5px; color: #b3c4b8; }
+.intro h2 { font: 500 clamp(40px, 5.3vw, 96px)/1.01 'Study Outfit', Arial, sans-serif; letter-spacing: -.045em; margin: 24px 0; }
+.intro em, .groupHeading em { font-style: normal; color: #b5e619; }
+.portraits { position: absolute; inset: 0; }
+.person { position: absolute; left: 0; top: 0; width: 400px; padding: 0; text-align: center; transform-origin: 50% 50%; pointer-events: none; visibility: hidden; opacity: 0; }
+.person img { display: block; width: 100%; height: auto; mask-image: linear-gradient(#000 88%, transparent 100%); }
+.name { display: block; position: relative; margin-top: -7px; font-size: clamp(11px, 1vw, 17px); letter-spacing: -.02em; white-space: nowrap; }
+.role { position: absolute; left: 50%; top: calc(100% + 4px); width: max-content; max-width: min(280px, calc(100vw - 24px)); color: #b5e619; font-size: 11px; line-height: 1.35; opacity: 0; visibility: hidden; transform: translate(-50%, -4px); pointer-events: none; transition: opacity .16s ease, transform .16s ease, visibility .16s; }
+.role[data-visible="true"] { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
+.person:has(.role[data-visible="true"]) { z-index: 40 !important; }
+.spotlight { position: absolute; left: 6%; bottom: 48%; width: 32%; z-index: 20; pointer-events: none; }
+.spotlight > span { font-size: 10px; letter-spacing: 3px; color: #b5e619; }
+.spotlight h3 { font: 500 clamp(28px, 3.1vw, 55px)/1.03 'Study Outfit', Arial, sans-serif; letter-spacing: -.04em; margin: 18px 0 13px; }
+.spotlight p { font-size: clamp(13px, 1.15vw, 20px); line-height: 1.55; max-width: 360px; color: #b7c8bd; margin: 0; }
+.groupHeading { position: absolute; left: 0; right: 0; top: 11%; text-align: center; pointer-events: none; opacity: 0; }
+.groupHeading h2 { font: 500 clamp(27px, 3.5vw, 62px) 'Study Outfit', Arial, sans-serif; letter-spacing: -.04em; margin: 15px 0; }
+.footer { position: absolute; left: 5%; right: 5%; bottom: 20px; display: flex; align-items: center; justify-content: space-between; z-index: 40; font-size: 11px; color: #9cb0a2; }
+.counter { font: 400 26px 'Study Outfit', Arial, sans-serif; color: #f2f7ef; }
+.steps { display: flex; gap: 6px; }
+.steps button { width: 27px; height: 32px; padding: 13px 0; }
+.steps button::after { content: ''; display: block; height: 2px; background: #426052; }
+.steps button[aria-current="step"]::after { background: #b5e619; }
+.replay { font-size: 11px !important; }
+@media (max-height: 750px) and (min-width: 801px) {
+  .intro { top: 14%; }
+  .spotlight { bottom: 14% !important; }
+  .groupHeading { top: 5%; }
+  .role { font-size: 10px; line-height: 1.2; }
+  .footer { bottom: 12px; }
+}
+@media (max-width: 800px) {
+  .header { height: 70px; }
+  .brand span, .header > span { display: none; }
+  .intro { top: 16%; }
+  .intro h2 { font-size: 38px; }
+  .spotlight { bottom: 14%; width: 80%; }
+  .spotlight h3 { font-size: 28px; }
+  .spotlight p { font-size: 13px; }
+  .name { font-size: 10px; white-space: normal; }
+  .groupHeading { top: 14%; }
+  .groupHeading h2 { font-size: 27px; }
+  .role { max-width: min(172px, calc(100vw - 24px)); font-size: 10px; line-height: 1.25; }
+  .footer { bottom: 15px; display: grid; grid-template-columns: 1fr auto; row-gap: 12px; }
+  .steps { grid-column: 1 / -1; grid-row: 1; justify-content: center; gap: 3px; }
+  .steps button { width: 24px; }
+  .counter { grid-row: 2; font-size: 25px; }
+  .replay { grid-column: 2; grid-row: 2; max-width: 105px; text-align: right; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .journey { height: 100svh; }
+  .stage { position: relative; }
+  .skip { display: none; }
+  .role { transition: none; }
+}

@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Volume2, VolumeX } from 'lucide-react';
 import styles from './hero.module.css';
 import StudyGame from './StudyGame';
+import TeamSection from './TeamSection';
 import SelectedWorkGallery, { panelPose, panelWindow, type GalleryFrame, type GalleryHandle } from './SelectedWorkGallery';
 import { selectedWork, type GalleryFilter, type GalleryMode, type GalleryProject } from '@/content/selected-work';
 
@@ -689,7 +690,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
 
   return (
     <div ref={root} className={styles.root} data-static-expanded={reduced && expanded} data-static-tablet={reduced && expanded && tabletExpanded} data-nav-hidden={navHidden} data-static-game={reduced && gameExpanded} data-gallery-mode={galleryState.mode}
-      onKeyDown={(event) => { if (event.key === 'Escape') { event.preventDefault(); if (galleryLive.current.mode !== 'browse') closeGalleryMode(); else if (!galleryVisible || (reduced && window.scrollY < window.innerHeight)) returnToOpening(); } }}>
+      onKeyDown={(event) => { if (event.key === 'Escape' && !(event.target instanceof Node && end.current?.contains(event.target))) { event.preventDefault(); if (galleryLive.current.mode !== 'browse') closeGalleryMode(); else if (!galleryVisible || (reduced && window.scrollY < window.innerHeight)) returnToOpening(); } }}>
       <a className={styles.skip} href="#film-sound" onClick={(event) => {
         event.preventDefault();
         if (controlsVisible) soundButton.current?.focus({ preventScroll: true });
@@ -788,7 +789,8 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
             onSelect={selectProject} onAction={projectAction} onContinue={continueGallery} />
         </div>
       </section>
-      <section ref={end} className={styles.galleryEnd} data-gallery-end tabIndex={-1} aria-label="End of selected work"><span>END OF SELECTED WORK</span></section>
+      <TeamSection ref={end} />
+      <div className={styles.teamBoundary} aria-hidden="true" />
       {galleryState.mode === 'film' && viewerPresentation && <dialog ref={viewer} className={styles.filmViewer} aria-label={`${viewerProject?.title}${viewerPresentation.fullSrc ? ' film' : ' excerpt'}`}
         onCancel={event => { event.preventDefault(); closeGalleryMode(); }}>
         <button data-back-to-browsing onClick={closeGalleryMode}>← Back to browsing</button>
