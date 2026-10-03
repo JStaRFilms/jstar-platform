@@ -193,13 +193,11 @@ const SelectedWorkGallery = forwardRef<GalleryHandle, Props>(function SelectedWo
       <div className={styles.wash} style={{ background: displayed?.color ?? '#001514' }} />
       <header className={styles.header} data-gallery-header>
         <a className={styles.brand} href="#studio-navigation">J StaR<span>Films Studios</span></a>
-        <span className={styles.edition}>SELECTED WORK / {projects.length ? '01' : '00'}–{String(projects.length).padStart(2, '0')}</span>
         <button onClick={() => {
           list.current?.querySelector<HTMLButtonElement>('[aria-current="true"]')?.focus({ preventScroll: true });
         }}>Explore the work ↘</button>
       </header>
       <nav ref={catalog} className={styles.catalog} aria-label="Selected work" tabIndex={-1}>
-        <div className={styles.sectionLabel}><span>SELECTED WORK</span><span>FILM + SOFTWARE</span></div>
         <h2>Made to<br /><em>move you.</em></h2>
         <div className={styles.filters} role="group" aria-label="Filter projects">
           {(['all', 'software', 'film'] as const).map(value => <button key={value} data-filter-button={value} aria-pressed={filter === value} onClick={() => onFilter(value)}>{value === 'all' ? 'All' : value === 'software' ? 'Software' : 'Film'} <sup>{String(counts[value]).padStart(2, '0')}</sup></button>)}
@@ -243,6 +241,7 @@ const SelectedWorkGallery = forwardRef<GalleryHandle, Props>(function SelectedWo
         </div>
         {!projects.length && <p>No projects in this selection.</p>}
         <p className={styles.listNote}>Films you feel. Software you use.</p>
+        <p className={styles.galleryCounter} data-gallery-counter>{displayIndex < 0 ? '0' : String(displayIndex + 1).padStart(2, '0')} / {projects.length ? String(projects.length).padStart(2, '0') : '0'}</p>
       </nav>
       <div className={styles.stack} aria-hidden={displayed?.presentation.type !== 'static-image'}>
         {neighbours.filter(project => project.presentation.type !== 'study-game').map(project => (
@@ -265,7 +264,7 @@ const SelectedWorkGallery = forwardRef<GalleryHandle, Props>(function SelectedWo
           {displayed.detailsHref && <a href={displayed.detailsHref} target="_blank" rel="noreferrer">Source ↗</a>}
         </div></>}
       </div>
-      <footer className={styles.footer}><span data-gallery-counter>{displayIndex < 0 ? '0' : String(displayIndex + 1).padStart(2, '0')} / {projects.length ? String(projects.length).padStart(2, '0') : '0'}</span><span>A selection of film &amp; software</span><button data-gallery-continue onClick={onContinue}>Continue ↓</button></footer>
+      <footer className={styles.footer}><button data-gallery-continue onClick={onContinue}>Continue ↓</button></footer>
     </section>
   );
 });

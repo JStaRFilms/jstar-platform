@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { forwardRef, useCallback, useEffect, useRef, useState } from 'react';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { companyData } from '@/content/about-company';
 import styles from './team.module.css';
 
@@ -23,10 +23,19 @@ const clamp = (value: number) => Math.max(0, Math.min(1, value));
 const ease = (value: number) => { const t = clamp(value); return t * t * (3 - 2 * t); };
 const mix = (from: number, to: number, amount: number) => from + (to - from) * amount;
 const finish = 8.3;
+const wipeEdge = (wipe: number) => {
+  const edge: string[] = [];
+  for (let i = 0; i <= 100; i++) {
+    const x = wipe === 0 ? 0 : wipe === 1 ? 100 : wipe * 180 - 45 + i * .35 + Math.sin(i * .72) * .65 + Math.sin(i * .26) * 1.8;
+    edge.push(`${x}% ${i}%`);
+  }
+  return `polygon(0 0,${edge.join(',')},0 100%)`;
+};
 
+export interface TeamHandle { element: HTMLElement | null; enterFromGallery: () => void }
 interface Props { onGalleryCovered: (covered: boolean) => void }
 
-const TeamSection = forwardRef<HTMLElement, Props>(function TeamSection({ onGalleryCovered }, forwardedRef) {
+const TeamSection = forwardRef<TeamHandle, Props>(function TeamSection({ onGalleryCovered }, forwardedRef) {
   const section = useRef<HTMLElement | null>(null);
   const stage = useRef<HTMLDivElement>(null);
   const members = useRef<(HTMLButtonElement | null)[]>([]);
@@ -35,6 +44,7 @@ const TeamSection = forwardRef<HTMLElement, Props>(function TeamSection({ onGall
   const groupHeading = useRef<HTMLDivElement>(null);
   const scrollDestination = useRef<number | null>(null);
   const skipAnimation = useRef<Animation | null>(null);
+  const entryAnimation = useRef<Animation | null>(null);
   const touchSelection = useRef<number | null>(null);
   const [active, setActive] = useState(0);
   const [final, setFinal] = useState(false);
@@ -45,6 +55,11 @@ const TeamSection = forwardRef<HTMLElement, Props>(function TeamSection({ onGall
     skipAnimation.current?.cancel();
     skipAnimation.current = null;
     section.current?.removeAttribute('data-skipping');
+  }, []);
+  const cancelEntry = useCallback(() => {
+    entryAnimation.current?.cancel();
+    entryAnimation.current = null;
+    section.current?.removeAttribute('data-quick-entry');
   }, []);
 
   useEffect(() => {
@@ -68,15 +83,8 @@ const TeamSection = forwardRef<HTMLElement, Props>(function TeamSection({ onGall
       const cover = motion.matches ? 0 : clamp((-bounds.top - entry - travel) / exit);
       if (stage.current) {
         // The fixed irregular edge translates with native scroll, including on reversal.
-        const edge: string[] = [];
-        if (wipe > 0 && wipe < 1) {
-          for (let i = 0; i <= 100; i++) {
-            const x = wipe * 180 - 45 + i * .35 + Math.sin(i * .72) * .65 + Math.sin(i * .26) * 1.8;
-            edge.push(`${x}% ${i}%`);
-          }
-        }
-        stage.current.style.clipPath = wipe === 1 ? 'none' : wipe === 0 ? 'inset(0 100% 0 0)' : `polygon(0 0,${edge.join(',')},0 100%)`;
-        stage.current.inert = wipe < 1 || cover >= .999 || bounds.bottom <= 0 || bounds.top >= height;
+        if (!entryAnimation.current) stage.current.style.clipPath = wipe === 1 ? 'none' : wipe === 0 ? 'inset(0 100% 0 0)' : wipeEdge(wipe);
+        stage.current.inert = entryAnimation.current !== null || wipe < 1 || cover >= .999 || bounds.bottom <= 0 || bounds.top >= height;
       }
       const covered = !motion.matches && bounds.top <= 0;
       if (covered !== galleryCovered) { galleryCovered = covered; onGalleryCovered(covered); }
@@ -98,6 +106,7 @@ const TeamSection = forwardRef<HTMLElement, Props>(function TeamSection({ onGall
       element.dataset.teamMember = String(current);
       element.dataset.teamFinal = String(complete);
       element.dataset.teamVisible = String(bounds.top < height && bounds.bottom > 0);
+      element.dataset.teamBrand = String(wipe >= 1 && bounds.top <= 0 && bounds.bottom > 0);
       if (activeRef.current !== current) { activeRef.current = current; setActive(current); }
       if (finalRef.current !== complete) { finalRef.current = complete; setFinal(complete); }
       if (!complete && touchSelection.current !== null) { touchSelection.current = null; setRevealed(null); }
@@ -149,6 +158,7 @@ const TeamSection = forwardRef<HTMLElement, Props>(function TeamSection({ onGall
     };
     const schedule = () => { if (!frame) frame = window.requestAnimationFrame(paint); };
     const interrupt = () => {
+      cancelEntry();
       cancelSkip();
       if (scrollDestination.current === null) return;
       scrollDestination.current = null;
@@ -165,6 +175,7 @@ const TeamSection = forwardRef<HTMLElement, Props>(function TeamSection({ onGall
     window.addEventListener('keydown', keyInterrupt);
     motion.addEventListener('change', schedule);
     return () => {
+      cancelEntry();
       cancelSkip();
       window.cancelAnimationFrame(frame);
       window.removeEventListener('scroll', schedule);
@@ -174,7 +185,7 @@ const TeamSection = forwardRef<HTMLElement, Props>(function TeamSection({ onGall
       window.removeEventListener('keydown', keyInterrupt);
       motion.removeEventListener('change', schedule);
     };
-  }, [onGalleryCovered, cancelSkip]);
+  }, [onGalleryCovered, cancelSkip, cancelEntry]);
 
   function go(progress: number) {
     cancelSkip();
@@ -220,11 +231,39 @@ const TeamSection = forwardRef<HTMLElement, Props>(function TeamSection({ onGall
     }, () => {});
   }
 
-  return <section ref={node => { section.current = node; if (typeof forwardedRef === 'function') forwardedRef(node); else if (forwardedRef) forwardedRef.current = node; }}
+  function enterFromGallery() {
+    const element = section.current, pane = stage.current;
+    if (!element || !pane || entryAnimation.current) return;
+    cancelSkip();
+    scrollDestination.current = null;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const destination = window.scrollY + element.getBoundingClientRect().top + (reduced ? 0 : window.innerHeight * .8);
+    if (reduced) {
+      window.scrollTo({ top: destination, behavior: 'instant' });
+      element.focus({ preventScroll: true });
+      return;
+    }
+    element.dataset.quickEntry = 'true';
+    pane.inert = true;
+    pane.style.clipPath = wipeEdge(0);
+    const incoming = pane.animate(Array.from({ length: 13 }, (_, i) => ({ clipPath: wipeEdge(i / 12) })),
+      { duration: 650, easing: 'ease-in-out', fill: 'forwards' });
+    entryAnimation.current = incoming;
+    incoming.finished.then(() => {
+      if (entryAnimation.current !== incoming) return;
+      window.scrollTo({ top: destination, behavior: 'instant' });
+      pane.style.clipPath = 'none';
+      pane.inert = false;
+      cancelEntry();
+      element.focus({ preventScroll: true });
+    }, () => {});
+  }
+  useImperativeHandle(forwardedRef, () => ({ element: section.current, enterFromGallery }));
+
+  return <section ref={section}
     className={styles.journey} data-team data-team-member="0" data-team-final="false" tabIndex={-1} aria-label="Meet the studio">
     <div ref={stage} className={styles.stage}>
       <header className={styles.header}>
-        <a className={styles.brand} href="#studio-navigation">J StaR <span>Films Studios</span></a>
         <button className={styles.skip} onClick={() => skipTo(finish)}>Meet everyone ↘</button>
       </header>
       <div ref={intro} className={styles.intro}><span className={styles.eyebrow}>THE PEOPLE BEHIND THE WORK</span><h2>A studio.<br /><em>With character.</em></h2></div>

@@ -2,7 +2,7 @@
 
 ## Goal
 
-Append the approved `team-preview.html`, CSS and MJS composition after Selected Work on isolated `/redesign`. Stop at a plain dark boundary before enquiry. The gallery Continue control scrolls to the team section. Hero, tablet, quiz and gallery ranges and playback remain unchanged.
+Append the approved `team-preview.html`, CSS and MJS composition after Selected Work on isolated `/redesign`. Stop at a plain dark boundary before enquiry. The gallery Continue control starts a short version of the real team's irregular-edge wipe from any selected project, then moves the native scroll position directly to the team's entrance. The real team stage is temporarily fixed for that wipe; it returns to sticky native-scroll geometry afterward. Wheel, touch, scroll keys and reduced motion can interrupt or bypass the effect without losing the gallery or team. Hero, tablet, quiz and gallery ranges and playback remain unchanged.
 
 ## Client and content
 

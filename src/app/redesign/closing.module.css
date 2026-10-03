@@ -3,7 +3,6 @@
 .revealSpace { height: var(--reveal-distance, 90svh); }
 .revealTrack *, .footerTrack * { box-sizing: border-box; }
 .enquiry { position: sticky; top: 0; min-height: 100svh; padding: 32px 6vw; background: #b5e619; color: #001514; transform: translateY(105svh); border-radius: 50% 50% 0 0 / 10% 10% 0 0; pointer-events: auto; }
-.enquiry[inert] { pointer-events: none; }
 .enquiry button, .footerTrack button { border: 0; background: none; color: inherit; }
 .enquiry a, .footerTrack a { color: inherit; text-decoration: none; }
 .enquiry button:focus-visible, .enquiry a:focus-visible, .enquiry input:focus-visible, .enquiry textarea:focus-visible { outline: 2px solid #001514; outline-offset: 5px; }
@@ -35,13 +34,14 @@
 .formNote[data-status=failed], .formNote[data-status=invalid] { font-weight: 600; }
 .proof { min-width: 0; transform: translateY(20px); }
 .eyebrow { font-size: 10px; letter-spacing: .16em; font-weight: 600; }
-.proofTop { display: flex; justify-content: space-between; margin-bottom: 28px; gap: 16px; }
+.proofTop { position: relative; z-index: 2; display: flex; justify-content: space-between; margin-bottom: 86px; gap: 16px; background: #b5e619; }
 .proofTop > span:last-child { font-size: 11px; white-space: nowrap; }
 .noteStack { position: relative; }
 .backNote { position: absolute; inset: 0; border: 1px solid #00151425; }
 .backTwo { background: #728f36; transform: translate(17px, -9px) rotate(7deg); }
-.backOne { background: #dce8bf; transform: translate(8px, -5px) rotate(-5deg); }
 .clientNote { position: relative; background: #fbffed; padding: 25px 34px 29px; min-height: 355px; display: flex; flex-direction: column; box-shadow: 0 15px 25px #34420015; transform: rotate(2deg); margin: 0; }
+.clientNote:not(.nextNote) { z-index: 2; }
+.clientNote.nextNote { position: absolute; inset: 0; z-index: 1; background: #dce8bf; transform: translate(8px, -5px) rotate(-5deg) scale(.98); pointer-events: none; }
 .quoteMark { font: 800 85px/.7 'Study Outfit', Arial, sans-serif; color: #8e592f; margin: 12px 0; }
 .quoteBody { display: grid; }
 .inactiveQuote { visibility: hidden; }
@@ -55,9 +55,6 @@
 .noteControls { display: flex; justify-content: center; gap: 22px; align-items: center; margin-top: 20px; }
 .noteControls button { font-size: 22px !important; min-width: 44px; min-height: 44px; }
 .noteControls .pauseNotes { font-size: 10px !important; letter-spacing: .1em; text-transform: uppercase; }
-.clientLogos { display: flex; align-items: center; justify-content: center; gap: 50px; border-top: 1px solid #00151433; margin-top: 16px; padding-top: 22px; }
-.clientLogos img { width: 145px; height: 80px; object-fit: contain; }
-.clientLogos img:first-child { width: 85px; }
 .footerTrack { height: 155svh; background: #001514; color: #fbfffe; }
 .footerStage { position: sticky; top: 0; height: 100svh; padding: 6vh 4vw 24px; overflow: clip; display: flex; flex-direction: column; justify-content: space-between; }
 .footerTop { display: flex; justify-content: space-between; padding: 0 2vw; gap: 24px; }
@@ -66,8 +63,9 @@
 .socials button { padding: 0; }
 .footerExtra { display: flex; flex-direction: column; gap: 13px; position: absolute; top: 25vh; left: 6vw; font-size: 13px; }
 .footerLogo { position: absolute; top: 12vh; left: 50%; transform: translateX(-50%); width: 200px; height: 200px; object-fit: contain; }
-.wordmark { height: 56vh; width: calc(100% + 2vw); margin-left: -1vw; position: relative; top: 3vh; transform-origin: bottom; transform: scaleY(.025); color: #b5e619; }
-.wordmark svg { width: 100%; height: 100%; overflow: visible; fill: currentColor; font: 900 260px 'Study Outfit', Arial, sans-serif; letter-spacing: -14px; }
+.wordmark { position: fixed; left: 2vw; bottom: 96px; width: 96vw; height: 76vh; transform-origin: center bottom; transform: scaleY(0); visibility: hidden; pointer-events: none; color: #b5e619; }
+.wordmark svg { width: 100%; height: 100%; overflow: visible; fill: currentColor; font: 900 290px 'Study Outfit', Arial, sans-serif; letter-spacing: -14px; }
+.wordmarkStudios { font: 800 74px 'Study Outfit', Arial, sans-serif; letter-spacing: -.02em; }
 .footerBottom { display: flex; justify-content: space-between; font-size: 10px; opacity: .6; padding-bottom: 16px; }
 @media (min-width: 801px) and (max-height: 780px) {
   .enquiry { padding-top: 40px; padding-bottom: 25px; }
@@ -85,14 +83,14 @@
   .clientNote blockquote { font-size: 20px; margin: 14px 0 20px; }
   .clientNote figcaption img { width: 45px; height: 45px; }
   .proof { transform: none; }
-  .proofTop { margin-bottom: 22px; }
+  .proofTop { margin-bottom: 58px; }
   .noteControls { margin-top: 10px; }
-  .clientLogos { margin-top: 10px; padding-top: 14px; }
-  .clientLogos img { height: 60px; }
   .footerLogo { width: 160px; height: 160px; }
+  .wordmark { height: 66vh; }
+  .wordmark svg { font-size: 280px; }
 }
 @media (max-width: 800px) {
-  .enquiry { padding: 45px 6vw 60px; }
+  .enquiry { padding: 105px 6vw 60px; }
   .enquiryGrid { display: block; min-height: 0; }
   .formSide h2 { font-size: 15vw; }
   .services { gap: 8px; }
@@ -101,9 +99,9 @@
   .phone { margin-top: -6px; }
   .sendRow { flex-wrap: wrap; }
   .proof { margin-top: 60px; transform: none; }
+  .proofTop { margin-bottom: 45px; }
   .clientNote { padding: 22px 25px; min-height: 320px; }
   .clientNote blockquote { font-size: 26px; }
-  .clientLogos { gap: 40px; }
   .footerTop { display: block; }
   .socials { margin-top: 28px; gap: 20px; }
   .email { font-size: 6vw; }

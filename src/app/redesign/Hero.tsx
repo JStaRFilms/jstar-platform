@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { Volume2, VolumeX } from 'lucide-react';
 import styles from './hero.module.css';
 import StudyGame from './StudyGame';
-import TeamSection from './TeamSection';
+import TeamSection, { type TeamHandle } from './TeamSection';
 import ClosingSequence, { type ClosingHandle } from './ClosingSequence';
 import SelectedWorkGallery, { panelPose, panelWindow, type GalleryFrame, type GalleryHandle } from './SelectedWorkGallery';
 import { selectedWork, type GalleryFilter, type GalleryMode, type GalleryProject } from '@/content/selected-work';
@@ -48,7 +48,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
   const gameFrame = useRef<HTMLDivElement>(null);
   const gameCanvas = useRef<HTMLDivElement>(null);
   const gallery = useRef<GalleryHandle>(null);
-  const end = useRef<HTMLElement>(null);
+  const end = useRef<TeamHandle>(null);
   const closing = useRef<ClosingHandle>(null);
   const [teamCovered, setTeamCovered] = useState(false);
   const viewer = useRef<HTMLDialogElement>(null);
@@ -234,6 +234,13 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
     let panelReturning = false;
     let lastTime = 0;
     let alignmentDestination: number | null = null;
+    let settleTimer: number | null = null;
+    let pointerHeld = false;
+    const nativeScrollEnd = 'onscrollend' in window;
+    const cancelSettle = () => {
+      if (settleTimer !== null) window.clearTimeout(settleTimer);
+      settleTimer = null;
+    };
     let lastFolded = false;
     let lastInteractive = false;
     let sampledFrames = 0;
@@ -482,6 +489,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
       }
     };
     const resize = () => {
+      cancelSettle();
       const wasBrowsing = !motion.matches && height !== viewport.clientHeight && target > 4.3;
       width = viewport.clientWidth;
       height = motion.matches ? window.innerHeight : viewport.clientHeight;
@@ -503,6 +511,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
       else measure();
     };
     const align = (index: number, collectionChanged = false) => {
+      cancelSettle();
       clearPreviews();
       trackSize();
       if (!motion.matches) {
@@ -520,7 +529,33 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
         paint();
       }
     };
+    const settleGallery = () => {
+      settleTimer = null;
+      const state = galleryLive.current;
+      if (motion.matches || pointerHeld || document.hidden || state.mode !== 'browse' || state.pointerId || state.focusId) return;
+      const count = collection.current.length;
+      if (count < 2) return;
+      const distance = height * 2.7 - window.innerHeight;
+      const browseStart = window.scrollY + section.getBoundingClientRect().top + 4.3 * distance + height * .75;
+      const position = (window.scrollY - browseStart) / (height * PROJECT_STRIDE);
+      // Do not catch the quiz entrance, the last project's resting interval, or the gallery exit.
+      if (position < 0 || position > count - 1) return;
+      const index = Math.round(position);
+      if (Math.abs(position - index) * height * PROJECT_STRIDE < 1) return;
+      updateGallery({ committedId: collection.current[index].id });
+      align(index);
+    };
+    const scheduleSettle = () => {
+      cancelSettle();
+      if (!motion.matches && galleryLive.current.mode === 'browse') settleTimer = window.setTimeout(settleGallery, 180);
+    };
+    const pointerDown = () => { pointerHeld = true; cancelSettle(); };
+    const pointerUp = () => { pointerHeld = false; scheduleSettle(); };
+    const scrollEnd = (event: Event) => {
+      if (event.target === document) scheduleSettle();
+    };
     const scroll = () => {
+      cancelSettle();
       if (galleryLive.current.mode !== 'browse') return;
       if (alignmentDestination !== null && Math.abs(window.scrollY - alignmentDestination) < 1) {
         alignmentDestination = null;
@@ -531,11 +566,12 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
       if (document.activeElement instanceof HTMLElement && document.activeElement.hasAttribute('data-project-id')) gallery.current?.focusCatalog();
       clearPreviews();
       measure();
+      if (!nativeScrollEnd) scheduleSettle();
     };
     motionControls.current = {
       align,
       refresh() { measure(); paint(); resume(); },
-      suspend() { cancelAnimationFrame(frame); frame = 0; lastTime = 0; },
+      suspend() { cancelSettle(); cancelAnimationFrame(frame); frame = 0; lastTime = 0; },
     };
     const assetsLoaded = () => {
       if (!disposed && maskLoaded && picture.complete && picture.naturalWidth > 0) {
@@ -551,6 +587,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
     mask.onerror = assetFailed;
     mask.src = TABLET_MASK;
     const changeMotion = () => {
+      cancelSettle();
       setReduced(motion.matches);
       setExpanded(false);
       setTabletExpanded(false);
@@ -573,6 +610,10 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
     }, { threshold: 0.01 });
     observer.observe(film.parentElement ?? film);
     window.addEventListener('scroll', scroll, { passive: true });
+    window.addEventListener('scrollend', scrollEnd);
+    window.addEventListener('pointerdown', pointerDown, { passive: true });
+    window.addEventListener('pointerup', pointerUp, { passive: true });
+    window.addEventListener('pointercancel', pointerUp, { passive: true });
     window.addEventListener('resize', resize);
     document.addEventListener('visibilitychange', resume);
     motion.addEventListener('change', changeMotion);
@@ -581,7 +622,12 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
       film.pause();
       observer.disconnect();
       cancelAnimationFrame(frame);
+      cancelSettle();
       window.removeEventListener('scroll', scroll);
+      window.removeEventListener('scrollend', scrollEnd);
+      window.removeEventListener('pointerdown', pointerDown);
+      window.removeEventListener('pointerup', pointerUp);
+      window.removeEventListener('pointercancel', pointerUp);
       motionControls.current = null;
       window.removeEventListener('resize', resize);
       picture.removeEventListener('load', assetsLoaded);
@@ -652,10 +698,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
 
   function continueGallery() {
     clearPreviews();
-    if (end.current) {
-      window.scrollTo({ top: window.scrollY + end.current.getBoundingClientRect().top + (reduced ? 0 : window.innerHeight * .8), behavior: 'instant' });
-      end.current.focus({ preventScroll: true });
-    }
+    end.current?.enterFromGallery();
   }
 
   const gameEnabled = galleryState.mode === 'play' ? playReady : galleryState.mode === 'browse' && (reduced ? gameExpanded && !staticGalleryInView : gameInteractive);
@@ -693,7 +736,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
 
   return (
     <div ref={root} className={styles.root} data-static-expanded={reduced && expanded} data-static-tablet={reduced && expanded && tabletExpanded} data-nav-hidden={navHidden} data-static-game={reduced && gameExpanded} data-gallery-mode={galleryState.mode}
-      onKeyDown={(event) => { if (event.key === 'Escape' && !(event.target instanceof Node && end.current?.contains(event.target))) { event.preventDefault(); if (galleryLive.current.mode !== 'browse') closeGalleryMode(); else if (!galleryVisible || (reduced && window.scrollY < window.innerHeight)) returnToOpening(); } }}>
+      onKeyDown={(event) => { if (event.key === 'Escape' && !(event.target instanceof Node && end.current?.element?.contains(event.target))) { event.preventDefault(); if (galleryLive.current.mode !== 'browse') closeGalleryMode(); else if (!galleryVisible || (reduced && window.scrollY < window.innerHeight)) returnToOpening(); } }}>
       <a className={styles.skip} href="#film-sound" onClick={(event) => {
         event.preventDefault();
         if (controlsVisible) soundButton.current?.focus({ preventScroll: true });
@@ -794,6 +837,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
       </section>
       <TeamSection ref={end} onGalleryCovered={setTeamCovered} />
       <ClosingSequence ref={closing} onBackToTop={returnToOpening} />
+      <a className={styles.journeyBrand} href="#studio-navigation" onClick={event => { event.preventDefault(); returnToOpening(); }} aria-label="J StaR Films Studios, back to the beginning">J StaR <span>Films Studios</span></a>
       {galleryState.mode === 'film' && viewerPresentation && <dialog ref={viewer} className={styles.filmViewer} aria-label={`${viewerProject?.title}${viewerPresentation.fullSrc ? ' film' : ' excerpt'}`}
         onCancel={event => { event.preventDefault(); closeGalleryMode(); }}>
         <button data-back-to-browsing onClick={closeGalleryMode}>← Back to browsing</button>
