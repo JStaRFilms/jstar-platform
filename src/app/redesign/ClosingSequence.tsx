@@ -126,7 +126,9 @@ const ClosingSequence = forwardRef<ClosingHandle, { onBackToTop: () => void }>(f
         </div>
         <div ref={footerContacts} className={styles.footerExtra}><a href={`tel:${businessInfo.phone[0]}`}>{businessInfo.phone[0]} ↗</a><span>{businessInfo.address}</span>
           <a href={`https://wa.me/${businessInfo.whatsapp[0].replace(/\D/g, '')}`} target="_blank" rel="noreferrer">WhatsApp ↗</a></div>
-        <Image className={styles.footerLogo} src="/redesign/studio-logo-white.png" alt="J StaR Films Studios logo" width={200} height={200} unoptimized />
+        <button type="button" className={styles.footerLogo} onClick={onBackToTop} aria-label="J StaR Films Studios, back to the beginning">
+          <Image src="/redesign/studio-logo-white.png" alt="" width={200} height={200} unoptimized />
+        </button>
         <div className={styles.footerBottom}><span>© {new Date().getFullYear()} J StaR Films Studios</span><span>Film. Software. People.</span></div>
       </div>
       <div ref={mark} className={styles.wordmark} role="img" aria-label="J StaR Films Studios"><svg viewBox="0 0 1400 300" preserveAspectRatio="none" aria-hidden="true"><text x="0" y="295" textLength="1400" lengthAdjust="spacingAndGlyphs">J StaR Films</text><text className={styles.wordmarkStudios} x="1400" y="140" textAnchor="end" textLength="330" lengthAdjust="spacingAndGlyphs">STUDIOS</text></svg></div>

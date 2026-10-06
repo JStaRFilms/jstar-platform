@@ -32,7 +32,7 @@ const wipeEdge = (wipe: number) => {
   return `polygon(0 0,${edge.join(',')},0 100%)`;
 };
 
-export interface TeamHandle { element: HTMLElement | null; enterFromGallery: () => void }
+export interface TeamHandle { element: HTMLElement | null; enterFromGallery: () => void; jumpToIntro: () => void }
 interface Props { onGalleryCovered: (covered: boolean) => void }
 
 const TeamSection = forwardRef<TeamHandle, Props>(function TeamSection({ onGalleryCovered }, forwardedRef) {
@@ -258,9 +258,19 @@ const TeamSection = forwardRef<TeamHandle, Props>(function TeamSection({ onGalle
       element.focus({ preventScroll: true });
     }, () => {});
   }
-  useImperativeHandle(forwardedRef, () => ({ element: section.current, enterFromGallery }));
+  function jumpToIntro() {
+    const element = section.current;
+    if (!element) return;
+    cancelSkip();
+    cancelEntry();
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const entry = reduced ? 0 : window.innerHeight * (.8 + .4 / finish * 4.1);
+    window.scrollTo({ top: window.scrollY + element.getBoundingClientRect().top + entry, behavior: 'instant' });
+    element.focus({ preventScroll: true });
+  }
+  useImperativeHandle(forwardedRef, () => ({ element: section.current, enterFromGallery, jumpToIntro }));
 
-  return <section ref={section}
+  return <section ref={section} id="meet-the-studio"
     className={styles.journey} data-team data-team-member="0" data-team-final="false" tabIndex={-1} aria-label="Meet the studio">
     <div ref={stage} className={styles.stage}>
       <header className={styles.header}>

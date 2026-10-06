@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import Link from 'next/link';
+import { flushSync } from 'react-dom';
 import Image from 'next/image';
 import { Volume2, VolumeX } from 'lucide-react';
 import styles from './hero.module.css';
@@ -20,6 +20,8 @@ interface GalleryState {
 }
 interface MotionControls {
   align: (index: number, collectionChanged?: boolean) => void;
+  jumpToGallery: () => void;
+  jumpToOpening: () => void;
   refresh: () => void;
   suspend: () => void;
 }
@@ -29,6 +31,11 @@ const POSTER = '/redesign/nifemi-poster.jpg';
 const TABLET_SCENE = '/redesign/tablet-scene-v1.png';
 const TABLET_MASK = '/redesign/tablet-screen-mask.svg';
 const PROJECT_STRIDE = .5;
+const OPENING_LINE = 'J StaR Films';
+const STUDIOS_LINE = 'Studios';
+const OPENING_COPY = 'Films, websites and software. One creative team.';
+const SCRAMBLE_COLORS = ['#b33d48', '#206fa1'];
+type HoverFragment = { node: HTMLSpanElement; x: number; y: number; offsetX: number; offsetY: number };
 const clamp = (value: number) => Math.min(1, Math.max(0, value));
 const ease = (t: number) => t * t * t * (t * (t * 6 - 15) + 10);
 
@@ -37,6 +44,18 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
   const track = useRef<HTMLElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const sceneImage = useRef<HTMLImageElement>(null);
+  const firstLine = useRef<HTMLSpanElement>(null);
+  const secondLine = useRef<HTMLSpanElement>(null);
+  const description = useRef<HTMLSpanElement>(null);
+  const firstScrambleLayer = useRef<HTMLSpanElement>(null);
+  const secondScrambleLayer = useRef<HTMLSpanElement>(null);
+  const attractLayer = useRef<HTMLSpanElement>(null);
+  const attractFragments = useRef<HoverFragment[]>([]);
+  const hoverFrame = useRef<number | null>(null);
+  const scrambleFrames = useRef<{ first: number | null; second: number | null }>({ first: null, second: null });
+  const projectRiseRunning = useRef(false);
+  const workHandoffRunning = useRef(false);
+  const studioHandoffRunning = useRef(false);
   const video = useRef<HTMLVideoElement>(null);
   const soundButton = useRef<HTMLButtonElement>(null);
   const soundTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -65,7 +84,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
   const [staticGalleryInView, setStaticGalleryInView] = useState(false);
   const filteredProjects = useMemo(() => projects.filter(project => galleryState.filter === 'all' || project.kind === galleryState.filter), [projects, galleryState.filter]);
   const filterCounts = useMemo(() => ({ all: projects.length, software: projects.filter(project => project.kind === 'software').length, film: projects.filter(project => project.kind === 'film').length }), [projects]);
-  const collection = useRef(filteredProjects);
+  const collection = useRef<readonly GalleryProject[]>(filteredProjects);
   const updateGallery = useCallback((patch: Partial<GalleryState>) => {
     const previous = galleryLive.current;
     const next = { ...previous, ...patch };
@@ -98,6 +117,134 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
   const [message, setMessage] = useState('');
   const controlsVisible = filmAvailable && (controlsAvailable || (reduced && expanded));
   const navHidden = navFolded || (reduced && expanded);
+
+  function resetAttract() {
+    if (hoverFrame.current !== null) cancelAnimationFrame(hoverFrame.current);
+    hoverFrame.current = null;
+    description.current?.removeAttribute('data-hover-type');
+    attractLayer.current?.replaceChildren();
+    attractFragments.current = [];
+  }
+
+  function prepareAttract() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const row = description.current;
+    const layer = attractLayer.current;
+    const text = row?.firstChild;
+    if (!row || !layer || !text || text.nodeType !== Node.TEXT_NODE) return;
+    const bounds = row.getBoundingClientRect();
+    const range = document.createRange();
+    const fragments: HoverFragment[] = [];
+    for (const match of (text.textContent ?? '').matchAll(/\S+/g)) {
+      const start = match.index;
+      range.setStart(text, start);
+      range.setEnd(text, start + match[0].length);
+      const box = range.getBoundingClientRect();
+      const node = document.createElement('span');
+      node.className = styles.attractWord;
+      node.textContent = match[0];
+      node.style.left = `${box.left - bounds.left}px`;
+      node.style.top = `${box.top - bounds.top}px`;
+      layer.appendChild(node);
+      fragments.push({ node, x: box.left - bounds.left + box.width / 2, y: box.top - bounds.top + box.height / 2, offsetX: 0, offsetY: 0 });
+    }
+    attractFragments.current = fragments;
+    row.dataset.hoverType = 'true';
+  }
+
+  function moveAttract(clientX: number, clientY: number) {
+    const row = description.current;
+    if (!row?.hasAttribute('data-hover-type')) return;
+    const bounds = row.getBoundingClientRect();
+    const x = clientX - bounds.left, y = clientY - bounds.top;
+    if (hoverFrame.current !== null) cancelAnimationFrame(hoverFrame.current);
+    hoverFrame.current = requestAnimationFrame(() => {
+      for (const fragment of attractFragments.current) {
+        const dx = fragment.x - x, dy = fragment.y - y;
+        const distance = Math.hypot(dx, dy);
+        if (distance < 135) {
+          const strength = (1 - distance / 135) ** 2 * 22;
+          fragment.offsetX = -dx / (distance || 1) * strength;
+          fragment.offsetY = -dy / (distance || 1) * strength;
+        } else fragment.offsetX = fragment.offsetY = 0;
+        fragment.node.style.transform = `translate(${fragment.offsetX}px, ${fragment.offsetY}px)`;
+        fragment.node.style.textDecoration = distance < 88 ? 'underline 3px #b5e619' : 'none';
+      }
+      hoverFrame.current = null;
+    });
+  }
+
+  function stopScramble(line: 'first' | 'second') {
+    const frame = scrambleFrames.current[line];
+    if (frame !== null) cancelAnimationFrame(frame);
+    scrambleFrames.current[line] = null;
+    const row = line === 'first' ? firstLine.current : secondLine.current;
+    const layer = line === 'first' ? firstScrambleLayer.current : secondScrambleLayer.current;
+    row?.removeAttribute('data-scrambling');
+    layer?.replaceChildren();
+  }
+
+  function scrambleLine(line: 'first' | 'second', pointerType: string) {
+    if (pointerType === 'touch' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    stopScramble(line);
+    const row = line === 'first' ? firstLine.current : secondLine.current;
+    const layer = line === 'first' ? firstScrambleLayer.current : secondScrambleLayer.current;
+    const source = line === 'first' ? OPENING_LINE : STUDIOS_LINE;
+    const text = row?.firstChild;
+    if (!row || !layer || !text || text.nodeType !== Node.TEXT_NODE) return;
+    const range = document.createRange();
+    const glyphs: { node: HTMLSpanElement; letter: string; index: number }[] = [];
+    for (let index = 0; index < source.length; index++) {
+      if (source[index] === ' ') continue;
+      range.setStart(text, index);
+      range.setEnd(text, index + 1);
+      const original = range.getBoundingClientRect();
+      const node = document.createElement('span');
+      node.className = styles.scrambleGlyph;
+      node.textContent = source[index];
+      layer.appendChild(node);
+      range.selectNodeContents(node);
+      const rendered = range.getBoundingClientRect();
+      node.style.left = `${original.left - rendered.left}px`;
+      node.style.top = `${original.top - rendered.top}px`;
+      glyphs.push({ node, letter: source[index], index });
+    }
+    row.dataset.scrambling = 'true';
+    const start = performance.now();
+    const duration = line === 'first' ? 1000 : 500;
+    const cadence = line === 'first' ? 70 : 45;
+    const pool = line === 'first' ? 'JSTARFILMS' : 'STUDIOS';
+    let lastStep = -1;
+    const paint = (now: number) => {
+      const elapsed = now - start;
+      const progress = Math.min(1, elapsed / duration);
+      const step = Math.floor(elapsed / cadence);
+      if (step !== lastStep || progress === 1) {
+        const settled = Math.floor(progress * source.length);
+        for (const glyph of glyphs) {
+          const changing = glyph.index >= settled;
+          glyph.node.textContent = changing ? pool[Math.floor(Math.random() * pool.length)] : glyph.letter;
+          glyph.node.style.color = changing && Math.random() < .3
+            ? SCRAMBLE_COLORS[Math.floor(Math.random() * SCRAMBLE_COLORS.length)] : 'var(--ink)';
+        }
+        lastStep = step;
+      }
+      if (progress < 1) scrambleFrames.current[line] = requestAnimationFrame(paint);
+      else stopScramble(line);
+    };
+    scrambleFrames.current[line] = requestAnimationFrame(paint);
+  }
+
+  useEffect(() => {
+    const reset = () => { stopScramble('first'); stopScramble('second'); resetAttract(); };
+    window.addEventListener('scroll', reset, { passive: true });
+    window.addEventListener('resize', reset);
+    return () => {
+      window.removeEventListener('scroll', reset);
+      window.removeEventListener('resize', reset);
+      reset();
+    };
+  }, []);
 
   const wakeSound = useCallback((delay = 1600) => {
     if (!controlsVisible) return;
@@ -236,6 +383,8 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
     let alignmentDestination: number | null = null;
     let settleTimer: number | null = null;
     let pointerHeld = false;
+    let fastTravel = false;
+    let directGallery = false;
     const nativeScrollEnd = 'onscrollend' in window;
     const cancelSettle = () => {
       if (settleTimer !== null) window.clearTimeout(settleTimer);
@@ -292,7 +441,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
         element.style.setProperty('--pullback-width', `${width * (1 - crop) + 188 * scale * crop}px`);
         element.style.setProperty('--pullback-height', `${height * (1 - crop) + 110 * scale * crop}px`);
       }
-      if (!motion.matches && (progress > 1.9 || target > 1.9)) {
+      if (!motion.matches) {
         const headlineFirst = ease(clamp((progress - 1.96) / 0.24));
         const headlineSecond = ease(clamp((progress - 2.03) / 0.27));
         const supportingCopy = ease(clamp((progress - 2.16) / 0.24));
@@ -410,10 +559,10 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
       const previous = progress;
       const elapsed = Math.min(delta, 64);
       const galleryMotion = (progress >= 4.1 && target > 4.3) || (progress > 4.3 && target >= 4.1);
-      const follow = (target - progress) * (1 - Math.exp(-elapsed / (galleryMotion ? 180 : 1000)));
-      // Earlier takeover keeps its approved response; only collection travel is quicker.
-      progress += Math.sign(follow) * Math.min(Math.abs(follow), elapsed / (galleryMotion ? 250 : 900));
-      if (Math.abs(target - progress) < 0.0001) progress = target;
+      const quick = galleryMotion || fastTravel;
+      const follow = (target - progress) * (1 - Math.exp(-elapsed / (quick ? 180 : 1000)));
+      progress += Math.sign(follow) * Math.min(Math.abs(follow), elapsed / (quick ? 250 : 900));
+      if (Math.abs(target - progress) < 0.0001) { progress = target; fastTravel = false; }
       let panelMoving = false;
       const count = collection.current.length;
       const previewId = galleryLive.current.focusId ?? galleryLive.current.pointerId;
@@ -462,11 +611,15 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
     };
     const measure = () => {
       if (galleryLive.current.mode !== 'browse') return;
-      if (motion.matches) setStaticGalleryInView(-section.getBoundingClientRect().top >= height * .8);
+      if (motion.matches) {
+        const galleryBounds = stage.current?.querySelector<HTMLElement>('[data-gallery]')?.getBoundingClientRect();
+        setStaticGalleryInView(Boolean(galleryBounds && galleryBounds.top < height * .8));
+      }
       // Keep the original 270svh hero's denominator, independent of the added tablet track.
       const distance = height * 2.7 - window.innerHeight;
       const tail = trackSize();
-      target = motion.matches ? 0 : Math.max(0, Math.min(ready ? 4.3 + tail / distance : 1, -section.getBoundingClientRect().top / distance));
+      target = motion.matches ? 0 : Math.max(0, Math.min(ready || directGallery ? 4.3 + tail / distance : 1, -section.getBoundingClientRect().top / distance));
+      if (Math.abs(target - progress) > .45) fastTravel = true;
       if (!motion.matches && (target < 4.1 || target > 4.3) && lastInteractive) {
         lastInteractive = false;
         setGameInteractive(false);
@@ -570,6 +723,31 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
     };
     motionControls.current = {
       align,
+      jumpToGallery() {
+        if (motion.matches) {
+          const galleryElement = stage.current?.querySelector<HTMLElement>('[data-gallery]');
+          if (galleryElement) window.scrollTo({ top: window.scrollY + galleryElement.getBoundingClientRect().top, behavior: 'instant' });
+          return;
+        }
+        directGallery = true;
+        align(0);
+        cancelAnimationFrame(frame);
+        frame = 0;
+        target = 4.3 + height * .75 / (height * 2.7 - window.innerHeight);
+        progress = target;
+        panelPosition = 0;
+        fastTravel = false;
+        paint();
+      },
+      jumpToOpening() {
+        cancelAnimationFrame(frame);
+        frame = 0;
+        target = 0;
+        progress = 0;
+        panelPosition = 0;
+        fastTravel = false;
+        paint();
+      },
       refresh() { measure(); paint(); resume(); },
       suspend() { cancelSettle(); cancelAnimationFrame(frame); frame = 0; lastTime = 0; },
     };
@@ -710,11 +888,66 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
     setExpanded(false);
     setTabletExpanded(false);
     setGameExpanded(false);
-    if (track.current) window.scrollTo({ top: window.scrollY + track.current.getBoundingClientRect().top, behavior: 'instant' });
+    if (root.current) window.scrollTo({ top: window.scrollY + root.current.getBoundingClientRect().top, behavior: 'instant' });
+    motionControls.current?.jumpToOpening();
     if (!navHidden) {
       wantsOpeningFocus.current = false;
       root.current?.querySelector<HTMLAnchorElement>('header a')?.focus({ preventScroll: true });
     }
+  }
+
+  function viewSelectedWork(trigger: HTMLElement) {
+    if (!projects.length || workHandoffRunning.current) return;
+    const jump = () => {
+      flushSync(() => {
+        collection.current = projects;
+        updateGallery({ filter: 'all', committedId: projects[0].id, pointerId: null, focusId: null });
+        motionControls.current?.jumpToGallery();
+      });
+      gallery.current?.focusCatalog();
+    };
+    if (reduced || !document.startViewTransition) { jump(); return; }
+    workHandoffRunning.current = true;
+    trigger.style.viewTransitionName = 'work-heading';
+    document.documentElement.dataset.workHandoff = 'source';
+    const transition = document.startViewTransition(() => {
+      trigger.style.removeProperty('view-transition-name');
+      document.documentElement.dataset.workHandoff = 'destination';
+      jump();
+    });
+    const finish = () => {
+      trigger.style.removeProperty('view-transition-name');
+      delete document.documentElement.dataset.workHandoff;
+      workHandoffRunning.current = false;
+    };
+    void transition.finished.then(finish, finish);
+  }
+
+  function viewStudio() {
+    if (studioHandoffRunning.current) return;
+    const jump = () => end.current?.jumpToIntro();
+    if (reduced || !document.startViewTransition) { jump(); return; }
+    studioHandoffRunning.current = true;
+    const transition = document.startViewTransition(() => {
+      document.documentElement.dataset.studioHandoff = 'true';
+      jump();
+    });
+    const finish = () => {
+      delete document.documentElement.dataset.studioHandoff;
+      studioHandoffRunning.current = false;
+    };
+    void transition.finished.then(finish, finish);
+  }
+
+  function startProject() {
+    if (projectRiseRunning.current) return;
+    const jump = () => closing.current?.startProject();
+    if (reduced || !document.startViewTransition) { jump(); return; }
+    projectRiseRunning.current = true;
+    document.documentElement.dataset.projectRise = 'true';
+    const transition = document.startViewTransition(jump);
+    const finish = () => { delete document.documentElement.dataset.projectRise; projectRiseRunning.current = false; };
+    void transition.finished.then(finish, finish);
   }
 
   function changeComposition() {
@@ -735,7 +968,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
   }
 
   return (
-    <div ref={root} className={styles.root} data-static-expanded={reduced && expanded} data-static-tablet={reduced && expanded && tabletExpanded} data-nav-hidden={navHidden} data-static-game={reduced && gameExpanded} data-gallery-mode={galleryState.mode}
+    <div ref={root} className={styles.root} data-static-expanded={reduced && expanded} data-static-tablet={reduced && expanded && tabletExpanded} data-nav-hidden={navHidden} data-static-game={reduced && gameExpanded} data-gallery-mode={galleryState.mode} data-gallery-in-view={reduced ? staticGalleryInView : galleryVisible}
       onKeyDown={(event) => { if (event.key === 'Escape' && !(event.target instanceof Node && end.current?.element?.contains(event.target))) { event.preventDefault(); if (galleryLive.current.mode !== 'browse') closeGalleryMode(); else if (!galleryVisible || (reduced && window.scrollY < window.innerHeight)) returnToOpening(); } }}>
       <a className={styles.skip} href="#film-sound" onClick={(event) => {
         event.preventDefault();
@@ -746,11 +979,11 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
         }
       }}>Skip to film sound</a>
       <header id="studio-navigation" className={styles.header} inert={navHidden || teamCovered} aria-hidden={navHidden || teamCovered}>
-        <Link href="/redesign" className={styles.brand} aria-label="J StaR Films Studios, hero review">J StaR<span>Films Studios</span></Link>
+        <a href="#studio-navigation" className={styles.brand} onClick={event => { event.preventDefault(); returnToOpening(); }} aria-label="J StaR Films Studios, back to the beginning">J StaR<span>Films Studios</span></a>
         <nav aria-label="Main navigation">
-          <Link href="/portfolio">Work</Link>
-          <Link href="/about">Studio</Link>
-          <a className={styles.projectLink} href="#project-enquiry" onClick={event => { event.preventDefault(); closing.current?.startProject(); }}>Start a Project <span aria-hidden="true">↗</span></a>
+          <a href="#selected-work" onClick={event => { event.preventDefault(); viewSelectedWork(event.currentTarget); }}>Work</a>
+          <a href="#meet-the-studio" onClick={event => { event.preventDefault(); viewStudio(); }}>Studio</a>
+          <a className={styles.projectLink} href="#project-enquiry" onClick={event => { event.preventDefault(); startProject(); }}>Start a Project <span aria-hidden="true">↗</span></a>
         </nav>
       </header>
 
@@ -759,10 +992,24 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
           <div className={styles.introduction}>
             <p className={styles.eyebrow}>Two ways to move people.</p>
             <h1 className={styles.wordmark}>
-              <span className={styles.firstLine}>J StaR Films</span>
-              <span className={styles.secondLine}>Studios</span>
+              <span className={styles.srOnly}>{OPENING_LINE} {STUDIOS_LINE}</span>
+              <span ref={firstLine} className={styles.firstLine} aria-hidden="true"
+                onPointerEnter={event => scrambleLine('first', event.pointerType)} onPointerLeave={() => stopScramble('first')}>
+                {OPENING_LINE}<span ref={firstScrambleLayer} className={styles.scrambleLayer} />
+              </span>
+              <span ref={secondLine} className={styles.secondLine} aria-hidden="true"
+                onPointerEnter={event => scrambleLine('second', event.pointerType)} onPointerLeave={() => stopScramble('second')}>
+                {STUDIOS_LINE}<span ref={secondScrambleLayer} className={styles.scrambleLayer} />
+              </span>
             </h1>
-            <p className={styles.description}>Films, websites and software. One creative team.</p>
+            <p className={styles.description}>
+              <span className={styles.srOnly}>{OPENING_COPY}</span>
+              <span ref={description} className={styles.hoverCopy} aria-hidden="true"
+                onPointerEnter={event => { if (event.pointerType !== 'touch') { prepareAttract(); moveAttract(event.clientX, event.clientY); } }}
+                onPointerMove={event => moveAttract(event.clientX, event.clientY)} onPointerLeave={resetAttract}>
+                {OPENING_COPY}<span ref={attractLayer} className={styles.hoverLayer} />
+              </span>
+            </p>
           </div>
 
           <div className={styles.filmFrame}>
@@ -824,15 +1071,16 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
           </div>
 
           <div className={styles.bottomRow} inert={reduced && gameExpanded}>
-            <button onClick={changeComposition} className={styles.expandControl}>
-              {reduced ? (expanded ? 'Return to opening' : 'Expand film') : 'Go to screening'} <span aria-hidden="true">↓</span>
-            </button>
+            <button onClick={event => viewSelectedWork(event.currentTarget)} disabled={!projects.length} className={styles.expandControl}>View selected work <span aria-hidden="true">↘</span></button>
+            {reduced && <button onClick={changeComposition} className={styles.expandControl}>
+              {expanded ? 'Return to opening' : 'Expand film'} <span aria-hidden="true">↓</span>
+            </button>}
           </div>
           <p className={styles.message} role="status">{message}</p>
           <SelectedWorkGallery ref={gallery} projects={filteredProjects} counts={filterCounts} filter={galleryState.filter} committedId={galleryState.committedId}
             pointerId={galleryState.pointerId} focusId={galleryState.focusId} mode={galleryState.mode} visible={reduced || galleryVisible} reduced={reduced}
             onFilter={filterProjects} onPreview={(source, id) => updateGallery(source === 'pointer' ? { pointerId: id } : { focusId: id })}
-            onSelect={selectProject} onAction={projectAction} onContinue={continueGallery} />
+            onSelect={selectProject} onAction={projectAction} onContinue={continueGallery} onReturnToOpening={returnToOpening} />
         </div>
       </section>
       <TeamSection ref={end} onGalleryCovered={setTeamCovered} />

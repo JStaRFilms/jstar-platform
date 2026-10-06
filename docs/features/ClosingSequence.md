@@ -6,7 +6,7 @@ Finish the isolated `/redesign` page with the approved gallery-to-team wipe, cha
 
 ## Client components and scroll
 
-`Hero.tsx` adds 0.8 viewport heights after its existing gallery track and mounts `TeamSection` with a matching overlap. The original Hero geometry, gallery ranges and 1000ms opening follow are unchanged. Gallery selection and the mounted quiz keep their existing state.
+`Hero.tsx` adds 0.8 viewport heights after its existing gallery track and mounts `TeamSection` with a matching overlap. The original Hero geometry and gallery ranges remain unchanged. The opening still follows gentle scroll at its original pace, but catches up during large forward or reverse jumps. View selected work cuts directly to the first gallery project from any hero frame, without replaying the intermediate scenes; gallery selection and the mounted quiz otherwise keep their existing behavior.
 
 `TeamSection.tsx` reveals its existing sticky stage through a diagonal irregular clip edge over 0.8 viewport heights. Its original 4.1 viewport heights of portrait travel begin after this entrance. Another 0.9 viewport heights hold the settled group while the enquiry arrives. Member navigation includes the entrance offset. Meet everyone and From the beginning fade the team stage out, jump to the requested endpoint, then fade it back in; manual scrolling cancels that jump. Gallery controls become inert when the wipe starts, and team controls become inert during the wipe and enquiry cover.
 
@@ -14,7 +14,7 @@ Finish the isolated `/redesign` page with the approved gallery-to-team wipe, cha
 
 Both transitions read native scroll directly. They retrace the same positions on reversal without timers or queued scenes. Scroll and resize events schedule one frame; listeners and frames are removed on unmount. Reduced motion removes the overlapping entrances and presents ordinary sections. Footer B stays empty at first. The wordmark is hidden until the dark footer covers roughly half the viewport. Its bottom is fixed to the viewport while native scroll stretches it upward; the contact block sets the top limit, so the letters cannot drift into the phone, address or WhatsApp. It reaches full height by the time the footer reaches the top and retraces on reversal without delayed easing. Reduced motion shows it at full height only while the footer is visible.
 
-Start a Project calls the closing component's handle, jumps instantly to the completed reveal and focuses the visible name field. Validation focuses fields without rewinding the reveal. On a smaller screen, an invalid field above the viewport scrolls back into view, clamped to the completed reveal.
+Start a Project jumps straight to the completed enquiry reveal and focuses the name field. On browsers with view transitions, the actual chartreuse destination rises over the current scene with a brief uneven leading edge; reduced motion and unsupported browsers jump directly. Header Work and Studio lead directly to the in-page gallery and team intro; the header, gallery, floating team and footer studio marks return directly to the opening. Validation focuses fields without rewinding the reveal. On a smaller screen, an invalid field above the viewport scrolls back into view, clamped to the completed reveal.
 
 ## Form and server data flow
 

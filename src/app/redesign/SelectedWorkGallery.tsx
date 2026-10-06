@@ -35,6 +35,7 @@ interface Props {
   onSelect: (id: string) => void;
   onAction: (id: string) => void;
   onContinue: () => void;
+  onReturnToOpening: () => void;
 }
 const limit = (value: number, max: number) => Math.max(0, Math.min(max, value));
 
@@ -88,7 +89,7 @@ function FilmPreview({ project, eligible }: { project: GalleryProject; eligible:
 }
 
 const SelectedWorkGallery = forwardRef<GalleryHandle, Props>(function SelectedWorkGallery(props, ref) {
-  const { projects, filter, counts, committedId, pointerId, focusId, mode, visible, reduced, onFilter, onPreview, onSelect, onAction, onContinue } = props;
+  const { projects, filter, counts, committedId, pointerId, focusId, mode, visible, reduced, onFilter, onPreview, onSelect, onAction, onContinue, onReturnToOpening } = props;
   const element = useRef<HTMLElement>(null);
   const catalog = useRef<HTMLElement>(null);
   const list = useRef<HTMLDivElement>(null);
@@ -187,15 +188,12 @@ const SelectedWorkGallery = forwardRef<GalleryHandle, Props>(function SelectedWo
 
   const windowStart = limit((focusedIndex ?? committedIndex) - 2, Math.max(0, projects.length - 6));
   return (
-    <section ref={element} className={styles.gallery} data-gallery data-filter={filter} data-mode={mode}
+    <section ref={element} id="selected-work" className={styles.gallery} data-gallery data-filter={filter} data-mode={mode}
       data-committed-id={committedId ?? ''} data-displayed-id={displayId ?? ''} data-pointer-id={pointerId ?? ''} data-focus-id={focusId ?? ''}
       data-count={projects.length} data-reduced={reduced} data-visible={visible} inert={!visible || mode !== 'browse'} aria-hidden={!visible}>
       <div className={styles.wash} style={{ background: displayed?.color ?? '#001514' }} />
       <header className={styles.header} data-gallery-header>
-        <a className={styles.brand} href="#studio-navigation">J StaR<span>Films Studios</span></a>
-        <button onClick={() => {
-          list.current?.querySelector<HTMLButtonElement>('[aria-current="true"]')?.focus({ preventScroll: true });
-        }}>Explore the work ↘</button>
+        <a className={styles.brand} href="#studio-navigation" onClick={event => { event.preventDefault(); onReturnToOpening(); }} aria-label="J StaR Films Studios, back to the beginning">J StaR<span>Films Studios</span></a>
       </header>
       <nav ref={catalog} className={styles.catalog} aria-label="Selected work" tabIndex={-1}>
         <h2>Made to<br /><em>move you.</em></h2>

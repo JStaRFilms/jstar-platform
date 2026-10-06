@@ -78,6 +78,12 @@
 .firstLine, .secondLine { position: absolute; left: 4.1vw; display: block; white-space: nowrap; filter: blur(var(--motion-blur)); }
 .firstLine { top: var(--active-word-top); font-size: var(--active-word-size); transform: translateX(calc(var(--intro-shift) * 1vw - var(--progress) * 105vw)); }
 .secondLine { top: calc(var(--active-word-top) + var(--active-word-size) * 0.9); font-size: calc(var(--active-word-size) * 1.58); transform: translateX(calc(var(--intro-shift) * 1vw + var(--progress) * 105vw)); }
+.scrambleLayer, .hoverLayer { position: absolute; inset: 0; visibility: hidden; pointer-events: none; color: var(--ink); }
+.firstLine[data-scrambling="true"], .secondLine[data-scrambling="true"], .hoverCopy[data-hover-type="true"] { color: transparent; }
+.firstLine[data-scrambling="true"] .scrambleLayer, .secondLine[data-scrambling="true"] .scrambleLayer, .hoverCopy[data-hover-type="true"] .hoverLayer { visibility: visible; }
+.scrambleGlyph { position: absolute; top: 0; left: 0; white-space: pre; }
+.hoverCopy { position: relative; display: block; }
+.attractWord { position: absolute; white-space: pre; transition: transform .16s ease-out; }
 .description {
   position: absolute; left: 4.6vw; top: calc(var(--active-word-top) + var(--active-word-size) * 2.3 + 8px);
   font-family: 'Segoe UI Variable', 'Segoe UI', 'Trebuchet MS', sans-serif; font-weight: 500; letter-spacing: -0.015em;
@@ -166,10 +172,10 @@
 .soundControl button:hover, .soundControl button:focus-visible { background: rgb(0 21 20 / 82%); }
 .soundLabel { font-size: 11px; opacity: 0; max-width: 0; overflow: hidden; white-space: nowrap; transition: max-width 180ms ease, opacity 180ms ease, margin-right 180ms ease; }
 .soundControl[data-hint="true"] .soundLabel, .soundControl button:hover .soundLabel, .soundControl button:focus-visible .soundLabel { max-width: 140px; opacity: 1; margin-right: 10px; }
-.bottomRow { position: absolute; bottom: 25px; left: 4.6vw; opacity: calc(1 - var(--progress) * 3); }
-.expandControl { display: flex; gap: 25px; align-items: center; font-size: 12px !important; background: transparent; padding: 8px 0; border-bottom: 1px solid var(--ink); }
+.bottomRow { position: absolute; z-index: 6; bottom: 25px; left: 4.6vw; display: flex; gap: 18px; }
+.expandControl { display: flex; gap: 25px; align-items: center; font-size: 12px !important; color: var(--ink); background: var(--paper); padding: 10px 14px; border: 0; }
 .expandControl span { font-size: 22px; }
-.root[data-screening="true"] .bottomRow { visibility: hidden; }
+.root[data-gallery-in-view="true"] .bottomRow { visibility: hidden; }
 .message { position: absolute; z-index: 4; left: 4.6vw; bottom: 105px; background: var(--paper); color: var(--ink); padding: 8px; font-size: 13px; }
 .message:empty { display: none; }
 
@@ -193,7 +199,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .track { height: auto; }
-  .stage { position: relative; height: auto; min-height: 100svh; }
+  .stage { position: relative; display: flow-root; height: auto; min-height: 100svh; }
   .header, .firstLine, .secondLine, .description { transform: none; filter: none; }
   .filmFrame { filter: none; }
   .soundControl, .soundLabel { transition: none; }
@@ -215,8 +221,9 @@
     visibility: visible;
     transform: translate(var(--tablet-scene-x), var(--tablet-scene-y)) scale(var(--tablet-scene-scale));
   }
-  .root[data-static-expanded="true"] .bottomRow { z-index: 4; bottom: 105px; left: auto; right: 4.6vw; }
-  .root[data-static-expanded="true"] .expandControl { background: var(--paper); padding: 10px 15px; border: none; }
+  .bottomRow, .root[data-static-expanded="true"] .bottomRow { position: fixed; bottom: 24px; left: 5vw; right: auto; }
+  .root[data-static-expanded="true"] .expandControl { background: var(--paper); }
+  .root[data-static-game="true"] .bottomRow { visibility: hidden; }
 }
 
 @media (max-width: 800px) {

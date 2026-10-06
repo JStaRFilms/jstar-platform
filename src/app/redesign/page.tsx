@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
 import Hero from './Hero';
+import './project-rise.css';
+import './work-handoff.css';
+import './studio-handoff.css';
 
 export const metadata: Metadata = {
   title: { absolute: 'J StaR Films Studios | Hero review' },
