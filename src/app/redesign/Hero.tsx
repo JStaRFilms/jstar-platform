@@ -643,7 +643,11 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
     };
     const resize = () => {
       cancelSettle();
-      const wasBrowsing = !motion.matches && height !== viewport.clientHeight && target > 4.3;
+      const browseStart = Number(section.dataset.browseStart);
+      const browseEnd = browseStart + Math.max(0, collection.current.length - 1) * height * PROJECT_STRIDE;
+      // Native scroll positions round to pixels at the first and last project anchors.
+      const wasBrowsing = !motion.matches && galleryLive.current.mode === 'browse' && height !== viewport.clientHeight
+        && window.scrollY >= browseStart - 1 && window.scrollY <= browseEnd + 1;
       width = viewport.clientWidth;
       height = motion.matches ? window.innerHeight : viewport.clientHeight;
       endScale = Math.min(width / 1672, height / 941) * 0.96;

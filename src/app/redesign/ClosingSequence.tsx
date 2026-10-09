@@ -38,12 +38,15 @@ const ClosingSequence = forwardRef<ClosingHandle, { onBackToTop: () => void }>(f
     let frame = 0;
     let topDistance = 0;
     let measuredWidth = 0, measuredHeight = 0;
+    let resizedField: HTMLElement | null = null;
     const paint = () => {
       frame = 0;
       const height = window.innerHeight;
       const distance = motion.matches ? 0 : height * .9;
       section.style.marginTop = motion.matches ? '0px' : `${-height - distance}px`;
       section.style.setProperty('--reveal-distance', `${distance}px`);
+      // Upstream tracks shrink with the viewport. Keep an active draft in the completed reveal.
+      if (resizedField) window.scrollTo({ top: window.scrollY + section.getBoundingClientRect().top + distance, behavior: 'instant' });
       const top = section.getBoundingClientRect().top;
       const progress = motion.matches ? 1 : Math.max(0, Math.min(1, -top / distance));
       const cover = progress * progress * (3 - 2 * progress);
@@ -52,6 +55,10 @@ const ClosingSequence = forwardRef<ClosingHandle, { onBackToTop: () => void }>(f
       const sheetTop = sheet.getBoundingClientRect().top;
       const visible = section.getBoundingClientRect().bottom > 0;
       if (content.current) content.current.inert = sheetTop > height * .15 || !visible;
+      if (resizedField) {
+        resizedField.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+        resizedField = null;
+      }
       section.dataset.cover = progress.toFixed(3);
       section.dataset.brandVisible = String(visible && sheetTop <= (window.innerWidth <= 800 ? 70 : 85));
       section.dataset.brandOnGreen = section.dataset.brandVisible;
@@ -86,20 +93,25 @@ const ClosingSequence = forwardRef<ClosingHandle, { onBackToTop: () => void }>(f
     };
     update.current = paint;
     const schedule = () => { if (!frame) frame = requestAnimationFrame(paint); };
+    const resize = () => {
+      const focused = document.activeElement;
+      resizedField = focused instanceof HTMLElement && content.current?.contains(focused) ? focused : null;
+      schedule();
+    };
     const preference = () => { setReduced(motion.matches); schedule(); };
     let mounted = true;
     void document.fonts.ready.then(() => { if (mounted) { topDistance = 0; schedule(); } });
     setReduced(motion.matches);
     paint();
     window.addEventListener('scroll', schedule, { passive: true });
-    window.addEventListener('resize', schedule);
+    window.addEventListener('resize', resize);
     motion.addEventListener('change', preference);
     return () => {
       mounted = false;
       cancelAnimationFrame(frame);
       update.current = null;
       window.removeEventListener('scroll', schedule);
-      window.removeEventListener('resize', schedule);
+      window.removeEventListener('resize', resize);
       motion.removeEventListener('change', preference);
     };
   }, []);

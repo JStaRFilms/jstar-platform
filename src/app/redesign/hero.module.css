@@ -203,6 +203,10 @@
   .header, .firstLine, .secondLine, .description { transform: none; filter: none; }
   .filmFrame { filter: none; }
   .soundControl, .soundLabel { transition: none; }
+  /* The static stage also contains the gallery; keep hero controls in its first viewport. */
+  .tabletControl { top: calc(100svh - 160px); bottom: auto; transform: translateY(-100%); }
+  .gameControl { top: calc(100svh - 215px); bottom: auto; transform: translateY(-100%); }
+  .soundControl { top: calc(100svh - 24px); bottom: auto; transform: translateY(-100%); }
   .video { transform: none; }
   .businessIntro { display: none; }
   .root[data-static-tablet="true"]:not([data-static-game="true"]) .businessIntro { display: block; visibility: visible; opacity: 1; transform: none; }
@@ -241,4 +245,7 @@
   .filmFrame { left: calc((100vw * (1 - var(--arrival)) + 15vw * var(--arrival)) * (1 - var(--progress))); top: calc(49vh * (1 - var(--progress))); width: calc(80vw + var(--progress) * 20vw); height: calc(45vw * (1 - var(--progress)) + var(--progress) * 100svh); }
   .description { top: 42vh; width: 85vw; white-space: normal; font-size: 14px; }
   .soundControl { right: 16px; bottom: 16px; }
+  @media (prefers-reduced-motion: reduce) {
+    .soundControl { top: calc(100svh - 16px); bottom: auto; }
+  }
 }
