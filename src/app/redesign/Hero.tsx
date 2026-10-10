@@ -28,7 +28,7 @@ interface MotionControls {
 
 const FILM = '/redesign/nifemi.mp4';
 const POSTER = '/redesign/nifemi-poster.jpg';
-const TABLET_SCENE = '/redesign/tablet-scene-v1.png';
+const TABLET_SCENE = '/redesign/tablet-scene-v1.webp';
 const TABLET_MASK = '/redesign/tablet-screen-mask.svg';
 const PROJECT_STRIDE = .5;
 const OPENING_LINE = 'J StaR Films';
@@ -41,11 +41,17 @@ const ease = (t: number) => t * t * t * (t * (t * 6 - 15) + 10);
 
 export default function Hero({ projects = selectedWork }: { projects?: readonly GalleryProject[] }) {
   const root = useRef<HTMLDivElement>(null);
+  const header = useRef<HTMLElement>(null);
   const track = useRef<HTMLElement>(null);
+  const scrollMeter = useRef<HTMLSpanElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const sceneImage = useRef<HTMLImageElement>(null);
   const firstLine = useRef<HTMLSpanElement>(null);
   const secondLine = useRef<HTMLSpanElement>(null);
+  const mobileFirst = useRef<HTMLSpanElement>(null);
+  const mobileFilms = useRef<HTMLSpanElement>(null);
+  const mobileStudios = useRef<HTMLSpanElement>(null);
+  const mobileCopy = useRef<HTMLSpanElement>(null);
   const description = useRef<HTMLSpanElement>(null);
   const firstScrambleLayer = useRef<HTMLSpanElement>(null);
   const secondScrambleLayer = useRef<HTMLSpanElement>(null);
@@ -117,6 +123,25 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
   const [message, setMessage] = useState('');
   const controlsVisible = filmAvailable && (controlsAvailable || (reduced && expanded));
   const navHidden = navFolded || (reduced && expanded);
+
+  useLayoutEffect(() => {
+    let disposed = false;
+    const fit = () => {
+      for (const row of [firstLine.current, secondLine.current]) {
+        if (!row) continue;
+        const available = stage.current ? stage.current.clientWidth * .908 : 0;
+        row.style.setProperty('--opening-width-scale', String(window.innerWidth > 800 && row.offsetWidth > 0 ? available / row.offsetWidth : 1));
+      }
+    };
+    fit();
+    void document.fonts.load('italic 800 40px "Bodoni Moda"').then(() => {
+      if (disposed) return;
+      fit();
+      root.current?.setAttribute('data-font-ready', 'true');
+    });
+    window.addEventListener('resize', fit);
+    return () => { disposed = true; window.removeEventListener('resize', fit); };
+  }, []);
 
   function resetAttract() {
     if (hoverFrame.current !== null) cancelAnimationFrame(hoverFrame.current);
@@ -193,7 +218,9 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
     const text = row?.firstChild;
     if (!row || !layer || !text || text.nodeType !== Node.TEXT_NODE) return;
     const range = document.createRange();
-    const glyphs: { node: HTMLSpanElement; letter: string; index: number }[] = [];
+    const bounds = row.getBoundingClientRect();
+    const scaleX = bounds.width / row.offsetWidth;
+    const glyphs: { node: HTMLSpanElement; letter: string; index: number; width: number }[] = [];
     for (let index = 0; index < source.length; index++) {
       if (source[index] === ' ') continue;
       range.setStart(text, index);
@@ -205,9 +232,9 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
       layer.appendChild(node);
       range.selectNodeContents(node);
       const rendered = range.getBoundingClientRect();
-      node.style.left = `${original.left - rendered.left}px`;
+      node.style.left = `${(original.left - rendered.left) / scaleX}px`;
       node.style.top = `${original.top - rendered.top}px`;
-      glyphs.push({ node, letter: source[index], index });
+      glyphs.push({ node, letter: source[index], index, width: node.offsetWidth });
     }
     row.dataset.scrambling = 'true';
     const start = performance.now();
@@ -224,6 +251,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
         for (const glyph of glyphs) {
           const changing = glyph.index >= settled;
           glyph.node.textContent = changing ? pool[Math.floor(Math.random() * pool.length)] : glyph.letter;
+          glyph.node.style.transform = `scaleX(${Math.min(1, glyph.width / (glyph.node.offsetWidth || 1))})`;
           glyph.node.style.color = changing && Math.random() < .3
             ? SCRAMBLE_COLORS[Math.floor(Math.random() * SCRAMBLE_COLORS.length)] : 'var(--ink)';
         }
@@ -234,6 +262,110 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
     };
     scrambleFrames.current[line] = requestAnimationFrame(paint);
   }
+
+  useEffect(() => {
+    const rows = [mobileFirst.current, mobileFilms.current, mobileStudios.current];
+    const words = mobileCopy.current?.querySelectorAll<HTMLElement>(':scope > span');
+    const section = track.current;
+    if (!section || rows.some(row => !row) || !words) return;
+    const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let timer: number | null = null;
+    let frame = 0;
+    let armed = false;
+    const clear = () => {
+      if (timer !== null) window.clearTimeout(timer);
+      timer = null;
+      cancelAnimationFrame(frame);
+      frame = 0;
+      rows.forEach(row => {
+        row?.removeAttribute('data-scrambling');
+        row?.querySelector(`.${styles.scrambleLayer}`)?.replaceChildren();
+      });
+      words.forEach(word => { word.style.removeProperty('transform'); });
+    };
+    const settled = () => window.innerWidth <= 800 && !motion.matches && !document.hidden
+      && Math.abs(section.getBoundingClientRect().top) < 2;
+    const schedule = () => {
+      if (!settled()) { if (armed) clear(); armed = false; return; }
+      if (armed) return;
+      armed = true;
+      timer = window.setTimeout(cycle, 4000);
+    };
+    const cycle = () => {
+      timer = null;
+      if (!settled()) { clear(); armed = false; return; }
+      const lines = rows.map(row => {
+        const text = row?.firstChild;
+        const layer = row?.querySelector<HTMLElement>(`.${styles.scrambleLayer}`);
+        const source = text?.textContent ?? '';
+        const glyphs: { node: HTMLSpanElement; letter: string; index: number; width: number }[] = [];
+        if (row && layer && text?.nodeType === Node.TEXT_NODE) {
+          const range = document.createRange();
+          for (let index = 0; index < source.length; index++) {
+            if (source[index] === ' ') continue;
+            range.setStart(text, index);
+            range.setEnd(text, index + 1);
+            const original = range.getBoundingClientRect();
+            const node = document.createElement('span');
+            node.className = styles.scrambleGlyph;
+            node.textContent = source[index];
+            layer.appendChild(node);
+            range.selectNodeContents(node);
+            const rendered = range.getBoundingClientRect();
+            node.style.left = `${original.left - rendered.left}px`;
+            node.style.top = `${original.top - rendered.top}px`;
+            glyphs.push({ node, letter: source[index], index, width: node.offsetWidth });
+          }
+        }
+        return { row, source, glyphs };
+      });
+      const start = performance.now();
+      let lastStep = -1;
+      const paint = (now: number) => {
+        if (!settled()) { clear(); armed = false; return; }
+        const elapsed = now - start;
+        const step = Math.floor(elapsed / 60);
+        if (step !== lastStep) {
+          lines.forEach(({ row, source, glyphs }, line) => {
+            const local = elapsed - line * 220;
+            if (local < 0 || local >= 360) {
+              row?.removeAttribute('data-scrambling');
+              return;
+            }
+            row?.setAttribute('data-scrambling', 'true');
+            const settledLetters = Math.floor(local / 360 * source.length);
+            for (const glyph of glyphs) {
+              const changing = glyph.index >= settledLetters;
+              glyph.node.textContent = changing ? 'JSTARFILMSUDIOS'[Math.floor(Math.random() * 15)] : glyph.letter;
+              glyph.node.style.transform = `scaleX(${Math.min(1, glyph.width / (glyph.node.offsetWidth || 1))})`;
+              glyph.node.style.color = changing && Math.random() < .3
+                ? SCRAMBLE_COLORS[Math.floor(Math.random() * SCRAMBLE_COLORS.length)] : 'var(--ink)';
+            }
+          });
+          lastStep = step;
+        }
+        words.forEach((word, index) => {
+          const phase = clamp((elapsed - 860 - index * 170) / 430);
+          word.style.transform = `translateY(${-4 * Math.sin(Math.PI * phase)}px)`;
+        });
+        if (elapsed < 1720) frame = requestAnimationFrame(paint);
+        else { clear(); timer = window.setTimeout(cycle, 2280); }
+      };
+      frame = requestAnimationFrame(paint);
+    };
+    schedule();
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    document.addEventListener('visibilitychange', schedule);
+    motion.addEventListener('change', schedule);
+    return () => {
+      clear();
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+      document.removeEventListener('visibilitychange', schedule);
+      motion.removeEventListener('change', schedule);
+    };
+  }, []);
 
   useEffect(() => {
     const reset = () => { stopScramble('first'); stopScramble('second'); resetAttract(); };
@@ -367,10 +499,12 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
   useEffect(() => {
     const element = root.current;
     const section = track.current;
+    const meter = scrollMeter.current;
     const film = video.current;
     const viewport = stage.current;
+    const navigation = header.current;
     const picture = sceneImage.current;
-    if (!element || !section || !film || !viewport || !picture) return;
+    if (!element || !section || !meter || !film || !viewport || !navigation || !picture) return;
 
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
     let frame = 0;
@@ -396,6 +530,8 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
     let sampledTime = 0;
     let width = viewport.clientWidth;
     let height = viewport.clientHeight;
+    let visibleHeight = height;
+    const scrollDistance = () => width <= 800 && !motion.matches ? height * 1.7 : height * 2.7 - window.innerHeight;
     let endScale = 0;
     let endX = 0;
     let endY = 0;
@@ -416,8 +552,9 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
         });
       } else film.pause();
     };
-    const collectionPosition = (value: number) => Math.max(0, Math.min(Math.max(0, collection.current.length - 1), ((value - 4.3) * (height * 2.7 - window.innerHeight) - height * .75) / (height * PROJECT_STRIDE)));
+    const collectionPosition = (value: number) => Math.max(0, Math.min(Math.max(0, collection.current.length - 1), ((value - 4.3) * scrollDistance() - height * .75) / (height * PROJECT_STRIDE)));
     const paint = () => {
+      const sectionRect = section.getBoundingClientRect();
       const arrival = clamp(progress / 0.25);
       const expansion = clamp((progress - 0.25) / 0.55);
       const takeover = ease(expansion);
@@ -425,38 +562,40 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
       element.dataset.tablet = String(pullback > 0);
       if (pullback > 0) {
         // A single registered camera transform keeps the opaque scene and its alpha opening aligned.
-        const fullScale = Math.max(width / 188, height / 108);
+        const fullScale = Math.max(width / 188, visibleHeight / 108);
         const scale = 1 / ((1 - pullback) / fullScale + pullback / endScale);
         const centreX = width / 2 * (1 - pullback) + (endX + 1122 * endScale) * pullback;
-        const centreY = height / 2 * (1 - pullback) + (endY + 280 * endScale) * pullback;
+        const centreY = visibleHeight / 2 * (1 - pullback) + (endY + 280 * endScale) * pullback;
         const x = centreX - 1122 * scale;
         const y = centreY - 280 * scale;
         // Release the viewport crop before the bezel comes into view. Cover never stretches the film.
         const crop = ease(clamp(pullback / 0.12));
-        element.style.setProperty('--scene-x', `${x}px`);
-        element.style.setProperty('--scene-y', `${y}px`);
-        element.style.setProperty('--scene-scale', String(scale));
-        element.style.setProperty('--pullback-left', `${(x + 1028 * scale) * crop}px`);
-        element.style.setProperty('--pullback-top', `${(y + 224 * scale) * crop}px`);
-        element.style.setProperty('--pullback-width', `${width * (1 - crop) + 188 * scale * crop}px`);
-        element.style.setProperty('--pullback-height', `${height * (1 - crop) + 110 * scale * crop}px`);
+        viewport.style.setProperty('--scene-x', `${x}px`);
+        viewport.style.setProperty('--scene-y', `${y}px`);
+        viewport.style.setProperty('--scene-scale', String(scale));
+        viewport.style.setProperty('--pullback-left', `${(x + 1028 * scale) * crop}px`);
+        viewport.style.setProperty('--pullback-top', `${(y + 224 * scale) * crop}px`);
+        viewport.style.setProperty('--pullback-width', `${width * (1 - crop) + 188 * scale * crop}px`);
+        viewport.style.setProperty('--pullback-height', `${visibleHeight * (1 - crop) + 110 * scale * crop}px`);
       }
       if (!motion.matches) {
         const headlineFirst = ease(clamp((progress - 1.96) / 0.24));
         const headlineSecond = ease(clamp((progress - 2.03) / 0.27));
-        const supportingCopy = ease(clamp((progress - 2.16) / 0.24));
+        const headlineThird = ease(clamp((progress - 2.1) / 0.27));
+        const supportingCopy = ease(clamp((progress - 2.27) / 0.24));
         const swipe = ease(clamp((progress - 2.65) / 0.45));
         const reveal = ease(clamp((progress - 3.3) / 0.8));
         const textExit = ease(clamp((progress - 3.31) / 0.48));
         const portraitExit = ease(clamp((progress - 3.36) / 0.69));
-        element.style.setProperty('--headline-first', String(headlineFirst));
-        element.style.setProperty('--headline-second', String(headlineSecond));
-        element.style.setProperty('--supporting-copy', String(supportingCopy));
-        element.style.setProperty('--text-exit', String(textExit));
-        element.style.setProperty('--swipe', String(swipe));
-        element.style.setProperty('--game-reveal', String(reveal));
-        element.style.setProperty('--portrait-exit', String(portraitExit));
-        element.style.setProperty('--game-mini', String(1 - reveal));
+        viewport.style.setProperty('--headline-first', String(headlineFirst));
+        viewport.style.setProperty('--headline-second', String(headlineSecond));
+        viewport.style.setProperty('--headline-third', String(headlineThird));
+        viewport.style.setProperty('--supporting-copy', String(supportingCopy));
+        viewport.style.setProperty('--text-exit', String(textExit));
+        viewport.style.setProperty('--swipe', String(swipe));
+        viewport.style.setProperty('--game-reveal', String(reveal));
+        viewport.style.setProperty('--portrait-exit', String(portraitExit));
+        viewport.style.setProperty('--game-mini', String(1 - reveal));
         const screenLeft = endX + 1028 * endScale;
         const screenTop = endY + 224 * endScale;
         const screenWidth = 188 * endScale;
@@ -466,13 +605,13 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
           const gameHeight = screenHeight * (1 - reveal) + height * reveal;
           const layoutWidth = width * (0.62 + 0.38 * reveal);
           const gameScale = gameWidth / layoutWidth;
-          element.style.setProperty('--game-left', `${screenLeft * (1 - reveal)}px`);
-          element.style.setProperty('--game-top', `${screenTop * (1 - reveal)}px`);
-          element.style.setProperty('--game-width', `${gameWidth}px`);
-          element.style.setProperty('--game-height', `${gameHeight}px`);
-          element.style.setProperty('--game-scale', String(gameScale));
-          element.style.setProperty('--game-layout-width', `${layoutWidth}px`);
-          element.style.setProperty('--game-layout-height', `${gameHeight / gameScale}px`);
+          viewport.style.setProperty('--game-left', `${screenLeft * (1 - reveal)}px`);
+          viewport.style.setProperty('--game-top', `${screenTop * (1 - reveal)}px`);
+          viewport.style.setProperty('--game-width', `${gameWidth}px`);
+          viewport.style.setProperty('--game-height', `${gameHeight}px`);
+          viewport.style.setProperty('--game-scale', String(gameScale));
+          viewport.style.setProperty('--game-layout-width', `${layoutWidth}px`);
+          viewport.style.setProperty('--game-layout-height', `${gameHeight / gameScale}px`);
         }
         const concealed = progress >= 3.1;
         if (concealed !== filmConcealed.current) {
@@ -494,14 +633,13 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
         element.dataset.gameEmerging = String(reveal > 0);
         element.dataset.gameInteractive = String(interactive);
       }
-      const distance = height * 2.7 - window.innerHeight;
+      const distance = scrollDistance();
       const count = collection.current.length;
       const entrance = motion.matches ? 1 : 1 - (1 - clamp((progress - 4.3) * distance / (height * .75))) ** 3;
       const position = motion.matches ? Math.max(0, collection.current.findIndex(project => project.id === galleryLive.current.committedId)) : collectionPosition(progress);
       if (motion.matches) panelPosition = Math.max(0, collection.current.findIndex(project => project.id === (galleryLive.current.focusId ?? galleryLive.current.pointerId ?? galleryLive.current.committedId)));
       else if (progress > 4.3) updateGallery({ committedId: collection.current[Math.round(position)]?.id ?? null });
       const gameIndex = collection.current.findIndex(project => project.presentation.type === 'study-game');
-      const sectionRect = section.getBoundingClientRect();
       const visible = motion.matches || entrance > 0;
       const mediaVisible = motion.matches ? false : entrance > .98 && sectionRect.top <= 0 && sectionRect.bottom > height * .8;
       const galleryFrame: GalleryFrame = { entrance, position, panelPosition, settled: progress === target, visible: mediaVisible, width, height, count };
@@ -515,14 +653,14 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
         gameFrame.current.dataset.panelDepth = pose.depth.toFixed(4);
         const frameWidth = width - 40 * entrance;
         const frameHeight = width <= 800 ? height * (1 - entrance) + height * .25 / .9 * entrance : height - 145 * entrance;
-        element.style.setProperty('--game-mini', '0');
-        element.style.setProperty('--game-left', `${pose.x}px`);
-        element.style.setProperty('--game-top', `${pose.y}px`);
-        element.style.setProperty('--game-width', `${frameWidth * pose.scale}px`);
-        element.style.setProperty('--game-height', `${frameHeight * pose.scale}px`);
-        element.style.setProperty('--game-scale', String(pose.scale));
-        element.style.setProperty('--game-layout-width', `${frameWidth}px`);
-        element.style.setProperty('--game-layout-height', `${frameHeight}px`);
+        viewport.style.setProperty('--game-mini', '0');
+        viewport.style.setProperty('--game-left', `${pose.x}px`);
+        viewport.style.setProperty('--game-top', `${pose.y}px`);
+        viewport.style.setProperty('--game-width', `${frameWidth * pose.scale}px`);
+        viewport.style.setProperty('--game-height', `${frameHeight * pose.scale}px`);
+        viewport.style.setProperty('--game-scale', String(pose.scale));
+        viewport.style.setProperty('--game-layout-width', `${frameWidth}px`);
+        viewport.style.setProperty('--game-layout-height', `${frameHeight}px`);
         gameFrame.current.style.transform = `rotate(${pose.angle}deg)`;
         gameFrame.current.style.zIndex = String(pose.z);
         const neighbourhood = panelWindow(Math.round(panelPosition), count, gameIndex);
@@ -533,10 +671,10 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
         gameFrame.current?.style.removeProperty('visibility');
       }
       const fold = ease(clamp((expansion - 0.4) / 0.4));
-      element.style.setProperty('--arrival', String(ease(arrival)));
-      element.style.setProperty('--intro-shift', String(-6 * Math.sin(Math.PI * arrival) ** 2));
-      element.style.setProperty('--progress', String(takeover));
-      element.style.setProperty('--nav-fold', String(fold));
+      viewport.style.setProperty('--arrival', String(ease(arrival)));
+      viewport.style.setProperty('--intro-shift', String(-6 * Math.sin(Math.PI * arrival) ** 2));
+      viewport.style.setProperty('--progress', String(takeover));
+      navigation.style.setProperty('--nav-fold', String(fold));
       element.dataset.screening = String(takeover > 0.65);
       element.dataset.settled = String(Math.abs(progress - target) < 0.0001);
       const hidden = fold > 0.999;
@@ -568,7 +706,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
       const previewId = galleryLive.current.focusId ?? galleryLive.current.pointerId;
       const previewIndex = collection.current.findIndex(project => project.id === previewId);
       const desiredPanel = previewIndex >= 0 ? previewIndex : collectionPosition(progress);
-      if (count > 1 && (progress - 4.3) * (height * 2.7 - window.innerHeight) >= height * .75) {
+      if (count > 1 && (progress - 4.3) * scrollDistance() >= height * .75) {
         const current = ((panelPosition % count) + count) % count;
         let difference = desiredPanel - current;
         if (difference > count / 2) difference -= count;
@@ -589,12 +727,12 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
       const speed = travel * window.innerWidth / delta;
       // Only fast travel softens the composition, never a gentle scroll or settled frame.
       const blur = progress === target ? 0 : clamp((speed - 1.2) / 2) * 2.5;
-      element.style.setProperty('--motion-blur', `${blur}px`);
+      viewport.style.setProperty('--motion-blur', `${blur}px`);
       paint();
       frame = progress === target && !panelMoving ? 0 : requestAnimationFrame(tick);
     };
     const trackSize = () => {
-      const distance = height * 2.7 - window.innerHeight;
+      const distance = scrollDistance();
       const count = collection.current.length;
       const tail = height * .75 + (count > 1 ? ((count - 1) * PROJECT_STRIDE + .35 + .5) * height : 0);
       if (!motion.matches) section.style.height = `${height + 4.3 * distance + tail + height * .8}px`;
@@ -616,7 +754,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
         setStaticGalleryInView(Boolean(galleryBounds && galleryBounds.top < height * .8));
       }
       // Keep the original 270svh hero's denominator, independent of the added tablet track.
-      const distance = height * 2.7 - window.innerHeight;
+      const distance = scrollDistance();
       const tail = trackSize();
       target = motion.matches ? 0 : Math.max(0, Math.min(ready || directGallery ? 4.3 + tail / distance : 1, -section.getBoundingClientRect().top / distance));
       if (Math.abs(target - progress) > .45) fastTravel = true;
@@ -634,7 +772,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
         cancelAnimationFrame(frame);
         frame = 0;
         progress = 0;
-        element.style.setProperty('--motion-blur', '0px');
+        viewport.style.setProperty('--motion-blur', '0px');
         paint();
       } else if (!frame) {
         lastTime = 0;
@@ -646,24 +784,28 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
       const browseStart = Number(section.dataset.browseStart);
       const browseEnd = browseStart + Math.max(0, collection.current.length - 1) * height * PROJECT_STRIDE;
       // Native scroll positions round to pixels at the first and last project anchors.
-      const wasBrowsing = !motion.matches && galleryLive.current.mode === 'browse' && height !== viewport.clientHeight
+      const wasBrowsing = !motion.matches && galleryLive.current.mode === 'browse' && height !== (viewport.clientWidth <= 800 ? meter.getBoundingClientRect().height : viewport.clientHeight)
         && window.scrollY >= browseStart - 1 && window.scrollY <= browseEnd + 1;
       width = viewport.clientWidth;
-      height = motion.matches ? window.innerHeight : viewport.clientHeight;
-      endScale = Math.min(width / 1672, height / 941) * 0.96;
-      endX = (width - 1672 * endScale) / 2;
-      endY = (height - 941 * endScale) / 2;
+      visibleHeight = viewport.clientHeight;
+      height = width <= 800 && !motion.matches ? meter.getBoundingClientRect().height : motion.matches ? window.innerHeight : visibleHeight;
+      const portraitPhone = width <= 480 && width < visibleHeight;
+      endScale = portraitPhone
+        ? Math.min(width / 1672 * 3.25, visibleHeight / 941 * .86)
+        : Math.min(width / 1672 * 1.22, visibleHeight / 941 * 1.18);
+      endX = portraitPhone ? width * .51 - 1122 * endScale : (width - 1672 * endScale) / 2;
+      endY = portraitPhone ? Math.max(visibleHeight * .39, 250) : Math.max(0, (visibleHeight - 941 * endScale) / 2);
       if (motion.matches || progress <= 4.3) {
-        element.style.setProperty('--game-layout-width', `${width}px`);
-        element.style.setProperty('--game-layout-height', `${height}px`);
+        viewport.style.setProperty('--game-layout-width', `${width}px`);
+        viewport.style.setProperty('--game-layout-height', `${height}px`);
       }
-      element.style.setProperty('--tablet-left', `${endX + 1028 * endScale}px`);
-      element.style.setProperty('--tablet-top', `${endY + 224 * endScale}px`);
-      element.style.setProperty('--tablet-width', `${188 * endScale}px`);
-      element.style.setProperty('--tablet-height', `${110 * endScale}px`);
-      element.style.setProperty('--tablet-scene-x', `${endX}px`);
-      element.style.setProperty('--tablet-scene-y', `${endY}px`);
-      element.style.setProperty('--tablet-scene-scale', String(endScale));
+      viewport.style.setProperty('--tablet-left', `${endX + 1028 * endScale}px`);
+      viewport.style.setProperty('--tablet-top', `${endY + 224 * endScale}px`);
+      viewport.style.setProperty('--tablet-width', `${188 * endScale}px`);
+      viewport.style.setProperty('--tablet-height', `${110 * endScale}px`);
+      viewport.style.setProperty('--tablet-scene-x', `${endX}px`);
+      viewport.style.setProperty('--tablet-scene-y', `${endY}px`);
+      viewport.style.setProperty('--tablet-scene-scale', String(endScale));
       if (wasBrowsing) align(Math.max(0, collection.current.findIndex(project => project.id === galleryLive.current.committedId)));
       else measure();
     };
@@ -672,7 +814,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
       clearPreviews();
       trackSize();
       if (!motion.matches) {
-        const distance = height * 2.7 - window.innerHeight;
+        const distance = scrollDistance();
         const top = window.scrollY + section.getBoundingClientRect().top + 4.3 * distance + height * .75 + Math.max(0, index) * height * PROJECT_STRIDE;
         alignmentDestination = top;
         window.scrollTo({ top, behavior: 'instant' });
@@ -692,7 +834,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
       if (motion.matches || pointerHeld || document.hidden || state.mode !== 'browse' || state.pointerId || state.focusId) return;
       const count = collection.current.length;
       if (count < 2) return;
-      const distance = height * 2.7 - window.innerHeight;
+      const distance = scrollDistance();
       const browseStart = window.scrollY + section.getBoundingClientRect().top + 4.3 * distance + height * .75;
       const position = (window.scrollY - browseStart) / (height * PROJECT_STRIDE);
       // Do not catch the quiz entrance, the last project's resting interval, or the gallery exit.
@@ -737,7 +879,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
         align(0);
         cancelAnimationFrame(frame);
         frame = 0;
-        target = 4.3 + height * .75 / (height * 2.7 - window.innerHeight);
+        target = 4.3 + height * .75 / scrollDistance();
         progress = target;
         panelPosition = 0;
         fastTravel = false;
@@ -797,6 +939,11 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
     window.addEventListener('pointerup', pointerUp, { passive: true });
     window.addEventListener('pointercancel', pointerUp, { passive: true });
     window.addEventListener('resize', resize);
+    const visualResize = () => {
+      if (document.activeElement instanceof HTMLElement && document.activeElement.matches('input, textarea, [contenteditable]')) return;
+      resize();
+    };
+    window.visualViewport?.addEventListener('resize', visualResize);
     document.addEventListener('visibilitychange', resume);
     motion.addEventListener('change', changeMotion);
     return () => {
@@ -812,6 +959,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
       window.removeEventListener('pointercancel', pointerUp);
       motionControls.current = null;
       window.removeEventListener('resize', resize);
+      window.visualViewport?.removeEventListener('resize', visualResize);
       picture.removeEventListener('load', assetsLoaded);
       picture.removeEventListener('error', assetFailed);
       mask.onload = null;
@@ -974,6 +1122,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
   return (
     <div ref={root} className={styles.root} data-static-expanded={reduced && expanded} data-static-tablet={reduced && expanded && tabletExpanded} data-nav-hidden={navHidden} data-static-game={reduced && gameExpanded} data-gallery-mode={galleryState.mode} data-gallery-in-view={reduced ? staticGalleryInView : galleryVisible}
       onKeyDown={(event) => { if (event.key === 'Escape' && !(event.target instanceof Node && end.current?.element?.contains(event.target))) { event.preventDefault(); if (galleryLive.current.mode !== 'browse') closeGalleryMode(); else if (!galleryVisible || (reduced && window.scrollY < window.innerHeight)) returnToOpening(); } }}>
+      <link rel="preload" href="/redesign/bodoni-moda-latin-italic-800.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       <a className={styles.skip} href="#film-sound" onClick={(event) => {
         event.preventDefault();
         if (controlsVisible) soundButton.current?.focus({ preventScroll: true });
@@ -982,7 +1131,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
           changeComposition();
         }
       }}>Skip to film sound</a>
-      <header id="studio-navigation" className={styles.header} inert={navHidden || teamCovered} aria-hidden={navHidden || teamCovered}>
+      <header ref={header} id="studio-navigation" className={styles.header} inert={navHidden || teamCovered} aria-hidden={navHidden || teamCovered}>
         <a href="#studio-navigation" className={styles.brand} onClick={event => { event.preventDefault(); returnToOpening(); }} aria-label="J StaR Films Studios, back to the beginning">J StaR<span>Films Studios</span></a>
         <nav aria-label="Main navigation">
           <a href="#selected-work" onClick={event => { event.preventDefault(); viewSelectedWork(event.currentTarget); }}>Work</a>
@@ -992,6 +1141,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
       </header>
 
       <section ref={track} className={styles.track} aria-label="Studio introduction, film, tablet and study game">
+        <span ref={scrollMeter} className={styles.scrollMeter} aria-hidden="true" />
         <div ref={stage} className={styles.stage} inert={teamCovered && galleryState.mode === 'browse'} onPointerMove={() => wakeSound()}>
           <div className={styles.introduction}>
             <p className={styles.eyebrow}>Two ways to move people.</p>
@@ -1006,6 +1156,9 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
                 {STUDIOS_LINE}<span ref={secondScrambleLayer} className={styles.scrambleLayer} />
               </span>
             </h1>
+            <span ref={mobileFirst} className={`${styles.mobileLine} ${styles.mobileFirst}`} aria-hidden="true">J StaR<span className={styles.scrambleLayer} /></span>
+            <span ref={mobileFilms} className={`${styles.mobileLine} ${styles.mobileFilms}`} aria-hidden="true">Films<span className={styles.scrambleLayer} /></span>
+            <span ref={mobileStudios} className={`${styles.mobileLine} ${styles.mobileStudios}`} aria-hidden="true">Studios<span className={styles.scrambleLayer} /></span>
             <p className={styles.description}>
               <span className={styles.srOnly}>{OPENING_COPY}</span>
               <span ref={description} className={styles.hoverCopy} aria-hidden="true"
@@ -1013,6 +1166,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
                 onPointerMove={event => moveAttract(event.clientX, event.clientY)} onPointerLeave={resetAttract}>
                 {OPENING_COPY}<span ref={attractLayer} className={styles.hoverLayer} />
               </span>
+              <span ref={mobileCopy} className={styles.mobileCopy} aria-hidden="true"><span>Films,</span> <span>websites</span> and <span>software.</span><br />One creative team.</span>
             </p>
           </div>
 
@@ -1027,8 +1181,9 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
           </div>
           <div className={styles.businessIntro}>
             <h2 aria-label="We build what happens next.">
-              <span className={styles.lineMask} aria-hidden="true"><span className={styles.headlineFirst}>We build what</span></span>
-              <span className={styles.lineMask} aria-hidden="true"><span className={styles.headlineSecond}>happens next.</span></span>
+              <span className={styles.lineMask} aria-hidden="true"><span className={styles.headlineFirst}>We build</span></span>
+              <span className={styles.lineMask} aria-hidden="true"><span className={styles.headlineSecond}>what happens</span></span>
+              <span className={styles.lineMask} aria-hidden="true"><span className={styles.headlineThird}>next.</span></span>
             </h2>
             <p>Websites, applications, and systems for your business.</p>
           </div>
