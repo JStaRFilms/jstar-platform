@@ -56,18 +56,22 @@
 .noteControls button { font-size: 22px !important; min-width: 44px; min-height: 44px; }
 .noteControls .pauseNotes { font-size: 10px !important; letter-spacing: .1em; text-transform: uppercase; }
 .footerTrack { height: 155svh; background: #001514; color: #fbfffe; }
-.footerStage { position: sticky; top: 0; height: 100svh; padding: 6vh 4vw 24px; overflow: clip; display: flex; flex-direction: column; justify-content: space-between; }
+.footerStage { position: sticky; top: 0; height: 100svh; padding: 6vh 4vw 24px; overflow: clip; display: flex; flex-direction: column; }
 .footerTop { display: flex; justify-content: space-between; padding: 0 2vw; gap: 24px; }
 .email { display: block; font: 400 3vw 'Study Outfit', Arial, sans-serif; letter-spacing: -.04em; margin-top: 17px; }
 .socials { display: flex; gap: 25px; font-size: 12px; align-items: start; }
 .socials button { padding: 0; }
-.footerExtra { display: flex; flex-direction: column; gap: 13px; position: absolute; top: 25vh; left: 6vw; font-size: 13px; }
-.footerLogo { position: absolute; top: 12vh; left: 50%; transform: translateX(-50%); width: 200px; height: 200px; padding: 0; border: 0; background: transparent; cursor: pointer; }
+.footerExtra { display: flex; align-items: center; gap: 28px; margin: 24px 2vw 0; font-size: 13px; }
+.footerDetails { display: flex; flex-direction: column; gap: 13px; }
+.footerLogo { flex: none; width: 96px; height: 96px; padding: 0; border: 0; background: transparent; cursor: pointer; }
 .footerLogo img { width: 100%; height: 100%; object-fit: contain; }
-.wordmark { position: fixed; left: 2vw; bottom: 96px; width: 96vw; height: 76vh; transform-origin: center bottom; transform: scaleY(0); visibility: hidden; pointer-events: none; color: #b5e619; }
+.wordmark { position: fixed; left: 2vw; width: 96vw; transform-origin: center bottom; transform: scaleY(0); visibility: hidden; pointer-events: none; color: #b5e619; }
 .wordmark svg { width: 100%; height: 100%; overflow: visible; fill: currentColor; font: 900 290px 'Study Outfit', Arial, sans-serif; letter-spacing: -14px; }
 .wordmarkStudios { font: 800 74px 'Study Outfit', Arial, sans-serif; letter-spacing: -.02em; }
-.footerBottom { display: flex; justify-content: space-between; font-size: 10px; opacity: .6; padding-bottom: 16px; }
+.wordmarkMobile { display: none; }
+.mobileName { font: 900 260px 'Study Outfit', Arial, sans-serif; letter-spacing: -.06em; }
+.mobileStudio { font: 800 85px 'Study Outfit', Arial, sans-serif; letter-spacing: -.02em; }
+.footerBottom { display: flex; justify-content: space-between; font-size: 10px; opacity: .6; padding-bottom: 16px; margin-top: auto; }
 @media (min-width: 801px) and (max-height: 780px) {
   .enquiry { padding-top: 40px; padding-bottom: 25px; }
   .enquiryGrid { gap: 6vw; min-height: calc(100svh - 65px); }
@@ -86,8 +90,7 @@
   .proof { transform: none; }
   .proofTop { margin-bottom: 58px; }
   .noteControls { margin-top: 10px; }
-  .footerLogo { width: 160px; height: 160px; }
-  .wordmark { height: 66vh; }
+  .footerLogo { width: 80px; height: 80px; }
   .wordmark svg { font-size: 280px; }
 }
 @media (max-width: 800px) {
@@ -103,12 +106,15 @@
   .proofTop { margin-bottom: 45px; }
   .clientNote { padding: 22px 25px; min-height: 320px; }
   .clientNote blockquote { font-size: 26px; }
+  .footerTrack { height: calc(100dvh + 55svh); }
+  .footerStage { height: 100dvh; padding-top: clamp(24px, 5dvh, 44px); }
   .footerTop { display: block; }
   .socials { margin-top: 28px; gap: 20px; }
   .email { font-size: 6vw; }
-  .footerLogo { top: 27vh; width: 105px; height: 105px; left: 80%; }
-  .footerExtra { top: 31vh; }
-  .wordmark { height: 27vh; }
+  .footerLogo { width: 80px; height: 80px; }
+  .footerExtra { justify-content: space-between; }
+  .wordmarkDesktop { display: none; }
+  .wordmarkMobile { display: inline; }
   .footerBottom { font-size: 9px; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -117,5 +123,9 @@
   .enquiry { position: relative; transform: none !important; border-radius: 0 !important; }
   .services span { transition: none; }
   .footerTrack { height: 100svh; }
-  .wordmark { transform: none !important; }
+  .footerStage { position: relative; }
+  .wordmark { position: absolute; transform: none !important; }
+  @media (max-width: 800px) {
+    .footerTrack { height: 100dvh; }
+  }
 }
