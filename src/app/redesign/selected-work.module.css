@@ -72,23 +72,23 @@
   .caption { top: 79vh; }
 }
 @media (max-width: 800px) {
-  .gallery { --name-size: 17px; }
+  .gallery { --name-size: clamp(16px, 2.2svh, 21px); --mobile-row-height: clamp(34px, 4.8svh, 46px); }
   .header { height: 56px; padding: 0 5vw; }
   .brand { font-size: 23px; }
   .brand span { display: none; }
-  .catalog { top: max(66px, 10vh); left: 5vw; width: 90vw; }
-  .catalog h2 { font-size: 36px; margin: 12px 0; }
+  .catalog { top: max(60px, 8svh); left: 5vw; width: 90vw; }
+  .catalog h2 { font-size: clamp(30px, 4.6svh, 40px); margin: 10px 0; }
   .filters { position: absolute; right: 0; top: 40px; border: 0; gap: 14px; }
-  .window { --row-height: 34px; margin-top: 10px; }
+  .window { --row-height: var(--mobile-row-height); margin-top: 10px; }
   .row { padding: 0; }
-  .row strong { font-size: 16px; }
-  .row small { font-size: 8px; margin-top: 2px; }
+  .row strong { font-size: min(var(--name-size), calc(var(--row-height) * .52)); font-weight: 500; }
+  .row small { font-size: clamp(7px, 1.1svh, 9px); margin-top: 2px; letter-spacing: 1.2px; }
   .listNote { display: none; }
-  .caption { left: 5vw; right: 5vw; top: 83vh; gap: 12px; }
-  .caption p { font-size: 11px; margin-top: 5px; }
+  .caption { left: 5vw; right: 5vw; top: 83svh; gap: 12px; }
+  .caption p { font-size: clamp(11px, 1.4svh, 13px); margin-top: 5px; }
   .caption span { font-size: 8px; }
   .footer { bottom: 10px; }
-  .galleryCounter { font-size: 28px; margin-top: 6px; }
+  .galleryCounter { font-size: clamp(28px, 4svh, 36px); margin-top: 6px; }
   .filmTitle h3 { font-size: 54px; letter-spacing: -2px; }
   .filmTitle span { font-size: 11px; }
   .school h3 { font-size: 44px; letter-spacing: -2px; bottom: 23%; }
@@ -96,7 +96,18 @@
   .school p { left: 7%; right: 7%; }
   .symbol { font-size: 65px; }
   .symbol span { font-size: 32px; }
-  .staticStudy { left: 5vw; top: 53vh; width: 90vw; font-size: 23px; }
+  .staticStudy { left: 5vw; top: var(--mobile-preview-top, 58svh); width: 90vw; font-size: 23px; }
+}
+@media (max-width: 800px) and (max-height: 640px) {
+  .footer { bottom: 4px; line-height: 1; }
+  .footer button { font-size: 11px; line-height: 1; padding: 2px 0; }
+}
+@media (max-width: 800px) and (max-height: 520px) {
+  .catalog { top: 50px; }
+  .catalog h2 { font-size: 26px; margin: 4px 0; }
+  .filters { top: 30px; gap: 10px; }
+  .row small { font-size: 6.5px; margin-top: 0; }
+  .caption p { font-size: 10px; line-height: 1.25; }
 }
 @media (prefers-reduced-motion: reduce) {
   .gallery { position: relative; height: 100svh; margin-top: 100svh; --entrance: 1 !important; visibility: visible; }

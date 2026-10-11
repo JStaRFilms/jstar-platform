@@ -52,6 +52,11 @@ export function panelWindow(index: number, count: number, studyIndex: number) {
   return indices;
 }
 
+export function mobilePreviewLayout(height: number) {
+  if (height < 520) return { top: .66, height: .17 };
+  return height < 640 ? { top: .64, height: .19 } : { top: .58, height: .25 };
+}
+
 // Fixed circular order: each step moves the entire fan, not just the selected pair.
 export function panelPose(frame: GalleryFrame, index: number) {
   const { width, height, entrance, panelPosition } = frame;
@@ -64,7 +69,7 @@ export function panelPose(frame: GalleryFrame, index: number) {
   const scale = (mobile ? .9 : .53) - depth * .032;
   return {
     x: (width * (mobile ? .05 : .44) + depth * width * .013) * entrance,
-    y: (height * (mobile ? .58 : .32) - depth * height * (mobile ? .012 : .046)) * entrance,
+    y: (height * (mobile ? mobilePreviewLayout(height).top : .32) - depth * height * (mobile ? .012 : .046)) * entrance,
     scale: 1 + (scale - 1) * entrance,
     angle: -depth * (mobile ? 1.2 : 2.2) * entrance,
     z: 10 - Math.round(depth),
@@ -95,6 +100,8 @@ const SelectedWorkGallery = forwardRef<GalleryHandle, Props>(function SelectedWo
   const list = useRef<HTMLDivElement>(null);
   const rows = useRef<HTMLDivElement>(null);
   const frame = useRef<GalleryFrame>({ entrance: 0, position: 0, panelPosition: 0, settled: true, visible: false, width: 1440, height: 900, count: projects.length });
+  const rowSize = useRef({ width: 0, height: 0, count: 0, value: 64, capacity: 6 });
+  const [visibleRows, setVisibleRows] = useState(6);
   const pointer = useRef({ x: 0, y: 0, baseX: 0, baseY: 0, known: false, armed: true, settled: true });
   const keyboard = useRef(false);
   const pendingFocus = useRef<number | null>(null);
@@ -120,14 +127,34 @@ const SelectedWorkGallery = forwardRef<GalleryHandle, Props>(function SelectedWo
     if (nextIndex !== panelIndex) setPanelIndex(nextIndex);
     const gallery = element.current;
     if (!gallery) return;
+    if (rowSize.current.width !== next.width || rowSize.current.height !== next.height || rowSize.current.count !== projects.length) {
+      gallery.style.removeProperty('--mobile-row-height');
+      let capacity = 6;
+      let rowHeight = rows.current?.firstElementChild?.getBoundingClientRect().height ?? 64;
+      if (next.width <= 800 && catalog.current && list.current) {
+        const counter = gallery.querySelector<HTMLElement>('[data-gallery-counter]');
+        const counterSpace = counter ? counter.offsetHeight + parseFloat(getComputedStyle(counter).marginTop) : 0;
+        const rear = panelPose({ ...next, entrance: 1, panelPosition: 0, count: 4 }, 3);
+        const previewTop = rear.y + Math.sin(rear.angle * Math.PI / 180) * (next.width - 40) * rear.scale;
+        const buffer = Math.max(16, Math.min(40, next.height * .04));
+        const available = previewTop - catalog.current.offsetTop - list.current.offsetTop - counterSpace - buffer;
+        capacity = available >= rowHeight * 5 ? 5 : 4;
+        rowHeight = Math.max(28, Math.min(rowHeight, available / capacity));
+        gallery.style.setProperty('--mobile-row-height', `${rowHeight}px`);
+        gallery.style.setProperty('--mobile-preview-top', `${next.height * mobilePreviewLayout(next.height).top}px`);
+      }
+      rowSize.current = { width: next.width, height: next.height, count: projects.length, value: rowHeight, capacity };
+      if (capacity !== visibleRows) setVisibleRows(capacity);
+      gallery.dataset.visibleRows = String(capacity);
+    }
     gallery.style.setProperty('--entrance', String(next.entrance));
     gallery.dataset.settled = String(next.settled);
     gallery.dataset.position = next.position.toFixed(4);
     gallery.dataset.panelPosition = next.panelPosition.toFixed(4);
     gallery.dataset.pointerArmed = String(latch.armed);
-    const rowHeight = rows.current?.firstElementChild?.getBoundingClientRect().height ?? 64;
+    const rowHeight = rowSize.current.value;
     const position = focusedIndex ?? next.position;
-    const start = limit(position - 2, Math.max(0, projects.length - 6));
+    const start = limit(position - 2, Math.max(0, projects.length - rowSize.current.capacity));
     rows.current?.style.setProperty('transform', `translateY(${-start * rowHeight}px)`);
     gallery.querySelectorAll<HTMLElement>('[data-panel-index]').forEach(panel => {
       const pose = panelPose(next, Number(panel.dataset.panelIndex));
@@ -136,7 +163,7 @@ const SelectedWorkGallery = forwardRef<GalleryHandle, Props>(function SelectedWo
       panel.style.zIndex = String(pose.z);
       panel.style.opacity = String(pose.opacity);
       panel.style.width = `${next.width - 40 * next.entrance}px`;
-      panel.style.height = `${next.width <= 800 ? next.height * .25 / .9 : next.height - 145 * next.entrance}px`;
+      panel.style.height = `${next.width <= 800 ? next.height * mobilePreviewLayout(next.height).height / .9 : next.height - 145 * next.entrance}px`;
     });
   }
   useImperativeHandle(ref, () => ({
@@ -186,7 +213,7 @@ const SelectedWorkGallery = forwardRef<GalleryHandle, Props>(function SelectedWo
     if (target) onPreview('pointer', target.dataset.projectId ?? null);
   }
 
-  const windowStart = limit((focusedIndex ?? committedIndex) - 2, Math.max(0, projects.length - 6));
+  const windowStart = limit((focusedIndex ?? committedIndex) - 2, Math.max(0, projects.length - visibleRows));
   return (
     <section ref={element} id="selected-work" className={styles.gallery} data-gallery data-filter={filter} data-mode={mode}
       data-committed-id={committedId ?? ''} data-displayed-id={displayId ?? ''} data-pointer-id={pointerId ?? ''} data-focus-id={focusId ?? ''}
@@ -200,7 +227,7 @@ const SelectedWorkGallery = forwardRef<GalleryHandle, Props>(function SelectedWo
         <div className={styles.filters} role="group" aria-label="Filter projects">
           {(['all', 'software', 'film'] as const).map(value => <button key={value} data-filter-button={value} aria-pressed={filter === value} onClick={() => onFilter(value)}>{value === 'all' ? 'All' : value === 'software' ? 'Software' : 'Film'} <sup>{String(counts[value]).padStart(2, '0')}</sup></button>)}
         </div>
-        <div ref={list} className={styles.window} style={{ '--rows': Math.min(6, projects.length) } as CSSProperties}
+        <div ref={list} className={styles.window} style={{ '--rows': Math.min(visibleRows, projects.length) } as CSSProperties}
           onPointerMove={pointerPreview} onPointerEnter={pointerPreview} onPointerLeave={() => onPreview('pointer', null)}
           onPointerDown={() => { keyboard.current = false; }}
           onKeyDown={event => {
@@ -231,7 +258,7 @@ const SelectedWorkGallery = forwardRef<GalleryHandle, Props>(function SelectedWo
           <div ref={rows} className={styles.rows}>
             {projects.map((project, index) => <button key={project.id} className={styles.row} data-project-id={project.id} data-project-index={index}
               data-displayed={project.id === displayId} aria-current={project.id === committedId ? 'true' : undefined}
-              tabIndex={index >= windowStart && index < windowStart + 6 ? 0 : -1}
+              tabIndex={index >= windowStart && index < windowStart + visibleRows ? 0 : -1}
               onClick={() => { setFocusedIndex(null); onSelect(project.id); }}>
               <span className={styles.index}>{String(index + 1).padStart(2, '0')}</span><span><strong>{project.title}</strong><small>{project.label}</small></span><span aria-hidden="true">↗</span>
             </button>)}

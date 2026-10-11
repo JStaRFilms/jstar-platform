@@ -8,7 +8,7 @@ import styles from './hero.module.css';
 import StudyGame from './StudyGame';
 import TeamSection, { type TeamHandle } from './TeamSection';
 import ClosingSequence, { type ClosingHandle } from './ClosingSequence';
-import SelectedWorkGallery, { panelPose, panelWindow, type GalleryFrame, type GalleryHandle } from './SelectedWorkGallery';
+import SelectedWorkGallery, { mobilePreviewLayout, panelPose, panelWindow, type GalleryFrame, type GalleryHandle } from './SelectedWorkGallery';
 import { selectedWork, type GalleryFilter, type GalleryMode, type GalleryProject } from '@/content/selected-work';
 
 interface GalleryState {
@@ -652,7 +652,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
         const pose = panelPose(galleryFrame, gameIndex < 0 ? 0 : gameIndex);
         gameFrame.current.dataset.panelDepth = pose.depth.toFixed(4);
         const frameWidth = width - 40 * entrance;
-        const frameHeight = width <= 800 ? height * (1 - entrance) + height * .25 / .9 * entrance : height - 145 * entrance;
+        const frameHeight = width <= 800 ? height * (1 - entrance) + height * mobilePreviewLayout(height).height / .9 * entrance : height - 145 * entrance;
         viewport.style.setProperty('--game-mini', '0');
         viewport.style.setProperty('--game-left', `${pose.x}px`);
         viewport.style.setProperty('--game-top', `${pose.y}px`);

@@ -22,7 +22,10 @@ const mobilePlaces = [[38, 72], [20, 37], [50, 37], [80, 37],
 const clamp = (value: number) => Math.max(0, Math.min(1, value));
 const ease = (value: number) => { const t = clamp(value); return t * t * (3 - 2 * t); };
 const mix = (from: number, to: number, amount: number) => from + (to - from) * amount;
-const finish = 8.3;
+const scrollPerMember = 4.1 / 8.3;
+const groupStart = 7.8;
+const groupFinish = 8.9;
+const finish = 10.3;
 const wipeEdge = (wipe: number) => {
   const edge: string[] = [];
   for (let i = 0; i <= 100; i++) {
@@ -75,9 +78,10 @@ const TeamSection = forwardRef<TeamHandle, Props>(function TeamSection({ onGalle
       const width = window.innerWidth, height = window.innerHeight, mobile = width <= 800;
       const entry = motion.matches ? 0 : height * .8;
       const exit = motion.matches ? 0 : height * .9;
-      element.style.height = motion.matches ? '' : `${height * 5.1 + entry + exit}px`;
+      // Extend the ending without speeding up the earlier introductions.
+      const travel = motion.matches ? 0 : height * scrollPerMember * finish;
+      element.style.height = motion.matches ? '' : `${height + travel + entry + exit}px`;
       element.style.marginTop = motion.matches ? '0px' : `${-height - entry}px`;
-      const travel = motion.matches ? 0 : height * 4.1;
       const bounds = element.getBoundingClientRect();
       const wipe = motion.matches ? 1 : clamp(-bounds.top / entry);
       const cover = motion.matches ? 0 : clamp((-bounds.top - entry - travel) / exit);
@@ -99,7 +103,8 @@ const TeamSection = forwardRef<TeamHandle, Props>(function TeamSection({ onGalle
       }
       previousTime = now;
       const progress = rendered;
-      const group = ease((progress - 7.35) / .8);
+      const group = ease((progress - groupStart) / (mobile ? groupFinish - groupStart : .8));
+      const mobileGroup = ease((group - .85) / .15);
       const current = Math.min(7, Math.floor(progress));
       const complete = motion.matches || group >= .99;
       element.dataset.teamProgress = progress.toFixed(3);
@@ -112,24 +117,25 @@ const TeamSection = forwardRef<TeamHandle, Props>(function TeamSection({ onGalle
       if (!complete && touchSelection.current !== null) { touchSelection.current = null; setRevealed(null); }
       if (scrollDestination.current !== null && Math.abs(window.scrollY - scrollDestination.current) < 2) scrollDestination.current = null;
 
-      const opening = 1 - ease((progress - .55) / .5);
+      const shortPhone = mobile && height <= 650;
+      const opening = 1 - ease((progress - (shortPhone ? .05 : .55)) / (shortPhone ? .3 : .5));
       if (intro.current) {
         intro.current.style.opacity = String(opening);
         intro.current.style.transform = `translateY(${-30 * (1 - opening)}px)`;
         intro.current.inert = opening < .1;
       }
       if (spotlight.current) {
-        spotlight.current.style.opacity = String(1 - group);
+        spotlight.current.style.opacity = String(1 - (mobile ? ease((progress - groupStart) / .45) : group));
         const lift = ease((progress - .35) / 1.25);
         spotlight.current.style.transform = `translateY(${mobile || height <= 750 ? 0 : (1 - lift) * height * .27}px)`;
       }
-      if (groupHeading.current) groupHeading.current.style.opacity = String(group);
+      if (groupHeading.current) groupHeading.current.style.opacity = String(mobile ? ease((group - .75) / .25) : group);
 
       members.current.forEach((node, index) => {
         if (!node) return;
         const age = progress - index;
         const entered = index === 0 ? ease((progress + .12) / .62) : ease((age + .3) / .75);
-        const settled = index === 0 ? ease((progress - .45) / .7) : ease((age - .52) / .78);
+        const settled = index === 0 ? ease((progress - .45) / .7) : index === 7 ? group : ease((age - .52) / .78);
         let x = places[index][0] / 100 * width;
         let y = places[index][1] / 100 * height;
         let small = Math.min(places[index][2] / 100 * width, index === 0 ? 430 : 285, height * (index === 0 ? (height <= 750 ? .31 : .375) : .31));
@@ -137,22 +143,31 @@ const TeamSection = forwardRef<TeamHandle, Props>(function TeamSection({ onGalle
           x = mobilePlaces[index][0] / 100 * width;
           y = mobilePlaces[index][1] / 100 * height;
           small = width * (index === 0 ? .27 : .23);
+          if (height <= 650 && index === 7) y = height * .7;
+          if (height <= 540) {
+            y = height * (index === 0 || index === 7 ? .66 : index >= 4 ? .5 : .37);
+            small = width * (index === 0 ? .22 : .2);
+          }
         } else {
           x = mix(width * (.08 + index * .12), x, group);
           y = mix(height * .78, y, group);
           small = mix(width * (index === 0 ? .13 : .10), small, group);
         }
-        const large = Math.min(width * (mobile ? .7 : .47), mobile ? 360 : 700, height * (mobile ? .6 : .72));
+        const portraitHeight = height * (mobile ? height <= 540 && index === 7 ? .45 : .6 : .72);
+        const large = Math.min(width * (mobile ? index === 0 ? .7 : .82 : .47), mobile ? 360 : 700, portraitHeight);
         const size = mix(large, small, settled);
         const cx = mix(width * (mobile ? .60 : .66), x, settled);
-        const cy = mix(mix(height * (index === 0 ? 1.1 : 1.35), height * (mobile ? .43 : .51), entered), y, settled);
+        let focusY = height * (mobile ? height <= 600 ? .38 : .4 : .51);
+        if (mobile && (height <= 540 || height <= 650 && index === 7)) focusY = height * .34;
+        const cy = mix(mobile && index > 0 ? focusY : mix(height * (index === 0 ? 1.1 : 1.35), focusY, entered), y, settled);
         node.style.width = `${size}px`;
         node.style.transform = `translate(${cx - size / 2}px, ${cy - size / 2}px)`;
-        node.style.opacity = String(index === 0 ? entered : mix(entered, 1, group));
-        node.style.visibility = age < (index === 0 ? 0 : -.3) ? 'hidden' : 'visible';
+        const solo = index === current ? entered * (index === 7 ? 1 : 1 - ease((age - .55) / .2)) : index === current + 1 ? entered : 0;
+        node.style.opacity = String(mobile ? mix(solo, 1, mobileGroup) : index === 0 ? entered : mix(entered, 1, group));
+        node.style.visibility = age < (index === 0 ? 0 : -.3) || (mobile && solo === 0 && mobileGroup === 0) ? 'hidden' : 'visible';
         node.style.zIndex = String(index === 0 && group >= .99 ? 30 : index === current && group < .8 ? 20 : index === 0 ? 10 : 5);
         node.style.pointerEvents = complete ? 'auto' : 'none';
-        node.querySelector<HTMLElement>('[data-team-name]')?.style.setProperty('opacity', String(settled));
+        node.querySelector<HTMLElement>('[data-team-name]')?.style.setProperty('opacity', String(mobile ? settled * mobileGroup : settled));
       });
       if (Math.abs(target - progress) > .002) frame = window.requestAnimationFrame(paint);
     };
@@ -192,7 +207,7 @@ const TeamSection = forwardRef<TeamHandle, Props>(function TeamSection({ onGalle
     const element = section.current;
     if (!element) return;
     const height = window.innerHeight;
-    const top = window.scrollY + element.getBoundingClientRect().top + (window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : height * .8 + progress / finish * height * 4.1);
+    const top = window.scrollY + element.getBoundingClientRect().top + (window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : height * .8 + progress * height * scrollPerMember);
     scrollDestination.current = top;
     window.scrollTo({ top, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
   }
@@ -208,7 +223,7 @@ const TeamSection = forwardRef<TeamHandle, Props>(function TeamSection({ onGalle
       window.scrollTo({ top: window.scrollY, behavior: 'instant' });
     }
     const height = window.innerHeight;
-    const top = window.scrollY + element.getBoundingClientRect().top + (window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : height * .8 + progress / finish * height * 4.1);
+    const top = window.scrollY + element.getBoundingClientRect().top + (window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : height * .8 + progress * height * scrollPerMember);
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       window.scrollTo({ top, behavior: 'instant' });
       return;
@@ -264,7 +279,7 @@ const TeamSection = forwardRef<TeamHandle, Props>(function TeamSection({ onGalle
     cancelSkip();
     cancelEntry();
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const entry = reduced ? 0 : window.innerHeight * (.8 + .4 / finish * 4.1);
+    const entry = reduced ? 0 : window.innerHeight * (.8 + .4 * scrollPerMember);
     window.scrollTo({ top: window.scrollY + element.getBoundingClientRect().top + entry, behavior: 'instant' });
     element.focus({ preventScroll: true });
   }
@@ -274,7 +289,7 @@ const TeamSection = forwardRef<TeamHandle, Props>(function TeamSection({ onGalle
     className={styles.journey} data-team data-team-member="0" data-team-final="false" tabIndex={-1} aria-label="Meet the studio">
     <div ref={stage} className={styles.stage}>
       <header className={styles.header}>
-        <button className={styles.skip} onClick={() => skipTo(finish)}>Meet everyone ↘</button>
+        <button className={styles.skip} onClick={() => skipTo(groupFinish)}>Meet everyone ↘</button>
       </header>
       <div ref={intro} className={styles.intro}><span className={styles.eyebrow}>THE PEOPLE BEHIND THE WORK</span><h2>A studio.<br /><em>With character.</em></h2></div>
       <div className={styles.portraits}>
