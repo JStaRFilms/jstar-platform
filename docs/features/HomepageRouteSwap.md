@@ -22,6 +22,8 @@ Work entry now focuses the non-interactive catalogue heading rather than the ent
 
 The legacy site uses custom inline SVG icons, and Lucide was already installed for the redesigned player's sound controls. Redesigned public-site navigation, forms, footer, portfolio controls and mini-quiz action/status icons now reuse Lucide SVGs instead of platform-dependent Unicode icon glyphs. The shared `.studio-icon` rule follows the surrounding text size and colour; decorative icons are hidden from assistive technology. Existing company artwork, educational topic emoji and mathematical/content text remain unchanged. There is no new runtime dependency or icon-font download.
 
+**Verification limit:** the broader hosted desktop WebKit suite exposed a separate Studio fragment issue: the browser can re-anchor `#meet-the-studio` at the section's start after the intended intro scroll. Chromium passes the fragment/history suite; WebKit SVG checks pass separately. The full hosted WebKit fragment/history suite does not pass, and this patch does not change Studio geometry or attempt an unapproved navigation fix. Physical Safari remains uncertified.
+
 Visible section actions update the URL through the native history API, so their destinations can be copied and reopened. Back-to-top actions clear the section fragment. This adds no continuous scroll clock or content remount, and does not reset enquiry drafts or recreate media. Tests cover initial cold-font landings, fragment changes, browser Back, media identity and retained drafts at desktop/phone widths with normal and reduced motion. Verification uses read-only navigation, blocks mutating requests and takes no screenshots.
 
 ## Data flow and schema
