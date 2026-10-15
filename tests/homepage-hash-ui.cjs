@@ -35,6 +35,8 @@ async function atSection(page,hash,reduced){
     assert.equal((await page.goto(base+'/'+hash,{waitUntil:'domcontentloaded',timeout:60000})).status(),200);
     await page.waitForSelector('[data-font-ready="true"]');await atSection(page,hash,reduced);
     if(hash==='#selected-work'){
+     // Reduced-motion native anchoring can land before the deferred font/layout focus step.
+     await page.waitForFunction(()=>document.activeElement===document.querySelector('#selected-work h2'),null,{timeout:10000});
      const catalogue=page.getByRole('navigation',{name:'Selected work',exact:true});
      assert(await catalogue.evaluate(node=>node!==document.activeElement&&!node.matches(':focus-visible')&&getComputedStyle(node).outlineStyle==='none'),'Automatic arrival must not focus/outline the catalogue');
      assert(await catalogue.locator('h2').evaluate(node=>node===document.activeElement&&getComputedStyle(node).outlineStyle==='none'),'Arrival should announce the heading without adding another outline');
