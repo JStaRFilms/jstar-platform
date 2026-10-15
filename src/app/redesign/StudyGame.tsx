@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { ArrowLeft, ArrowRight, ArrowUpRight, Check, RotateCcw, Sparkles, Star, X } from 'lucide-react';
 import { useId, useLayoutEffect, useRef, useState } from 'react';
 import { answerLabel, isCorrect, resultFor, topics, type Answer } from './quiz-data';
 import styles from './study-game.module.css';
@@ -107,7 +108,7 @@ export default function StudyGame({ interactive }: { interactive: boolean }) {
                     <p>{item.description}</p>
                     <div className={styles.meta}><span>4 questions</span><span>3 question formats</span></div>
                     <button type="button" className={styles.primary} tabIndex={tabIndex} onClick={() => start(index)}>
-                      Let’s play <span aria-hidden="true">↗</span>
+                      Let’s play <span aria-hidden="true"><ArrowUpRight className="studio-icon" focusable="false" /></span>
                     </button>
                   </div>
                 </article>
@@ -118,7 +119,7 @@ export default function StudyGame({ interactive }: { interactive: boolean }) {
         {state.view === 'question' && (
           <>
             <div className={styles.topline}>
-              <button type="button" className={styles.textButton} tabIndex={tabIndex} onClick={showTopics}>← Choose another topic</button>
+              <button type="button" className={styles.textButton} tabIndex={tabIndex} onClick={showTopics}><ArrowLeft className="studio-icon" aria-hidden="true" focusable="false" /> Choose another topic</button>
             </div>
             <div className={`${styles.layout} ${styles.enter}`} key={`${state.topicIndex}-${state.index}-${state.submitted}`}>
               <aside className={styles.session}>
@@ -138,7 +139,7 @@ export default function StudyGame({ interactive }: { interactive: boolean }) {
                       <span className={`${styles.dot} ${status}`} key={item.text}
                         aria-current={index === state.index ? 'step' : undefined}
                         aria-label={`Question ${index + 1}${answered ? (good ? ', correct' : ', incorrect') : ''}`}>
-                        {answered ? (good ? '✓' : '×') : index + 1}
+                        {answered ? (good ? <Check className="studio-icon" aria-hidden="true" focusable="false" /> : <X className="studio-icon" aria-hidden="true" focusable="false" />) : index + 1}
                       </span>
                     );
                   })}
@@ -160,7 +161,7 @@ export default function StudyGame({ interactive }: { interactive: boolean }) {
                     {sequence.length ? sequence.map((value, index) => (
                       <button type="button" key={value} disabled={state.submitted} tabIndex={tabIndex}
                         aria-label={`Remove ${question.options[value]} from position ${index + 1}`} onClick={() => remove(index)}>
-                        {index + 1}. {question.options[value]} {state.submitted ? '' : '×'}
+                        {index + 1}. {question.options[value]} {!state.submitted && <X className="studio-icon" aria-hidden="true" focusable="false" />}
                       </button>
                     )) : <span>Your sequence appears here</span>}
                   </div>
@@ -175,7 +176,7 @@ export default function StudyGame({ interactive }: { interactive: boolean }) {
                         className={`${styles.answer} ${chosen ? styles.selected : ''} ${answerCorrect ? styles.correct : ''} ${answerWrong ? styles.wrong : ''}`}
                         aria-pressed={chosen} disabled={state.submitted || (order && chosen)} tabIndex={tabIndex} onClick={() => choose(index)}>
                         <span className={styles.letter}>{String.fromCharCode(65 + index)}</span><span>{option}</span>
-                        {(answerCorrect || answerWrong) && <span className={styles.mark}>{answerCorrect ? '✓' : '×'}</span>}
+                        {(answerCorrect || answerWrong) && <span className={styles.mark}>{answerCorrect ? <Check className="studio-icon" aria-hidden="true" focusable="false" /> : <X className="studio-icon" aria-hidden="true" focusable="false" />}</span>}
                       </button>
                     );
                   })}
@@ -190,7 +191,7 @@ export default function StudyGame({ interactive }: { interactive: boolean }) {
                   <small>{state.submitted ? '' : '100 points for a correct answer.'}</small>
                   <button type="button" className={styles.primary} ref={advanceButton} tabIndex={tabIndex}
                     disabled={!state.submitted && !canSubmit} onClick={advance}>
-                    {state.submitted ? (state.index === topic.questions.length - 1 ? 'See my results →' : 'Next question →') : 'Check answer'}
+                    {state.submitted ? (state.index === topic.questions.length - 1 ? 'See my results' : 'Next question') : 'Check answer'} {state.submitted && <ArrowRight className="studio-icon" aria-hidden="true" focusable="false" />}
                   </button>
                 </div>
               </section>
@@ -199,7 +200,7 @@ export default function StudyGame({ interactive }: { interactive: boolean }) {
         )}
         {state.view === 'results' && (
           <section className={`${styles.result} ${styles.enter}`} aria-labelledby={headingId}>
-            <div className={styles.medal} aria-hidden="true">{result.correct === 4 ? '★' : '✳'}</div>
+            <div className={styles.medal} aria-hidden="true">{result.correct === 4 ? <Star className="studio-icon" focusable="false" /> : <Sparkles className="studio-icon" focusable="false" />}</div>
             <h1 ref={heading} id={headingId} tabIndex={-1}>{result.correct === 4 ? 'You nailed it!' : result.correct >= 2 ? 'Nicely played.' : 'Keep that curiosity.'}</h1>
             <p>{result.correct === 4 ? 'Four for four. Ready for a different challenge?' : 'You’ve finished the round. Take a look at what you learned.'}</p>
             <div className={styles.scores}>
@@ -208,15 +209,15 @@ export default function StudyGame({ interactive }: { interactive: boolean }) {
               <div><b>{result.accuracy}%</b><span>Accuracy</span></div>
             </div>
             <div className={styles.resultActions}>
-              <button type="button" className={styles.primary} tabIndex={tabIndex} onClick={() => start(state.topicIndex)}>Play again ↻</button>
-              <button type="button" className={styles.textButton} tabIndex={tabIndex} onClick={showTopics}>Try another topic →</button>
+              <button type="button" className={styles.primary} tabIndex={tabIndex} onClick={() => start(state.topicIndex)}>Play again <RotateCcw className="studio-icon" aria-hidden="true" focusable="false" /></button>
+              <button type="button" className={styles.textButton} tabIndex={tabIndex} onClick={showTopics}>Try another topic <ArrowRight className="studio-icon" aria-hidden="true" focusable="false" /></button>
             </div>
             <div className={styles.review}>
               <h2>Your answer review</h2>
               {topic.questions.map((item, index) => (
                 <details key={item.text}>
                   <summary tabIndex={tabIndex} onClick={event => { if (!interactive) event.preventDefault(); }}>
-                    <span>{isCorrect(item, state.answers[index]) ? '✓ Correct' : '× Incorrect'}</span>{item.text}
+                    <span>{isCorrect(item, state.answers[index]) ? <><Check className="studio-icon" aria-hidden="true" focusable="false" /> Correct</> : <><X className="studio-icon" aria-hidden="true" focusable="false" /> Incorrect</>}</span>{item.text}
                   </summary>
                   <p>Your answer: {answerLabel(item, state.answers[index])}<br />Correct answer: {answerLabel(item, item.answer)}</p>
                   <p>{item.why}</p>

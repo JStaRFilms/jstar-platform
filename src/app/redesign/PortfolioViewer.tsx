@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { ArrowLeft, ArrowRight, ArrowUpRight, Maximize, Minimize, X } from 'lucide-react';
 import { flushSync } from 'react-dom';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react';
 import type { GalleryFilter, GalleryProject, ProjectContributor } from '@/content/selected-work';
@@ -358,7 +359,7 @@ export default function PortfolioViewer({ project, projects, filter, shell, samp
     <div ref={core} className={styles.core} inert={!!detail}>
       <header className={styles.header} inert={expanded && idle}>
         <span className={styles.brand}>J StaR <small>Films Studios</small></span>
-        <div className={styles.headerActions}>{!software && !youtube && rotationControl}<button data-back-to-browsing onClick={onClose}>← Back to browsing</button></div>
+        <div className={styles.headerActions}>{!software && !youtube && rotationControl}<button data-back-to-browsing onClick={onClose}><ArrowLeft className="studio-icon" aria-hidden="true" focusable="false" /> Back to browsing</button></div>
       </header>
       <div className={styles.layout}>
         <div className={styles.cinema}>
@@ -378,9 +379,9 @@ export default function PortfolioViewer({ project, projects, filter, shell, samp
               </div>
               <div className={styles.productTools}>
                 {presentation.type === 'study-game' && <><button data-try-sample onClick={() => onSample(true)}>Try sample</button><button disabled title="The full app is currently unavailable">Try app unavailable</button></>}
-                {project.detailsHref && <a href={project.detailsHref} target="_blank" rel="noopener noreferrer">Source ↗</a>}
-                {project.websiteHref && <a href={project.websiteHref} target="_blank" rel="noopener noreferrer">Visit website ↗</a>}
-                <button data-viewer-fullscreen onClick={() => { void fullscreen(); }} aria-label={expanded ? 'Exit fullscreen' : 'Expand active product view'} aria-pressed={expanded}>⛶</button>
+                {project.detailsHref && <a href={project.detailsHref} target="_blank" rel="noopener noreferrer">Source <ArrowUpRight className="studio-icon" aria-hidden="true" focusable="false" /></a>}
+                {project.websiteHref && <a href={project.websiteHref} target="_blank" rel="noopener noreferrer">Visit website <ArrowUpRight className="studio-icon" aria-hidden="true" focusable="false" /></a>}
+                <button data-viewer-fullscreen onClick={() => { void fullscreen(); }} aria-label={expanded ? 'Exit fullscreen' : 'Expand active product view'} aria-pressed={expanded}>{expanded ? <Minimize className="studio-icon" aria-hidden="true" focusable="false" /> : <Maximize className="studio-icon" aria-hidden="true" focusable="false" />}</button>
               </div>
             </>}
           </div>
@@ -390,18 +391,18 @@ export default function PortfolioViewer({ project, projects, filter, shell, samp
           <div className={styles.notePanel}>
           <span className={styles.kicker}>Studio Notes</span>
           <h2>{note?.heading ?? project.title}</h2><p className={styles.subtitle}>{note?.subtitle ?? project.description}</p>
-          <section className={styles.brief}><h3>{software || presentation.type === 'film' ? 'The brief' : 'Project note'}</h3><p>{note?.brief ?? project.description}</p><button onClick={event => openDetail('brief', event.currentTarget)}>Read more ↗</button></section>
+          <section className={styles.brief}><h3>{software || presentation.type === 'film' ? 'The brief' : 'Project note'}</h3><p>{note?.brief ?? project.description}</p><button onClick={event => openDetail('brief', event.currentTarget)}>Read more <ArrowUpRight className="studio-icon" aria-hidden="true" focusable="false" /></button></section>
           {note?.music && <p className={styles.music}>Music: {note.music}</p>}
           {note?.technology && <p className={styles.technology}>{note.technology.join(' / ')}</p>}
-          <div className={styles.links}>{note?.links?.map(link => <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer">{link.label} ↗</a>)}</div>
+          <div className={styles.links}>{note?.links?.map(link => <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer">{link.label} <ArrowUpRight className="studio-icon" aria-hidden="true" focusable="false" /></a>)}</div>
           {!!note?.contributors?.length && <section className={styles.credits}>
             <div className={styles.railHead}><span>With</span><div>
-              <button disabled={railEnds.start} aria-label="Previous contributors" onClick={() => rail.current?.scrollBy({ left: -180, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' })}>←</button>
-              <button disabled={railEnds.end} aria-label="More contributors" onClick={() => rail.current?.scrollBy({ left: 180, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' })}>→</button>
+              <button disabled={railEnds.start} aria-label="Previous contributors" onClick={() => rail.current?.scrollBy({ left: -180, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' })}><ArrowLeft className="studio-icon" aria-hidden="true" focusable="false" /></button>
+              <button disabled={railEnds.end} aria-label="More contributors" onClick={() => rail.current?.scrollBy({ left: 180, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' })}><ArrowRight className="studio-icon" aria-hidden="true" focusable="false" /></button>
             </div></div>
             <div ref={rail} className={styles.rail} onScroll={event => { const node = event.currentTarget; setRailEnds({ start: node.scrollLeft < 2, end: node.scrollLeft + node.clientWidth >= node.scrollWidth - 2 }); }}>
               {note.contributors.map(person => <button key={person.id} className={styles.person} onClick={event => openDetail(person, event.currentTarget)} aria-label={`View ${person.name} profile`}>
-                {person.image ? <Image src={person.image} alt="" width={34} height={34} data-logo={person.imageKind === 'logo'} unoptimized /> : <span className={styles.initial}>{person.name[0]}</span>}<span>{person.name}</span><span aria-hidden="true">↗</span>
+                {person.image ? <Image src={person.image} alt="" width={34} height={34} data-logo={person.imageKind === 'logo'} unoptimized /> : <span className={styles.initial}>{person.name[0]}</span>}<span>{person.name}</span><span aria-hidden="true"><ArrowUpRight className="studio-icon" focusable="false" /></span>
               </button>)}
             </div>
           </section>}
@@ -410,17 +411,17 @@ export default function PortfolioViewer({ project, projects, filter, shell, samp
       </div>
       <div className={styles.footer} data-viewer-navigation inert={expanded && idle}>
         <span data-viewer-counter>{filter === 'all' ? 'ALL' : filter.toUpperCase()} / {ordinal}</span>
-        <nav aria-label="Viewer projects"><button data-viewer-prev disabled={index <= 0} aria-label="Previous project" onClick={() => navigate(index - 1)}>←</button><span>{ordinal}</span><button data-viewer-next disabled={index >= projects.length - 1} aria-label="Next project" onClick={() => navigate(index + 1)}>→</button></nav>
+        <nav aria-label="Viewer projects"><button data-viewer-prev disabled={index <= 0} aria-label="Previous project" onClick={() => navigate(index - 1)}><ArrowLeft className="studio-icon" aria-hidden="true" focusable="false" /></button><span>{ordinal}</span><button data-viewer-next disabled={index >= projects.length - 1} aria-label="Next project" onClick={() => navigate(index + 1)}><ArrowRight className="studio-icon" aria-hidden="true" focusable="false" /></button></nav>
       </div>
     </div>
-    {software && expanded && <div className={styles.productFullscreenActions}>{rotationControl}<button className={styles.exitProduct} data-product-exit aria-label="Exit fullscreen" onClick={() => { void fullscreen(); }}>⛶</button></div>}
+    {software && expanded && <div className={styles.productFullscreenActions}>{rotationControl}<button className={styles.exitProduct} data-product-exit aria-label="Exit fullscreen" onClick={() => { void fullscreen(); }}><Minimize className="studio-icon" aria-hidden="true" focusable="false" /></button></div>}
     {detail && <div className={styles.layer} onClick={event => { if (event.target === event.currentTarget) closeDetail(); }}>
       <section ref={drawer} className={styles.drawer} role="dialog" aria-modal="true" aria-labelledby="portfolio-detail-title" data-viewer-drawer data-profile={detail !== 'brief'}>
-        <header><span>{detail === 'brief' ? 'Project notes' : 'Contributor'}</span><button aria-label="Close detail" onClick={closeDetail}>×</button></header>
+        <header><span>{detail === 'brief' ? 'Project notes' : 'Contributor'}</span><button aria-label="Close detail" onClick={closeDetail}><X className="studio-icon" aria-hidden="true" focusable="false" /></button></header>
         {detail === 'brief' ? <><h2 id="portfolio-detail-title">{note?.heading ?? project.title}</h2><p>{note?.brief ?? project.description}</p>{note?.story?.map(paragraph => <p key={paragraph}>{paragraph}</p>)}{note?.music && <p>Music: {note.music}</p>}</> : <>
           {detail.image && <Image className={styles.profileImage} src={detail.image} alt={detail.name} width={600} height={300} data-logo={detail.imageKind === 'logo'} unoptimized />}
           <h2 id="portfolio-detail-title">{detail.name}</h2><p>{detail.role}</p>{detail.context && <p>{detail.context}</p>}
-          <div className={styles.links}>{detail.links?.map(link => <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer">{link.label} ↗</a>)}</div>
+          <div className={styles.links}>{detail.links?.map(link => <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer">{link.label} <ArrowUpRight className="studio-icon" aria-hidden="true" focusable="false" /></a>)}</div>
         </>}
       </section>
     </div>}

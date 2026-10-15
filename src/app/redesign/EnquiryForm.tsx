@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { ArrowUpRight, Check } from 'lucide-react';
 import { businessInfo } from '@/content/contact';
 import styles from './closing.module.css';
 
@@ -103,7 +104,7 @@ export default function EnquiryForm() {
     <fieldset className={styles.services} disabled={pending || received}>
       <legend>I&apos;m here for</legend>
       {services.map(service => <label key={service}><input type="radio" name="service" value={service} required
-        checked={values.service === service} onChange={() => change('service', service)} /><span>{service} ↗</span></label>)}
+        checked={values.service === service} onChange={() => change('service', service)} /><span>{service} <ArrowUpRight className="studio-icon" aria-hidden="true" focusable="false" /></span></label>)}
     </fieldset>
     <div className={styles.fields}>
       <label>Your name<input name="name" autoComplete="name" required minLength={2} placeholder="Name" disabled={pending || received}
@@ -116,8 +117,8 @@ export default function EnquiryForm() {
     </div>
     <label className={styles.brief}>Tell us what you have in mind<textarea name="brief" rows={2} required minLength={10}
       placeholder="The idea, the ambition, the thing you need." disabled={pending || received} value={values.brief} onChange={event => change('brief', event.target.value)} /></label>
-    <div className={styles.sendRow}><button type="submit" data-received={received || undefined} aria-describedby="enquiry-status" disabled={pending || status === 'partial' || received || cooling}>{pending ? 'Sending…' : received ? 'Enquiry received' : cooling ? 'Please wait' : 'Send enquiry'} <span aria-hidden="true">{received ? '✓' : '↗'}</span></button>
-      <a href={whatsapp} target="_blank" rel="noreferrer">Continue on WhatsApp ↗</a></div>
+    <div className={styles.sendRow}><button type="submit" data-received={received || undefined} aria-describedby="enquiry-status" disabled={pending || status === 'partial' || received || cooling}>{pending ? 'Sending…' : received ? 'Enquiry received' : cooling ? 'Please wait' : 'Send enquiry'} <span aria-hidden="true">{received ? <Check className="studio-icon" focusable="false" /> : <ArrowUpRight className="studio-icon" focusable="false" />}</span></button>
+      <a href={whatsapp} target="_blank" rel="noreferrer">Continue on WhatsApp <ArrowUpRight className="studio-icon" aria-hidden="true" focusable="false" /></a></div>
     <p ref={receipt} id="enquiry-status" tabIndex={received ? -1 : undefined} className={styles.formNote} role="status" aria-live="polite" data-status={status}>{status === 'limited' && !cooling ? 'You can now send your enquiry. Your details are still here.' : message || 'WhatsApp opens a draft. It does not submit this form.'}</p>
     {received && <button className={styles.newEnquiry} type="button" onClick={() => {
       setValues({ service: '', name: '', email: '', phone: '', brief: '' }); setStatus('idle'); setMessage('');

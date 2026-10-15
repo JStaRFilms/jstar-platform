@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { ArrowUp, ArrowUpRight } from 'lucide-react';
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { businessInfo } from '@/content/contact';
 import EnquiryForm from './EnquiryForm';
@@ -136,13 +137,13 @@ const ClosingSequence = forwardRef<ClosingHandle, { onBackToTop: () => void }>(f
     <footer ref={footer} className={styles.footerTrack}>
       <div ref={footerStage} className={styles.footerStage}>
         <div className={styles.footerTop}><div><span className={styles.eyebrow}>THE NEXT CHAPTER STARTS WITH YOU.</span>
-          <a className={styles.email} href={`mailto:${businessInfo.email}`}>{businessInfo.email} ↗</a></div>
-          <div className={styles.socials}><a href={businessInfo.socialLinks.instagram} target="_blank" rel="noreferrer">Instagram ↗</a>
-            <a href={businessInfo.socialLinks.youtube} target="_blank" rel="noreferrer">YouTube ↗</a><button type="button" onClick={onBackToTop}>Back to top ↑</button></div>
+          <a className={styles.email} href={`mailto:${businessInfo.email}`}>{businessInfo.email} <ArrowUpRight className="studio-icon" aria-hidden="true" focusable="false" /></a></div>
+          <div className={styles.socials}><a href={businessInfo.socialLinks.instagram} target="_blank" rel="noreferrer">Instagram <ArrowUpRight className="studio-icon" aria-hidden="true" focusable="false" /></a>
+            <a href={businessInfo.socialLinks.youtube} target="_blank" rel="noreferrer">YouTube <ArrowUpRight className="studio-icon" aria-hidden="true" focusable="false" /></a><button type="button" onClick={onBackToTop}>Back to top <ArrowUp className="studio-icon" aria-hidden="true" focusable="false" /></button></div>
         </div>
         <div ref={footerContacts} className={styles.footerExtra}>
-          <div className={styles.footerDetails}><a href={`tel:${businessInfo.phone[0]}`}>{businessInfo.phone[0]} ↗</a><span>{businessInfo.address}</span>
-            <a href={`https://wa.me/${businessInfo.whatsapp[0].replace(/\D/g, '')}`} target="_blank" rel="noreferrer">WhatsApp ↗</a></div>
+          <div className={styles.footerDetails}><a href={`tel:${businessInfo.phone[0]}`}>{businessInfo.phone[0]} <ArrowUpRight className="studio-icon" aria-hidden="true" focusable="false" /></a><span>{businessInfo.address}</span>
+            <a href={`https://wa.me/${businessInfo.whatsapp[0].replace(/\D/g, '')}`} target="_blank" rel="noreferrer">WhatsApp <ArrowUpRight className="studio-icon" aria-hidden="true" focusable="false" /></a></div>
           <button ref={footerLogo} type="button" className={styles.footerLogo} onClick={onBackToTop} aria-label="J StaR Films Studios, back to the beginning">
             <Image src="/redesign/studio-logo-white.png" alt="" width={200} height={200} unoptimized />
           </button>
