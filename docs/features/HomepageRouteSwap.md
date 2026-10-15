@@ -12,6 +12,14 @@ The owner approved the local swap: the accepted redesigned site becomes `/`, and
 - Legacy header, bottom-navigation items, scroll spy and `useSmartNavigation` recognize `/redesign` as their section-based page. Other public page destinations and Home links remain unchanged.
 - The new root is canonical and indexable, with public studio metadata rather than Hero review/no-index copy. The legacy page is no-indexed. The existing production host and social image remain the metadata base.
 
+## Incoming section links
+
+After release, the owner reported that the email's `/#selected-work` link opened the homepage without reaching Work. These section elements live inside pinned scenes, so their native DOM offsets are not the intended resting scroll positions.
+
+`Hero.tsx` now applies incoming `#selected-work`, `#meet-the-studio` and `#project-enquiry` fragments after fonts and layout frames are ready. It calls the same gallery/team/enquiry imperative scroll targets used by the visible navigation, without an entrance transition. Work resets to the first real project, Studio uses the accepted `.4` intro, and enquiry completes its reveal before focusing the name field. The handler also follows fragment history changes. Unknown or empty fragments retain native browser behaviour.
+
+Visible section actions update the URL through the native history API, so their destinations can be copied and reopened. Back-to-top actions clear the section fragment. This adds no continuous scroll clock or content remount, and does not reset enquiry drafts or recreate media. Tests cover initial cold-font landings, fragment changes, browser Back, media identity and retained drafts at desktop/phone widths with normal and reduced motion. Verification uses read-only navigation, blocks mutating requests and takes no screenshots.
+
 ## Data flow and schema
 
 No CMS, database schema, endpoint, authentication, migration or persistence change. The same static thirteen-record portfolio and mounted quiz/player components feed the new homepage. No media, portrait, caption/credit or state-engine changes.

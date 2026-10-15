@@ -68,48 +68,14 @@ function validateContactData(data: unknown, errors: string[]): data is ContactFo
   return errors.length === 0;
 }
 
-// Rate limiting (simple in-memory store - replace with Redis in production)
-const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
-const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutes
-const RATE_LIMIT_MAX_REQUESTS = 3; // 3 submissions per 15 minutes
-
-function checkRateLimit(ip: string): { allowed: boolean; remaining: number; resetTime: number } {
-  const now = Date.now();
-  const userLimit = rateLimitStore.get(ip);
-
-  if (!userLimit || now > userLimit.resetTime) {
-    // Reset or new user
-    rateLimitStore.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
-    return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - 1, resetTime: now + RATE_LIMIT_WINDOW };
-  }
-
-  if (userLimit.count >= RATE_LIMIT_MAX_REQUESTS) {
-    return { allowed: false, remaining: 0, resetTime: userLimit.resetTime };
-  }
-
-  userLimit.count++;
-  return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - userLimit.count, resetTime: userLimit.resetTime };
-}
+const CONTACT_COOLDOWN = 60 * 1000;
+const CONTACT_WINDOW = 15 * 60 * 1000;
+const CONTACT_MAX_REQUESTS = 3;
 
 export async function POST(request: NextRequest) {
   try {
-    // Get client IP (in production, use proper IP detection)
-    const ip = request.headers.get('x-forwarded-for') ||
-               request.headers.get('x-real-ip') ||
-               'unknown';
-
-    // Check rate limit
-    const rateLimit = checkRateLimit(ip);
-    if (!rateLimit.allowed) {
-      return NextResponse.json(
-        {
-          status: 'error',
-          message: 'Too many requests. Please try again later.',
-          retryAfter: Math.ceil((rateLimit.resetTime - Date.now()) / 1000)
-        },
-        { status: 429 }
-      );
-    }
+    const ip = (request.headers.get('x-vercel-forwarded-for') || request.headers.get('x-forwarded-for') ||
+      request.headers.get('x-real-ip'))?.split(',')[0].trim() || 'unknown';
 
     // Parse request body
     let body: unknown;
@@ -138,6 +104,11 @@ export async function POST(request: NextRequest) {
     // Create submission object
     const submission: ContactSubmission = {
       ...body,
+      name: body.name.trim(),
+      email: body.email.trim(),
+      subject: body.subject.trim(),
+      service: body.service.trim(),
+      message: body.message.trim(),
       phone: body.phone?.trim() || null,
       submittedAt: new Date(),
       ipAddress: ip,
@@ -148,21 +119,55 @@ export async function POST(request: NextRequest) {
     let savedSubmission;
 
     try {
-      // Save to database
-      savedSubmission = await prisma.contactSubmission.create({
-        data: {
-          name: submission.name,
-          email: submission.email,
-          phone: submission.phone,
-          subject: submission.subject,
-          service: submission.service,
-          message: submission.message,
-          newsletter: submission.newsletter,
-          ipAddress: submission.ipAddress,
-          userAgent: submission.userAgent,
-          status: 'PENDING',
-        }
-      });
+      const saved = await prisma.$transaction(async transaction => {
+        // Transaction locks serialize overlapping senders/IPs across serverless instances.
+        // Select an integer instead of decoding the lock function's PostgreSQL void result.
+        // Release the locks before contacting the email provider.
+        await transaction.$queryRaw`SELECT 1 AS locked FROM pg_advisory_xact_lock(hashtextextended(${`jstar-contact:ip:${ip}`}, 0))`;
+        await transaction.$queryRaw`SELECT 1 AS locked FROM pg_advisory_xact_lock(hashtextextended(${`jstar-contact:email:${submission.email.toLowerCase()}`}, 0))`;
+        const since = new Date(Date.now() - CONTACT_WINDOW);
+        const email = { equals: submission.email, mode: 'insensitive' as const };
+        const duplicate = await transaction.contactSubmission.findFirst({
+          where: {
+            email, name: submission.name, phone: submission.phone, subject: submission.subject,
+            service: submission.service, message: submission.message, newsletter: submission.newsletter,
+            submittedAt: { gte: since },
+          },
+          orderBy: { submittedAt: 'desc' }, select: { id: true, submittedAt: true },
+        });
+        if (duplicate) return { kind: 'duplicate', submission: duplicate } as const;
+        const recent = await transaction.contactSubmission.findMany({
+          where: { OR: [{ ipAddress: ip }, { email }], submittedAt: { gte: since } },
+          orderBy: { submittedAt: 'desc' }, take: CONTACT_MAX_REQUESTS, select: { submittedAt: true },
+        });
+        const nextAllowed = Math.max(
+          recent[0] ? recent[0].submittedAt.getTime() + CONTACT_COOLDOWN : 0,
+          recent.length === CONTACT_MAX_REQUESTS ? recent[CONTACT_MAX_REQUESTS - 1].submittedAt.getTime() + CONTACT_WINDOW : 0,
+        );
+        const retryAfter = Math.ceil((nextAllowed - Date.now()) / 1000);
+        if (retryAfter > 0) return { kind: 'limited', retryAfter } as const;
+        const created = await transaction.contactSubmission.create({
+          data: {
+            name: submission.name, email: submission.email, phone: submission.phone,
+            subject: submission.subject, service: submission.service, message: submission.message,
+            newsletter: submission.newsletter, ipAddress: ip, userAgent: submission.userAgent, status: 'PENDING',
+          },
+        });
+        return { kind: 'created', submission: created } as const;
+      }, { isolationLevel: 'ReadCommitted' });
+      if (saved.kind === 'limited') {
+        return NextResponse.json({
+          status: 'error', message: `Please wait ${saved.retryAfter} seconds before sending another enquiry.`, retryAfter: saved.retryAfter,
+        }, { status: 429, headers: { 'Retry-After': String(saved.retryAfter) } });
+      }
+      if (saved.kind === 'duplicate') {
+        return NextResponse.json({
+          status: 'duplicate', message: 'We already have this enquiry. No duplicate email was sent. You do not need to submit it again.',
+          retryAfter: Math.max(0, Math.ceil((saved.submission.submittedAt.getTime() + CONTACT_COOLDOWN - Date.now()) / 1000)),
+          data: { id: saved.submission.id, submittedAt: saved.submission.submittedAt, saved: true },
+        });
+      }
+      savedSubmission = saved.submission;
 
     } catch (dbError) {
       console.error('Database error:', dbError);
@@ -233,7 +238,9 @@ export async function POST(request: NextRequest) {
 
       notificationAccepted = notification.success;
       if (notificationAccepted) {
-        const acknowledgement = await sendUserConfirmation(submission.email, submission.name, submission.newsletter);
+        const acknowledgement = await sendUserConfirmation(submission.email, submission.name, submission.newsletter, {
+          service: submission.service, subject: submission.subject, message: submission.message,
+        });
         acknowledgementAccepted = acknowledgement.success;
         if (acknowledgementAccepted && submission.newsletter) {
           const newsletter = await sendNewsletterSignupConfirmation(submission.email, submission.name);
@@ -265,6 +272,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       status: complete ? 'success' : 'partial',
       message,
+      retryAfter: Math.max(0, Math.ceil((savedSubmission.submittedAt.getTime() + CONTACT_COOLDOWN - Date.now()) / 1000)),
       data: {
         id: savedSubmission.id,
         submittedAt: submission.submittedAt,

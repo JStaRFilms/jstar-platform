@@ -20,8 +20,9 @@ class RenderOnlyResend{
 (async()=>{
  const contact=load('src/content/contact.ts',{});
  const api=load('src/lib/email.ts',{resend:{Resend:RenderOnlyResend},'@/content/contact':contact});
- await api.sendUserConfirmation('visitor@example.invalid','Example visitor',false);
- await api.sendAdminNotification({id:'DEMO-ONLY',name:'Example visitor',email:'visitor@example.invalid',subject:'A film and software project',service:'Film + Software',message:'An example project brief would appear here.\n\nThe visitor can describe their idea, what they need, and any timing or budget they want to share.',newsletter:false,submittedAt:new Date('2026-10-15T12:00:00Z')});
+ const enquiry={id:'DEMO-ONLY',name:'Example visitor',email:'visitor@example.invalid',subject:'A film and software project',service:'Film + Software',message:'An example project brief would appear here.\n\nThe visitor can describe their idea, what they need, and any timing or budget they want to share.',newsletter:false,submittedAt:new Date('2026-10-15T12:00:00Z')};
+ await api.sendUserConfirmation(enquiry.email,enquiry.name,enquiry.newsletter,enquiry);
+ await api.sendAdminNotification(enquiry);
  const data=JSON.stringify(emails).replace(/</g,'\\u003c');
  const assetData=JSON.stringify(Object.fromEntries(['email-grain.png','email-studio-logo.png'].map(name=>['https://jstarstudios.com/redesign/'+name,'data:image/png;base64,'+fs.readFileSync(path.join(root,'public/redesign',name)).toString('base64')])));
  const output=`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>J StaR email preview</title>

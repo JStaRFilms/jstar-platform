@@ -143,11 +143,19 @@ ${emailButton(reply, 'Reply to the enquiry')}
   return sendEmail({ to: teamInbox(), replyTo: submission.email, subject: `New enquiry: ${submission.subject}`, html });
 }
 
-export async function sendUserConfirmation(userEmail: string, userName: string, newsletter: boolean): Promise<EmailResult> {
+export async function sendUserConfirmation(
+  userEmail: string, userName: string, newsletter: boolean,
+  enquiry?: { service: string; subject: string; message: string },
+): Promise<EmailResult> {
   const html = emailLayout('ENQUIRY RECEIVED', 'We have received your project enquiry.', 'Thanks for getting in touch.', `
 <p style="${paragraph}">Hi ${escapeHtml(userName)},</p>
 <p style="${paragraph}">We've received your enquiry. Our team will review the details and get back to you.</p>
 <p style="${paragraph}">If you'd like to add anything, just reply to this email.</p>
+${enquiry ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:24px 0;border-top:1px solid #cbd6cd;border-bottom:1px solid #cbd6cd;"><tr><td style="padding:20px 0;">
+<p style="margin:0 0 14px;font-size:11px;letter-spacing:2px;color:#64736b;">YOUR ENQUIRY</p>
+<p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#344a43;word-break:break-word;"><strong>Email</strong><br>${escapeHtml(userEmail)}<br><br><strong>Project</strong><br>${escapeHtml(enquiry.service)}<br><br><strong>Subject</strong><br>${escapeHtml(enquiry.subject)}</p>
+<p style="${paragraph}white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;">${escapeHtml(enquiry.message)}</p>
+</td></tr></table>` : ''}
 ${emailButton(website + '/#selected-work', 'Explore our work')}
 ${newsletter ? `<p style="margin:22px 0;font-size:13px;line-height:1.6;color:#64736b;">You also asked for studio updates. The subscription confirmation is a separate email.</p>` : ''}
 <p style="margin:24px 0 12px;font-size:14px;line-height:1.6;color:#001514;">Speak soon,<br><strong>The J StaR team</strong></p>`);

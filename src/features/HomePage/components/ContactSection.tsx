@@ -123,7 +123,7 @@ const ContactSection: React.FC = () => {
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (formState.isPartial) return;
+    if (formState.isSubmitting || formState.isPartial || formState.isSuccess) return;
 
     // Validate form
     const errors = validateForm(formState.data);
@@ -216,11 +216,6 @@ const ContactSection: React.FC = () => {
         }
       }));
 
-      // Reset success message after 5 seconds
-      setTimeout(() => {
-        setFormState((prev) => ({ ...prev, isSuccess: false }));
-      }, 5000);
-
     } catch {
       // Network or other errors
       setFormState((prev) => ({
@@ -263,10 +258,9 @@ const ContactSection: React.FC = () => {
                     <CheckCircleIcon className="w-8 h-8" />
                   </AnimatedIcon>
                 </div>
-                <h3 className="text-2xl font-bold text-foreground mb-2">Message Sent!</h3>
+                <h3 className="text-2xl font-bold text-foreground mb-2">Enquiry received</h3>
                 <p className="text-muted-foreground mb-6">
-                  Thank you for reaching out. I&apos;ve received your message and will get back to you within 24 hours.
-                  {formState.data.newsletter && " You'll also receive our weekly creator tips and updates."}
+                  Your enquiry has been received. You do not need to send it again.
                 </p>
                 <button
                   onClick={() => setFormState((prev) => ({ ...prev, isSuccess: false }))}
