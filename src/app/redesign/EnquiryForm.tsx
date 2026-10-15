@@ -84,7 +84,7 @@ export default function EnquiryForm() {
       }
       if (response.ok && result && typeof result === 'object' && 'status' in result && result.status === 'partial') {
         setStatus('partial');
-        setMessage('message' in result && typeof result.message === 'string' ? result.message : 'Your enquiry is saved, but email acceptance is incomplete. Please do not resubmit.');
+        setMessage('message' in result && typeof result.message === 'string' ? result.message : 'Your enquiry is saved. We had trouble sending an email. Please do not submit it again.');
       } else if (!response.ok || !result || typeof result !== 'object' || !('status' in result) || (result.status !== 'success' && result.status !== 'duplicate')) {
         const reason = result && typeof result === 'object' && 'message' in result && typeof result.message === 'string' ? result.message : 'Could not save your enquiry. Please try again.';
         setStatus(response.status === 429 ? 'limited' : 'failed');

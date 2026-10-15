@@ -195,7 +195,7 @@ const ContactSection: React.FC = () => {
           isSubmitting: false,
           isSuccess: false,
           isPartial: true,
-          errors: { general: result.message || 'Your enquiry is saved, but email acceptance is incomplete. Please do not resubmit.' }
+          errors: { general: result.message || 'Your enquiry is saved. We had trouble sending an email. Please do not submit it again.' }
         }));
         return;
       }

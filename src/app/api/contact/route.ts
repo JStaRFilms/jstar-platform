@@ -263,11 +263,11 @@ export async function POST(request: NextRequest) {
 
     const complete = notificationAccepted && acknowledgementAccepted && newsletterAccepted;
     const message = !notificationAccepted
-      ? 'Your enquiry is saved, but we could not confirm the team notification email. Please do not resubmit. Contact us directly if it is urgent.'
+      ? 'Your enquiry is saved. We had trouble emailing our team. Please do not submit it again. If it is urgent, contact us directly.'
       : !acknowledgementAccepted
-        ? 'Your enquiry is saved, but we could not confirm your acknowledgement email. Please do not resubmit.'
+        ? 'Your enquiry is saved. We had trouble sending your confirmation email. Please do not submit it again.'
         : !newsletterAccepted
-          ? 'Your enquiry is saved, but we could not confirm your newsletter welcome email. Please do not resubmit.'
+          ? 'Your enquiry is saved. We had trouble sending your newsletter welcome email. Please do not submit it again.'
           : 'Message received successfully';
     return NextResponse.json({
       status: complete ? 'success' : 'partial',

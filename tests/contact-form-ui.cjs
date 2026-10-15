@@ -17,7 +17,7 @@ const base=process.env.CONTACT_TEST_BASE||'http://127.0.0.1:5782';
      if(['GET','HEAD'].includes(r.request().method()))return r.continue();
      if(r.request().method()!=='POST'||new URL(r.request().url()).pathname!=='/api/contact')return r.abort();
      posts++;seen();if(defer)await held;
-     return r.fulfill({status:outcome==='partial'?202:200,contentType:'application/json',body:JSON.stringify({status:outcome,message:outcome==='partial'?'Your enquiry is saved, but we could not confirm the team notification email. Please do not resubmit.':outcome==='duplicate'?'We already have this enquiry. No duplicate email was sent. You do not need to submit it again.':'Message received successfully',retryAfter:outcome==='partial'?0:60,data:{id:'mock-only',saved:true}})});
+     return r.fulfill({status:outcome==='partial'?202:200,contentType:'application/json',body:JSON.stringify({status:outcome,message:outcome==='partial'?'Your enquiry is saved. We had trouble emailing our team. Please do not submit it again. If it is urgent, contact us directly.':outcome==='duplicate'?'We already have this enquiry. No duplicate email was sent. You do not need to submit it again.':'Message received successfully',retryAfter:outcome==='partial'?0:60,data:{id:'mock-only',saved:true}})});
     });
     try{
      assert.equal((await page.goto(base+route,{waitUntil:'domcontentloaded',timeout:60000})).status(),200);
@@ -47,7 +47,7 @@ const base=process.env.CONTACT_TEST_BASE||'http://127.0.0.1:5782';
       await form.evaluate(f=>f.requestSubmit());assert.equal(posts,1);release();
      }
      if(outcome==='partial'){
-      await page.getByText('Your enquiry is saved, but we could not confirm the team notification email. Please do not resubmit.',{exact:true}).waitFor();
+      await page.getByText('Your enquiry is saved. We had trouble emailing our team. Please do not submit it again. If it is urgent, contact us directly.',{exact:true}).waitFor();
       assert(await form.locator('button[type="submit"]').isDisabled());
       assert.equal(await form.locator('input[name="email"]').inputValue(),'qa@example.invalid');
       await form.locator('textarea').fill('An intentional edit can start a new enquiry.');
