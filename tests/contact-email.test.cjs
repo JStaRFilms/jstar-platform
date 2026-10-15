@@ -158,14 +158,14 @@ test('team rejection reports saved partial and sends no visitor acknowledgement'
  assert.equal(response.status,202);assert.equal(result.status,'partial');assert.equal(result.data.id,'saved-1');
  assert.equal(result.data.emailAcceptance.notification,false);assert.equal(result.data.emailAcceptance.acknowledgement,false);
  assert.equal(calls.length,1);assert.equal(writes.filter(w=>w.kind==='submission').length,1);
- assert.match(result.message,/saved.*team notification/);assert.match(result.message,/do not resubmit/);
+ assert.equal(result.message,'Your enquiry is saved. We had trouble emailing our team. Please do not submit it again. If it is urgent, contact us directly.');
 });
 
 test('acknowledgement-only failure never repeats the accepted team message',async()=>{
  const {route,request,calls}=contact([{data:{id:'team-accepted'},error:null},{data:null,error:{message:'Recipient rejected'}}]);const response=await route.POST(request());const result=await response.json();
  assert.equal(response.status,202);assert.equal(result.status,'partial');
  assert.equal(result.data.emailAcceptance.notification,true);assert.equal(result.data.emailAcceptance.acknowledgement,false);
- assert.equal(calls.length,2);assert.match(result.message,/acknowledgement/);
+ assert.equal(calls.length,2);assert.equal(result.message,'Your enquiry is saved. We had trouble sending your confirmation email. Please do not submit it again.');
 });
 
 test('missing configuration reports saved partial without a provider call',async()=>{
@@ -177,6 +177,7 @@ test('newsletter acceptance remains separate and addressed to the visitor',async
  const {route,request,body,calls,writes}=contact([{data:{id:'team'},error:null},{data:{id:'ack'},error:null},{data:null,error:{message:'Newsletter rejected'}}]);
  const response=await route.POST(request({...body,newsletter:true}));const result=await response.json();
  assert.equal(response.status,202);assert.equal(result.data.emailAcceptance.notification,true);assert.equal(result.data.emailAcceptance.acknowledgement,true);assert.equal(result.data.emailAcceptance.newsletter,false);
+ assert.equal(result.message,'Your enquiry is saved. We had trouble sending your newsletter welcome email. Please do not submit it again.');
  assert.deepEqual(calls.map(c=>c.to),[['hey@jstarstudios.com'],[submission.email],[submission.email]]);
  assert(writes.some(w=>w.kind==='newsletter'));
 });

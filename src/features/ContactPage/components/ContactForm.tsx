@@ -200,7 +200,7 @@ const ContactForm = () => {
           isSubmitting: false,
           isSuccess: false,
           isPartial: true,
-          errors: { general: data.message || 'Your enquiry is saved, but email acceptance is incomplete. Please do not resubmit.' }
+          errors: { general: data.message || 'Your enquiry is saved. We had trouble sending an email. Please do not submit it again.' }
         }));
         return;
       }
