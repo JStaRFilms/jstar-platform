@@ -4,6 +4,50 @@
 
 The ContactSection component serves as the primary contact interface on the J StaR Films homepage. It provides visitors with a comprehensive way to reach out for business inquiries, project discussions, and newsletter subscriptions. The component combines a functional contact form with contact information and social proof to encourage user engagement.
 
+## Company email contract, October 2026
+
+The current `/` uses `src/app/redesign/EnquiryForm.tsx`. The previous homepage at `/redesign` and `/contact` share the same server endpoint. All three must distinguish a saved enquiry with incomplete email acceptance from a submission that was not saved.
+
+The owner approved `hey@jstarstudios.com` as the team inbox and the shared sender address. Keep `RESEND_API_KEY` and `ADMIN_EMAIL`; add `EMAIL_FROM` with default `J StaR Films Studios <hey@jstarstudios.com>`. The team notification's Reply-To is the validated visitor email. The acknowledgement's Reply-To is the configured team inbox. Visitor and optional newsletter confirmations remain addressed only to that visitor.
+
+Check the installed Resend SDK's returned error and require a nonempty message ID. Provider acceptance is not mailbox delivery. Escape visitor text in HTML templates. Send the team notification first; on failure, do not send the acknowledgement or newsletter confirmation. If acknowledgement alone fails, retain the accepted team notification and do not repeat it automatically.
+
+The database save remains authoritative and unchanged. After saving, return HTTP202 with `status: "partial"` if any required email is not accepted. Include saved submission metadata and per-message acceptance flags. The UI retains the draft, displays the specific saved/partial message, and prevents an unchanged immediate resend. A subsequent intentional edit can start a new submission. HTTP200 `success` means the save and required provider acceptances succeeded, not proof of inbox delivery. Existing validation, rate limiting and newsletter/analytics writes remain unchanged. No Prisma model change is required.
+
+Tests must mock both Resend and Prisma. Do not send real mail, create keys, change DNS or install runtime credentials as part of local verification. Each live sending runtime needs its own reviewed configuration and product/environment-scoped sending-only key restricted to `jstarstudios.com`. Never borrow Melo's key or assume a website host configures another backend. A live test needs explicit approval for the environment, database target and exact controlled recipients.
+
+### Local checks and runtime boundary
+
+Run `node --test tests/contact-email.test.cjs`. The tests transpile the real helper and route with mocked Resend and Prisma; they do not read live credentials, send email or write a database. Eighteen cases passed, covering defaults and overrides, From/To/Reply-To, HTML escaping, missing keys, returned/thrown provider failures, missing IDs, team-first ordering, partial acknowledgement/newsletter outcomes, database failure, validation and rate limiting. Current-source TypeScript and focused lint also passed.
+
+`tests/contact-form-ui.cjs` is an optional Chrome/Playwright check. Set `PLAYWRIGHT_PATH` to an installed Playwright package and optionally `CONTACT_TEST_BASE` to the local validation server. All POSTs are intercepted; it checks saved/partial messaging, retained drafts and resend blocking on `/`, `/redesign` and `/contact`. All three cases passed against an isolated current-source production build, which compiled and typechecked successfully. No screenshots were taken. The temporary loopback server was stopped after testing.
+
+The first dev-server UI run passed `/` but timed out on the legacy form, followed by a timed-out dev-server health request. This is not counted as a pass. The production check waits for legacy client hydration before interacting and passed all three forms. No dev cache, protected preview or Next configuration was replaced. The isolated build retained the existing workspace-root inference warning; no hosted build or actual inbox delivery is certified.
+
+The owner approved local `.env.local` routing: ADMIN_EMAIL is `hey@jstarstudios.com`, and EMAIL_FROM is `J StaR Films Studios <hey@jstarstudios.com>`. They subsequently supplied a dedicated Preview key through the private vault form, confirming sending-only access restricted to `jstarstudios.com`. Only local RESEND_API_KEY was then replaced; other settings and existing provider keys were left untouched. Hosted runtime configuration was not changed. Key scope was owner-confirmed, not independently audited with an administrative credential. Provider acceptance, receiving mailbox delivery and successful reply routing must be checked separately.
+
+### Controlled live Preview check
+
+The owner explicitly approved one labelled enquiry on the displayed Neon `neondb` target, its normal analytics update, and both messages to `hey@jstarstudios.com`, with newsletter off. The first request returned HTTP500 before any email because the database lacked `contact_submissions.phone`; read-only inspection found zero test records. The repository already contained `20261002144557_add_contact_submission_phone`.
+
+After separate exact-target approval, only that migration's `ALTER TABLE public.contact_submissions ADD COLUMN phone TEXT` statement was applied with a 5-second lock timeout and 15-second statement timeout. The column was verified as nullable TEXT. No other migrations, schema synchronization, migration-history creation or existing-record changes were performed. This target had no Prisma migration-history table, so do not blindly run the full migration chain.
+
+The single separately approved retry returned HTTP200, saved exactly one labelled test record and confirmed Resend acceptance for both team and acknowledgement emails. No newsletter email was sent. The temporary loopback test server used the passed production build and explicit reviewed local configuration, then stopped. Existing private preview mappings were not changed. The labelled test record was retained; deletion was not authorised. The owner confirmed that both messages arrived at `hey@jstarstudios.com`. This verifies actual receipt in addition to provider acceptance. Because both messages went to the same inbox, cross-inbox reply delivery was not tested.
+
+The existing staff-response endpoint also calls the shared helper but has its own response-reporting logic. This contact-form change does not certify staff replies or other transactional flows.
+
+### Email design and corrected links
+
+The owner rejected the old blue/purple form-style emails after the controlled test. The test visitor name was a labelled fixture, not intended customer copy. Normally the team receives the enquiry details and the visitor receives only the acknowledgement. Both went to the team inbox solely for the approved delivery test.
+
+The templates now use the site's forest `#001514`, lime `#b5e619` and paper `#fbfffe` colours, a text wordmark, inline styling and presentation tables. The text wordmark and solid backgrounds remain readable when images are blocked, and no web fonts are required. The visitor gets a short acknowledgement and a selected-work link; the team gets aligned contact/project details, a readable brief and a mailto reply action. No unsupported response-time or newsletter schedule is promised. Newsletter confirmation uses the same layout and a labelled manual removal request instead of a fake `#` unsubscribe action. This is not an automated unsubscribe implementation.
+
+Website links use `https://jstarstudios.com`. Instagram is `https://www.instagram.com/j_starr.films/`, and LinkedIn is `https://www.linkedin.com/company/j-star-films-studios/`. The same corrections were applied to the shared contact record. The existing email YouTube URL, `https://youtube.com/@jstarfilms`, is unchanged. No website layout changed.
+
+Run `node tests/render-email-preview.cjs` to regenerate `docs/Mockups/01_Public_Website/email-templates.html` from the actual helpers. A stub provider captures HTML with a synthetic visitor and no live credentials, network or sends. The mock-up has separate visitor/team tabs and a phone-width mode. Preview links are inactive. Browser previews checked the email at desktop and phone widths without horizontal overflow; Gmail/Outlook rendering of the new design has not been certified. Nineteen mocked email/API tests, current-source types and focused lint passed. The redesigned templates were not emailed and no database records were created for the design pass.
+
+The owner then requested texture and better use of the header's right side. A subtle, repeatable film-grain PNG now textures the header and paper surfaces, with the actual studio logo in a right-hand header cell. The original website logo is unchanged; the email-only PNG trims transparent canvas and retains the complete artwork/aspect ratio. `tests/build-email-assets.py` reproducibly generates `public/redesign/email-grain.png` and `email-studio-logo.png`, together about 15 KB. Desktop and 390/320px previews showed no horizontal overflow. The in-chat mock-up inlines these local assets without network requests. Actual emails reference their `jstarstudios.com/redesign/` URLs, so the assets must be published before a new real-email appearance test. Clients that block background images will show the solid-colour fallback rather than texture. No additional mail was sent.
+
 ## 2. Main Component (`ContactSection.tsx`)
 
 The ContactSection is a client-side React component that handles contact form submissions, validation, and user feedback.
@@ -134,14 +178,17 @@ All emails use responsive HTML templates with:
 ```bash
 # Required environment variables
 RESEND_API_KEY="your_resend_api_key_here"
-ADMIN_EMAIL="admin@jstarfilms.com"
+ADMIN_EMAIL="hey@jstarstudios.com"
+# Optional override, default shown
+EMAIL_FROM="J StaR Films Studios <hey@jstarstudios.com>"
 ```
 
 ### Email Failure Handling
 
-- Email failures don't break form submission
-- Errors are logged but don't affect user experience
-- Graceful degradation ensures system reliability
+- A failed database save returns an error and sends no email.
+- A saved enquiry with incomplete provider acceptance returns HTTP202 `partial`, without discarding the saved record or encouraging a blind retry.
+- Team rejection stops visitor acknowledgements. An acknowledgement rejection does not undo the accepted team notification.
+- The response reports provider acceptance separately from the saved enquiry. Real delivery, receiving mailbox configuration and reply routing require separate verification.
 
 ## 4. Database Schema
 

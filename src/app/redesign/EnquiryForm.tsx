@@ -5,7 +5,7 @@ import { businessInfo } from '@/content/contact';
 import styles from './closing.module.css';
 
 const services = ['Film', 'Software', 'Both'] as const;
-type Status = 'idle' | 'invalid' | 'pending' | 'failed' | 'success';
+type Status = 'idle' | 'invalid' | 'pending' | 'failed' | 'partial' | 'success';
 
 export default function EnquiryForm() {
   const [values, setValues] = useState({ service: '', name: '', email: '', phone: '', brief: '' });
@@ -37,7 +37,7 @@ export default function EnquiryForm() {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (submitting.current) return;
+    if (submitting.current || status === 'partial') return;
     const form = event.currentTarget;
     if (!form.checkValidity()) {
       const invalid = form.querySelector<HTMLInputElement | HTMLTextAreaElement>(':invalid');
@@ -68,7 +68,10 @@ export default function EnquiryForm() {
         }),
       });
       const result: unknown = await response.json();
-      if (!response.ok || !result || typeof result !== 'object' || !('status' in result) || result.status !== 'success') {
+      if (response.ok && result && typeof result === 'object' && 'status' in result && result.status === 'partial') {
+        setStatus('partial');
+        setMessage('message' in result && typeof result.message === 'string' ? result.message : 'Your enquiry is saved, but email acceptance is incomplete. Please do not resubmit.');
+      } else if (!response.ok || !result || typeof result !== 'object' || !('status' in result) || result.status !== 'success') {
         const reason = result && typeof result === 'object' && 'message' in result && typeof result.message === 'string' ? result.message : 'Could not save your enquiry. Please try again.';
         setStatus('failed');
         setMessage(`${reason} Your details are still here.`);
@@ -99,7 +102,7 @@ export default function EnquiryForm() {
     </div>
     <label className={styles.brief}>Tell us what you have in mind<textarea name="brief" rows={2} required minLength={10}
       placeholder="The idea, the ambition, the thing you need." disabled={pending} value={values.brief} onChange={event => change('brief', event.target.value)} /></label>
-    <div className={styles.sendRow}><button type="submit" disabled={pending}>{pending ? 'Sending…' : 'Send enquiry'} <span aria-hidden="true">↗</span></button>
+    <div className={styles.sendRow}><button type="submit" disabled={pending || status === 'partial'}>{pending ? 'Sending…' : 'Send enquiry'} <span aria-hidden="true">↗</span></button>
       <a href={whatsapp} target="_blank" rel="noreferrer">Continue on WhatsApp ↗</a></div>
     <p className={styles.formNote} role="status" aria-live="polite" data-status={status}>{message || 'WhatsApp opens a draft. It does not submit this form.'}</p>
   </form>;

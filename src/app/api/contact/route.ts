@@ -214,10 +214,12 @@ export async function POST(request: NextRequest) {
       console.error('Newsletter or analytics update failed:', dbError);
     }
 
-    // Send email notifications (don't fail the request if emails fail)
+    // Saving and provider acceptance are separate outcomes. Do not repeat accepted mail.
+    let notificationAccepted = false;
+    let acknowledgementAccepted = false;
+    let newsletterAccepted = !submission.newsletter;
     try {
-      // Send admin notification
-      await sendAdminNotification({
+      const notification = await sendAdminNotification({
         id: savedSubmission.id,
         name: submission.name,
         email: submission.email,
@@ -229,17 +231,17 @@ export async function POST(request: NextRequest) {
         submittedAt: submission.submittedAt,
       });
 
-      // Send user confirmation
-      await sendUserConfirmation(submission.email, submission.name, submission.newsletter);
-
-      // Send newsletter signup confirmation if they opted in
-      if (submission.newsletter) {
-        await sendNewsletterSignupConfirmation(submission.email, submission.name);
+      notificationAccepted = notification.success;
+      if (notificationAccepted) {
+        const acknowledgement = await sendUserConfirmation(submission.email, submission.name, submission.newsletter);
+        acknowledgementAccepted = acknowledgement.success;
+        if (acknowledgementAccepted && submission.newsletter) {
+          const newsletter = await sendNewsletterSignupConfirmation(submission.email, submission.name);
+          newsletterAccepted = newsletter.success;
+        }
       }
-
-    } catch (emailError) {
-      console.error('Email sending failed:', emailError);
-      // Don't fail the request if emails fail - log and continue
+    } catch {
+      console.error('Contact email acceptance could not be confirmed', { submissionId: savedSubmission.id });
     }
 
     // Log submission (in production, use proper logging)
@@ -252,15 +254,29 @@ export async function POST(request: NextRequest) {
       submittedAt: submission.submittedAt
     });
 
+    const complete = notificationAccepted && acknowledgementAccepted && newsletterAccepted;
+    const message = !notificationAccepted
+      ? 'Your enquiry is saved, but we could not confirm the team notification email. Please do not resubmit. Contact us directly if it is urgent.'
+      : !acknowledgementAccepted
+        ? 'Your enquiry is saved, but we could not confirm your acknowledgement email. Please do not resubmit.'
+        : !newsletterAccepted
+          ? 'Your enquiry is saved, but we could not confirm your newsletter welcome email. Please do not resubmit.'
+          : 'Message received successfully';
     return NextResponse.json({
-      status: 'success',
-      message: 'Message received successfully',
+      status: complete ? 'success' : 'partial',
+      message,
       data: {
         id: savedSubmission.id,
         submittedAt: submission.submittedAt,
-        status: submission.status
+        status: submission.status,
+        saved: true,
+        emailAcceptance: {
+          notification: notificationAccepted,
+          acknowledgement: acknowledgementAccepted,
+          newsletter: submission.newsletter ? newsletterAccepted : null,
+        },
       }
-    });
+    }, { status: complete ? 200 : 202 });
 
   } catch (error) {
     console.error('Contact form submission error:', error);

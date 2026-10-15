@@ -1,48 +1,39 @@
-import { Resend } from 'resend';
+import { Resend, type CreateEmailOptions } from 'resend';
+import { businessInfo } from '@/content/contact';
 
-// Email service abstraction for easy provider switching
 export interface EmailOptions {
   to: string | string[];
   subject: string;
   html?: string;
   text?: string;
   from?: string;
+  replyTo?: string;
 }
 
-export interface EmailResult {
-  success: boolean;
-  messageId?: string;
-  error?: string;
+export type EmailResult =
+  | { success: true; messageId: string }
+  | { success: false; error: string };
+
+function escapeHtml(value: string): string {
+  return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
-/**
- * Validate that the RESEND_API_KEY is properly configured
- * Returns true if valid, false if missing/invalid/placeholder
- */
+function teamInbox(): string {
+  return process.env.ADMIN_EMAIL?.trim() || 'hey@jstarstudios.com';
+}
+
 function isValidResendKey(): boolean {
   const apiKey = process.env.RESEND_API_KEY;
-
-  // Check if API key exists and is not the placeholder
-  if (!apiKey ||
-      apiKey === 'your_resend_api_key_here' ||
-      apiKey.trim() === '' ||
-      !apiKey.startsWith('re_')) {
-    return false;
-  }
-
-  return true;
+  return !!apiKey && apiKey !== 'your_resend_api_key_here' && apiKey.trim() !== '' && apiKey.startsWith('re_');
 }
 
-/**
- * Get Resend instance lazily (only when needed)
- * This prevents build-time failures when API key is not yet configured
- */
+// Resolve lazily so builds and local HTML previews need no provider credential.
 function getResendInstance(): Resend | null {
   if (!isValidResendKey()) {
     console.warn('Resend API key not configured properly. Email functions will return gracefully.');
     return null;
   }
-
   try {
     return new Resend(process.env.RESEND_API_KEY);
   } catch (error) {
@@ -51,59 +42,73 @@ function getResendInstance(): Resend | null {
   }
 }
 
-/**
- * Send email using the configured provider
- * Currently uses Resend, but can be easily switched to SendGrid, Postmark, etc.
- * Handles missing/invalid API key gracefully by returning a non-blocking error
- */
 export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
   try {
-    // Get Resend instance lazily - handle missing API key gracefully
     const resend = getResendInstance();
     if (!resend) {
-      return {
-        success: false,
-        error: 'Email service not configured - check RESEND_API_KEY environment variable',
-      };
+      return { success: false, error: 'Email service not configured - check RESEND_API_KEY environment variable' };
     }
-
-    const { to, subject, html, text, from } = options;
-
-    // Default sender (customize as needed)
-    const fromEmail = from || 'J StaR Films <hello@jstarfilms.com>';
-
-    // Resend requires either 'react' or 'html' - we'll use html
-    const emailData: any = {
-      from: fromEmail,
+    const { to, subject, html, text, from, replyTo } = options;
+    const fields = {
+      from: from || process.env.EMAIL_FROM?.trim() || 'J StaR Films Studios <hey@jstarstudios.com>',
       to: Array.isArray(to) ? to : [to],
       subject,
+      ...(replyTo ? { replyTo } : {}),
     };
-
-    if (html) {
-      emailData.html = html;
-    } else if (text) {
-      emailData.text = text;
-    }
-
+    const emailData: CreateEmailOptions = html ? { ...fields, html } : { ...fields, text: text || '' };
     const result = await resend.emails.send(emailData);
-
-    return {
-      success: true,
-      messageId: result.data?.id,
-    };
+    if (result.error) return { success: false, error: result.error.message };
+    if (!result.data?.id?.trim()) return { success: false, error: 'Email provider did not return a message ID' };
+    return { success: true, messageId: result.data.id };
   } catch (error) {
     console.error('Email sending failed:', error);
-
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown email error',
-    };
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown email error' };
   }
 }
 
-/**
- * Send admin notification for new contact form submission
- */
+const website = 'https://jstarstudios.com';
+const paragraph = 'margin:0 0 18px;font-size:16px;line-height:1.65;color:#344a43;';
+const grain = `${website}/redesign/email-grain.png`;
+const studioLogo = `${website}/redesign/email-studio-logo.png`;
+
+// Texture and logo are decorative. Solid backgrounds and the text wordmark survive image blocking.
+function emailLayout(label: string, preheader: string, title: string, content: string): string {
+  return `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${escapeHtml(title)} | J StaR Films Studios</title>
+<style>@media(max-width:480px){.email-pad{padding-left:24px!important;padding-right:24px!important}.email-title{font-size:30px!important}.email-label{width:78px!important}.email-brand{font-size:32px!important}.email-logo-cell{width:88px!important}.email-logo{width:80px!important;height:80px!important}}</style>
+</head><body style="margin:0;padding:0;background:#f3f4e9;font-family:Arial,Helvetica,sans-serif;color:#001514;">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all;">${escapeHtml(preheader)}</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f3f4e9" background="${grain}" style="background-color:#f3f4e9;background-image:url('${grain}');background-repeat:repeat;"><tr><td align="center" style="padding:24px 12px;">
+<!--[if mso]><table role="presentation" width="600" cellpadding="0" cellspacing="0"><tr><td><![endif]-->
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" bgcolor="#fbfffe" background="${grain}" style="width:100%;max-width:600px;background-color:#fbfffe;background-image:url('${grain}');background-repeat:repeat;">
+<tr><td class="email-pad" bgcolor="#001514" background="${grain}" style="padding:24px 36px;border-bottom:4px solid #b5e619;background-color:#001514;background-image:url('${grain}');background-repeat:repeat;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+<td valign="middle"><a class="email-brand" href="${website}" style="display:inline-block;color:#fbfffe;text-decoration:none;font-size:36px;font-weight:700;line-height:1;letter-spacing:-2px;white-space:nowrap;">J StaR<span style="display:block;margin-top:9px;font-size:10px;font-weight:400;letter-spacing:3px;">FILMS STUDIOS</span></a>
+<p style="margin:22px 0 0;color:#b5e619;font-size:10px;line-height:1.5;letter-spacing:2px;">${escapeHtml(label)}</p></td>
+<td class="email-logo-cell" width="136" align="right" valign="middle" style="width:136px;"><a href="${website}" aria-label="J StaR Films Studios"><img class="email-logo" src="${studioLogo}" width="120" height="120" alt="" border="0" style="display:block;width:120px;height:120px;"></a></td>
+</tr></table>
+</td></tr>
+<tr><td class="email-pad" style="padding:32px 36px 18px;">
+<h1 class="email-title" style="margin:0 0 24px;font-size:36px;line-height:1.1;letter-spacing:-1.4px;font-weight:700;color:#001514;">${escapeHtml(title)}</h1>
+${content}
+</td></tr>
+<tr><td class="email-pad" style="padding:22px 36px 28px;border-top:1px solid #dce4de;">
+<p style="margin:0 0 14px;font-size:13px;line-height:1.5;"><a href="${website}" style="color:#001514;text-decoration:none;font-weight:700;">jstarstudios.com</a></p>
+<p style="margin:0 0 16px;font-size:12px;line-height:1.8;">
+<a href="${businessInfo.socialLinks.instagram}" style="color:#344a43;text-decoration:underline;">Instagram</a>&nbsp;&nbsp;·&nbsp;&nbsp;
+<a href="https://youtube.com/@jstarfilms" style="color:#344a43;text-decoration:underline;">YouTube</a>&nbsp;&nbsp;·&nbsp;&nbsp;
+<a href="${businessInfo.socialLinks.linkedin}" style="color:#344a43;text-decoration:underline;">LinkedIn</a></p>
+<p style="margin:0;font-size:11px;line-height:1.6;color:#64736b;">J StaR Films Studios<br>Films you feel. Software you use.</p>
+</td></tr></table>
+<!--[if mso]></td></tr></table><![endif]-->
+</td></tr></table></body></html>`;
+}
+
+function emailButton(href: string, label: string): string {
+  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:24px 0 16px;"><tr><td bgcolor="#b5e619" style="background:#b5e619;"><a href="${escapeHtml(href)}" style="display:inline-block;padding:14px 20px;border:1px solid #b5e619;font-size:14px;font-weight:700;line-height:1.4;color:#001514;text-decoration:none;">${escapeHtml(label)} &#8599;</a></td></tr></table>`;
+}
+
 export async function sendAdminNotification(submission: {
   id: string;
   name: string;
@@ -115,243 +120,46 @@ export async function sendAdminNotification(submission: {
   newsletter: boolean;
   submittedAt: Date;
 }): Promise<EmailResult> {
-  const adminEmail = process.env.ADMIN_EMAIL || 'admin@jstarfilms.com';
-
-  const subject = `New Contact Form Submission: ${submission.subject}`;
-  const phoneHtml = submission.phone
-    ?.replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-  const html = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="utf-8">
-        <title>New Contact Submission</title>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #2563EB 0%, #8B5CF6 100%); color: white; padding: 20px; border-radius: 8px 8px 0 0; }
-          .content { background: #f8f9fa; padding: 20px; border-radius: 0 0 8px 8px; }
-          .field { margin-bottom: 15px; }
-          .label { font-weight: bold; color: #2563EB; }
-          .value { background: white; padding: 8px; border-radius: 4px; border: 1px solid #e5e7eb; }
-          .newsletter { background: #d1fae5; color: #065f46; padding: 8px; border-radius: 4px; display: inline-block; }
-          .footer { margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb; font-size: 12px; color: #6b7280; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h1>New Contact Form Submission</h1>
-            <p>Received at ${submission.submittedAt.toLocaleString()}</p>
-          </div>
-
-          <div class="content">
-            <div class="field">
-              <div class="label">From:</div>
-              <div class="value">${submission.name} <${submission.email}></div>
-            </div>
-
-            ${phoneHtml ? `
-            <div class="field">
-              <div class="label">Phone:</div>
-              <div class="value">${phoneHtml}</div>
-            </div>
-            ` : ''}
-
-            <div class="field">
-              <div class="label">Subject:</div>
-              <div class="value">${submission.subject}</div>
-            </div>
-
-            <div class="field">
-              <div class="label">Service:</div>
-              <div class="value">${submission.service}</div>
-            </div>
-
-            <div class="field">
-              <div class="label">Newsletter Signup:</div>
-              <div class="value ${submission.newsletter ? 'newsletter' : ''}">
-                ${submission.newsletter ? '✅ Yes - Added to newsletter list' : '❌ No'}
-              </div>
-            </div>
-
-            <div class="field">
-              <div class="label">Message:</div>
-              <div class="value" style="white-space: pre-wrap;">${submission.message}</div>
-            </div>
-
-            <div class="footer">
-              <p><strong>Submission ID:</strong> ${submission.id}</p>
-              <p>This email was sent automatically from the J StaR Films contact system.</p>
-            </div>
-          </div>
-        </div>
-      </body>
-    </html>
-  `;
-
-  return sendEmail({
-    to: adminEmail,
-    subject,
-    html,
-  });
+  const fields = {
+    name: escapeHtml(submission.name), email: escapeHtml(submission.email),
+    subject: escapeHtml(submission.subject), service: escapeHtml(submission.service),
+    message: escapeHtml(submission.message), id: escapeHtml(submission.id),
+  };
+  const labelStyle = 'width:96px;padding:12px 12px 12px 0;border-bottom:1px solid #dce4de;color:#64736b;font-size:12px;line-height:1.6;';
+  const valueStyle = 'padding:12px 0;border-bottom:1px solid #dce4de;color:#001514;font-size:14px;line-height:1.6;word-break:break-word;';
+  const reply = `mailto:${encodeURIComponent(submission.email)}?subject=${encodeURIComponent('Re: ' + submission.subject)}`;
+  const html = emailLayout('FOR THE STUDIO', `A new ${submission.service} enquiry from ${submission.name}.`, 'A new project enquiry.', `
+<p style="${paragraph}">The details are below. Reply directly to this email to reach ${fields.name}.</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 26px;table-layout:fixed;">
+<tr><td class="email-label" valign="top" style="${labelStyle}">From</td><td style="${valueStyle}"><strong>${fields.name}</strong><br><a href="mailto:${encodeURIComponent(submission.email)}" style="color:#344a43;">${fields.email}</a></td></tr>
+${submission.phone ? `<tr><td class="email-label" valign="top" style="${labelStyle}">Phone</td><td style="${valueStyle}">${escapeHtml(submission.phone)}</td></tr>` : ''}
+<tr><td class="email-label" valign="top" style="${labelStyle}">Project</td><td style="${valueStyle}">${fields.service}</td></tr>
+<tr><td class="email-label" valign="top" style="${labelStyle}">Subject</td><td style="${valueStyle}">${fields.subject}</td></tr>
+</table>
+<p style="margin:0 0 10px;font-size:10px;letter-spacing:2px;color:#64736b;">PROJECT BRIEF</p>
+<p style="${paragraph}white-space:pre-wrap;overflow-wrap:anywhere;">${fields.message}</p>
+${emailButton(reply, 'Reply to the enquiry')}
+<p style="margin:24px 0 4px;font-size:11px;line-height:1.6;color:#64736b;">Received ${escapeHtml(submission.submittedAt.toUTCString())}<br>Reference ${fields.id}<br>Newsletter requested: ${submission.newsletter ? 'Yes' : 'No'}</p>`);
+  return sendEmail({ to: teamInbox(), replyTo: submission.email, subject: `New enquiry: ${submission.subject}`, html });
 }
 
-/**
- * Send confirmation email to user after form submission
- */
-export async function sendUserConfirmation(
-  userEmail: string,
-  userName: string,
-  newsletter: boolean
-): Promise<EmailResult> {
-  const subject = 'Thank you for contacting J StaR Films!';
-  const html = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="utf-8">
-        <title>Thank you for your message</title>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #2563EB 0%, #8B5CF6 100%); color: white; padding: 30px; border-radius: 8px 8px 0 0; text-align: center; }
-          .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px; }
-          .highlight { background: linear-gradient(135deg, #2563EB 0%, #8B5CF6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: bold; }
-          .newsletter { background: #d1fae5; border: 1px solid #a7f3d0; padding: 15px; border-radius: 8px; margin: 20px 0; }
-          .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; font-size: 12px; color: #6b7280; text-align: center; }
-          .social { margin: 20px 0; }
-          .social a { margin: 0 10px; color: #2563EB; text-decoration: none; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h1>Thank You, ${userName}!</h1>
-            <p>Your message has been received</p>
-          </div>
-
-          <div class="content">
-            <p>Hi ${userName},</p>
-
-            <p>Thank you for reaching out to <span class="highlight">J StaR Films</span>! I've received your message and will get back to you within 24 hours.</p>
-
-            <p>While you wait, feel free to explore:</p>
-            <ul>
-              <li><a href="https://jstarfilms.com/portfolio">My portfolio</a> - See examples of my work</li>
-              <li><a href="https://jstarfilms.com/services">Services</a> - Learn about what I offer</li>
-              <li><a href="https://jstarfilms.com/blog">Blog</a> - Read my latest thoughts on creativity and tech</li>
-            </ul>
-
-            ${newsletter ? `
-            <div class="newsletter">
-              <h3>🎉 Welcome to the newsletter!</h3>
-              <p>You'll receive weekly tips on filmmaking, app development, AI tools, and creative entrepreneurship.</p>
-            </div>
-            ` : ''}
-
-            <p>Looking forward to connecting with you!</p>
-            <p>Best regards,<br><strong>John Oluleke-Oke</strong><br>J StaR Films</p>
-
-            <div class="social">
-              <a href="https://instagram.com/jstarfilms">Instagram</a> |
-              <a href="https://youtube.com/@jstarfilms">YouTube</a> |
-              <a href="https://linkedin.com/in/john-oluleke-oke">LinkedIn</a>
-            </div>
-          </div>
-
-          <div class="footer">
-            <p>This email was sent automatically in response to your contact form submission.</p>
-            <p>J StaR Films - Where Faith Meets Film and Future</p>
-          </div>
-        </div>
-      </body>
-    </html>
-  `;
-
-  return sendEmail({
-    to: userEmail,
-    subject,
-    html,
-  });
+export async function sendUserConfirmation(userEmail: string, userName: string, newsletter: boolean): Promise<EmailResult> {
+  const html = emailLayout('ENQUIRY RECEIVED', 'We have received your project enquiry.', 'Thanks for getting in touch.', `
+<p style="${paragraph}">Hi ${escapeHtml(userName)},</p>
+<p style="${paragraph}">We've received your enquiry. Our team will review the details and get back to you.</p>
+<p style="${paragraph}">If you'd like to add anything, just reply to this email.</p>
+${emailButton(website + '/#selected-work', 'Explore our work')}
+${newsletter ? `<p style="margin:22px 0;font-size:13px;line-height:1.6;color:#64736b;">You also asked for studio updates. The subscription confirmation is a separate email.</p>` : ''}
+<p style="margin:24px 0 12px;font-size:14px;line-height:1.6;color:#001514;">Speak soon,<br><strong>The J StaR team</strong></p>`);
+  return sendEmail({ to: userEmail, replyTo: teamInbox(), subject: "We've received your enquiry | J StaR Films Studios", html });
 }
 
-/**
- * Send newsletter signup confirmation
- */
-export async function sendNewsletterSignupConfirmation(
-  userEmail: string,
-  userName?: string
-): Promise<EmailResult> {
-  const displayName = userName || 'there';
-  const subject = 'Welcome to the J StaR Films Newsletter!';
-  const html = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="utf-8">
-        <title>Welcome to our newsletter</title>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #8B5CF6 0%, #2563EB 100%); color: white; padding: 30px; border-radius: 8px 8px 0 0; text-align: center; }
-          .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px; }
-          .highlight { background: linear-gradient(135deg, #8B5CF6 0%, #2563EB 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: bold; }
-          .benefits { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #8B5CF6; }
-          .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; font-size: 12px; color: #6b7280; text-align: center; }
-          .unsubscribe { color: #6b7280; text-decoration: underline; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h1>Welcome aboard! 🎉</h1>
-            <p>You're now part of the J StaR Films community</p>
-          </div>
-
-          <div class="content">
-            <p>Hi ${displayName},</p>
-
-            <p>Thank you for subscribing to the <span class="highlight">J StaR Films newsletter</span>! You're joining a community of creators, filmmakers, and entrepreneurs who are passionate about using technology and creativity to make an impact.</p>
-
-            <div class="benefits">
-              <h3>What you'll receive:</h3>
-              <ul>
-                <li>🎬 <strong>Filmmaking Tips:</strong> Behind-the-scenes insights and techniques</li>
-                <li>💻 <strong>Tech Tutorials:</strong> App development and AI tool guides</li>
-                <li>🚀 <strong>Business Strategies:</strong> Growing your creative business</li>
-                <li>🙏 <strong>Inspiration:</strong> Faith-based motivation and encouragement</li>
-                <li>🎁 <strong>Exclusive Content:</strong> Free resources and early access</li>
-              </ul>
-            </div>
-
-            <p><strong>Next steps:</strong></p>
-            <ol>
-              <li>Check your inbox for the first newsletter (usually sent every Wednesday)</li>
-              <li><a href="https://jstarfilms.com/blog">Explore the blog</a> for immediate value</li>
-              <li><a href="https://jstarfilms.com/portfolio">View my portfolio</a> to see my work</li>
-            </ol>
-
-            <p>I'm excited to be part of your creative journey!</p>
-            <p>Best regards,<br><strong>John Oluleke-Oke</strong><br>J StaR Films</p>
-          </div>
-
-          <div class="footer">
-            <p>You can <a href="#" class="unsubscribe">unsubscribe</a> at any time.</p>
-            <p>J StaR Films - Where Faith Meets Film and Future</p>
-          </div>
-        </div>
-      </body>
-    </html>
-  `;
-
-  return sendEmail({
-    to: userEmail,
-    subject,
-    html,
-  });
+export async function sendNewsletterSignupConfirmation(userEmail: string, userName?: string): Promise<EmailResult> {
+  const unsubscribe = `mailto:${teamInbox()}?subject=Unsubscribe`;
+  const html = emailLayout('STUDIO UPDATES', 'Thanks for your interest in updates from J StaR Films Studios.', 'A little more from the studio.', `
+<p style="${paragraph}">Hi ${escapeHtml(userName || 'there')},</p>
+<p style="${paragraph}">Thanks for your interest in J StaR Films Studios. We'll share news from our film, website and software work.</p>
+${emailButton(website + '/#selected-work', 'Explore our work')}
+<p style="margin:24px 0 12px;font-size:13px;line-height:1.6;color:#64736b;">Changed your mind? <a href="${escapeHtml(unsubscribe)}" style="color:#344a43;text-decoration:underline;">Request removal by email</a>. This goes to our team; it is not an automatic unsubscribe link.</p>`);
+  return sendEmail({ to: userEmail, replyTo: teamInbox(), subject: 'Studio updates | J StaR Films Studios', html });
 }

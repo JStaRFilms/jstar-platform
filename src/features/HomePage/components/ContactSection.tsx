@@ -32,6 +32,7 @@ interface FormState {
   errors: FormErrors;
   isSubmitting: boolean;
   isSuccess: boolean;
+  isPartial?: boolean;
   submitCount: number;
 }
 
@@ -114,13 +115,15 @@ const ContactSection: React.FC = () => {
       ...prev,
       data: { ...prev.data, [field]: value },
       errors: { ...prev.errors, [field]: undefined, general: undefined },
-      isSuccess: false
+      isSuccess: false,
+      isPartial: false
     }));
   };
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (formState.isPartial) return;
 
     // Validate form
     const errors = validateForm(formState.data);
@@ -182,6 +185,17 @@ const ContactSection: React.FC = () => {
           ...prev,
           isSubmitting: false,
           errors: { general: result.message || 'Failed to send message. Please try again.' }
+        }));
+        return;
+      }
+
+      if (result.status === 'partial') {
+        setFormState((prev) => ({
+          ...prev,
+          isSubmitting: false,
+          isSuccess: false,
+          isPartial: true,
+          errors: { general: result.message || 'Your enquiry is saved, but email acceptance is incomplete. Please do not resubmit.' }
         }));
         return;
       }
@@ -447,7 +461,7 @@ const ContactSection: React.FC = () => {
                 <div>
                   <button
                     type="submit"
-                    disabled={formState.isSubmitting}
+                    disabled={formState.isSubmitting || formState.isPartial}
                     className="w-full px-6 py-3.5 bg-gradient-to-r from-jstar-blue to-faith-purple text-white font-semibold rounded-xl hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:-translate-y-0.5 disabled:transform-none">
 
                     {formState.isSubmitting ?
