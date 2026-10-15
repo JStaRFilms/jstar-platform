@@ -532,9 +532,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
     const resume = () => {
       if (galleryLive.current.mode !== 'browse') { film.pause(); return; }
       if (wantsPlayback.current && inView.current && !filmConcealed.current && !document.hidden) {
-        void film.play().catch(() => {
-          if (!disposed) setMessage('Focus the film and press Space to play.');
-        });
+        void film.play().catch(() => {});
       } else film.pause();
     };
     const collectionPosition = (value: number) => Math.max(0, Math.min(Math.max(0, collection.current.length - 1), ((value - 4.3) * scrollDistance() - height * .75) / (height * PROJECT_STRIDE)));
@@ -969,7 +967,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
       video.current?.pause();
     }
     else if (wantsPlayback.current && inView.current && !document.hidden) {
-      void video.current?.play().catch(() => setMessage('Focus the film and press Space to play.'));
+      void video.current?.play().catch(() => {});
     }
   }, [reduced, gameExpanded]);
 
@@ -985,7 +983,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
       try { await film.play(); }
       catch {
         wantsPlayback.current = false;
-        setMessage('The film could not play. Press Space to try again.');
+        setMessage('The film could not play.');
       }
     }
   }
