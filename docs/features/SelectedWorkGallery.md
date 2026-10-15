@@ -1,5 +1,7 @@
 # Selected work gallery
 
+For future project additions, read [Adding selected work](PortfolioContributionGuide.md). The workshop's [content ledger](../Mockups/01_Public_Website/portfolio-content-ledger.md) and [owner-selected YouTube roster](../Mockups/01_Public_Website/portfolio-youtube-shortlist.md) hold the latest editorial decisions. The four-project scope and missing-content notes below describe the original implementation, not a live integration of the later selections.
+
 ## Scope and sources
 
 Append Selected Work to `/redesign` after the existing study-game hold at progress 4.3. Keep the approved left-hand names and right-hand presentation stack. Four projects ship in this order: Adaptive Study Game, School management system, Nifemi, Sharon. Keep a finite natural gallery end. Continue can take visitors directly into the mounted team's wipe from any gallery project. Do not duplicate team or enquiry content in the gallery.

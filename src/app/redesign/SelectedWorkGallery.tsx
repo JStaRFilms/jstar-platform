@@ -33,7 +33,7 @@ interface Props {
   onFilter: (filter: GalleryFilter) => void;
   onPreview: (source: 'pointer' | 'focus', id: string | null) => void;
   onSelect: (id: string) => void;
-  onAction: (id: string) => void;
+  onAction: (id: string, trigger: HTMLElement) => void;
   onContinue: () => void;
   onReturnToOpening: () => void;
 }
@@ -81,7 +81,7 @@ export function panelPose(frame: GalleryFrame, index: number) {
 function FilmPreview({ project, eligible }: { project: GalleryProject; eligible: boolean }) {
   const video = useRef<HTMLVideoElement>(null);
   const presentation = project.presentation;
-  const src = presentation.type === 'film' ? presentation.previewSrc : '';
+  const src = presentation.type === 'film' || presentation.type === 'youtube' ? presentation.previewSrc : '';
   useEffect(() => {
     const film = video.current;
     if (!film || !eligible) return;
@@ -89,7 +89,7 @@ function FilmPreview({ project, eligible }: { project: GalleryProject; eligible:
     void film.play().catch(() => {});
     return () => { film.pause(); film.removeAttribute('src'); film.load(); };
   }, [eligible, src]);
-  if (presentation.type !== 'film') return null;
+  if (presentation.type !== 'film' && presentation.type !== 'youtube') return null;
   return <video ref={video} poster={presentation.poster} muted loop playsInline preload="none" aria-label={`${project.title} preview`} />;
 }
 
@@ -105,6 +105,7 @@ const SelectedWorkGallery = forwardRef<GalleryHandle, Props>(function SelectedWo
   const pointer = useRef({ x: 0, y: 0, baseX: 0, baseY: 0, known: false, armed: true, settled: true });
   const keyboard = useRef(false);
   const pendingFocus = useRef<number | null>(null);
+  const capturedAction = useRef<string | null>(null);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const [foreground, setForeground] = useState(true);
   const [paintVisible, setPaintVisible] = useState(false);
@@ -268,25 +269,31 @@ const SelectedWorkGallery = forwardRef<GalleryHandle, Props>(function SelectedWo
         <p className={styles.listNote}>Films you feel. Software you use.</p>
         <p className={styles.galleryCounter} data-gallery-counter>{displayIndex < 0 ? '0' : String(displayIndex + 1).padStart(2, '0')} / {projects.length ? String(projects.length).padStart(2, '0') : '0'}</p>
       </nav>
-      <div className={styles.stack} aria-hidden={displayed?.presentation.type !== 'static-image'}>
+      <div className={styles.stack}>
         {neighbours.filter(project => project.presentation.type !== 'study-game').map(project => (
           <article key={project.id} className={styles.panel} data-panel-id={project.id} data-panel-index={projects.indexOf(project)} aria-hidden={project.id !== displayId}>
-            {project.presentation.type === 'film' ? <>
+            {project.presentation.type === 'film' || project.presentation.type === 'youtube' ? <>
               <FilmPreview project={project} eligible={!reduced && foreground && paintVisible && visible && mode === 'browse' && project.id === displayId} />
-              <div className={styles.filmTitle}><span>{project.label}</span><h3>{project.title}.</h3></div>
+              <div className={styles.filmTitle} data-long={project.title.length > 20}><span>{project.label}</span><h3>{project.title}.</h3></div>
             </> : project.presentation.type === 'provisional-cover' ? <div className={styles.school}>
-              <span>SOFTWARE / BUSINESS SYSTEMS</span><div className={styles.symbol}>S<span>↗</span></div><h3>School<br />management.</h3><p>{project.presentation.note}</p>
+              <span>SOFTWARE / BUSINESS SYSTEMS</span><div className={styles.symbol}>S<span>↗</span></div><h3>Melo.</h3><p>{project.presentation.note}</p>
             </div> : project.presentation.type === 'static-image' ? <Image className={styles.staticImage}
               src={project.presentation.src} alt={project.presentation.alt} fill unoptimized sizes="(max-width: 800px) 90vw, 53vw" /> : null}
+            {project.id === displayId && <button className={styles.cardAction} data-project-card data-project-open-id={project.id} aria-label={`Open ${project.title} Studio Notes`}
+              onPointerDown={event => { event.preventDefault(); capturedAction.current = project.id; }} onClick={event => { onAction(event.detail ? capturedAction.current ?? project.id : project.id, event.currentTarget); capturedAction.current = null; }} />}
           </article>
         ))}
-        {reduced && displayed?.presentation.type === 'study-game' && <div className={styles.staticStudy}>Adaptive Study Game<p>Your game is ready. Use Try it to play.</p></div>}
+        {reduced && displayed?.presentation.type === 'study-game' && <div className={styles.staticStudy}>Adaptive Study Game<p>Your game is ready. Open the project to try the sample.</p></div>}
+        {displayed?.presentation.type === 'study-game' && <button className={`${styles.panel} ${styles.cardAction} ${styles.studyAction}`} data-panel-index={displayIndex} data-project-card data-project-open-id={displayed.id}
+          aria-label="Open Adaptive Study Game Studio Notes" onPointerDown={event => { event.preventDefault(); capturedAction.current = displayed.id; }} onClick={event => { onAction(event.detail ? capturedAction.current ?? displayed.id : displayed.id, event.currentTarget); capturedAction.current = null; }} />}
       </div>
       <div className={styles.caption}>
         {displayed && <><div><span>{displayed.label}</span><p>{displayed.description}</p></div><div className={styles.actions}>
-          {displayed.presentation.type === 'study-game' && <button data-project-action onClick={() => onAction(displayed.id)}>Try it ↗</button>}
-          {displayed.presentation.type === 'film' && <button data-project-action onClick={() => onAction(displayed.id)}>{displayed.presentation.fullSrc ? 'Watch film' : 'Watch excerpt'} ↗</button>}
-          {displayed.detailsHref && <a href={displayed.detailsHref} target="_blank" rel="noreferrer">Source ↗</a>}
+          <button data-project-action data-project-open-id={displayed.id} onPointerDown={event => { event.preventDefault(); capturedAction.current = displayed.id; }} onClick={event => { onAction(event.detail ? capturedAction.current ?? displayed.id : displayed.id, event.currentTarget); capturedAction.current = null; }}>
+            {displayed.kind === 'software' ? 'View project' : displayed.presentation.type === 'film' && !displayed.presentation.fullSrc ? 'Watch excerpt' : 'Watch film'} ↗
+          </button>
+          {displayed.detailsHref && <a href={displayed.detailsHref} target="_blank" rel="noopener noreferrer">Source ↗</a>}
+          {displayed.websiteHref && <a href={displayed.websiteHref} target="_blank" rel="noopener noreferrer">Visit website ↗</a>}
         </div></>}
       </div>
       <footer className={styles.footer}><button data-gallery-continue onClick={onContinue}>Continue ↓</button></footer>

@@ -48,7 +48,7 @@ const homepageSections = [
 const MobileBottomNav = () => {
   const [activeTooltip, setActiveTooltip] = useState({ isVisible: false, text: '' });
   const pathname = usePathname();
-  const isHomepage = pathname === '/';
+  const isHomepage = pathname === '/redesign';
 
   // Use scroll spy only on homepage
   const activeSection = useScrollSpy({

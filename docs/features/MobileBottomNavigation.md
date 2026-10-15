@@ -4,6 +4,8 @@
 
 The `MobileBottomNavigation` feature provides a responsive, mobile-only, app-style navigation bar fixed to the bottom of the viewport. It enhances the user experience on small screens by offering intuitive, thumb-friendly access to the site's main sections. It integrates the "smart navigation" system, allowing users to either scroll to sections on the homepage or navigate directly to pages.
 
+After the approved route swap, section scrolling and scroll spy apply to the previous homepage at `/redesign`. The new `/` uses its own navigation and does not mount this bar. Other routes keep their existing page links. See `HomepageRouteSwap.md`.
+
 ## 2. Technology Stack
 
 - **Framework:** Next.js (React)

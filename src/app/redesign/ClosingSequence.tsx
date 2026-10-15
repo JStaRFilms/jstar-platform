@@ -16,6 +16,7 @@ const ClosingSequence = forwardRef<ClosingHandle, { onBackToTop: () => void }>(f
   const footer = useRef<HTMLElement>(null);
   const footerStage = useRef<HTMLDivElement>(null);
   const footerContacts = useRef<HTMLDivElement>(null);
+  const footerLogo = useRef<HTMLButtonElement>(null);
   const footerBottom = useRef<HTMLDivElement>(null);
   const mark = useRef<HTMLDivElement>(null);
   const update = useRef<(() => void) | null>(null);
@@ -64,7 +65,7 @@ const ClosingSequence = forwardRef<ClosingHandle, { onBackToTop: () => void }>(f
       section.dataset.cover = progress.toFixed(3);
       section.dataset.brandVisible = String(visible && sheetTop <= (window.innerWidth <= 800 ? 70 : 85));
       section.dataset.brandOnGreen = section.dataset.brandVisible;
-      if (footer.current && footerStage.current && footerContacts.current && footerBottom.current && mark.current) {
+      if (footer.current && footerStage.current && footerContacts.current && footerLogo.current && footerBottom.current && mark.current) {
         const footerBounds = footer.current.getBoundingClientRect();
         if (inkTop === null || measuredWidth !== window.innerWidth || measuredHeight !== height) {
           const texts = mark.current.querySelectorAll<SVGTextElement>(window.innerWidth <= 800 ? '[data-wordmark-mobile] text' : '[data-wordmark-desktop] text');
@@ -83,11 +84,11 @@ const ClosingSequence = forwardRef<ClosingHandle, { onBackToTop: () => void }>(f
         }
         const frameHeight = footerStage.current.clientHeight;
         const topPin = (motion.matches
-          ? footerContacts.current.offsetTop + footerContacts.current.offsetHeight
-          : footerContacts.current.getBoundingClientRect().bottom) + 24;
+          ? Math.max(footerContacts.current.offsetTop + footerContacts.current.offsetHeight, footerLogo.current.offsetTop + footerLogo.current.offsetHeight)
+          : Math.max(footerContacts.current.getBoundingClientRect().bottom, footerLogo.current.getBoundingClientRect().bottom)) + 24;
         const bottomPin = footerBottom.current.offsetTop - 24;
         const available = Math.max(0, bottomPin - topPin);
-        // The contact edge rises during entry; the bottom edge stays in place.
+        // The upper edge rises during entry; the bottom edge stays in place.
         mark.current.style.bottom = `${(motion.matches ? frameHeight : height) - bottomPin}px`;
         mark.current.style.height = `${motion.matches ? available : frameHeight}px`;
         mark.current.style.visibility = available > 0 && footerBounds.top < height && footerBounds.bottom > 0 ? 'visible' : 'hidden';
@@ -142,7 +143,7 @@ const ClosingSequence = forwardRef<ClosingHandle, { onBackToTop: () => void }>(f
         <div ref={footerContacts} className={styles.footerExtra}>
           <div className={styles.footerDetails}><a href={`tel:${businessInfo.phone[0]}`}>{businessInfo.phone[0]} ↗</a><span>{businessInfo.address}</span>
             <a href={`https://wa.me/${businessInfo.whatsapp[0].replace(/\D/g, '')}`} target="_blank" rel="noreferrer">WhatsApp ↗</a></div>
-          <button type="button" className={styles.footerLogo} onClick={onBackToTop} aria-label="J StaR Films Studios, back to the beginning">
+          <button ref={footerLogo} type="button" className={styles.footerLogo} onClick={onBackToTop} aria-label="J StaR Films Studios, back to the beginning">
             <Image src="/redesign/studio-logo-white.png" alt="" width={200} height={200} unoptimized />
           </button>
         </div>

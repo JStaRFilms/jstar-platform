@@ -184,8 +184,8 @@ const Header: React.FC<HeaderProps> = ({ authButton }) => {
     });
     const isActive = isActiveLink(item.href);
 
-    // On homepage, don't use Link to prevent navigation - just use a button
-    if (pathname === '/') {
+    // The previous homepage keeps its section-scroll buttons at the legacy route.
+    if (pathname === '/redesign') {
       return (
         <>
           <button
@@ -239,7 +239,7 @@ const Header: React.FC<HeaderProps> = ({ authButton }) => {
           <div className="flex justify-between items-center h-12">
             {/* Logo - Compact */}
             <div className="flex items-center">
-              {pathname === '/' ? (
+              {pathname === '/redesign' ? (
                 <button
                   onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                   className="text-xl font-bold bg-gradient-to-r from-jstar-blue to-faith-purple bg-clip-text text-transparent hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-jstar-blue focus:ring-offset-2 focus:ring-offset-white/10 dark:focus:ring-offset-black/10 rounded-md px-2 py-1"

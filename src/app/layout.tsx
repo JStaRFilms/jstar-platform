@@ -6,6 +6,7 @@ import ConditionalLayout from "./ConditionalLayout";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://www.jstarstudios.com'),
   title: {
     template: '%s | J StaR Films Studios', // Page titles will look like "About Us | J StaR Films Studios"
     default: 'J StaR Films Studios - Creative & Technology Partner', // Default title for the homepage

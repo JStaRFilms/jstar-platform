@@ -29,13 +29,13 @@ interface MobileNavItemProps {
 const MobileNavItem: React.FC<MobileNavItemProps> = ({ item, onTooltipChange, isActive: forcedActive }) => {
   const pathname = usePathname();
   const router = useRouter();
-  const isHomepage = pathname === '/';
+  const isHomepage = pathname === '/redesign';
 
   // Use forced active state if provided (from scroll spy), otherwise use default logic
   // Special handling for JohnGPT - it's active if we're on john-gpt page or the page might be considered "active"
   const isActive = forcedActive !== undefined ? forcedActive :
     item.iconName === 'brain' ? pathname === '/john-gpt' :
-    item.href ? (pathname === '/' && item.href === '/') || (item.href !== '/' && pathname.startsWith(item.href)) : false;
+    item.href ? (isHomepage && item.href === '/') || (item.href !== '/' && pathname.startsWith(item.href)) : false;
 
   // Check screen size for responsive behavior
   const isLargeScreen = useMediaQuery('(min-width: 414px)');
@@ -91,7 +91,7 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({ item, onTooltipChange, is
 
   // Handle home button click to scroll to top
   const handleHomeClick = (e: React.MouseEvent) => {
-    if (item.href === '/' && pathname === '/') {
+    if (item.href === '/' && isHomepage) {
       e.preventDefault();
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
@@ -179,7 +179,7 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({ item, onTooltipChange, is
       onMouseUp: smartNavHandlers.onMouseUp,
       onTouchStart: handlePressStart,
       onTouchEnd: smartNavHandlers.onTouchEnd,
-      onClick: item.href === '/' && pathname === '/' ? handleHomeClick : smartNavHandlers.onClick
+      onClick: item.href === '/' && isHomepage ? handleHomeClick : smartNavHandlers.onClick
   };
 
   if (isHomepage) {

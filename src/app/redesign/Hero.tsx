@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Volume2, VolumeX } from 'lucide-react';
 import styles from './hero.module.css';
 import StudyGame from './StudyGame';
+import PortfolioViewer from './PortfolioViewer';
 import TeamSection, { type TeamHandle } from './TeamSection';
 import ClosingSequence, { type ClosingHandle } from './ClosingSequence';
 import SelectedWorkGallery, { mobilePreviewLayout, panelPose, panelWindow, type GalleryFrame, type GalleryHandle } from './SelectedWorkGallery';
@@ -76,9 +77,8 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
   const end = useRef<TeamHandle>(null);
   const closing = useRef<ClosingHandle>(null);
   const [teamCovered, setTeamCovered] = useState(false);
-  const viewer = useRef<HTMLDialogElement>(null);
-  const viewerVideo = useRef<HTMLVideoElement>(null);
-  const backButton = useRef<HTMLButtonElement>(null);
+  const [sample, setSample] = useState(false);
+  const [viewerDetail, setViewerDetail] = useState(false);
   const invokingAction = useRef<HTMLElement | null>(null);
   const savedGameScroll = useRef(0);
   const motionControls = useRef<MotionControls | null>(null);
@@ -103,10 +103,10 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
     updateGallery({ pointerId: null, focusId: null });
   }, [updateGallery]);
   const closeGalleryMode = useCallback(() => {
-    if (galleryLive.current.mode === 'play') savedGameScroll.current = gameCanvas.current?.scrollTop ?? savedGameScroll.current;
+    if (galleryLive.current.mode === 'viewer' && sample) savedGameScroll.current = gameCanvas.current?.scrollTop ?? savedGameScroll.current;
     setPlayReady(false);
     updateGallery({ mode: 'browse', pointerId: null, focusId: null });
-  }, [updateGallery]);
+  }, [sample, updateGallery]);
   const [gameExpanded, setGameExpanded] = useState(false);
   const [gameInteractive, setGameInteractive] = useState(false);
   const [filmAvailable, setFilmAvailable] = useState(true);
@@ -419,7 +419,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
 
   useLayoutEffect(() => {
     if (galleryState.mode === 'browse') return;
-    const shell = galleryState.mode === 'play' ? gameFrame.current : viewer.current;
+    const shell = gameFrame.current;
     if (!shell) return;
     motionControls.current?.suspend();
     video.current?.pause();
@@ -427,8 +427,12 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
     const catalogHandle = gallery.current;
     const scrollY = window.scrollY;
     const overflow = document.body.style.overflow;
+    const htmlOverflow = document.documentElement.style.overflow;
+    const htmlGutter = document.documentElement.style.scrollbarGutter;
     const padding = document.body.style.paddingRight;
     const scrollbar = window.innerWidth - document.documentElement.clientWidth;
+    document.documentElement.style.overflow = 'hidden';
+    document.documentElement.style.scrollbarGutter = 'auto';
     document.body.style.overflow = 'hidden';
     if (scrollbar) document.body.style.paddingRight = `${scrollbar}px`;
     const siblings: { element: HTMLElement; inert: boolean }[] = [];
@@ -443,58 +447,39 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
       if (branch.parentElement === document.body) break;
       branch = branch.parentElement;
     }
-    if (galleryState.mode === 'play') {
-      if (typeof shell.showPopover === 'function') shell.showPopover();
-      canvas?.scrollTo({ top: savedGameScroll.current });
-      shell.inert = false;
-      setPlayReady(true);
-      backButton.current?.focus({ preventScroll: true });
-    } else if (shell instanceof HTMLDialogElement) {
-      shell.showModal();
-      shell.querySelector<HTMLButtonElement>('button')?.focus({ preventScroll: true });
-    }
+    if (typeof shell.showPopover === 'function') shell.showPopover();
+    shell.inert = false;
+    setPlayReady(true);
+    shell.querySelector<HTMLButtonElement>('[data-back-to-browsing]')?.focus({ preventScroll: true });
     const trap = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); closeGalleryMode(); return; }
       if (event.key !== 'Tab') return;
-      const focusable = Array.from(shell.querySelectorAll<HTMLElement>('button:not(:disabled), a[href], summary, video[controls], [tabindex="0"]')).filter(item => !item.closest('[inert]') && item.getClientRects().length > 0);
+      const focusable = Array.from(shell.querySelectorAll<HTMLElement>('button:not(:disabled), a[href], input:not(:disabled), summary, iframe, [tabindex="0"]')).filter(item => !item.closest('[inert]') && item.getClientRects().length > 0 && getComputedStyle(item).visibility !== 'hidden');
       const first = focusable[0], last = focusable[focusable.length - 1];
       if (!first || !last) { event.preventDefault(); return; }
       if (event.shiftKey && (document.activeElement === first || !shell.contains(document.activeElement))) { event.preventDefault(); last.focus(); }
       else if (!event.shiftKey && (document.activeElement === last || !shell.contains(document.activeElement))) { event.preventDefault(); first.focus(); }
     };
     document.addEventListener('keydown', trap, true);
-    const film = viewerVideo.current;
-    const viewerSrc = film?.getAttribute('src');
-    let viewerTime = 0;
-    const background = () => {
-      if (!film || !viewerSrc) return;
-      if (document.hidden) {
-        viewerTime = film.currentTime;
-        film.pause(); film.removeAttribute('src'); film.load();
-      } else { film.src = viewerSrc; film.load(); }
-    };
-    const restoreViewerTime = () => { if (film) film.currentTime = viewerTime; };
-    document.addEventListener('visibilitychange', background);
-    film?.addEventListener('loadedmetadata', restoreViewerTime);
     return () => {
-      document.removeEventListener('visibilitychange', background);
-      film?.removeEventListener('loadedmetadata', restoreViewerTime);
       document.removeEventListener('keydown', trap, true);
-      film?.pause();
-      film?.removeAttribute('src');
-      film?.load();
+      const active = document.fullscreenElement;
+      if (active && shell.contains(active)) void document.exitFullscreen().catch(() => {});
       if (typeof shell.hidePopover === 'function' && shell.matches(':popover-open')) shell.hidePopover();
-      if (shell instanceof HTMLDialogElement && shell.open) shell.close();
       document.body.style.overflow = overflow;
+      document.documentElement.style.overflow = htmlOverflow;
+      document.documentElement.style.scrollbarGutter = htmlGutter;
       document.body.style.paddingRight = padding;
       siblings.forEach(item => { item.element.inert = item.inert; });
       window.scrollTo({ top: scrollY, behavior: 'instant' });
-      if (canvas && galleryState.mode === 'play') canvas.scrollTop = savedGameScroll.current;
+      if (canvas) canvas.scrollTop = savedGameScroll.current;
+      // Reconcile viewer navigation with the current filtered scroll anchor before resuming.
+      const index = collection.current.findIndex(project => project.id === galleryLive.current.committedId);
+      motionControls.current?.align(Math.max(0, index), true);
       motionControls.current?.refresh();
-      if (invokingAction.current?.isConnected) invokingAction.current.focus({ preventScroll: true });
+      if (invokingAction.current?.isConnected && invokingAction.current.dataset.projectOpenId === galleryLive.current.committedId) invokingAction.current.focus({ preventScroll: true });
       else catalogHandle?.focusCatalog();
     };
-  }, [galleryState.mode, closeGalleryMode]);
+  }, [galleryState.mode]);
 
   useEffect(() => {
     const element = root.current;
@@ -638,7 +623,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
       const entrance = motion.matches ? 1 : 1 - (1 - clamp((progress - 4.3) * distance / (height * .75))) ** 3;
       const position = motion.matches ? Math.max(0, collection.current.findIndex(project => project.id === galleryLive.current.committedId)) : collectionPosition(progress);
       if (motion.matches) panelPosition = Math.max(0, collection.current.findIndex(project => project.id === (galleryLive.current.focusId ?? galleryLive.current.pointerId ?? galleryLive.current.committedId)));
-      else if (progress > 4.3) updateGallery({ committedId: collection.current[Math.round(position)]?.id ?? null });
+      else if (progress > 4.3 && galleryLive.current.mode === 'browse') updateGallery({ committedId: collection.current[Math.round(position)]?.id ?? null });
       const gameIndex = collection.current.findIndex(project => project.presentation.type === 'study-game');
       const visible = motion.matches || entrance > 0;
       const mediaVisible = motion.matches ? false : entrance > .98 && sectionRect.top <= 0 && sectionRect.bottom > height * .8;
@@ -648,7 +633,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
         setGalleryVisible(visible);
       }
       gallery.current?.paint(galleryFrame);
-      if (!motion.matches && entrance > 0 && gameFrame.current && galleryLive.current.mode !== 'play') {
+      if (!motion.matches && entrance > 0 && gameFrame.current && galleryLive.current.mode !== 'viewer') {
         const pose = panelPose(galleryFrame, gameIndex < 0 ? 0 : gameIndex);
         gameFrame.current.dataset.panelDepth = pose.depth.toFixed(4);
         const frameWidth = width - 40 * entrance;
@@ -665,7 +650,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
         gameFrame.current.style.zIndex = String(pose.z);
         const neighbourhood = panelWindow(Math.round(panelPosition), count, gameIndex);
         gameFrame.current.style.visibility = entrance < 1 || neighbourhood.includes(gameIndex) ? 'visible' : 'hidden';
-      } else if (galleryLive.current.mode !== 'play') {
+      } else if (galleryLive.current.mode !== 'viewer') {
         gameFrame.current?.style.removeProperty('transform');
         gameFrame.current?.style.removeProperty('z-index');
         gameFrame.current?.style.removeProperty('visibility');
@@ -787,8 +772,11 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
       const wasBrowsing = !motion.matches && galleryLive.current.mode === 'browse' && height !== (viewport.clientWidth <= 800 ? meter.getBoundingClientRect().height : viewport.clientHeight)
         && window.scrollY >= browseStart - 1 && window.scrollY <= browseEnd + 1;
       width = viewport.clientWidth;
-      visibleHeight = viewport.clientHeight;
-      height = width <= 800 && !motion.matches ? meter.getBoundingClientRect().height : motion.matches ? window.innerHeight : visibleHeight;
+      const viewportHeight = viewport.clientHeight;
+      height = width <= 800 && !motion.matches ? meter.getBoundingClientRect().height : motion.matches ? window.innerHeight : viewportHeight;
+      // Toolbar-only height changes expose a backdrop, not a newly scaled film/tablet composition.
+      visibleHeight = width <= 800 && !motion.matches ? height : viewportHeight;
+      element.style.setProperty('--hero-height', `${visibleHeight}px`);
       const portraitPhone = width <= 480 && width < visibleHeight;
       endScale = portraitPhone
         ? Math.min(width / 1672 * 3.25, visibleHeight / 941 * .86)
@@ -1017,13 +1005,13 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
     motionControls.current?.align(Math.max(0, next.findIndex(project => project.id === id)), true);
   }
 
-  function projectAction(id: string) {
+  function projectAction(id: string, trigger: HTMLElement) {
     const project = collection.current.find(item => item.id === id);
     if (!project) return;
-    invokingAction.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    invokingAction.current = trigger;
     selectProject(id);
-    if (project.presentation.type === 'study-game') updateGallery({ mode: 'play' });
-    else if (project.presentation.type === 'film') updateGallery({ mode: 'film' });
+    setSample(false);
+    updateGallery({ mode: 'viewer' });
   }
 
   function continueGallery() {
@@ -1031,9 +1019,16 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
     end.current?.enterFromGallery();
   }
 
-  const gameEnabled = galleryState.mode === 'play' ? playReady : galleryState.mode === 'browse' && (reduced ? gameExpanded && !staticGalleryInView : gameInteractive);
-  const viewerProject = collection.current.find(project => project.id === galleryState.committedId);
-  const viewerPresentation = viewerProject?.presentation.type === 'film' ? viewerProject.presentation : null;
+  const viewerProject = filteredProjects.find(project => project.id === galleryState.committedId);
+  const gameEnabled = galleryState.mode === 'viewer' ? playReady && sample && viewerProject?.presentation.type === 'study-game' && !viewerDetail : galleryState.mode === 'browse' && (reduced ? gameExpanded && !staticGalleryInView : gameInteractive);
+  const sampleVisible = galleryState.mode === 'viewer' && sample && viewerProject?.presentation.type === 'study-game';
+  const changeSample = useCallback((next: boolean) => {
+    if (!next && gameCanvas.current) savedGameScroll.current = gameCanvas.current.scrollTop;
+    setSample(next);
+  }, []);
+  const restoreSampleScroll = useCallback(() => {
+    if (gameCanvas.current) gameCanvas.current.scrollTop = savedGameScroll.current;
+  }, []);
 
   function returnToOpening() {
     wantsOpeningFocus.current = true;
@@ -1121,7 +1116,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
 
   return (
     <div ref={root} className={styles.root} data-static-expanded={reduced && expanded} data-static-tablet={reduced && expanded && tabletExpanded} data-nav-hidden={navHidden} data-static-game={reduced && gameExpanded} data-gallery-mode={galleryState.mode} data-gallery-in-view={reduced ? staticGalleryInView : galleryVisible}
-      onKeyDown={(event) => { if (event.key === 'Escape' && !(event.target instanceof Node && end.current?.element?.contains(event.target))) { event.preventDefault(); if (galleryLive.current.mode !== 'browse') closeGalleryMode(); else if (!galleryVisible || (reduced && window.scrollY < window.innerHeight)) returnToOpening(); } }}>
+      onKeyDown={(event) => { if (!event.defaultPrevented && event.key === 'Escape' && !(event.target instanceof Node && end.current?.element?.contains(event.target))) { event.preventDefault(); if (document.fullscreenElement && gameFrame.current?.contains(document.fullscreenElement)) void document.exitFullscreen(); else if (galleryLive.current.mode !== 'browse') closeGalleryMode(); else if (!galleryVisible || (reduced && window.scrollY < window.innerHeight)) returnToOpening(); } }}>
       <link rel="preload" href="/redesign/bodoni-moda-latin-italic-800.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       <a className={styles.skip} href="#film-sound" onClick={(event) => {
         event.preventDefault();
@@ -1187,14 +1182,14 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
             </h2>
             <p>Websites, applications, and systems for your business.</p>
           </div>
-          <div ref={gameFrame} className={styles.gameFrame} data-study-frame data-play={galleryState.mode === 'play'}
-            popover={galleryState.mode === 'play' ? 'manual' : undefined}
-            role={galleryState.mode === 'play' ? 'dialog' : undefined} aria-modal={galleryState.mode === 'play' ? true : undefined}
-            aria-label={galleryState.mode === 'play' ? 'Play Adaptive Study Game' : undefined} inert={!gameEnabled}
-            aria-hidden={!gameEnabled}>
-            <div ref={gameCanvas} className={styles.gameCanvas} data-study-canvas onScroll={() => {
+          <div ref={gameFrame} className={styles.gameFrame} data-study-frame data-viewer={galleryState.mode === 'viewer'} data-sample={sampleVisible}
+            popover={galleryState.mode === 'viewer' ? 'manual' : undefined}
+            role={galleryState.mode === 'viewer' ? 'dialog' : undefined} aria-modal={galleryState.mode === 'viewer' ? true : undefined}
+            aria-label={galleryState.mode === 'viewer' ? `${viewerProject?.title} Studio Notes` : undefined} inert={galleryState.mode === 'viewer' ? false : !gameEnabled}
+            aria-hidden={galleryState.mode === 'viewer' ? false : !gameEnabled}>
+            <div ref={gameCanvas} className={styles.gameCanvas} data-study-canvas inert={!gameEnabled} aria-hidden={!gameEnabled} onScroll={() => {
               const canvas = gameCanvas.current;
-              if (galleryLive.current.mode !== 'browse' || !gameEnabled || !canvas) return;
+              if (!gameEnabled || !canvas) return;
               // A smaller layout can clamp scrollTop. Retain the bookmark for the larger play view.
               const maximum = canvas.scrollHeight - canvas.clientHeight;
               if (savedGameScroll.current > maximum && canvas.scrollTop >= maximum - 1) return;
@@ -1202,7 +1197,11 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
             }}>
               <StudyGame interactive={gameEnabled} />
             </div>
-            {galleryState.mode === 'play' && <button ref={backButton} className={styles.backToBrowse} data-back-to-browsing onClick={closeGalleryMode}>← Back to browsing</button>}
+            <PortfolioViewer project={galleryState.mode === 'viewer' ? viewerProject : undefined} projects={filteredProjects} filter={galleryState.filter} shell={gameFrame}
+              sample={sample} onSample={changeSample} onSampleLayout={restoreSampleScroll} onDetail={setViewerDetail} onNavigate={id => {
+                if (sampleVisible && gameCanvas.current) savedGameScroll.current = gameCanvas.current.scrollTop;
+                updateGallery({ committedId: id, pointerId: null, focusId: null });
+              }} onClose={closeGalleryMode} />
           </div>
           <div className={styles.tabletScene}>
             <Image ref={sceneImage} src={TABLET_SCENE} width={1672} height={941} unoptimized loading="eager"
@@ -1245,13 +1244,6 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
       <TeamSection ref={end} onGalleryCovered={setTeamCovered} />
       <ClosingSequence ref={closing} onBackToTop={returnToOpening} />
       <a className={styles.journeyBrand} href="#studio-navigation" onClick={event => { event.preventDefault(); returnToOpening(); }} aria-label="J StaR Films Studios, back to the beginning">J StaR <span>Films Studios</span></a>
-      {galleryState.mode === 'film' && viewerPresentation && <dialog ref={viewer} className={styles.filmViewer} aria-label={`${viewerProject?.title}${viewerPresentation.fullSrc ? ' film' : ' excerpt'}`}
-        onCancel={event => { event.preventDefault(); closeGalleryMode(); }}>
-        <button data-back-to-browsing onClick={closeGalleryMode}>← Back to browsing</button>
-        <h2>{viewerProject?.title}{viewerPresentation.fullSrc ? '' : ' excerpt'}</h2>
-        {!viewerPresentation.fullSrc && <p>Preview excerpt. The full film is not available here.</p>}
-        <video ref={viewerVideo} src={viewerPresentation.fullSrc ?? viewerPresentation.previewSrc} poster={viewerPresentation.poster} controls playsInline preload="metadata" />
-      </dialog>}
     </div>
   );
 }

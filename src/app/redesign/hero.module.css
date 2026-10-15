@@ -12,6 +12,7 @@
   --accent: #b5e619;
   --progress: 0;
   --arrival: 0;
+  --hero-height: 100svh;
   --intro-shift: 0;
   --nav-fold: 0;
   --motion-blur: 0px;
@@ -198,23 +199,30 @@
 .message { position: absolute; z-index: 4; left: 4.6vw; bottom: 105px; background: var(--paper); color: var(--ink); padding: 8px; font-size: 13px; }
 .message:empty { display: none; }
 
-.gameFrame[data-play="true"] {
-  --game-mini: 0; box-sizing: border-box; position: fixed; inset: 3vh 3vw !important; margin: 0;
-  width: 94vw !important; height: 94vh !important; padding: 54px 0 0; border: 0;
+.gameFrame[data-viewer="true"] {
+  --game-mini: 0; box-sizing: border-box; position: fixed; inset: 0 !important; margin: 0;
+  width: 100vw !important; height: 100dvh !important; padding: 0; border: 0;
   transform: none !important; visibility: visible !important; z-index: 100 !important;
-  background: #f7f9f3; color: #001514;
+  background: transparent; color: #f3f4e9;
 }
-.gameFrame[data-play="true"]::backdrop { background: #001514e8; }
-.gameFrame[data-play="true"] .gameCanvas { width: 100%; height: 100%; transform: none; --game-mini: 0; --game-layout-height: 90vh; overscroll-behavior: contain; }
-.backToBrowse { position: absolute; top: 10px; left: 20px; padding: 9px 14px; border: 1px solid #001514; background: #b5e619; color: #001514; font-size: 13px !important; }
-.root[data-gallery-mode="play"] .stage { overflow: visible; }
-.filmViewer { width: min(1000px, 94vw); max-height: 94vh; margin: auto; padding: 24px; border: 1px solid #ffffff33; background: #0e2420; color: #fbfffe; }
-.filmViewer::backdrop { background: #001514e8; }
-.filmViewer button { border: 1px solid #fbfffe; padding: 10px 14px; background: none; color: inherit; }
-.filmViewer h2 { font: 500 36px 'Study Outfit', Arial, sans-serif; margin: 20px 0; }
-.filmViewer p { font-size: 13px; }
-.filmViewer video { display: block; width: 100%; max-height: 65vh; }
-.root[data-gallery-mode="film"] .filmViewer button:focus-visible { outline-color: #b5e619; }
+.gameFrame[data-viewer="true"]::backdrop { background: #00151418; }
+/* A hidden popover otherwise disappears between hidePopover and fullscreenchange. */
+.gameFrame[data-viewer="true"][data-fullscreen-handoff="true"] { display: block; }
+.gameFrame[data-viewer="true"]:fullscreen, .gameFrame[data-viewer="true"][data-fullscreen-handoff="true"] { background: #091b16; }
+.gameFrame[data-viewer="true"] .gameCanvas {
+  position: absolute; left: var(--sample-left); top: var(--sample-top); z-index: 3;
+  width: var(--sample-width); height: var(--sample-height); transform: rotate(1.2deg); transform-origin: center;
+  visibility: hidden; pointer-events: none; overscroll-behavior: contain; scrollbar-width: none;
+  clip-path: inset(var(--sample-clip-top, 0px) 0px var(--sample-clip-bottom, 0px));
+  --game-mini: 0; --game-layout-height: var(--sample-height);
+}
+.gameFrame[data-viewer="true"]:not([data-sample="true"]) .gameCanvas { left: 0; top: 0; width: min(var(--sample-width, 100%), 100%); transform: none; }
+.gameFrame[data-viewer="true"][data-sample="true"] .gameCanvas { visibility: visible; pointer-events: auto; }
+.gameFrame[data-viewer="true"] .gameCanvas::-webkit-scrollbar { display: none; }
+.gameFrame[data-viewer="true"] .gameCanvas[inert] { pointer-events: none; }
+.gameFrame[data-viewer="true"]:fullscreen { display: block; inset: 0 !important; width: 100vw !important; height: 100dvh !important; }
+.gameFrame[data-viewer="true"]:fullscreen .gameCanvas { transform: none; }
+.root[data-gallery-mode="viewer"] .stage { overflow: visible; }
 
 @media (prefers-reduced-motion: reduce) {
   .track { height: auto; }
@@ -254,19 +262,20 @@
   .brand span { display: none; }
   .header nav { gap: 16px; font-size: 12px; }
   .header .projectLink { padding: 12px; gap: 8px; }
-  .businessIntro { top: 8%; width: 90vw; }
+  .businessIntro { top: calc(var(--hero-height) * .08); width: 90vw; }
   .businessIntro h2 { font-size: 28px; }
   .lineMask + .lineMask { margin-top: 0; }
   .businessIntro p { max-width: 70vw; margin-top: 12px; font-size: 14px; white-space: normal; }
   .stage { height: 100dvh; }
-  .eyebrow { top: calc(clamp(128px, 22dvh, 180px) - 40px); left: 24px; }
+  .root[data-screening="true"]:not([data-tablet="true"]) .stage::after { content: ''; position: absolute; z-index: 1; left: 0; right: 0; top: var(--hero-height); bottom: 0; background: linear-gradient(var(--ink), #10241f); pointer-events: none; }
+  .eyebrow { top: calc(clamp(128px, var(--hero-height) * .22, 180px) - 40px); left: 24px; }
   .firstLine, .secondLine, .hoverCopy { display: none; }
   .mobileLine { position: absolute; display: block; left: 24px; font-weight: 700; line-height: .84; white-space: nowrap; letter-spacing: -.068em; filter: blur(var(--motion-blur)); }
-  .mobileFirst { top: clamp(128px, 22dvh, 180px); font-size: min(22vw, 84px); transform: translateX(calc(var(--arrival) * -18vw - var(--progress) * 105vw)); }
-  .mobileFilms { top: calc(clamp(128px, 22dvh, 180px) + min(22vw, 84px) * .78); font-size: min(29vw, 110px); transform: translateX(calc(var(--arrival) * 25vw + var(--progress) * 105vw)); }
-  .mobileStudios { top: calc(clamp(128px, 22dvh, 180px) + min(22vw, 84px) * .78 + min(29vw, 110px) * .76); font: italic 800 min(19.8vw, 76px)/.88 'Bodoni Moda', Georgia, serif; letter-spacing: -.045em; transform: translateX(calc(var(--arrival) * -18vw - var(--progress) * 105vw)); }
-  .filmFrame { left: calc((100vw * (1 - var(--arrival)) + 16vw * var(--arrival)) * (1 - var(--progress))); top: calc(36dvh * (1 - var(--progress))); width: calc(75vw + var(--progress) * 25vw); height: calc(42.1875vw * (1 - var(--progress)) + var(--progress) * 100%); }
-  .description { left: 24px; top: calc(clamp(128px, 22dvh, 180px) + min(22vw, 84px) * .78 + min(29vw, 110px) * .76 + min(19.8vw, 76px) * .84 + 16px); width: calc(100% - 48px); white-space: normal; font-size: 15px; transform: translateX(calc(var(--arrival) * 105vw + var(--progress) * 105vw)); }
+  .mobileFirst { top: clamp(128px, calc(var(--hero-height) * .22), 180px); font-size: min(22vw, 84px); transform: translateX(calc(var(--arrival) * -18vw - var(--progress) * 105vw)); }
+  .mobileFilms { top: calc(clamp(128px, var(--hero-height) * .22, 180px) + min(22vw, 84px) * .78); font-size: min(29vw, 110px); transform: translateX(calc(var(--arrival) * 25vw + var(--progress) * 105vw)); }
+  .mobileStudios { top: calc(clamp(128px, var(--hero-height) * .22, 180px) + min(22vw, 84px) * .78 + min(29vw, 110px) * .76); font: italic 800 min(19.8vw, 76px)/.88 'Bodoni Moda', Georgia, serif; letter-spacing: -.045em; transform: translateX(calc(var(--arrival) * -18vw - var(--progress) * 105vw)); }
+  .filmFrame { left: calc((100vw * (1 - var(--arrival)) + 16vw * var(--arrival)) * (1 - var(--progress))); top: calc(var(--hero-height) * .36 * (1 - var(--progress))); width: calc(75vw + var(--progress) * 25vw); height: calc(42.1875vw * (1 - var(--progress)) + var(--progress) * var(--hero-height)); }
+  .description { left: 24px; top: calc(clamp(128px, var(--hero-height) * .22, 180px) + min(22vw, 84px) * .78 + min(29vw, 110px) * .76 + min(19.8vw, 76px) * .84 + 16px); width: calc(100% - 48px); white-space: normal; font-size: 15px; transform: translateX(calc(var(--arrival) * 105vw + var(--progress) * 105vw)); }
   .mobileCopy { display: block; line-height: 1.35; }
   .mobileCopy > span { display: inline-block; will-change: transform; }
   .soundControl { right: 16px; bottom: 16px; }
@@ -291,26 +300,26 @@
   .mobileFilms { top: calc(110px + min(22vw, 52px) * .78); font-size: min(29vw, 66px); }
   .mobileStudios { top: calc(110px + min(22vw, 52px) * .78 + min(29vw, 66px) * .76); font-size: min(19.8vw, 48px); }
   .description { top: calc(112px + min(22vw, 52px) * .78 + min(29vw, 66px) * .76 + min(19.8vw, 48px) * .84); font-size: 13px; line-height: 1.2; }
-  .filmFrame { top: calc(33dvh * (1 - var(--progress))); width: calc(min(75vw, 120dvh) * (1 - var(--progress)) + var(--progress) * 100%); height: calc(min(42.1875vw, 67.5dvh) * (1 - var(--progress)) + var(--progress) * 100%); }
+  .filmFrame { top: calc(var(--hero-height) * .33 * (1 - var(--progress))); width: calc(min(75vw, var(--hero-height) * 1.2) * (1 - var(--progress)) + var(--progress) * 100%); height: calc(min(42.1875vw, var(--hero-height) * .675) * (1 - var(--progress)) + var(--progress) * var(--hero-height)); }
 }
 @media (max-width: 800px) and (orientation: landscape) {
   .firstLine, .secondLine, .hoverCopy { display: block; }
   .mobileLine, .mobileCopy { display: none; }
   .eyebrow { left: 5vw; top: 70px; }
-  .firstLine { left: 5vw; top: 94px; font-size: min(11.5vw, 23dvh); }
-  .secondLine { left: 5vw; top: calc(94px + min(11.5vw, 23dvh) * .82); font-size: min(18vw, 33dvh); }
-  .description { left: 5vw; top: calc(95px + min(11.5vw, 23dvh) * .82 + min(18vw, 33dvh) * .82); width: 90vw; font-size: 13px; white-space: nowrap; }
-  .businessIntro { left: 5vw; top: 9%; width: 54vw; }
+  .firstLine { left: 5vw; top: 94px; font-size: min(11.5vw, calc(var(--hero-height) * .23)); }
+  .secondLine { left: 5vw; top: calc(94px + min(11.5vw, var(--hero-height) * .23) * .82); font-size: min(18vw, calc(var(--hero-height) * .33)); }
+  .description { left: 5vw; top: calc(95px + min(11.5vw, var(--hero-height) * .23) * .82 + min(18vw, var(--hero-height) * .33) * .82); width: 90vw; font-size: 13px; white-space: nowrap; }
+  .businessIntro { left: 5vw; top: calc(var(--hero-height) * .09); width: 54vw; }
   .businessIntro h2 { font-size: clamp(28px, 5vw, 50px); }
   .businessIntro { --next-size: clamp(55px, 8vw, 100px); }
   .businessIntro p { max-width: 45vw; margin-top: 12px; font-size: 13px; }
 }
 @media (max-width: 480px) and (orientation: portrait) {
   .introduction {
-    --phone-top: clamp(116px, 26dvh, 225px);
-    --phone-first: min(29vw, 17dvh);
-    --phone-films: min(38vw, 22dvh);
-    --phone-studios: min(27.5vw, 15.5dvh);
+    --phone-top: clamp(116px, calc(var(--hero-height) * .26), 225px);
+    --phone-first: min(29vw, calc(var(--hero-height) * .17));
+    --phone-films: min(38vw, calc(var(--hero-height) * .22));
+    --phone-studios: min(27.5vw, calc(var(--hero-height) * .155));
   }
   .eyebrow { top: calc(var(--phone-top) - 40px); }
   .mobileFirst { top: var(--phone-top); font-size: var(--phone-first); }
@@ -320,8 +329,8 @@
     top: calc(var(--phone-top) + var(--phone-first) * .78 + var(--phone-films) * .76 + var(--phone-studios) * .84 + 18px);
     font-size: clamp(16px, 4.2vw, 18px);
   }
-  .businessIntro { left: 24px; top: clamp(20px, 4.8dvh, 44px); width: calc(100% - 24px); }
+  .businessIntro { left: 24px; top: clamp(20px, calc(var(--hero-height) * .048), 44px); width: calc(100% - 24px); }
   .businessIntro h2 { font-size: clamp(39px, 14.25vw, 62px); letter-spacing: -.055em; }
-  .businessIntro { --next-size: min(42vw, 21dvh); }
-  .businessIntro p { margin-top: clamp(9px, 1.6dvh, 14px); max-width: 100%; font-size: clamp(15px, 4vw, 18px); line-height: 1.22; }
+  .businessIntro { --next-size: min(42vw, calc(var(--hero-height) * .21)); }
+  .businessIntro p { margin-top: clamp(9px, calc(var(--hero-height) * .016), 14px); max-width: 100%; font-size: clamp(15px, 4vw, 18px); line-height: 1.22; }
 }
