@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Selected film cover review</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#101310;color:#edf0e8;font:15px/1.55 system-ui,sans-serif}main{max-width:1040px;margin:auto;padding:28px 20px}h1{font-size:26px;margin:0 0 8px}p{margin:0 0 14px;color:#bcc5ba}nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:22px 0}button{font:inherit;color:inherit;background:#1c231b;border:1px solid #3a4637;border-radius:7px;padding:12px;text-align:left;cursor:pointer}button:hover,button[aria-pressed="true"]{background:#303e2a;border-color:#a9c78e}button:focus-visible,a:focus-visible{outline:3px solid #c7e6a8;outline-offset:3px}.picture{aspect-ratio:16/9;background:#060806;display:grid;place-items:center;border-radius:9px;overflow:hidden}video{display:block;width:100%;height:100%;object-fit:contain}.empty{padding:24px;text-align:center}h2{margin:18px 0 5px;font-size:21px}.metadata{font-size:14px}a{color:#cee5b2}small{color:#a8b29f}.notes{border-top:1px solid #34402f;margin-top:24px;padding-top:18px}@media(max-width:650px){nav{grid-template-columns:repeat(2,minmax(0,1fr))}main{padding:20px 16px}button{font-size:13px;padding:10px}h1{font-size:23px}}
+</style>
+</head>
+<body><main>
+<h1>Ten-second cover candidates</h1>
+<p>Select a project, then use the native controls to play its silent loop. Only the selected cover loads. These are review cuts, not live gallery changes.</p>
+<p><small>Sources are likely matching local exports. Exact equivalence to the published YouTube versions still needs confirmation. All original exports remain unchanged.</small></p>
+<nav id="choices" aria-label="Choose a cover"></nav>
+<div id="picture" class="picture"><p class="empty">Choose a project to load its cover.</p></div>
+<section id="detail" aria-live="polite"><h2>No cover selected</h2></section>
+<div class="notes"><p>Full playback remains YouTube. These small MP4s are covers only; they do not replace the complete films. No autoplay, including with reduced motion. Hidden tabs pause playback.</p><a href="portfolio-selected-film-notes.md">Read the draft project notes and unresolved facts</a></div>
+</main>
+<script>
+const projects=[
+{id:'books-and-bills',title:'The Burden of Books and Bills',range:'00:30 to 00:40',reason:'Student movement through the campus corridor instead of the slower classroom interview.',youtube:'p1yqihuevu0'},
+{id:'forest-sequence',title:'3D Forest Sequence',range:'00:12 to 00:22',reason:'Moving forest and doorway views after the opening title. Source Unreal branding stays visible.',youtube:'W9tVsQjrORc'},
+{id:'worship-medley',title:'Worship Medley - Success Light',range:'15:30 to 15:40',reason:'A later active passage with the lead vocalist and supporting performers.',youtube:'xzXaKeQi8YQ'},
+{id:'samsung-vivid-colors',title:'Samsung Galaxy: See Your World in Vivid Colors',range:'00:08 to 00:18',reason:'Outdoor shot changes and the original HDR10+ title treatment, using an existing SDR export.',youtube:'mQU9SJwNGo0'},
+{id:'brushes-of-gold',title:'Brushes of GOLD',range:'02:15 to 02:25',reason:'Campus movement into a smiling outdoor portrait rather than the talking-head opening.',youtube:'Up46AtcYwTY'},
+{id:'welcome-to-church',title:'Welcome to Church',range:'00:05 to 00:15',reason:'Presenter gestures and animated invitation lettering.',youtube:'c9qb9ZVG48I'},
+{id:'fear-women',title:'Fear Women',range:'01:15 to 01:25',reason:'A two-character sofa exchange rather than a static office-phone scene.',youtube:'VYIWXJlIzMs'},
+{id:'everything',title:'Everything - Tye Tribbett',range:'08:00 to 08:10',reason:'The vocal ensemble and guitarist during a later performance passage.',youtube:'oAmKb6Zy6_4'},
+{id:'meet-monjolaoluwa',title:'Meet Monjolaoluwa!',range:'01:00 to 01:10',reason:'Changing presenter and campus shots with the existing filming-experience caption.',youtube:'ZdaMD-g-EzQ'}
+];
+const choices=document.querySelector('#choices');
+const picture=document.querySelector('#picture');
+const detail=document.querySelector('#detail');
+let video=null;
+function clearVideo(){if(video){video.pause();video.removeAttribute('src');video.load();video.remove();video=null;}}
+function select(project){
+ clearVideo();picture.replaceChildren();
+ video=document.createElement('video');video.controls=true;video.muted=true;video.loop=true;video.playsInline=true;video.preload='metadata';
+ video.poster='../../../public/redesign/gallery-'+project.id+'-poster.jpg';
+ video.src='../../../public/redesign/gallery-'+project.id+'-10s.mp4';video.setAttribute('aria-label',project.title+' cover candidate');picture.append(video);
+ choices.querySelectorAll('button').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.project===project.id)));
+ detail.replaceChildren();const title=document.createElement('h2');title.textContent=project.title;
+ const range=document.createElement('p');range.className='metadata';range.textContent='Source interval '+project.range+'. The cover itself is ten seconds.';
+ const reason=document.createElement('p');reason.textContent=project.reason;
+ const link=document.createElement('a');link.href='https://www.youtube.com/watch?v='+project.youtube;link.target='_blank';link.rel='noopener noreferrer';link.textContent='Published YouTube destination';
+ detail.append(title,range,reason,link);
+}
+projects.forEach(project=>{const button=document.createElement('button');button.type='button';button.textContent=project.title;button.dataset.project=project.id;button.setAttribute('aria-pressed','false');button.addEventListener('click',()=>select(project));choices.append(button);});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)video?.pause();});
+window.addEventListener('pagehide',clearVideo);
+</script>
+</body>
+</html>

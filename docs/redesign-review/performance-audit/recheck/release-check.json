@@ -1,0 +1,148 @@
+{
+  "timestamp": "2026-10-09T17:34:55.245Z",
+  "tests": [
+    {
+      "name": "film pause persists and actual loop",
+      "result": {
+        "paused": true,
+        "returned": true,
+        "loop": {
+          "time": 0.674827,
+          "paused": false,
+          "loop": true
+        }
+      }
+    },
+    {
+      "name": "quiz answer and progress survive reversal and play exit",
+      "result": {
+        "progress": "1",
+        "away": true,
+        "restored": "1",
+        "playProgress": "1",
+        "reentered": "1"
+      }
+    },
+    {
+      "name": "team skip hover and keyboard spotlight",
+      "result": {
+        "final": "true",
+        "hover": "true",
+        "focus": "true"
+      }
+    },
+    {
+      "name": "enquiry invalid fields and intercepted error states",
+      "result": {
+        "invalid": "Please check the highlighted field.",
+        "emailInvalid": "Please include an '@' in the email address. 'bad-email' is missing an '@'.",
+        "y": 14589,
+        "yAfter": 14589,
+        "href": "https://wa.me/2348152657887?text=Hello%20J%20StaR%20Films%2C%20I%20would%20like%20to%20discuss%20a%20project.%0A%0AProject%3A%20Film%0A%0AName%3A%20Audit%20Only%0A%0AEmail%3A%20audit%40example.invalid%0A%0ABrief%3A%20Audit%20fixture.%20Never%20forward%20to%20a%20server.",
+        "states": [
+          {
+            "sample": {
+              "status": 500,
+              "body": {
+                "status": "error",
+                "message": "Audit service unavailable"
+              }
+            },
+            "status": "failed",
+            "text": "Audit service unavailable Your details are still here.",
+            "retained": "Audit Only"
+          },
+          {
+            "sample": {
+              "status": 429,
+              "body": {
+                "status": "error",
+                "message": "Audit rate limit"
+              }
+            },
+            "status": "failed",
+            "text": "Audit rate limit Your details are still here.",
+            "retained": "Audit Only"
+          },
+          {
+            "sample": {
+              "status": 200,
+              "body": "not-json"
+            },
+            "status": "failed",
+            "text": "Could not send your enquiry. Your details are still here. Please try again or continue on WhatsApp.",
+            "retained": "Audit Only"
+          },
+          {
+            "sample": {
+              "status": 200,
+              "body": {
+                "status": "success"
+              }
+            },
+            "status": "success",
+            "text": "Your enquiry has been received. Thank you.",
+            "retained": "Audit Only"
+          }
+        ],
+        "requests": [
+          {
+            "url": "http://127.0.0.1:5893/api/contact",
+            "body": "{\"name\":\"Audit Only\",\"email\":\"audit@example.invalid\",\"service\":\"Film\",\"subject\":\"Film project enquiry\",\"message\":\"Audit fixture. Never forward to a server.\",\"newsletter\":false}"
+          },
+          {
+            "url": "http://127.0.0.1:5893/api/contact",
+            "body": "{\"name\":\"Audit Only\",\"email\":\"audit@example.invalid\",\"service\":\"Film\",\"subject\":\"Film project enquiry\",\"message\":\"Audit fixture. Never forward to a server.\",\"newsletter\":false}"
+          },
+          {
+            "url": "http://127.0.0.1:5893/api/contact",
+            "body": "{\"name\":\"Audit Only\",\"email\":\"audit@example.invalid\",\"service\":\"Film\",\"subject\":\"Film project enquiry\",\"message\":\"Audit fixture. Never forward to a server.\",\"newsletter\":false}"
+          },
+          {
+            "url": "http://127.0.0.1:5893/api/contact",
+            "body": "{\"name\":\"Audit Only\",\"email\":\"audit@example.invalid\",\"service\":\"Film\",\"subject\":\"Film project enquiry\",\"message\":\"Audit fixture. Never forward to a server.\",\"newsletter\":false}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "desktop resize and footer return",
+      "result": {
+        "sizes": [
+          {
+            "width": 1920,
+            "scrollWidth": 1920
+          },
+          {
+            "width": 1440,
+            "scrollWidth": 1440
+          }
+        ],
+        "y": 0
+      }
+    },
+    {
+      "name": "mobile form resize focus displacement",
+      "result": {
+        "before": {
+          "y": 13681,
+          "active": "email",
+          "top": 408.375244140625,
+          "bottom": 457.375244140625,
+          "inert": false,
+          "height": 844
+        },
+        "after": {
+          "y": 4030,
+          "active": null,
+          "top": 4558.375,
+          "bottom": 4607.375,
+          "inert": true,
+          "height": 500
+        },
+        "note": "Synthetic viewport resize, not a real software keyboard."
+      }
+    }
+  ],
+  "errors": []
+}
