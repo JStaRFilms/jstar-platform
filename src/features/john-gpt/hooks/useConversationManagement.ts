@@ -1,6 +1,5 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import type { UIMessage } from '@ai-sdk/react';
 
 /**
  * Custom hook for managing conversation state and navigation
@@ -12,7 +11,7 @@ import type { UIMessage } from '@ai-sdk/react';
  * - Deduplication of messages
  */
 export function useConversationManagement(
-    conversationId?: string
+    ...[]: [conversationId?: string]
 ) {
     const router = useRouter();
     const [activeConversationId, setActiveConversationId] = useState<string | null>(null);

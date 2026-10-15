@@ -2,13 +2,12 @@
 
 import React, { useState, useMemo } from 'react';
 import { useContacts } from './hooks/useContacts';
-import { useContactDetails } from './hooks/useContactDetails';
 import { useAnalytics } from './hooks/useAnalytics';
 import { useSystemStatus } from './hooks/useSystemStatus';
 import { useFullscreen } from './hooks/useFullscreen';
 import { PrecisionModeProvider } from './contexts/PrecisionModeContext';
 import { sendContactResponse } from '@/lib/communications-api';
-import { ContactFilters, MessageFilter, ContactSubmission, ContactStatus, ResponseType } from './types';
+import { ContactFilters, MessageFilter, ContactSubmission, ResponseType } from './types';
 import { SystemStatus } from './components/SystemStatus';
 import { QuickStats } from './components/QuickStats';
 import { MainContentGrid } from './components/MainContentGrid';
@@ -53,12 +52,10 @@ export const CommunicationsInbox: React.FC<CommunicationsInboxProps> = ({
 
   // Use the new contacts hook
   const {
-    contacts,
     pagination,
     isLoading,
     error,
     getFilteredContacts,
-    updateContactStatus,
     archiveContact,
     refresh,
   } = useContacts(apiFilters);

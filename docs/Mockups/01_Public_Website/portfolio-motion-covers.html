@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Portfolio motion covers</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif;color:#eee;background:#171717}
+body{margin:24px auto;max-width:1000px;padding:0 20px}
+h1{font-size:20px;font-weight:500;margin:0 0 8px}
+p{font-size:14px;color:#aaa;line-height:1.5}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;margin-top:24px}
+figure{margin:0;min-width:0}video{display:block;width:100%;aspect-ratio:16/9;background:#000;object-fit:contain;border-radius:6px}
+figcaption{margin-top:12px;line-height:1.6;font-size:14px}figcaption span{display:block;color:#aaa;font-size:12px}
+a{color:inherit;text-underline-offset:3px}
+@media(max-width:600px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<h1>Motion cover candidates</h1>
+<p>Ten-second muted loops. Media review only, not a new gallery design. Use the controls to pause.</p>
+<div class="grid">
+<figure>
+<video id="sharon" muted loop playsinline controls preload="metadata" poster="../../../public/redesign/gallery-sharon.jpg" src="../../../public/redesign/gallery-sharon-10s.mp4" aria-label="Sharon muted cover preview"></video>
+<figcaption>Sharon<span>8 to 18 seconds of the original film. 960 × 540. 3.26 MiB.</span></figcaption>
+</figure>
+<figure>
+<video id="nifemi" muted loop playsinline controls preload="metadata" poster="../../../public/redesign/gallery-nifemi.jpg" src="../../../public/redesign/gallery-nifemi-10s.mp4" aria-label="Nifemi muted cover preview"></video>
+<figcaption>Nifemi<span>The opening ten seconds. 960 × 540. 3.59 MiB.</span></figcaption>
+</figure>
+</div>
+<p><a href="../../../public/redesign/sharon-mobile-candidate.mp4">Watch the website's Sharon film</a>. This is the approved playback encode. The original larger export remains a local archive.</p>
+<script>
+const videos=[...document.querySelectorAll('video')];
+const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+const visible=new Set();
+function sync(){for(const video of videos){if(visible.has(video)&&!document.hidden&&!reduced.matches)video.play().catch(()=>{});else video.pause();}}
+const observer=new IntersectionObserver(entries=>{for(const entry of entries){if(entry.isIntersecting)visible.add(entry.target);else visible.delete(entry.target);}sync();},{threshold:.4});
+for(const video of videos)observer.observe(video);
+document.addEventListener('visibilitychange',sync);
+reduced.addEventListener('change',sync);
+</script>
+</body>
+</html>

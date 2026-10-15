@@ -6,26 +6,14 @@ import { usePathname } from 'next/navigation';
 import { SharedNavigation, NavigationProvider, useNavigation } from './SharedNavigation';
 import {
   ShieldCheckIcon,
-  VideoCameraIcon,
-  CameraIcon,
   FilmIcon,
   GiftIcon,
   EnvelopeIcon,
   PlayCircleIcon,
-  CheckIcon,
-  ArrowRightIcon,
-  LightBulbIcon,
   PenFancyIcon,
   CommentsIcon,
-  RocketIcon,
-  CloseIcon,
-  StarIcon,
-  ChevronLeftIcon,
   ChevronRightIcon,
-  CheckCircleIcon,
-  PhoneIcon,
-  MapPinIcon,
-  ClockIcon
+  CheckCircleIcon
 } from '@/components/icons';
 
 /**
@@ -119,7 +107,7 @@ const adminNavigationItems = [
 // Admin Navigation Component
 export const AdminNavigation: React.FC = () => {
   const pathname = usePathname();
-  const { setMobileMenuOpen } = useNavigation();
+  useNavigation();
   const [activeCategory, setActiveCategory] = useState<string>('');
   const [activeSubItem, setActiveSubItem] = useState<string>('');
 
@@ -141,13 +129,6 @@ export const AdminNavigation: React.FC = () => {
       setActiveSubItem('overview');
     }
   }, [pathname]);
-
-  // Handle navigation item click
-  const handleNavigationClick = (itemId: string) => {
-    setActiveCategory(itemId);
-    setActiveSubItem('overview');
-    setMobileMenuOpen(false); // Close mobile menu on navigation
-  };
 
   // Get current category's children
   const currentCategory = adminNavigationItems.find(item => item.id === activeCategory);

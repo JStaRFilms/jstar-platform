@@ -1,5 +1,5 @@
 // src/hooks/useSmartNavigation.ts
-import { useState, useRef, useCallback, useMemo } from 'react';
+import { useRef, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
 import { useRouter } from 'next/navigation'; // Use next/navigation for App Router
 
@@ -25,7 +25,7 @@ export const useSmartNavigation = ({ href, onTooltipChange, onScrollStart }: Use
   const pathname = usePathname();
   const pressTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const isHomepage = pathname === '/';
+  const isHomepage = pathname === '/redesign';
   const targetSectionId = href.startsWith('/') ? href.substring(1) : href;
 
   const handlePressStart = useCallback(() => {

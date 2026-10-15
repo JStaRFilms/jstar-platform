@@ -11,7 +11,7 @@ const AboutCta = () => {
           Ready to Create Something Extraordinary?
         </h2>
         <p className="text-xl text-white/90 mb-10 max-w-2xl mx-auto">
-          Whether you need cinematic production, AI-powered apps, or just want to talk cubes & code — I'm just a message away.
+          Whether you need cinematic production, AI-powered apps, or just want to talk cubes & code — I&apos;m just a message away.
         </p>
 
         <div className="flex flex-wrap justify-center gap-4">
@@ -20,7 +20,7 @@ const AboutCta = () => {
             target="_blank"
             className="flex items-center gap-2 px-8 py-4 bg-white text-jstar-blue font-bold rounded-xl text-lg hover:bg-gray-100 transition-all transform hover:-translate-y-1"
           >
-            Let's Connect
+            Let&apos;s Connect
           </Link>
 
           <Link

@@ -1,7 +1,7 @@
 'use client';
 
 import useSWR from 'swr';
-import { ContactDetailResponse, ContactSubmission, ContactResponse, ContactUpdateRequest, ContactUpdateResponse, ApiError } from '../types';
+import { ContactDetailResponse, ContactSubmission, ContactUpdateRequest } from '../types';
 import { fetchContactDetails, updateContact, handleApiError, getErrorMessage } from '@/lib/communications-api';
 
 /**

@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { withAuth } from '@workos-inc/authkit-nextjs';
 
 export const runtime = 'nodejs';
 

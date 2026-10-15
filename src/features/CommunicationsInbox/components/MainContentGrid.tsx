@@ -7,7 +7,7 @@ import { MessageList } from './MessageList';
 import { MessageDetails } from './MessageDetails';
 import { ResponseComposer } from './ResponseComposer';
 import { CommunicationTimeline } from './CommunicationTimeline';
-import { ContactSubmission, ContactStatus, ResponseType, FullscreenState } from '../types';
+import { ContactStatus, ResponseType, FullscreenState } from '../types';
 
 /**
  * Props for the MainContentGrid component
@@ -83,7 +83,6 @@ export const MainContentGrid: React.FC<MainContentGridProps> = ({
   className = '',
   fullscreenState,
   onToggleFullscreen,
-  onExitFullscreen,
   isFullscreen
 }) => {
   // Mobile slide panel state
@@ -159,7 +158,6 @@ export const MainContentGrid: React.FC<MainContentGridProps> = ({
   // Get detailed contact information
   const {
     contact,
-    responses,
     isLoading: contactLoading,
     error: contactError,
     updateContactStatus

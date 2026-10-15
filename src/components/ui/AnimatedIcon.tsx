@@ -2,7 +2,6 @@
 
 import React, { forwardRef, useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { motion, useAnimation, useReducedMotion } from 'motion/react';
 
 /**
  * Animation types supported by the AnimatedIcon component

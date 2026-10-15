@@ -29,13 +29,13 @@ interface MobileNavItemProps {
 const MobileNavItem: React.FC<MobileNavItemProps> = ({ item, onTooltipChange, isActive: forcedActive }) => {
   const pathname = usePathname();
   const router = useRouter();
-  const isHomepage = pathname === '/';
+  const isHomepage = pathname === '/redesign';
 
   // Use forced active state if provided (from scroll spy), otherwise use default logic
   // Special handling for JohnGPT - it's active if we're on john-gpt page or the page might be considered "active"
   const isActive = forcedActive !== undefined ? forcedActive :
     item.iconName === 'brain' ? pathname === '/john-gpt' :
-    item.href ? (pathname === '/' && item.href === '/') || (item.href !== '/' && pathname.startsWith(item.href)) : false;
+    item.href ? (isHomepage && item.href === '/') || (item.href !== '/' && pathname.startsWith(item.href)) : false;
 
   // Check screen size for responsive behavior
   const isLargeScreen = useMediaQuery('(min-width: 414px)');
@@ -44,7 +44,7 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({ item, onTooltipChange, is
   const [isJohnGPTModalOpen, setIsJohnGPTModalOpen] = useState(false);
 
   // Special handling for JohnGPT long-press (nav to page) vs tap (open modal)
-  const { isLongPressActive: isJohnGPTLongPressActive, ...longPressHandlers } = useLongPress({
+  const longPressHandlers = useLongPress({
     onLongPress: () => {
       // Long-press: navigate to JohnGPT dashboard page
       router.push('/john-gpt');
@@ -55,17 +55,6 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({ item, onTooltipChange, is
     },
     delay: 500,
   });
-
-  // For action items with callbacks, handle them with preventDefault/stopPropagation
-  const handleActionClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (item.onClick) item.onClick();
-  };
-
-  const handleActionLongPress = () => {
-    if (item.onLongPress) item.onLongPress();
-  };
 
   // 1. Create a ref for the animated icon
   const iconRef = useRef<AnimatedIconHandle>(null);
@@ -95,14 +84,14 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({ item, onTooltipChange, is
   };
 
   // Combined press handler for JohnGPT that handles both animation and long-press
-  const handleJohnGPTPressStart = (e: React.MouseEvent | React.TouchEvent) => {
+  const handleJohnGPTPressStart = () => {
     iconRef.current?.startAnimation();
     // Don't call smart navigation for JohnGPT - it uses long press logic
   };
 
   // Handle home button click to scroll to top
   const handleHomeClick = (e: React.MouseEvent) => {
-    if (item.href === '/' && pathname === '/') {
+    if (item.href === '/' && isHomepage) {
       e.preventDefault();
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
@@ -129,7 +118,9 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({ item, onTooltipChange, is
       case 'sparkles': return SparklesIcon;
       case 'mail': return MailIcon;
       case 'brain': return BrainIcon;
-      default: return () => <div className="w-6 h-6" />;
+      default: return function EmptyIcon() {
+        return <div className="w-6 h-6" />;
+      };
     }
   }, [item.iconName]);
 
@@ -155,13 +146,15 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({ item, onTooltipChange, is
   if (item.isAction) {
     // Combine long-press handlers with animation handler
     const johnGPTHandlers = {
-      ...longPressHandlers,
+      onMouseUp: longPressHandlers.onMouseUp,
+      onMouseLeave: longPressHandlers.onMouseLeave,
+      onTouchEnd: longPressHandlers.onTouchEnd,
       onMouseDown: (e: React.MouseEvent) => {
-        handleJohnGPTPressStart(e);
+        handleJohnGPTPressStart();
         longPressHandlers.onMouseDown(e);
       },
       onTouchStart: (e: React.TouchEvent) => {
-        handleJohnGPTPressStart(e);
+        handleJohnGPTPressStart();
         longPressHandlers.onTouchStart(e);
       },
     };
@@ -186,7 +179,7 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({ item, onTooltipChange, is
       onMouseUp: smartNavHandlers.onMouseUp,
       onTouchStart: handlePressStart,
       onTouchEnd: smartNavHandlers.onTouchEnd,
-      onClick: item.href === '/' && pathname === '/' ? handleHomeClick : smartNavHandlers.onClick
+      onClick: item.href === '/' && isHomepage ? handleHomeClick : smartNavHandlers.onClick
   };
 
   if (isHomepage) {

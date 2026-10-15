@@ -96,7 +96,7 @@ export function ScrollAnimationExamples() {
                             <h3 className="text-2xl font-semibold mb-4">Scale Animation</h3>
                             <p>
                                 The element grows from 95% to 100% while fading in. Creates a subtle
-                                "pop" effect that draws attention.
+                                &quot;pop&quot; effect that draws attention.
                             </p>
                         </div>
                     </div>
@@ -194,7 +194,7 @@ export function ScrollAnimationExamples() {
                         Accessibility First
                     </h3>
                     <p className="text-muted-foreground max-w-2xl mx-auto">
-                        All animations automatically respect the user's "prefers-reduced-motion" setting.
+                        All animations automatically respect the user&apos;s &quot;prefers-reduced-motion&quot; setting.
                         If a user has motion reduced enabled in their OS, elements will appear instantly
                         without animation.
                     </p>

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { RefreshCw, Zap } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 
 interface AIModelData {
   running: boolean;
@@ -38,9 +38,9 @@ interface AIHealthData {
 }
 
 const AIModelHealth: React.FC = () => {
-  const [aiData, setAIData] = useState<AIModelData | null>(null);
+  const [, setAIData] = useState<AIModelData | null>(null);
   const [aiHealth, setAiHealth] = useState<AIHealthData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchAIData = async () => {

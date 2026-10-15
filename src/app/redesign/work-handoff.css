@@ -1,0 +1,33 @@
+html[data-work-handoff="destination"] [data-gallery] h2 {
+  view-transition-name: work-heading;
+}
+
+html[data-work-handoff="destination"]::view-transition-old(root) {
+  z-index: 0;
+  animation: none;
+}
+
+html[data-work-handoff="destination"]::view-transition-new(root) {
+  z-index: 1;
+  animation: work-background 620ms ease-out both;
+}
+
+html[data-work-handoff="destination"]::view-transition-group(work-heading) {
+  z-index: 2;
+  animation-duration: 620ms;
+  animation-timing-function: cubic-bezier(.18, .72, .15, 1);
+}
+
+html[data-work-handoff="destination"]::view-transition-old(work-heading) {
+  animation-duration: 240ms;
+}
+
+html[data-work-handoff="destination"]::view-transition-new(work-heading) {
+  animation-duration: 480ms;
+  animation-delay: 80ms;
+}
+
+@keyframes work-background {
+  0%, 30% { opacity: 0; }
+  100% { opacity: 1; }
+}

@@ -62,7 +62,7 @@ export class PromptManager {
       `<identity>\n${baseIdentity}\n</identity>`,
       this.getUserContextBlock(user),
       this.getEnvironmentBlock(context, user),
-      this.getToolingRules(context)
+      this.getToolingRules()
     ];
 
     return promptParts.join('\n\n');
@@ -129,7 +129,7 @@ export class PromptManager {
   /**
    * Specific rules for Tool Usage.
    */
-  private static getToolingRules(context: ChatContext): string {
+  private static getToolingRules(): string {
     return `
 <tool_guidelines>
   1. SEARCH_KNOWLEDGE:

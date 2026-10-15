@@ -1,0 +1,21 @@
+html[data-studio-handoff]::view-transition-old(root) {
+  animation: studio-blackout 110ms steps(1, end) both;
+}
+
+html[data-studio-handoff]::view-transition-new(root) {
+  animation: studio-develop 660ms steps(1, end) both;
+}
+
+@keyframes studio-blackout {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* The actual team scene resolves like a contact print, not a moving panel. */
+@keyframes studio-develop {
+  0%, 16% { opacity: 0; }
+  17% { opacity: 1; filter: grayscale(1) contrast(1.65) brightness(1.45); }
+  32% { filter: grayscale(1) contrast(1.3) brightness(.65); }
+  48% { filter: grayscale(.45) contrast(1.15) brightness(1.12); }
+  66%, 100% { opacity: 1; filter: none; }
+}

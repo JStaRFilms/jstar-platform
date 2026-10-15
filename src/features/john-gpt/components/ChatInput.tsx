@@ -1,6 +1,6 @@
 import React from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
-import { Send, Paperclip, Terminal, Flame, Zap, Book, Sparkles } from 'lucide-react';
+import { Send, Paperclip, Terminal, Flame, Zap, Book } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 /**

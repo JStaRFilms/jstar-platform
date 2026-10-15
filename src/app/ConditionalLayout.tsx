@@ -33,9 +33,14 @@ export default function ConditionalLayout({ children, authButton, user }: Condit
   const isJohnGPTPage = pathname?.startsWith('/john-gpt');
   const shouldShowGlobalNav = !isAdminPage && !isJohnGPTPage;
 
-  // Don't add padding to homepage since it has its own padding
-  const isHomePage = pathname === '/';
-  const shouldAddPadding = shouldShowGlobalNav && !isHomePage;
+  // The previous homepage keeps its own section padding at its new route.
+  const isLegacyHomePage = pathname === '/redesign';
+  const shouldAddPadding = shouldShowGlobalNav && !isLegacyHomePage;
+
+  // The new homepage owns its header, footer and interaction layout.
+  if (pathname === '/') {
+    return <main>{children}</main>;
+  }
 
   return (
     <Providers>

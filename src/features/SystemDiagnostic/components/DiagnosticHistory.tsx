@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Eye, Filter, RefreshCw } from 'lucide-react';
 
 interface DiagnosticRecord {
@@ -28,7 +28,7 @@ const DiagnosticHistory: React.FC<DiagnosticHistoryProps> = ({ refreshTrigger })
   const [selectedDiagnostic, setSelectedDiagnostic] = useState<DiagnosticRecord | null>(null);
   const [showFilters, setShowFilters] = useState<boolean>(false);
 
-  const fetchDiagnostics = async () => {
+  const fetchDiagnostics = useCallback(async () => {
     try {
       const params = new URLSearchParams();
       if (filterType !== 'all') params.append('type', filterType);
@@ -45,18 +45,11 @@ const DiagnosticHistory: React.FC<DiagnosticHistoryProps> = ({ refreshTrigger })
     } finally {
       setLoading(false);
     }
-  };
+  }, [filterType, filterStatus]);
 
   useEffect(() => {
     fetchDiagnostics();
-  }, [filterType, filterStatus]);
-
-  // Refresh when triggered from parent
-  useEffect(() => {
-    if (refreshTrigger !== undefined) {
-      fetchDiagnostics();
-    }
-  }, [refreshTrigger]);
+  }, [fetchDiagnostics, refreshTrigger]);
 
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp);

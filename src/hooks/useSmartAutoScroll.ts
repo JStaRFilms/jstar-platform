@@ -38,7 +38,6 @@ interface UseSmartAutoScrollReturn {
  * - 500ms cooldown after user scroll to prevent boomerang
  */
 export function useSmartAutoScroll({
-    threshold = 100,
     enabled = true,
     debounceMs = 100,
 }: UseSmartAutoScrollOptions = {}): UseSmartAutoScrollReturn {

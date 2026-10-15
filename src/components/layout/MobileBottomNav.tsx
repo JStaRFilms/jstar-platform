@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation';
 import MobileNavItem from './MobileNavItem';
 import Tooltip from '@/components/ui/Tooltip'; // Import Tooltip
 import { useScrollSpy } from '@/hooks/useScrollSpy';
-import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 export interface NavItemConfig {
   href?: string; // Optional for action-only items
@@ -49,7 +48,7 @@ const homepageSections = [
 const MobileBottomNav = () => {
   const [activeTooltip, setActiveTooltip] = useState({ isVisible: false, text: '' });
   const pathname = usePathname();
-  const isHomepage = pathname === '/';
+  const isHomepage = pathname === '/redesign';
 
   // Use scroll spy only on homepage
   const activeSection = useScrollSpy({

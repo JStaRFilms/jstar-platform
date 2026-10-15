@@ -1,8 +1,7 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import Link from 'next/link';
-import { useRouter, usePathname } from 'next/navigation';
+import React from 'react';
+import { useRouter } from 'next/navigation';
 
 /**
  * Props for AdminSubNavigation component

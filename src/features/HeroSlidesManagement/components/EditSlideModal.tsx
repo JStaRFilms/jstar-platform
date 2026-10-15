@@ -88,7 +88,7 @@ export const EditSlideModal: React.FC<EditSlideModalProps> = ({
                   id="edit-slide-description"
                   className="text-sm text-gray-600 dark:text-gray-400 mt-1"
                 >
-                  Update the content and settings for "{slide.titleLine1}"
+                  Update the content and settings for &quot;{slide.titleLine1}&quot;
                 </p>
               </div>
 

@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 
 interface ContactFormData {
   name: string;
@@ -27,6 +27,7 @@ interface FormState {
   errors: FormErrors;
   isSubmitting: boolean;
   isSuccess: boolean;
+  isPartial?: boolean;
   submitCount: number;
 }
 
@@ -130,7 +131,8 @@ const ContactForm = () => {
           [fieldName]: fieldValue
         },
         errors: newErrors,
-        isSuccess: false // Clear success state when user starts typing
+        isSuccess: false, // Clear success state when user starts typing
+        isPartial: false
       };
     });
 
@@ -152,6 +154,7 @@ const ContactForm = () => {
   // Handle form submission
   const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (formState.isPartial) return;
 
     // Validate form before submission
     if (!validateForm()) {
@@ -191,6 +194,17 @@ const ContactForm = () => {
         }
       }
 
+      if (data.status === 'partial') {
+        setFormState((prev) => ({
+          ...prev,
+          isSubmitting: false,
+          isSuccess: false,
+          isPartial: true,
+          errors: { general: data.message || 'Your enquiry is saved, but email acceptance is incomplete. Please do not resubmit.' }
+        }));
+        return;
+      }
+
       // Success - matches documentation response format
       setFormState((prev) => ({
         ...prev,
@@ -225,7 +239,7 @@ const ContactForm = () => {
         }
       }));
     }
-  }, [formState.data, validateForm]);
+  }, [formState.data, formState.isPartial, validateForm]);
 
   return (
     <div className="bg-card rounded-2xl p-8 shadow-lg form-card">
@@ -392,7 +406,7 @@ const ContactForm = () => {
 
         <button
           type="submit"
-          disabled={formState.isSubmitting}
+          disabled={formState.isSubmitting || formState.isPartial}
           className="w-full px-6 py-4 bg-gradient-to-r from-jstar-blue to-faith-purple text-white font-semibold rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           aria-describedby={formState.errors.general ? "general-error" : undefined}>
 

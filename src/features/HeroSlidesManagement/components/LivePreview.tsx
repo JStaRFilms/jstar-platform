@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { HeroSlide } from '../hooks/useHeroSlides';
 import { useSlideshowConfig } from '../../HomePage/hooks/useSlideshowConfig';
@@ -38,8 +38,23 @@ const LivePreview: React.FC<LivePreviewProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentModalSlide, setCurrentModalSlide] = useState<HeroSlide | null>(null);
 
-  // Find current slide index for navigation
-  const currentSlideIndex = slide ? allSlides.findIndex(s => s.id === slide.id) : -1;
+  // Navigation functions
+  const navigateToSlide = useCallback((direction: 'prev' | 'next') => {
+    if (!currentModalSlide || allSlides.length === 0) return;
+
+    const currentIndex = allSlides.findIndex(s => s.id === currentModalSlide.id);
+    let newIndex;
+
+    if (direction === 'prev') {
+      newIndex = currentIndex > 0 ? currentIndex - 1 : allSlides.length - 1;
+    } else {
+      newIndex = currentIndex < allSlides.length - 1 ? currentIndex + 1 : 0;
+    }
+
+    const newSlide = allSlides[newIndex];
+    setCurrentModalSlide(newSlide);
+    onSlideChange?.(newSlide);
+  }, [currentModalSlide, allSlides, onSlideChange]);
 
   // Keyboard navigation handler
   useEffect(() => {
@@ -62,25 +77,7 @@ const LivePreview: React.FC<LivePreviewProps> = ({
       document.addEventListener('keydown', handleKeyDown);
       return () => document.removeEventListener('keydown', handleKeyDown);
     }
-  }, [isModalOpen, currentModalSlide, allSlides]);
-
-  // Navigation functions
-  const navigateToSlide = (direction: 'prev' | 'next') => {
-    if (!currentModalSlide || allSlides.length === 0) return;
-
-    const currentIndex = allSlides.findIndex(s => s.id === currentModalSlide.id);
-    let newIndex;
-
-    if (direction === 'prev') {
-      newIndex = currentIndex > 0 ? currentIndex - 1 : allSlides.length - 1;
-    } else {
-      newIndex = currentIndex < allSlides.length - 1 ? currentIndex + 1 : 0;
-    }
-
-    const newSlide = allSlides[newIndex];
-    setCurrentModalSlide(newSlide);
-    onSlideChange?.(newSlide);
-  };
+  }, [isModalOpen, allSlides, navigateToSlide]);
 
   // Modal functions
   const openModal = () => {

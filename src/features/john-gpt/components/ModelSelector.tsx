@@ -349,7 +349,6 @@ function ModelCard({
  * Click to open the model selector.
  */
 export function ModelIndicator({
-    modelId,
     modelName,
     onClick,
 }: {

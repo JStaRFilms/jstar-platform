@@ -71,7 +71,7 @@ const AboutHero = () => {
             </div>
 
             <h1 className={`text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-6 leading-[0.9] tracking-tight scroll-animate-hidden ${isVisible ? 'scroll-animate-fade-in-up scroll-stagger-1' : ''}`}>
-              Hello, I'm <br />
+              Hello, I&apos;m <br />
               <span className={`bg-clip-text text-transparent bg-gradient-to-r transition-all duration-1000 ${mode === 'tech' ? 'from-white via-blue-200 to-blue-400' : 'from-white via-purple-200 to-pink-400'}`}>
                 {PROFILE_DATA.name.split(' ')[0]}
               </span>.

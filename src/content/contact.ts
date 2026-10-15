@@ -20,8 +20,8 @@ export const businessInfo: BusinessInfo = {
   workingHours: 'Monday - Friday, 8am - 5pm',
   socialLinks: {
     youtube: 'https://www.youtube.com/@JStaRFilms',
-    linkedin: 'https://www.linkedin.com/in/saxy/',
+    linkedin: 'https://www.linkedin.com/company/j-star-films-studios/',
     twitter: 'https://x.com/OlulekeJOke',
-    instagram: 'https://www.instagram.com/j_star.films/',
+    instagram: 'https://www.instagram.com/j_starr.films/',
   },
 };

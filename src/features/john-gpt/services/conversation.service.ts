@@ -1,5 +1,4 @@
 import { prisma } from '@/lib/prisma';
-import { Prisma } from '@prisma/client';
 import { MessageSchema } from '../schema';
 import { z } from 'zod';
 

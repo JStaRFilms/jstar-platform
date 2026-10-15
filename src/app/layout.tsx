@@ -6,6 +6,7 @@ import ConditionalLayout from "./ConditionalLayout";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://www.jstarstudios.com'),
   title: {
     template: '%s | J StaR Films Studios', // Page titles will look like "About Us | J StaR Films Studios"
     default: 'J StaR Films Studios - Creative & Technology Partner', // Default title for the homepage
@@ -45,10 +46,6 @@ export default async function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Momo+Signature&display=swap"
-          rel="stylesheet"
-        />
       </head>
       <body className={`${inter.className} bg-background transition-colors duration-300`}>
         <ConditionalLayout authButton={authButton} user={user}>

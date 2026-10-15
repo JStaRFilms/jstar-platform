@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { UIMessage } from '@ai-sdk/react';
 import { formatTime } from '@/lib/utils';
 import { BrainIcon } from '@/components/ui/BrainIcon';
@@ -305,7 +306,6 @@ export const ChatMessages = React.memo(function ChatMessages({
         // For assistant messages, we parse it to handle special components like color palettes
         const isUser = message.role === 'user';
         const parsedParts = isUser ? [] : parseMessageContent(textContent);
-        const isEditable = isUser;
 
         return (
           <div
@@ -598,7 +598,7 @@ export const ChatMessages = React.memo(function ChatMessages({
               message.role === 'user' && (
                 <div className="w-8 h-8 md:w-9 md:h-9 flex-shrink-0 rounded-full bg-gradient-to-br from-neutral-200 to-neutral-300 dark:from-neutral-700 dark:to-neutral-800 flex items-center justify-center font-bold text-xs text-muted-foreground shadow-sm overflow-hidden ring-2 ring-background">
                   {user?.profilePictureUrl ? (
-                    <img src={user.profilePictureUrl} alt="Profile" className="w-full h-full object-cover" />
+                    <Image src={user.profilePictureUrl} alt="Profile" width={36} height={36} unoptimized loading="eager" className="w-full h-full object-cover" />
                   ) : (
                     <span>{user?.firstName?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}</span>
                   )}

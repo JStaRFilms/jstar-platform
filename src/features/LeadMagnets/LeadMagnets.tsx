@@ -18,7 +18,6 @@ import EmergencyPanel from './components/EmergencyPanel';
  * Provides comprehensive email/SMS template management with analytics and localization
  */
 const LeadMagnets: React.FC = () => {
-  const [selectedTemplate, setSelectedTemplate] = useState('welcome-email');
   const [searchQuery, setSearchQuery] = useState('');
 
   // Event handlers

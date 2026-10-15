@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useChat, UIMessage } from '@ai-sdk/react';
 import { useRouter, usePathname } from 'next/navigation';
 import { dbSyncManager } from '@/lib/storage/db-sync-manager';
@@ -44,6 +44,11 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
     // 1. Internal Tree State
     const [tree, setTree] = useState<MessageTree>({});
     const [headId, setHeadId] = useState<string | null>(null);
+
+    // Track if messages were just loaded externally (not user-modified)
+    // This prevents saving (and updating timestamp) when simply viewing a conversation
+    // We store the COUNT of loaded messages - only save when new messages are ADDED
+    const loadedMessageCountRef = useRef<number | null>(null);
 
     // Track the "active" child for each node to restore history correctly when navigating back
     const [activePathMap, setActivePathMap] = useState<Record<string, string>>({});
@@ -115,7 +120,15 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
         },
     }) as any;
 
-    const { messages, setMessages, sendMessage } = chatHelpers;
+    const { messages, setMessages: originalSetMessages, sendMessage } = chatHelpers;
+
+    // Wrap setMessages to track when messages are loaded externally vs user-modified
+    // This prevents saving (and updating timestamp) when simply viewing a conversation
+    const setMessages = useCallback((msgs: any) => {
+        // Store the count of externally loaded messages
+        loadedMessageCountRef.current = Array.isArray(msgs) ? msgs.length : 0;
+        originalSetMessages(msgs);
+    }, [originalSetMessages]);
 
     // 🚀 Dynamic model selection wrapper
     // useChat memoizes `body` at init, so we pass modelId per-request via sendMessage options
@@ -245,6 +258,12 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
         // Only save if we have a conversation ID and user ID and messages
         if (!conversationId || !userId || messages.length === 0) return;
 
+        // Skip save if messages count matches what was loaded (no new messages added)
+        // This prevents updating timestamp when simply viewing a conversation
+        if (loadedMessageCountRef.current !== null && messages.length <= loadedMessageCountRef.current) {
+            return;
+        }
+
         // Skip save during active streaming - only save when streaming completes
         // This prevents constant saves during token-by-token updates
         const currentStatus = chatHelpers.status;
@@ -299,7 +318,7 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
         // Add a small debounce to batch rapid state changes
         const debounceTimer = setTimeout(saveConversation, 500);
         return () => clearTimeout(debounceTimer);
-    }, [messages.length, chatHelpers.status, tree, conversationId, userId, options.isWidget, options.modelId]);
+    }, [messages, chatHelpers.status, tree, conversationId, userId, options.isWidget, options.modelId]);
 
     // 3.7. Auto-generate AI title after 6 messages (3 exchanges)
     useEffect(() => {
@@ -358,7 +377,7 @@ export function useBranchingChat(options: UseBranchingChatOptions = {}) {
         // Debounce to ensure streaming is complete
         const timer = setTimeout(generateTitle, 3000);
         return () => clearTimeout(timer);
-    }, [messages.length, conversationId, userId, options.isWidget]);
+    }, [messages, tree, conversationId, userId, options.isWidget]);
 
 
     // 4. Branching Logic

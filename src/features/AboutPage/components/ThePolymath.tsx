@@ -83,7 +83,7 @@ const ThePolymath = () => {
             setActiveProjectIndex(0);
         }
         return () => clearInterval(interval);
-    }, [isEngineerActive]);
+    }, [isEngineerActive, ENGINEER_PROJECTS.length]);
 
     useEffect(() => {
         let interval: NodeJS.Timeout;
@@ -95,7 +95,7 @@ const ThePolymath = () => {
             setActiveMusicianIndex(0);
         }
         return () => clearInterval(interval);
-    }, [isMusicianActive]);
+    }, [isMusicianActive, MUSICIAN_IMAGES.length]);
 
     // Animation variants for grid items
     const containerVariants = {
@@ -339,7 +339,7 @@ const ThePolymath = () => {
                                     <div className="max-w-md">
                                         <h3 className="text-2xl font-bold text-white mb-2">Filmmaker-Turned-Dev</h3>
                                         <p className="text-gray-400 text-sm mb-4">
-                                            Graduated Computer Science (Aug 2024). Now building the "Creative OS"—an AI-powered ecosystem to bridge the gap between art and logic.
+                                            Graduated Computer Science (Aug 2024). Now building the &quot;Creative OS&quot;—an AI-powered ecosystem to bridge the gap between art and logic.
                                         </p>
                                         <div className="flex gap-2">
                                             <span className="px-2 py-1 bg-white/5 rounded text-xs text-gray-300 border border-white/10">Next.js 15</span>

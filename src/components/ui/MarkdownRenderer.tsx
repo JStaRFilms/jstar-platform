@@ -1,4 +1,5 @@
 import ReactMarkdown from 'react-markdown';
+import Image from 'next/image';
 import remarkMath from 'remark-math';
 import remarkGfm from 'remark-gfm';
 import rehypeKatex from 'rehype-katex';
@@ -27,7 +28,8 @@ export function MarkdownRenderer({ content, className, variant = 'default' }: Ma
           // ============================================
           // CODE - Inline vs Block detection
           // ============================================
-          code({ node, className, children, ...props }: any) {
+          code({ className, children, ...props }) {
+            delete props.node;
             const match = /language-(\w+)/.exec(className || '');
             const content = String(children).replace(/\n$/, '');
 
@@ -214,14 +216,18 @@ export function MarkdownRenderer({ content, className, variant = 'default' }: Ma
           // ============================================
           // IMAGES
           // ============================================
-          img: ({ src, alt }) => (
-            <img
+          img: ({ src, alt }) => typeof src === 'string' ? (
+            <Image
               src={src}
               alt={alt || ''}
+              width={0}
+              height={0}
+              unoptimized
+              style={{ width: 'auto', height: 'auto' }}
               className="max-w-full h-auto rounded-lg my-4 border border-border/30"
               loading="lazy"
             />
-          ),
+          ) : null,
 
           // ============================================
           // EMPHASIS

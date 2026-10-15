@@ -126,6 +126,9 @@ npm install
 ```
 
 3. **Set up the database**
+
+Prisma CLI settings and the seed command live in `prisma.config.ts`, which loads `.env`. Database URLs remain in `prisma/schema.prisma`.
+
 ```bash
 # Generate Prisma client
 npx prisma generate

@@ -43,7 +43,7 @@ This custom hook encapsulates all the logic for smart navigation, including long
 ```
 
 #### Logic
-- **Context Awareness:** Detects if user is on homepage (`pathname === '/'`)
+- **Context Awareness:** Detects the previous homepage at `pathname === '/redesign'` after the approved route swap. The new `/` owns its Work/Studio/enquiry navigation. See `HomepageRouteSwap.md`.
 - **Long-Press Detection:** 1-second timer for distinguishing short vs long press
 - **Smart Behavior:** Short press scrolls to section on homepage, long press navigates to page
 - **Tooltip Management:** Provides visual feedback during long-press actions

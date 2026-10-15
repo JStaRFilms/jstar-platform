@@ -1,5 +1,4 @@
 import { withAuth, getSignInUrl, getSignUpUrl } from '@workos-inc/authkit-nextjs';
-import { redirect } from 'next/navigation';
 import { JohnGPTPage } from '@/features/john-gpt/components/JohnGPTPage';
 import { prisma } from '@/lib/prisma';
 

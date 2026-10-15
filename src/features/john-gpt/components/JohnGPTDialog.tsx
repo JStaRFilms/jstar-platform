@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import {
   Dialog,
@@ -9,8 +9,7 @@ import { useBranchingChat } from '../hooks/useBranchingChat';
 import { useWidgetPersistence } from '../hooks/useWidgetPersistence';
 import { dbSyncManager } from '@/lib/storage/db-sync-manager';
 
-import { AnimatedCloseIcon } from '@/components/icons/animated-icons';
-import { MessageCircle, AlertCircle, Sparkles, Send, Paperclip, X, Maximize2, Minimize2, ChevronUp, ExternalLink, Trash2 } from 'lucide-react';
+import { AlertCircle, Sparkles, Send, Paperclip, X, Maximize2, Minimize2, ChevronUp, ExternalLink, Trash2 } from 'lucide-react';
 import { ChatMessages } from './ChatMessages';
 import { EmptyState } from './EmptyState';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
@@ -53,12 +52,16 @@ function JohnGPTDialogContent({ open, onOpenChange, user, followMeConversationId
   // Determine if we're in follow-me mode
   const isFollowMeMode = !!followMeConversationId;
 
-  // Auto-minimize when route changes
+  // Only route changes should minimize the widget, not opening or expanding it.
+  const lastRoute = useRef<string | null>(null);
   useEffect(() => {
+    const route = `${pathname}?${searchParams}`;
+    if (lastRoute.current === route) return;
+    lastRoute.current = route;
     if (!state.isChatMinimized && open) {
       minimizeChat();
     }
-  }, [pathname, searchParams, minimizeChat]);
+  }, [pathname, searchParams, minimizeChat, open, state.isChatMinimized]);
 
   // Widget persistence - generates stable session IDs, loads previous session
   const {
@@ -82,7 +85,7 @@ function JohnGPTDialogContent({ open, onOpenChange, user, followMeConversationId
     isWidget: !isFollowMeMode, // In follow-me mode, act like full page
     scrollToSection, // Enable section scrolling from goTo tool
   });
-  const { messages, sendMessage, sendMessageWithModel, status, stop, error: chatError, addToolResult, editMessage, navigateBranch, setMessages } = chatHelpers;
+  const { messages, sendMessageWithModel, status, stop, error: chatError, editMessage, navigateBranch, setMessages } = chatHelpers;
 
   // Load initial messages from IndexedDB when persistence is ready
   // In follow-me mode, load from the active conversation instead

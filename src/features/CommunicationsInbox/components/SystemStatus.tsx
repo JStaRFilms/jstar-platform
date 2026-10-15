@@ -33,7 +33,6 @@ interface SystemStatusProps {
 export const SystemStatus: React.FC<SystemStatusProps> = ({
   className = '',
   systemStatus,
-  systemMetrics,
   isLoading = false,
   lastUpdated,
   onRefresh,
@@ -41,7 +40,6 @@ export const SystemStatus: React.FC<SystemStatusProps> = ({
   statusColor = 'status-active'
 }) => {
   // Use enhanced data if available, otherwise fall back to basic props
-  const contactFormActive = systemStatus?.contactFormActive ?? true;
   const autoResponderActive = systemStatus?.autoResponderActive ?? true;
   const lastSubmissionTime = systemStatus?.lastSubmissionTime ?? '15 min ago';
   const precisionLevel = systemStatus?.precisionLevel ?? 85.714;

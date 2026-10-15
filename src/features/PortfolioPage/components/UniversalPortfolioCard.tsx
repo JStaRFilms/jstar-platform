@@ -3,7 +3,6 @@
 import React from 'react';
 import Image from 'next/image';
 import { PortfolioItem, PortfolioPlatform } from '@prisma/client';
-import { TikTokEmbed } from '@/components/embeds/TikTokEmbed';
 // Note: We'll import InstagramEmbed and other specific components dynamically or here if used in detail
 // For grid view, we typically want a lightweight preview (thumbnails) rather than heavy iframes
 // But if the card expands or is meant to show the content directly, we can use the embeds.
@@ -38,9 +37,6 @@ const PlatformBadge = ({ platform }: { platform: PortfolioPlatform }) => {
 };
 
 export const UniversalPortfolioCard = ({ item, onClick, className }: UniversalPortfolioCardProps) => {
-    // If we have an override thumbnail, use it. Otherwise use generic placeholders if missing.
-    const thumbnail = item.thumbnailUrl || '/placeholder-portfolio.jpg';
-
     return (
         <div
             className={`group relative overflow-hidden rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 h-full flex flex-col cursor-pointer transition-transform hover:-translate-y-1 hover:shadow-xl ${className}`}

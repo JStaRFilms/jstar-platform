@@ -130,7 +130,7 @@ export const useScrollAnimationMulti = <T extends HTMLElement = HTMLElement>({
                         if (elementIndex !== -1) {
                             if (onlyOneActive) {
                                 // If onlyOneActive is true, set this element to true and all others to false
-                                setVisibilityStates((prev) => {
+                                setVisibilityStates(() => {
                                     // If this element is already active and we are the only one, do nothing
                                     // But checking that is complex, simpler to just set state
                                     const newStates = Array(count).fill(false);

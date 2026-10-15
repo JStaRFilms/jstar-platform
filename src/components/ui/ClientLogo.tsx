@@ -42,14 +42,6 @@ const ClientLogo = ({ client, className = "" }: ClientLogoProps) => {
   const customStyle = client.textLogoStyle || {};
   const combinedStyle = { ...defaultStyle, ...customStyle };
 
-  // Handle custom font families that aren't standard Tailwind classes
-  const getFontFamilyClass = (fontFamily: string) => {
-    if (fontFamily === 'font-cursive' || fontFamily.includes('Momo')) {
-      return 'font-cursive';
-    }
-    return fontFamily;
-  };
-
   return (
     <div className={`flex items-center justify-center h-20 w-50 bg-gray-100 dark:bg-gray-800 rounded-lg ${className}`}>
       <div

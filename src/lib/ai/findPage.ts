@@ -18,10 +18,8 @@ export interface PageMatch {
  */
 export async function findPage(
     query: string,
-    // userTier is kept in signature for potential future filtering or logging, 
-    // but currently we return all matches so the AI can handle auth explanations
-    userTier: UserTier = 'GUEST',
-    limit: number = 3
+    // The tier argument remains accepted; matches are not filtered by tier.
+    ...[, limit = 3]: [userTier?: UserTier, limit?: number]
 ): Promise<PageMatch[]> {
     try {
         // Generate embedding for the query

@@ -1,0 +1,1249 @@
+'use client';
+
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
+import Image from 'next/image';
+import { Volume2, VolumeX } from 'lucide-react';
+import styles from './hero.module.css';
+import StudyGame from './StudyGame';
+import PortfolioViewer from './PortfolioViewer';
+import TeamSection, { type TeamHandle } from './TeamSection';
+import ClosingSequence, { type ClosingHandle } from './ClosingSequence';
+import SelectedWorkGallery, { mobilePreviewLayout, panelPose, panelWindow, type GalleryFrame, type GalleryHandle } from './SelectedWorkGallery';
+import { selectedWork, type GalleryFilter, type GalleryMode, type GalleryProject } from '@/content/selected-work';
+
+interface GalleryState {
+  filter: GalleryFilter;
+  committedId: string | null;
+  pointerId: string | null;
+  focusId: string | null;
+  mode: GalleryMode;
+}
+interface MotionControls {
+  align: (index: number, collectionChanged?: boolean) => void;
+  jumpToGallery: () => void;
+  jumpToOpening: () => void;
+  refresh: () => void;
+  suspend: () => void;
+}
+
+const FILM = '/redesign/nifemi.mp4';
+const POSTER = '/redesign/nifemi-poster.jpg';
+const TABLET_SCENE = '/redesign/tablet-scene-v1.webp';
+const TABLET_MASK = '/redesign/tablet-screen-mask.svg';
+const PROJECT_STRIDE = .5;
+const OPENING_LINE = 'J StaR Films';
+const STUDIOS_LINE = 'Studios';
+const OPENING_COPY = 'Films, websites and software. One creative team.';
+const SCRAMBLE_COLORS = ['#b33d48', '#206fa1'];
+type HoverFragment = { node: HTMLSpanElement; x: number; y: number; offsetX: number; offsetY: number };
+const clamp = (value: number) => Math.min(1, Math.max(0, value));
+const ease = (t: number) => t * t * t * (t * (t * 6 - 15) + 10);
+
+export default function Hero({ projects = selectedWork }: { projects?: readonly GalleryProject[] }) {
+  const root = useRef<HTMLDivElement>(null);
+  const header = useRef<HTMLElement>(null);
+  const track = useRef<HTMLElement>(null);
+  const scrollMeter = useRef<HTMLSpanElement>(null);
+  const stage = useRef<HTMLDivElement>(null);
+  const sceneImage = useRef<HTMLImageElement>(null);
+  const firstLine = useRef<HTMLSpanElement>(null);
+  const secondLine = useRef<HTMLSpanElement>(null);
+  const mobileFirst = useRef<HTMLSpanElement>(null);
+  const mobileFilms = useRef<HTMLSpanElement>(null);
+  const mobileStudios = useRef<HTMLSpanElement>(null);
+  const mobileCopy = useRef<HTMLSpanElement>(null);
+  const description = useRef<HTMLSpanElement>(null);
+  const firstScrambleLayer = useRef<HTMLSpanElement>(null);
+  const secondScrambleLayer = useRef<HTMLSpanElement>(null);
+  const attractLayer = useRef<HTMLSpanElement>(null);
+  const attractFragments = useRef<HoverFragment[]>([]);
+  const hoverFrame = useRef<number | null>(null);
+  const scrambleFrames = useRef<{ first: number | null; second: number | null }>({ first: null, second: null });
+  const projectRiseRunning = useRef(false);
+  const workHandoffRunning = useRef(false);
+  const studioHandoffRunning = useRef(false);
+  const video = useRef<HTMLVideoElement>(null);
+  const soundButton = useRef<HTMLButtonElement>(null);
+  const soundTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const wantsOpeningFocus = useRef(false);
+  const wantsPlayback = useRef(true);
+  const wantsScreeningFocus = useRef(false);
+  const inView = useRef(false);
+  const filmConcealed = useRef(false);
+  const gameFrame = useRef<HTMLDivElement>(null);
+  const gameCanvas = useRef<HTMLDivElement>(null);
+  const gallery = useRef<GalleryHandle>(null);
+  const end = useRef<TeamHandle>(null);
+  const closing = useRef<ClosingHandle>(null);
+  const [teamCovered, setTeamCovered] = useState(false);
+  const [sample, setSample] = useState(false);
+  const [viewerDetail, setViewerDetail] = useState(false);
+  const invokingAction = useRef<HTMLElement | null>(null);
+  const savedGameScroll = useRef(0);
+  const motionControls = useRef<MotionControls | null>(null);
+  const initialGallery: GalleryState = { filter: 'all', committedId: projects[0]?.id ?? null, pointerId: null, focusId: null, mode: 'browse' };
+  const [galleryState, setGalleryState] = useState(initialGallery);
+  const galleryLive = useRef(galleryState);
+  const [galleryVisible, setGalleryVisible] = useState(false);
+  const [playReady, setPlayReady] = useState(false);
+  const [staticGalleryInView, setStaticGalleryInView] = useState(false);
+  const filteredProjects = useMemo(() => projects.filter(project => galleryState.filter === 'all' || project.kind === galleryState.filter), [projects, galleryState.filter]);
+  const filterCounts = useMemo(() => ({ all: projects.length, software: projects.filter(project => project.kind === 'software').length, film: projects.filter(project => project.kind === 'film').length }), [projects]);
+  const collection = useRef<readonly GalleryProject[]>(filteredProjects);
+  const updateGallery = useCallback((patch: Partial<GalleryState>) => {
+    const previous = galleryLive.current;
+    const next = { ...previous, ...patch };
+    if (previous.filter === next.filter && previous.committedId === next.committedId && previous.pointerId === next.pointerId && previous.focusId === next.focusId && previous.mode === next.mode) return;
+    galleryLive.current = next;
+    setGalleryState(next);
+  }, []);
+  const clearPreviews = useCallback(() => {
+    gallery.current?.disarm();
+    updateGallery({ pointerId: null, focusId: null });
+  }, [updateGallery]);
+  const closeGalleryMode = useCallback(() => {
+    if (galleryLive.current.mode === 'viewer' && sample) savedGameScroll.current = gameCanvas.current?.scrollTop ?? savedGameScroll.current;
+    setPlayReady(false);
+    updateGallery({ mode: 'browse', pointerId: null, focusId: null });
+  }, [sample, updateGallery]);
+  const [gameExpanded, setGameExpanded] = useState(false);
+  const [gameInteractive, setGameInteractive] = useState(false);
+  const [filmAvailable, setFilmAvailable] = useState(true);
+  const [playing, setPlaying] = useState(false);
+  const [muted, setMuted] = useState(true);
+  const [reduced, setReduced] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const [tabletExpanded, setTabletExpanded] = useState(false);
+  const [tabletReady, setTabletReady] = useState(false);
+  const [controlsAvailable, setControlsAvailable] = useState(false);
+  const [navFolded, setNavFolded] = useState(false);
+  const [soundAwake, setSoundAwake] = useState(false);
+  const [soundHint, setSoundHint] = useState(false);
+  const [message, setMessage] = useState('');
+  const controlsVisible = filmAvailable && (controlsAvailable || (reduced && expanded));
+  const navHidden = navFolded || (reduced && expanded);
+
+  useLayoutEffect(() => {
+    let disposed = false;
+    const fit = () => {
+      for (const row of [firstLine.current, secondLine.current]) {
+        if (!row) continue;
+        const available = stage.current ? stage.current.clientWidth * .908 : 0;
+        row.style.setProperty('--opening-width-scale', String(window.innerWidth > 800 && row.offsetWidth > 0 ? available / row.offsetWidth : 1));
+      }
+    };
+    fit();
+    void document.fonts.load('italic 800 40px "Bodoni Moda"').then(() => {
+      if (disposed) return;
+      fit();
+      root.current?.setAttribute('data-font-ready', 'true');
+    });
+    window.addEventListener('resize', fit);
+    return () => { disposed = true; window.removeEventListener('resize', fit); };
+  }, []);
+
+  function resetAttract() {
+    if (hoverFrame.current !== null) cancelAnimationFrame(hoverFrame.current);
+    hoverFrame.current = null;
+    description.current?.removeAttribute('data-hover-type');
+    attractLayer.current?.replaceChildren();
+    attractFragments.current = [];
+  }
+
+  function prepareAttract() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const row = description.current;
+    const layer = attractLayer.current;
+    const text = row?.firstChild;
+    if (!row || !layer || !text || text.nodeType !== Node.TEXT_NODE) return;
+    const bounds = row.getBoundingClientRect();
+    const range = document.createRange();
+    const fragments: HoverFragment[] = [];
+    for (const match of (text.textContent ?? '').matchAll(/\S+/g)) {
+      const start = match.index;
+      range.setStart(text, start);
+      range.setEnd(text, start + match[0].length);
+      const box = range.getBoundingClientRect();
+      const node = document.createElement('span');
+      node.className = styles.attractWord;
+      node.textContent = match[0];
+      node.style.left = `${box.left - bounds.left}px`;
+      node.style.top = `${box.top - bounds.top}px`;
+      layer.appendChild(node);
+      fragments.push({ node, x: box.left - bounds.left + box.width / 2, y: box.top - bounds.top + box.height / 2, offsetX: 0, offsetY: 0 });
+    }
+    attractFragments.current = fragments;
+    row.dataset.hoverType = 'true';
+  }
+
+  function moveAttract(clientX: number, clientY: number) {
+    const row = description.current;
+    if (!row?.hasAttribute('data-hover-type')) return;
+    const bounds = row.getBoundingClientRect();
+    const x = clientX - bounds.left, y = clientY - bounds.top;
+    if (hoverFrame.current !== null) cancelAnimationFrame(hoverFrame.current);
+    hoverFrame.current = requestAnimationFrame(() => {
+      for (const fragment of attractFragments.current) {
+        const dx = fragment.x - x, dy = fragment.y - y;
+        const distance = Math.hypot(dx, dy);
+        if (distance < 135) {
+          const strength = (1 - distance / 135) ** 2 * 22;
+          fragment.offsetX = -dx / (distance || 1) * strength;
+          fragment.offsetY = -dy / (distance || 1) * strength;
+        } else fragment.offsetX = fragment.offsetY = 0;
+        fragment.node.style.transform = `translate(${fragment.offsetX}px, ${fragment.offsetY}px)`;
+        fragment.node.style.textDecoration = distance < 88 ? 'underline 3px #b5e619' : 'none';
+      }
+      hoverFrame.current = null;
+    });
+  }
+
+  function stopScramble(line: 'first' | 'second') {
+    const frame = scrambleFrames.current[line];
+    if (frame !== null) cancelAnimationFrame(frame);
+    scrambleFrames.current[line] = null;
+    const row = line === 'first' ? firstLine.current : secondLine.current;
+    const layer = line === 'first' ? firstScrambleLayer.current : secondScrambleLayer.current;
+    row?.removeAttribute('data-scrambling');
+    layer?.replaceChildren();
+  }
+
+  function scrambleLine(line: 'first' | 'second', pointerType: string) {
+    if (pointerType === 'touch' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    stopScramble(line);
+    const row = line === 'first' ? firstLine.current : secondLine.current;
+    const layer = line === 'first' ? firstScrambleLayer.current : secondScrambleLayer.current;
+    const source = line === 'first' ? OPENING_LINE : STUDIOS_LINE;
+    const text = row?.firstChild;
+    if (!row || !layer || !text || text.nodeType !== Node.TEXT_NODE) return;
+    const range = document.createRange();
+    const bounds = row.getBoundingClientRect();
+    const scaleX = bounds.width / row.offsetWidth;
+    const glyphs: { node: HTMLSpanElement; letter: string; index: number; width: number }[] = [];
+    for (let index = 0; index < source.length; index++) {
+      if (source[index] === ' ') continue;
+      range.setStart(text, index);
+      range.setEnd(text, index + 1);
+      const original = range.getBoundingClientRect();
+      const node = document.createElement('span');
+      node.className = styles.scrambleGlyph;
+      node.textContent = source[index];
+      layer.appendChild(node);
+      range.selectNodeContents(node);
+      const rendered = range.getBoundingClientRect();
+      node.style.left = `${(original.left - rendered.left) / scaleX}px`;
+      node.style.top = `${original.top - rendered.top}px`;
+      glyphs.push({ node, letter: source[index], index, width: node.offsetWidth });
+    }
+    row.dataset.scrambling = 'true';
+    const start = performance.now();
+    const duration = line === 'first' ? 1000 : 500;
+    const cadence = line === 'first' ? 70 : 45;
+    const pool = line === 'first' ? 'JSTARFILMS' : 'STUDIOS';
+    let lastStep = -1;
+    const paint = (now: number) => {
+      const elapsed = now - start;
+      const progress = Math.min(1, elapsed / duration);
+      const step = Math.floor(elapsed / cadence);
+      if (step !== lastStep || progress === 1) {
+        const settled = Math.floor(progress * source.length);
+        for (const glyph of glyphs) {
+          const changing = glyph.index >= settled;
+          glyph.node.textContent = changing ? pool[Math.floor(Math.random() * pool.length)] : glyph.letter;
+          glyph.node.style.transform = `scaleX(${Math.min(1, glyph.width / (glyph.node.offsetWidth || 1))})`;
+          glyph.node.style.color = changing && Math.random() < .3
+            ? SCRAMBLE_COLORS[Math.floor(Math.random() * SCRAMBLE_COLORS.length)] : 'var(--ink)';
+        }
+        lastStep = step;
+      }
+      if (progress < 1) scrambleFrames.current[line] = requestAnimationFrame(paint);
+      else stopScramble(line);
+    };
+    scrambleFrames.current[line] = requestAnimationFrame(paint);
+  }
+
+  useEffect(() => {
+    const rows = [mobileFirst.current, mobileFilms.current, mobileStudios.current];
+    const words = mobileCopy.current?.querySelectorAll<HTMLElement>(':scope > span');
+    const section = track.current;
+    if (!section || rows.some(row => !row) || !words) return;
+    const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let timer: number | null = null;
+    let frame = 0;
+    let armed = false;
+    const clear = () => {
+      if (timer !== null) window.clearTimeout(timer);
+      timer = null;
+      cancelAnimationFrame(frame);
+      frame = 0;
+      rows.forEach(row => {
+        row?.removeAttribute('data-scrambling');
+        row?.querySelector(`.${styles.scrambleLayer}`)?.replaceChildren();
+      });
+      words.forEach(word => { word.style.removeProperty('transform'); });
+    };
+    const settled = () => window.innerWidth <= 800 && !motion.matches && !document.hidden
+      && Math.abs(section.getBoundingClientRect().top) < 2;
+    const schedule = () => {
+      if (!settled()) { if (armed) clear(); armed = false; return; }
+      if (armed) return;
+      armed = true;
+      timer = window.setTimeout(cycle, 4000);
+    };
+    const cycle = () => {
+      timer = null;
+      if (!settled()) { clear(); armed = false; return; }
+      const lines = rows.map(row => {
+        const text = row?.firstChild;
+        const layer = row?.querySelector<HTMLElement>(`.${styles.scrambleLayer}`);
+        const source = text?.textContent ?? '';
+        const glyphs: { node: HTMLSpanElement; letter: string; index: number; width: number }[] = [];
+        if (row && layer && text?.nodeType === Node.TEXT_NODE) {
+          const range = document.createRange();
+          for (let index = 0; index < source.length; index++) {
+            if (source[index] === ' ') continue;
+            range.setStart(text, index);
+            range.setEnd(text, index + 1);
+            const original = range.getBoundingClientRect();
+            const node = document.createElement('span');
+            node.className = styles.scrambleGlyph;
+            node.textContent = source[index];
+            layer.appendChild(node);
+            range.selectNodeContents(node);
+            const rendered = range.getBoundingClientRect();
+            node.style.left = `${original.left - rendered.left}px`;
+            node.style.top = `${original.top - rendered.top}px`;
+            glyphs.push({ node, letter: source[index], index, width: node.offsetWidth });
+          }
+        }
+        return { row, source, glyphs };
+      });
+      const start = performance.now();
+      let lastStep = -1;
+      const paint = (now: number) => {
+        if (!settled()) { clear(); armed = false; return; }
+        const elapsed = now - start;
+        const step = Math.floor(elapsed / 60);
+        if (step !== lastStep) {
+          lines.forEach(({ row, source, glyphs }, line) => {
+            const local = elapsed - line * 220;
+            if (local < 0 || local >= 360) {
+              row?.removeAttribute('data-scrambling');
+              return;
+            }
+            row?.setAttribute('data-scrambling', 'true');
+            const settledLetters = Math.floor(local / 360 * source.length);
+            for (const glyph of glyphs) {
+              const changing = glyph.index >= settledLetters;
+              glyph.node.textContent = changing ? 'JSTARFILMSUDIOS'[Math.floor(Math.random() * 15)] : glyph.letter;
+              glyph.node.style.transform = `scaleX(${Math.min(1, glyph.width / (glyph.node.offsetWidth || 1))})`;
+              glyph.node.style.color = changing && Math.random() < .3
+                ? SCRAMBLE_COLORS[Math.floor(Math.random() * SCRAMBLE_COLORS.length)] : 'var(--ink)';
+            }
+          });
+          lastStep = step;
+        }
+        words.forEach((word, index) => {
+          const phase = clamp((elapsed - 860 - index * 170) / 430);
+          word.style.transform = `translateY(${-4 * Math.sin(Math.PI * phase)}px)`;
+        });
+        if (elapsed < 1720) frame = requestAnimationFrame(paint);
+        else { clear(); timer = window.setTimeout(cycle, 2280); }
+      };
+      frame = requestAnimationFrame(paint);
+    };
+    schedule();
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    document.addEventListener('visibilitychange', schedule);
+    motion.addEventListener('change', schedule);
+    return () => {
+      clear();
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+      document.removeEventListener('visibilitychange', schedule);
+      motion.removeEventListener('change', schedule);
+    };
+  }, []);
+
+  useEffect(() => {
+    const reset = () => { stopScramble('first'); stopScramble('second'); resetAttract(); };
+    window.addEventListener('scroll', reset, { passive: true });
+    window.addEventListener('resize', reset);
+    return () => {
+      window.removeEventListener('scroll', reset);
+      window.removeEventListener('resize', reset);
+      reset();
+    };
+  }, []);
+
+  const wakeSound = useCallback((delay = 1600) => {
+    if (!controlsVisible) return;
+    setSoundAwake(true);
+    if (soundTimer.current) clearTimeout(soundTimer.current);
+    soundTimer.current = setTimeout(() => {
+      setSoundAwake(false);
+      setSoundHint(false);
+    }, delay);
+  }, [controlsVisible]);
+
+  useEffect(() => {
+    if (controlsVisible) {
+      setSoundHint(true);
+      wakeSound(3000);
+      if (wantsScreeningFocus.current) {
+        wantsScreeningFocus.current = false;
+        soundButton.current?.focus({ preventScroll: true });
+      }
+    } else {
+      setSoundAwake(false);
+      setSoundHint(false);
+    }
+    return () => { if (soundTimer.current) clearTimeout(soundTimer.current); };
+  }, [controlsVisible, wakeSound]);
+
+  useEffect(() => {
+    if (!navHidden && wantsOpeningFocus.current) {
+      wantsOpeningFocus.current = false;
+      root.current?.querySelector<HTMLAnchorElement>('header a')?.focus({ preventScroll: true });
+    }
+  }, [navHidden]);
+
+  useLayoutEffect(() => {
+    collection.current = filteredProjects;
+    const current = galleryLive.current.committedId;
+    if (!filteredProjects.some(project => project.id === current)) updateGallery({ committedId: filteredProjects[0]?.id ?? null });
+    motionControls.current?.refresh();
+  }, [filteredProjects, updateGallery]);
+
+  useLayoutEffect(() => {
+    if (galleryState.mode === 'browse') return;
+    const shell = gameFrame.current;
+    if (!shell) return;
+    motionControls.current?.suspend();
+    video.current?.pause();
+    const canvas = gameCanvas.current;
+    const catalogHandle = gallery.current;
+    const scrollY = window.scrollY;
+    const overflow = document.body.style.overflow;
+    const htmlOverflow = document.documentElement.style.overflow;
+    const htmlGutter = document.documentElement.style.scrollbarGutter;
+    const padding = document.body.style.paddingRight;
+    const scrollbar = window.innerWidth - document.documentElement.clientWidth;
+    document.documentElement.style.overflow = 'hidden';
+    document.documentElement.style.scrollbarGutter = 'auto';
+    document.body.style.overflow = 'hidden';
+    if (scrollbar) document.body.style.paddingRight = `${scrollbar}px`;
+    const siblings: { element: HTMLElement; inert: boolean }[] = [];
+    let branch: HTMLElement = shell;
+    while (branch.parentElement) {
+      for (const sibling of branch.parentElement.children) {
+        if (sibling !== branch && sibling instanceof HTMLElement && !sibling.hasAttribute('data-gallery')) {
+          siblings.push({ element: sibling, inert: sibling.inert });
+          sibling.inert = true;
+        }
+      }
+      if (branch.parentElement === document.body) break;
+      branch = branch.parentElement;
+    }
+    if (typeof shell.showPopover === 'function') shell.showPopover();
+    shell.inert = false;
+    setPlayReady(true);
+    shell.querySelector<HTMLButtonElement>('[data-back-to-browsing]')?.focus({ preventScroll: true });
+    const trap = (event: KeyboardEvent) => {
+      if (event.key !== 'Tab') return;
+      const focusable = Array.from(shell.querySelectorAll<HTMLElement>('button:not(:disabled), a[href], input:not(:disabled), summary, iframe, [tabindex="0"]')).filter(item => !item.closest('[inert]') && item.getClientRects().length > 0 && getComputedStyle(item).visibility !== 'hidden');
+      const first = focusable[0], last = focusable[focusable.length - 1];
+      if (!first || !last) { event.preventDefault(); return; }
+      if (event.shiftKey && (document.activeElement === first || !shell.contains(document.activeElement))) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && (document.activeElement === last || !shell.contains(document.activeElement))) { event.preventDefault(); first.focus(); }
+    };
+    document.addEventListener('keydown', trap, true);
+    return () => {
+      document.removeEventListener('keydown', trap, true);
+      const active = document.fullscreenElement;
+      if (active && shell.contains(active)) void document.exitFullscreen().catch(() => {});
+      if (typeof shell.hidePopover === 'function' && shell.matches(':popover-open')) shell.hidePopover();
+      document.body.style.overflow = overflow;
+      document.documentElement.style.overflow = htmlOverflow;
+      document.documentElement.style.scrollbarGutter = htmlGutter;
+      document.body.style.paddingRight = padding;
+      siblings.forEach(item => { item.element.inert = item.inert; });
+      window.scrollTo({ top: scrollY, behavior: 'instant' });
+      if (canvas) canvas.scrollTop = savedGameScroll.current;
+      // Reconcile viewer navigation with the current filtered scroll anchor before resuming.
+      const index = collection.current.findIndex(project => project.id === galleryLive.current.committedId);
+      motionControls.current?.align(Math.max(0, index), true);
+      motionControls.current?.refresh();
+      if (invokingAction.current?.isConnected && invokingAction.current.dataset.projectOpenId === galleryLive.current.committedId) invokingAction.current.focus({ preventScroll: true });
+      else catalogHandle?.focusCatalog();
+    };
+  }, [galleryState.mode]);
+
+  useEffect(() => {
+    const element = root.current;
+    const section = track.current;
+    const meter = scrollMeter.current;
+    const film = video.current;
+    const viewport = stage.current;
+    const navigation = header.current;
+    const picture = sceneImage.current;
+    if (!element || !section || !meter || !film || !viewport || !navigation || !picture) return;
+
+    const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let frame = 0;
+    let disposed = false;
+    let progress = 0;
+    let target = 0;
+    let panelPosition = 0;
+    let panelReturning = false;
+    let lastTime = 0;
+    let alignmentDestination: number | null = null;
+    let settleTimer: number | null = null;
+    let pointerHeld = false;
+    let fastTravel = false;
+    let directGallery = false;
+    const nativeScrollEnd = 'onscrollend' in window;
+    const cancelSettle = () => {
+      if (settleTimer !== null) window.clearTimeout(settleTimer);
+      settleTimer = null;
+    };
+    let lastFolded = false;
+    let lastInteractive = false;
+    let sampledFrames = 0;
+    let sampledTime = 0;
+    let width = viewport.clientWidth;
+    let height = viewport.clientHeight;
+    let visibleHeight = height;
+    const scrollDistance = () => width <= 800 && !motion.matches ? height * 1.7 : height * 2.7 - window.innerHeight;
+    let endScale = 0;
+    let endX = 0;
+    let endY = 0;
+    let ready = false;
+    let maskLoaded = false;
+    const mask = new window.Image();
+    const audit = process.env.NODE_ENV === 'development' ? {
+      isScrollUnlocked: false, maxScroll: 0, fpsAverage: 0, frameDrops: 0,
+      webglDrawCalls: 0, shaderErrors: [],
+    } : null;
+    if (audit) Object.defineProperty(window, '__CREATIVE_AUDIT__', { value: audit, configurable: true });
+
+    const resume = () => {
+      if (galleryLive.current.mode !== 'browse') { film.pause(); return; }
+      if (wantsPlayback.current && inView.current && !filmConcealed.current && !document.hidden) {
+        void film.play().catch(() => {
+          if (!disposed) setMessage('Focus the film and press Space to play.');
+        });
+      } else film.pause();
+    };
+    const collectionPosition = (value: number) => Math.max(0, Math.min(Math.max(0, collection.current.length - 1), ((value - 4.3) * scrollDistance() - height * .75) / (height * PROJECT_STRIDE)));
+    const paint = () => {
+      const sectionRect = section.getBoundingClientRect();
+      const arrival = clamp(progress / 0.25);
+      const expansion = clamp((progress - 0.25) / 0.55);
+      const takeover = ease(expansion);
+      const pullback = ready ? ease(clamp(progress - 1)) : 0;
+      element.dataset.tablet = String(pullback > 0);
+      if (pullback > 0) {
+        // A single registered camera transform keeps the opaque scene and its alpha opening aligned.
+        const fullScale = Math.max(width / 188, visibleHeight / 108);
+        const scale = 1 / ((1 - pullback) / fullScale + pullback / endScale);
+        const centreX = width / 2 * (1 - pullback) + (endX + 1122 * endScale) * pullback;
+        const centreY = visibleHeight / 2 * (1 - pullback) + (endY + 280 * endScale) * pullback;
+        const x = centreX - 1122 * scale;
+        const y = centreY - 280 * scale;
+        // Release the viewport crop before the bezel comes into view. Cover never stretches the film.
+        const crop = ease(clamp(pullback / 0.12));
+        viewport.style.setProperty('--scene-x', `${x}px`);
+        viewport.style.setProperty('--scene-y', `${y}px`);
+        viewport.style.setProperty('--scene-scale', String(scale));
+        viewport.style.setProperty('--pullback-left', `${(x + 1028 * scale) * crop}px`);
+        viewport.style.setProperty('--pullback-top', `${(y + 224 * scale) * crop}px`);
+        viewport.style.setProperty('--pullback-width', `${width * (1 - crop) + 188 * scale * crop}px`);
+        viewport.style.setProperty('--pullback-height', `${visibleHeight * (1 - crop) + 110 * scale * crop}px`);
+      }
+      if (!motion.matches) {
+        const headlineFirst = ease(clamp((progress - 1.96) / 0.24));
+        const headlineSecond = ease(clamp((progress - 2.03) / 0.27));
+        const headlineThird = ease(clamp((progress - 2.1) / 0.27));
+        const supportingCopy = ease(clamp((progress - 2.27) / 0.24));
+        const swipe = ease(clamp((progress - 2.65) / 0.45));
+        const reveal = ease(clamp((progress - 3.3) / 0.8));
+        const textExit = ease(clamp((progress - 3.31) / 0.48));
+        const portraitExit = ease(clamp((progress - 3.36) / 0.69));
+        viewport.style.setProperty('--headline-first', String(headlineFirst));
+        viewport.style.setProperty('--headline-second', String(headlineSecond));
+        viewport.style.setProperty('--headline-third', String(headlineThird));
+        viewport.style.setProperty('--supporting-copy', String(supportingCopy));
+        viewport.style.setProperty('--text-exit', String(textExit));
+        viewport.style.setProperty('--swipe', String(swipe));
+        viewport.style.setProperty('--game-reveal', String(reveal));
+        viewport.style.setProperty('--portrait-exit', String(portraitExit));
+        viewport.style.setProperty('--game-mini', String(1 - reveal));
+        const screenLeft = endX + 1028 * endScale;
+        const screenTop = endY + 224 * endScale;
+        const screenWidth = 188 * endScale;
+        const screenHeight = 110 * endScale;
+        if (progress <= 4.3) {
+          const gameWidth = screenWidth * (1 - reveal) + width * reveal;
+          const gameHeight = screenHeight * (1 - reveal) + height * reveal;
+          const layoutWidth = width * (0.62 + 0.38 * reveal);
+          const gameScale = gameWidth / layoutWidth;
+          viewport.style.setProperty('--game-left', `${screenLeft * (1 - reveal)}px`);
+          viewport.style.setProperty('--game-top', `${screenTop * (1 - reveal)}px`);
+          viewport.style.setProperty('--game-width', `${gameWidth}px`);
+          viewport.style.setProperty('--game-height', `${gameHeight}px`);
+          viewport.style.setProperty('--game-scale', String(gameScale));
+          viewport.style.setProperty('--game-layout-width', `${layoutWidth}px`);
+          viewport.style.setProperty('--game-layout-height', `${gameHeight / gameScale}px`);
+        }
+        const concealed = progress >= 3.1;
+        if (concealed !== filmConcealed.current) {
+          filmConcealed.current = concealed;
+          setFilmAvailable(!concealed);
+          if (concealed && document.activeElement === film) film.blur();
+          resume();
+        }
+        // The whole final resting interval is usable; tiny scrolls inside it must not revoke input.
+        const interactive = progress >= 4.1 && target >= 4.1 && progress <= 4.3 && target <= 4.3;
+        if (interactive !== lastInteractive) {
+          lastInteractive = interactive;
+          setGameInteractive(interactive);
+          if (!interactive && document.activeElement instanceof HTMLElement && gameFrame.current?.contains(document.activeElement)) {
+            document.activeElement.blur();
+          }
+        }
+        element.dataset.gameVisible = String(progress > 2.65);
+        element.dataset.gameEmerging = String(reveal > 0);
+        element.dataset.gameInteractive = String(interactive);
+      }
+      const distance = scrollDistance();
+      const count = collection.current.length;
+      const entrance = motion.matches ? 1 : 1 - (1 - clamp((progress - 4.3) * distance / (height * .75))) ** 3;
+      const position = motion.matches ? Math.max(0, collection.current.findIndex(project => project.id === galleryLive.current.committedId)) : collectionPosition(progress);
+      if (motion.matches) panelPosition = Math.max(0, collection.current.findIndex(project => project.id === (galleryLive.current.focusId ?? galleryLive.current.pointerId ?? galleryLive.current.committedId)));
+      else if (progress > 4.3 && galleryLive.current.mode === 'browse') updateGallery({ committedId: collection.current[Math.round(position)]?.id ?? null });
+      const gameIndex = collection.current.findIndex(project => project.presentation.type === 'study-game');
+      const visible = motion.matches || entrance > 0;
+      const mediaVisible = motion.matches ? false : entrance > .98 && sectionRect.top <= 0 && sectionRect.bottom > height * .8;
+      const galleryFrame: GalleryFrame = { entrance, position, panelPosition, settled: progress === target, visible: mediaVisible, width, height, count };
+      if (element.dataset.galleryVisible !== String(visible)) {
+        element.dataset.galleryVisible = String(visible);
+        setGalleryVisible(visible);
+      }
+      gallery.current?.paint(galleryFrame);
+      if (!motion.matches && entrance > 0 && gameFrame.current && galleryLive.current.mode !== 'viewer') {
+        const pose = panelPose(galleryFrame, gameIndex < 0 ? 0 : gameIndex);
+        gameFrame.current.dataset.panelDepth = pose.depth.toFixed(4);
+        const frameWidth = width - 40 * entrance;
+        const frameHeight = width <= 800 ? height * (1 - entrance) + height * mobilePreviewLayout(height).height / .9 * entrance : height - 145 * entrance;
+        viewport.style.setProperty('--game-mini', '0');
+        viewport.style.setProperty('--game-left', `${pose.x}px`);
+        viewport.style.setProperty('--game-top', `${pose.y}px`);
+        viewport.style.setProperty('--game-width', `${frameWidth * pose.scale}px`);
+        viewport.style.setProperty('--game-height', `${frameHeight * pose.scale}px`);
+        viewport.style.setProperty('--game-scale', String(pose.scale));
+        viewport.style.setProperty('--game-layout-width', `${frameWidth}px`);
+        viewport.style.setProperty('--game-layout-height', `${frameHeight}px`);
+        gameFrame.current.style.transform = `rotate(${pose.angle}deg)`;
+        gameFrame.current.style.zIndex = String(pose.z);
+        const neighbourhood = panelWindow(Math.round(panelPosition), count, gameIndex);
+        gameFrame.current.style.visibility = entrance < 1 || neighbourhood.includes(gameIndex) ? 'visible' : 'hidden';
+      } else if (galleryLive.current.mode !== 'viewer') {
+        gameFrame.current?.style.removeProperty('transform');
+        gameFrame.current?.style.removeProperty('z-index');
+        gameFrame.current?.style.removeProperty('visibility');
+      }
+      const fold = ease(clamp((expansion - 0.4) / 0.4));
+      viewport.style.setProperty('--arrival', String(ease(arrival)));
+      viewport.style.setProperty('--intro-shift', String(-6 * Math.sin(Math.PI * arrival) ** 2));
+      viewport.style.setProperty('--progress', String(takeover));
+      navigation.style.setProperty('--nav-fold', String(fold));
+      element.dataset.screening = String(takeover > 0.65);
+      element.dataset.settled = String(Math.abs(progress - target) < 0.0001);
+      const hidden = fold > 0.999;
+      if (hidden !== lastFolded) {
+        lastFolded = hidden;
+        setNavFolded(hidden);
+      }
+    };
+    const tick = (now: number) => {
+      if (galleryLive.current.mode !== 'browse') { frame = 0; lastTime = 0; return; }
+      const delta = lastTime ? now - lastTime : 16;
+      if (audit && lastTime) {
+        sampledFrames++;
+        sampledTime += delta;
+        audit.fpsAverage = Math.round(sampledFrames * 1000 / sampledTime);
+        if (delta > 22) audit.frameDrops++;
+      }
+      lastTime = now;
+      // Time-based follow feels the same at different refresh rates and stops at rest.
+      const previous = progress;
+      const elapsed = Math.min(delta, 64);
+      const galleryMotion = (progress >= 4.1 && target > 4.3) || (progress > 4.3 && target >= 4.1);
+      const quick = galleryMotion || fastTravel;
+      const follow = (target - progress) * (1 - Math.exp(-elapsed / (quick ? 180 : 1000)));
+      progress += Math.sign(follow) * Math.min(Math.abs(follow), elapsed / (quick ? 250 : 900));
+      if (Math.abs(target - progress) < 0.0001) { progress = target; fastTravel = false; }
+      let panelMoving = false;
+      const count = collection.current.length;
+      const previewId = galleryLive.current.focusId ?? galleryLive.current.pointerId;
+      const previewIndex = collection.current.findIndex(project => project.id === previewId);
+      const desiredPanel = previewIndex >= 0 ? previewIndex : collectionPosition(progress);
+      if (count > 1 && (progress - 4.3) * scrollDistance() >= height * .75) {
+        const current = ((panelPosition % count) + count) % count;
+        let difference = desiredPanel - current;
+        if (difference > count / 2) difference -= count;
+        if (difference < -count / 2) difference += count;
+        if (previewIndex >= 0 || panelReturning) {
+          panelMoving = Math.abs(difference) >= .0001;
+          panelPosition += panelMoving ? Math.sign(difference) * Math.min(Math.abs(difference) * (1 - Math.exp(-elapsed / 90)), elapsed / 50) : difference;
+          panelReturning = previewIndex >= 0 || panelMoving;
+        } else panelPosition += difference;
+      } else {
+        panelPosition = 0;
+        panelReturning = false;
+      }
+      const travel = Math.max(
+        Math.abs(ease(clamp(progress / 0.25)) - ease(clamp(previous / 0.25))) * 0.41,
+        Math.abs(ease(clamp((progress - 0.25) / 0.55)) - ease(clamp((previous - 0.25) / 0.55))) * 1.05,
+      );
+      const speed = travel * window.innerWidth / delta;
+      // Only fast travel softens the composition, never a gentle scroll or settled frame.
+      const blur = progress === target ? 0 : clamp((speed - 1.2) / 2) * 2.5;
+      viewport.style.setProperty('--motion-blur', `${blur}px`);
+      paint();
+      frame = progress === target && !panelMoving ? 0 : requestAnimationFrame(tick);
+    };
+    const trackSize = () => {
+      const distance = scrollDistance();
+      const count = collection.current.length;
+      const tail = height * .75 + (count > 1 ? ((count - 1) * PROJECT_STRIDE + .35 + .5) * height : 0);
+      if (!motion.matches) section.style.height = `${height + 4.3 * distance + tail + height * .8}px`;
+      else section.style.removeProperty('height');
+      section.dataset.galleryEntrance = String(motion.matches ? 0 : height * .75);
+      section.dataset.galleryBrowsing = String(motion.matches ? 0 : Math.max(0, count - 1) * height * PROJECT_STRIDE);
+      section.dataset.galleryStride = String(height * PROJECT_STRIDE);
+      section.dataset.galleryRest = String(!motion.matches && count > 1 ? height * .35 : 0);
+      section.dataset.galleryExit = String(!motion.matches && count > 1 ? height * .5 : 0);
+      section.dataset.browseStart = String(window.scrollY + section.getBoundingClientRect().top + 4.3 * distance + height * .75);
+      section.dataset.denominator = String(distance);
+      section.dataset.galleryCount = String(count);
+      return tail;
+    };
+    const measure = () => {
+      if (galleryLive.current.mode !== 'browse') return;
+      if (motion.matches) {
+        const galleryBounds = stage.current?.querySelector<HTMLElement>('[data-gallery]')?.getBoundingClientRect();
+        setStaticGalleryInView(Boolean(galleryBounds && galleryBounds.top < height * .8));
+      }
+      // Keep the original 270svh hero's denominator, independent of the added tablet track.
+      const distance = scrollDistance();
+      const tail = trackSize();
+      target = motion.matches ? 0 : Math.max(0, Math.min(ready || directGallery ? 4.3 + tail / distance : 1, -section.getBoundingClientRect().top / distance));
+      if (Math.abs(target - progress) > .45) fastTravel = true;
+      if (!motion.matches && (target < 4.1 || target > 4.3) && lastInteractive) {
+        lastInteractive = false;
+        setGameInteractive(false);
+        element.dataset.gameInteractive = 'false';
+        if (document.activeElement instanceof HTMLElement && gameFrame.current?.contains(document.activeElement)) document.activeElement.blur();
+      }
+      if (audit) {
+        audit.maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+        audit.isScrollUnlocked = audit.maxScroll > 0;
+      }
+      if (motion.matches) {
+        cancelAnimationFrame(frame);
+        frame = 0;
+        progress = 0;
+        viewport.style.setProperty('--motion-blur', '0px');
+        paint();
+      } else if (!frame) {
+        lastTime = 0;
+        frame = requestAnimationFrame(tick);
+      }
+    };
+    const resize = () => {
+      cancelSettle();
+      const browseStart = Number(section.dataset.browseStart);
+      const browseEnd = browseStart + Math.max(0, collection.current.length - 1) * height * PROJECT_STRIDE;
+      // Native scroll positions round to pixels at the first and last project anchors.
+      const wasBrowsing = !motion.matches && galleryLive.current.mode === 'browse' && height !== (viewport.clientWidth <= 800 ? meter.getBoundingClientRect().height : viewport.clientHeight)
+        && window.scrollY >= browseStart - 1 && window.scrollY <= browseEnd + 1;
+      width = viewport.clientWidth;
+      const viewportHeight = viewport.clientHeight;
+      height = width <= 800 && !motion.matches ? meter.getBoundingClientRect().height : motion.matches ? window.innerHeight : viewportHeight;
+      // Toolbar-only height changes expose a backdrop, not a newly scaled film/tablet composition.
+      visibleHeight = width <= 800 && !motion.matches ? height : viewportHeight;
+      element.style.setProperty('--hero-height', `${visibleHeight}px`);
+      const portraitPhone = width <= 480 && width < visibleHeight;
+      endScale = portraitPhone
+        ? Math.min(width / 1672 * 3.25, visibleHeight / 941 * .86)
+        : Math.min(width / 1672 * 1.22, visibleHeight / 941 * 1.18);
+      endX = portraitPhone ? width * .51 - 1122 * endScale : (width - 1672 * endScale) / 2;
+      endY = portraitPhone ? Math.max(visibleHeight * .39, 250) : Math.max(0, (visibleHeight - 941 * endScale) / 2);
+      if (motion.matches || progress <= 4.3) {
+        viewport.style.setProperty('--game-layout-width', `${width}px`);
+        viewport.style.setProperty('--game-layout-height', `${height}px`);
+      }
+      viewport.style.setProperty('--tablet-left', `${endX + 1028 * endScale}px`);
+      viewport.style.setProperty('--tablet-top', `${endY + 224 * endScale}px`);
+      viewport.style.setProperty('--tablet-width', `${188 * endScale}px`);
+      viewport.style.setProperty('--tablet-height', `${110 * endScale}px`);
+      viewport.style.setProperty('--tablet-scene-x', `${endX}px`);
+      viewport.style.setProperty('--tablet-scene-y', `${endY}px`);
+      viewport.style.setProperty('--tablet-scene-scale', String(endScale));
+      if (wasBrowsing) align(Math.max(0, collection.current.findIndex(project => project.id === galleryLive.current.committedId)));
+      else measure();
+    };
+    const align = (index: number, collectionChanged = false) => {
+      cancelSettle();
+      clearPreviews();
+      trackSize();
+      if (!motion.matches) {
+        const distance = scrollDistance();
+        const top = window.scrollY + section.getBoundingClientRect().top + 4.3 * distance + height * .75 + Math.max(0, index) * height * PROJECT_STRIDE;
+        alignmentDestination = top;
+        window.scrollTo({ top, behavior: 'instant' });
+      }
+      measure();
+      if (!motion.matches && progress >= 4.3) {
+        // Align native scroll without rewinding a preview to the old committed panel.
+        progress = target;
+        panelReturning = !collectionChanged;
+        if (collectionChanged) panelPosition = index;
+        paint();
+      }
+    };
+    const settleGallery = () => {
+      settleTimer = null;
+      const state = galleryLive.current;
+      if (motion.matches || pointerHeld || document.hidden || state.mode !== 'browse' || state.pointerId || state.focusId) return;
+      const count = collection.current.length;
+      if (count < 2) return;
+      const distance = scrollDistance();
+      const browseStart = window.scrollY + section.getBoundingClientRect().top + 4.3 * distance + height * .75;
+      const position = (window.scrollY - browseStart) / (height * PROJECT_STRIDE);
+      // Do not catch the quiz entrance, the last project's resting interval, or the gallery exit.
+      if (position < 0 || position > count - 1) return;
+      const index = Math.round(position);
+      if (Math.abs(position - index) * height * PROJECT_STRIDE < 1) return;
+      updateGallery({ committedId: collection.current[index].id });
+      align(index);
+    };
+    const scheduleSettle = () => {
+      cancelSettle();
+      if (!motion.matches && galleryLive.current.mode === 'browse') settleTimer = window.setTimeout(settleGallery, 180);
+    };
+    const pointerDown = () => { pointerHeld = true; cancelSettle(); };
+    const pointerUp = () => { pointerHeld = false; scheduleSettle(); };
+    const scrollEnd = (event: Event) => {
+      if (event.target === document) scheduleSettle();
+    };
+    const scroll = () => {
+      cancelSettle();
+      if (galleryLive.current.mode !== 'browse') return;
+      if (alignmentDestination !== null && Math.abs(window.scrollY - alignmentDestination) < 1) {
+        alignmentDestination = null;
+        measure();
+        return;
+      }
+      alignmentDestination = null;
+      if (document.activeElement instanceof HTMLElement && document.activeElement.hasAttribute('data-project-id')) gallery.current?.focusCatalog();
+      clearPreviews();
+      measure();
+      if (!nativeScrollEnd) scheduleSettle();
+    };
+    motionControls.current = {
+      align,
+      jumpToGallery() {
+        if (motion.matches) {
+          const galleryElement = stage.current?.querySelector<HTMLElement>('[data-gallery]');
+          if (galleryElement) window.scrollTo({ top: window.scrollY + galleryElement.getBoundingClientRect().top, behavior: 'instant' });
+          return;
+        }
+        directGallery = true;
+        align(0);
+        cancelAnimationFrame(frame);
+        frame = 0;
+        target = 4.3 + height * .75 / scrollDistance();
+        progress = target;
+        panelPosition = 0;
+        fastTravel = false;
+        paint();
+      },
+      jumpToOpening() {
+        cancelAnimationFrame(frame);
+        frame = 0;
+        target = 0;
+        progress = 0;
+        panelPosition = 0;
+        fastTravel = false;
+        paint();
+      },
+      refresh() { measure(); paint(); resume(); },
+      suspend() { cancelSettle(); cancelAnimationFrame(frame); frame = 0; lastTime = 0; },
+    };
+    const assetsLoaded = () => {
+      if (!disposed && maskLoaded && picture.complete && picture.naturalWidth > 0) {
+        ready = true;
+        setTabletReady(true);
+        measure();
+      }
+    };
+    const assetFailed = () => { if (!disposed) setMessage('Tablet scene unavailable. The film remains available.'); };
+    picture.addEventListener('load', assetsLoaded);
+    picture.addEventListener('error', assetFailed);
+    mask.onload = () => { maskLoaded = true; assetsLoaded(); };
+    mask.onerror = assetFailed;
+    mask.src = TABLET_MASK;
+    const changeMotion = () => {
+      cancelSettle();
+      setReduced(motion.matches);
+      setExpanded(false);
+      setTabletExpanded(false);
+      setGameExpanded(false);
+      setGameInteractive(false);
+      lastInteractive = false;
+      filmConcealed.current = false;
+      setFilmAvailable(true);
+      if (motion.matches) wantsPlayback.current = false;
+      film.pause();
+      measure();
+    };
+    setReduced(motion.matches);
+    if (motion.matches) wantsPlayback.current = false;
+    resize();
+    const observer = new IntersectionObserver(([entry]) => {
+      inView.current = entry.isIntersecting;
+      setControlsAvailable(entry.isIntersecting);
+      resume();
+    }, { threshold: 0.01 });
+    observer.observe(film.parentElement ?? film);
+    window.addEventListener('scroll', scroll, { passive: true });
+    window.addEventListener('scrollend', scrollEnd);
+    window.addEventListener('pointerdown', pointerDown, { passive: true });
+    window.addEventListener('pointerup', pointerUp, { passive: true });
+    window.addEventListener('pointercancel', pointerUp, { passive: true });
+    window.addEventListener('resize', resize);
+    const visualResize = () => {
+      if (document.activeElement instanceof HTMLElement && document.activeElement.matches('input, textarea, [contenteditable]')) return;
+      resize();
+    };
+    window.visualViewport?.addEventListener('resize', visualResize);
+    document.addEventListener('visibilitychange', resume);
+    motion.addEventListener('change', changeMotion);
+    return () => {
+      disposed = true;
+      film.pause();
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+      cancelSettle();
+      window.removeEventListener('scroll', scroll);
+      window.removeEventListener('scrollend', scrollEnd);
+      window.removeEventListener('pointerdown', pointerDown);
+      window.removeEventListener('pointerup', pointerUp);
+      window.removeEventListener('pointercancel', pointerUp);
+      motionControls.current = null;
+      window.removeEventListener('resize', resize);
+      window.visualViewport?.removeEventListener('resize', visualResize);
+      picture.removeEventListener('load', assetsLoaded);
+      picture.removeEventListener('error', assetFailed);
+      mask.onload = null;
+      mask.onerror = null;
+      document.removeEventListener('visibilitychange', resume);
+      motion.removeEventListener('change', changeMotion);
+      if (audit) Reflect.deleteProperty(window, '__CREATIVE_AUDIT__');
+    };
+  }, [clearPreviews, updateGallery]);
+
+  useLayoutEffect(() => { motionControls.current?.refresh(); }, [galleryState.pointerId, galleryState.focusId, galleryState.committedId]);
+
+  useEffect(() => {
+    if (!reduced) return;
+    filmConcealed.current = gameExpanded;
+    setFilmAvailable(!gameExpanded);
+    if (gameExpanded) {
+      if (document.activeElement === video.current) video.current?.blur();
+      video.current?.pause();
+    }
+    else if (wantsPlayback.current && inView.current && !document.hidden) {
+      void video.current?.play().catch(() => setMessage('Focus the film and press Space to play.'));
+    }
+  }, [reduced, gameExpanded]);
+
+  async function togglePlayback() {
+    const film = video.current;
+    if (!film || filmConcealed.current) return;
+    setMessage('');
+    if (!film.paused) {
+      wantsPlayback.current = false;
+      film.pause();
+    } else {
+      wantsPlayback.current = true;
+      try { await film.play(); }
+      catch {
+        wantsPlayback.current = false;
+        setMessage('The film could not play. Press Space to try again.');
+      }
+    }
+  }
+
+  function selectProject(id: string) {
+    const index = collection.current.findIndex(project => project.id === id);
+    if (index < 0) return;
+    updateGallery({ committedId: id, pointerId: null, focusId: null });
+    motionControls.current?.align(index);
+  }
+
+  function filterProjects(filter: GalleryFilter) {
+    const next = projects.filter(project => filter === 'all' || project.kind === filter);
+    const id = next.some(project => project.id === galleryLive.current.committedId) ? galleryLive.current.committedId : next[0]?.id ?? null;
+    collection.current = next;
+    updateGallery({ filter, committedId: id, pointerId: null, focusId: null });
+    motionControls.current?.align(Math.max(0, next.findIndex(project => project.id === id)), true);
+  }
+
+  function projectAction(id: string, trigger: HTMLElement) {
+    const project = collection.current.find(item => item.id === id);
+    if (!project) return;
+    invokingAction.current = trigger;
+    selectProject(id);
+    setSample(false);
+    updateGallery({ mode: 'viewer' });
+  }
+
+  function continueGallery() {
+    clearPreviews();
+    end.current?.enterFromGallery();
+  }
+
+  const viewerProject = filteredProjects.find(project => project.id === galleryState.committedId);
+  const gameEnabled = galleryState.mode === 'viewer' ? playReady && sample && viewerProject?.presentation.type === 'study-game' && !viewerDetail : galleryState.mode === 'browse' && (reduced ? gameExpanded && !staticGalleryInView : gameInteractive);
+  const sampleVisible = galleryState.mode === 'viewer' && sample && viewerProject?.presentation.type === 'study-game';
+  const changeSample = useCallback((next: boolean) => {
+    if (!next && gameCanvas.current) savedGameScroll.current = gameCanvas.current.scrollTop;
+    setSample(next);
+  }, []);
+  const restoreSampleScroll = useCallback(() => {
+    if (gameCanvas.current) gameCanvas.current.scrollTop = savedGameScroll.current;
+  }, []);
+
+  function returnToOpening() {
+    wantsOpeningFocus.current = true;
+    setExpanded(false);
+    setTabletExpanded(false);
+    setGameExpanded(false);
+    if (root.current) window.scrollTo({ top: window.scrollY + root.current.getBoundingClientRect().top, behavior: 'instant' });
+    motionControls.current?.jumpToOpening();
+    if (!navHidden) {
+      wantsOpeningFocus.current = false;
+      root.current?.querySelector<HTMLAnchorElement>('header a')?.focus({ preventScroll: true });
+    }
+  }
+
+  function viewSelectedWork(trigger: HTMLElement) {
+    if (!projects.length || workHandoffRunning.current) return;
+    const jump = () => {
+      flushSync(() => {
+        collection.current = projects;
+        updateGallery({ filter: 'all', committedId: projects[0].id, pointerId: null, focusId: null });
+        motionControls.current?.jumpToGallery();
+      });
+      gallery.current?.focusCatalog();
+    };
+    if (reduced || !document.startViewTransition) { jump(); return; }
+    workHandoffRunning.current = true;
+    trigger.style.viewTransitionName = 'work-heading';
+    document.documentElement.dataset.workHandoff = 'source';
+    const transition = document.startViewTransition(() => {
+      trigger.style.removeProperty('view-transition-name');
+      document.documentElement.dataset.workHandoff = 'destination';
+      jump();
+    });
+    const finish = () => {
+      trigger.style.removeProperty('view-transition-name');
+      delete document.documentElement.dataset.workHandoff;
+      workHandoffRunning.current = false;
+    };
+    void transition.finished.then(finish, finish);
+  }
+
+  function viewStudio() {
+    if (studioHandoffRunning.current) return;
+    const jump = () => end.current?.jumpToIntro();
+    if (reduced || !document.startViewTransition) { jump(); return; }
+    studioHandoffRunning.current = true;
+    const transition = document.startViewTransition(() => {
+      document.documentElement.dataset.studioHandoff = 'true';
+      jump();
+    });
+    const finish = () => {
+      delete document.documentElement.dataset.studioHandoff;
+      studioHandoffRunning.current = false;
+    };
+    void transition.finished.then(finish, finish);
+  }
+
+  function startProject() {
+    if (projectRiseRunning.current) return;
+    const jump = () => closing.current?.startProject();
+    if (reduced || !document.startViewTransition) { jump(); return; }
+    projectRiseRunning.current = true;
+    document.documentElement.dataset.projectRise = 'true';
+    const transition = document.startViewTransition(jump);
+    const finish = () => { delete document.documentElement.dataset.projectRise; projectRiseRunning.current = false; };
+    void transition.finished.then(finish, finish);
+  }
+
+  function changeComposition() {
+    if (reduced) {
+      setExpanded(!expanded);
+      setTabletExpanded(false);
+      setGameExpanded(false);
+    } else if (track.current && stage.current) {
+      const target = window.scrollY + track.current.getBoundingClientRect().top;
+      const distance = stage.current.clientHeight * 2.7 - window.innerHeight;
+      wantsScreeningFocus.current = true;
+      window.scrollTo({ top: target + distance * 0.8, behavior: 'instant' });
+      if (controlsVisible) {
+        wantsScreeningFocus.current = false;
+        soundButton.current?.focus({ preventScroll: true });
+      }
+    }
+  }
+
+  return (
+    <div ref={root} className={styles.root} data-static-expanded={reduced && expanded} data-static-tablet={reduced && expanded && tabletExpanded} data-nav-hidden={navHidden} data-static-game={reduced && gameExpanded} data-gallery-mode={galleryState.mode} data-gallery-in-view={reduced ? staticGalleryInView : galleryVisible}
+      onKeyDown={(event) => { if (!event.defaultPrevented && event.key === 'Escape' && !(event.target instanceof Node && end.current?.element?.contains(event.target))) { event.preventDefault(); if (document.fullscreenElement && gameFrame.current?.contains(document.fullscreenElement)) void document.exitFullscreen(); else if (galleryLive.current.mode !== 'browse') closeGalleryMode(); else if (!galleryVisible || (reduced && window.scrollY < window.innerHeight)) returnToOpening(); } }}>
+      <link rel="preload" href="/redesign/bodoni-moda-latin-italic-800.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+      <a className={styles.skip} href="#film-sound" onClick={(event) => {
+        event.preventDefault();
+        if (controlsVisible) soundButton.current?.focus({ preventScroll: true });
+        else {
+          wantsScreeningFocus.current = true;
+          changeComposition();
+        }
+      }}>Skip to film sound</a>
+      <header ref={header} id="studio-navigation" className={styles.header} inert={navHidden || teamCovered} aria-hidden={navHidden || teamCovered}>
+        <a href="#studio-navigation" className={styles.brand} onClick={event => { event.preventDefault(); returnToOpening(); }} aria-label="J StaR Films Studios, back to the beginning">J StaR<span>Films Studios</span></a>
+        <nav aria-label="Main navigation">
+          <a href="#selected-work" onClick={event => { event.preventDefault(); viewSelectedWork(event.currentTarget); }}>Work</a>
+          <a href="#meet-the-studio" onClick={event => { event.preventDefault(); viewStudio(); }}>Studio</a>
+          <a className={styles.projectLink} href="#project-enquiry" onClick={event => { event.preventDefault(); startProject(); }}>Start a Project <span aria-hidden="true">↗</span></a>
+        </nav>
+      </header>
+
+      <section ref={track} className={styles.track} aria-label="Studio introduction, film, tablet and study game">
+        <span ref={scrollMeter} className={styles.scrollMeter} aria-hidden="true" />
+        <div ref={stage} className={styles.stage} inert={teamCovered && galleryState.mode === 'browse'} onPointerMove={() => wakeSound()}>
+          <div className={styles.introduction}>
+            <p className={styles.eyebrow}>Two ways to move people.</p>
+            <h1 className={styles.wordmark}>
+              <span className={styles.srOnly}>{OPENING_LINE} {STUDIOS_LINE}</span>
+              <span ref={firstLine} className={styles.firstLine} aria-hidden="true"
+                onPointerEnter={event => scrambleLine('first', event.pointerType)} onPointerLeave={() => stopScramble('first')}>
+                {OPENING_LINE}<span ref={firstScrambleLayer} className={styles.scrambleLayer} />
+              </span>
+              <span ref={secondLine} className={styles.secondLine} aria-hidden="true"
+                onPointerEnter={event => scrambleLine('second', event.pointerType)} onPointerLeave={() => stopScramble('second')}>
+                {STUDIOS_LINE}<span ref={secondScrambleLayer} className={styles.scrambleLayer} />
+              </span>
+            </h1>
+            <span ref={mobileFirst} className={`${styles.mobileLine} ${styles.mobileFirst}`} aria-hidden="true">J StaR<span className={styles.scrambleLayer} /></span>
+            <span ref={mobileFilms} className={`${styles.mobileLine} ${styles.mobileFilms}`} aria-hidden="true">Films<span className={styles.scrambleLayer} /></span>
+            <span ref={mobileStudios} className={`${styles.mobileLine} ${styles.mobileStudios}`} aria-hidden="true">Studios<span className={styles.scrambleLayer} /></span>
+            <p className={styles.description}>
+              <span className={styles.srOnly}>{OPENING_COPY}</span>
+              <span ref={description} className={styles.hoverCopy} aria-hidden="true"
+                onPointerEnter={event => { if (event.pointerType !== 'touch') { prepareAttract(); moveAttract(event.clientX, event.clientY); } }}
+                onPointerMove={event => moveAttract(event.clientX, event.clientY)} onPointerLeave={resetAttract}>
+                {OPENING_COPY}<span ref={attractLayer} className={styles.hoverLayer} />
+              </span>
+              <span ref={mobileCopy} className={styles.mobileCopy} aria-hidden="true"><span>Films,</span> <span>websites</span> and <span>software.</span><br />One creative team.</span>
+            </p>
+          </div>
+
+          <div className={styles.filmFrame}>
+            <video ref={video} className={styles.video} src={FILM} poster={POSTER} muted={muted} loop playsInline preload="metadata"
+              inert={!filmAvailable} tabIndex={controlsVisible ? 0 : -1} aria-keyshortcuts="Space Escape" aria-describedby="film-keyboard-help"
+              aria-label={playing ? 'Nifemi film, playing' : 'Nifemi film, paused'}
+              onKeyDown={(event) => { if (event.code === 'Space') { event.preventDefault(); void togglePlayback(); } }}
+              onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)}
+              onError={() => setMessage('Film unavailable. Please reload this local preview.')}
+            />
+          </div>
+          <div className={styles.businessIntro}>
+            <h2 aria-label="We build what happens next.">
+              <span className={styles.lineMask} aria-hidden="true"><span className={styles.headlineFirst}>We build</span></span>
+              <span className={styles.lineMask} aria-hidden="true"><span className={styles.headlineSecond}>what happens</span></span>
+              <span className={styles.lineMask} aria-hidden="true"><span className={styles.headlineThird}>next.</span></span>
+            </h2>
+            <p>Websites, applications, and systems for your business.</p>
+          </div>
+          <div ref={gameFrame} className={styles.gameFrame} data-study-frame data-viewer={galleryState.mode === 'viewer'} data-sample={sampleVisible}
+            popover={galleryState.mode === 'viewer' ? 'manual' : undefined}
+            role={galleryState.mode === 'viewer' ? 'dialog' : undefined} aria-modal={galleryState.mode === 'viewer' ? true : undefined}
+            aria-label={galleryState.mode === 'viewer' ? `${viewerProject?.title} Studio Notes` : undefined} inert={galleryState.mode === 'viewer' ? false : !gameEnabled}
+            aria-hidden={galleryState.mode === 'viewer' ? false : !gameEnabled}>
+            <div ref={gameCanvas} className={styles.gameCanvas} data-study-canvas inert={!gameEnabled} aria-hidden={!gameEnabled} onScroll={() => {
+              const canvas = gameCanvas.current;
+              if (!gameEnabled || !canvas) return;
+              // A smaller layout can clamp scrollTop. Retain the bookmark for the larger play view.
+              const maximum = canvas.scrollHeight - canvas.clientHeight;
+              if (savedGameScroll.current > maximum && canvas.scrollTop >= maximum - 1) return;
+              savedGameScroll.current = canvas.scrollTop;
+            }}>
+              <StudyGame interactive={gameEnabled} />
+            </div>
+            <PortfolioViewer project={galleryState.mode === 'viewer' ? viewerProject : undefined} projects={filteredProjects} filter={galleryState.filter} shell={gameFrame}
+              sample={sample} onSample={changeSample} onSampleLayout={restoreSampleScroll} onDetail={setViewerDetail} onNavigate={id => {
+                if (sampleVisible && gameCanvas.current) savedGameScroll.current = gameCanvas.current.scrollTop;
+                updateGallery({ committedId: id, pointerId: null, focusId: null });
+              }} onClose={closeGalleryMode} />
+          </div>
+          <div className={styles.tabletScene}>
+            <Image ref={sceneImage} src={TABLET_SCENE} width={1672} height={941} unoptimized loading="eager"
+              alt="A Black woman seated on a plinth holding a landscape tablet showing the film." />
+          </div>
+          {reduced && gameExpanded && (
+            <button className={styles.staticGameControl} onClick={() => setGameExpanded(false)}>Return to tablet</button>
+          )}
+          {reduced && expanded && tabletExpanded && !gameExpanded && (
+            <button className={styles.gameControl} onClick={() => setGameExpanded(true)}>View study game</button>
+          )}
+          {reduced && expanded && tabletReady && !gameExpanded && (
+            <button className={styles.tabletControl} onClick={() => setTabletExpanded(!tabletExpanded)}>
+              {tabletExpanded ? 'Return to screening' : 'View tablet'}
+            </button>
+          )}
+          <p id="film-keyboard-help" className={styles.srOnly}>Press Space on the film to pause or play. Escape returns to the studio opening.</p>
+          <div className={styles.soundControl} data-awake={soundAwake} data-hint={soundHint} inert={!controlsVisible}>
+            <button id="film-sound" ref={soundButton} onPointerEnter={() => wakeSound()} onFocus={() => wakeSound()}
+              onClick={() => { setMuted(!muted); setSoundHint(false); wakeSound(); }}
+              aria-label={muted ? 'Enable sound' : 'Mute sound'} aria-pressed={!muted} title={muted ? 'Enable sound' : 'Mute sound'}>
+              <span className={styles.soundLabel}>{muted ? 'Sound on' : 'Sound off'}</span>
+              {muted ? <VolumeX size={16} aria-hidden="true" /> : <Volume2 size={16} aria-hidden="true" />}
+            </button>
+          </div>
+
+          <div className={styles.bottomRow} inert={reduced && gameExpanded}>
+            <button onClick={event => viewSelectedWork(event.currentTarget)} disabled={!projects.length} className={styles.expandControl}>View selected work <span aria-hidden="true">↘</span></button>
+            {reduced && <button onClick={changeComposition} className={styles.expandControl}>
+              {expanded ? 'Return to opening' : 'Expand film'} <span aria-hidden="true">↓</span>
+            </button>}
+          </div>
+          <p className={styles.message} role="status">{message}</p>
+          <SelectedWorkGallery ref={gallery} projects={filteredProjects} counts={filterCounts} filter={galleryState.filter} committedId={galleryState.committedId}
+            pointerId={galleryState.pointerId} focusId={galleryState.focusId} mode={galleryState.mode} visible={reduced || galleryVisible} reduced={reduced}
+            onFilter={filterProjects} onPreview={(source, id) => updateGallery(source === 'pointer' ? { pointerId: id } : { focusId: id })}
+            onSelect={selectProject} onAction={projectAction} onContinue={continueGallery} onReturnToOpening={returnToOpening} />
+        </div>
+      </section>
+      <TeamSection ref={end} onGalleryCovered={setTeamCovered} />
+      <ClosingSequence ref={closing} onBackToTop={returnToOpening} />
+      <a className={styles.journeyBrand} href="#studio-navigation" onClick={event => { event.preventDefault(); returnToOpening(); }} aria-label="J StaR Films Studios, back to the beginning">J StaR <span>Films Studios</span></a>
+    </div>
+  );
+}
