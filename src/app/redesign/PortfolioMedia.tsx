@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { ArrowUpRight, Maximize, Minimize, Pause, Play } from 'lucide-react';
 import type { NativeFilm, YouTubeFilm } from '@/content/selected-work';
 import styles from './portfolio-viewer.module.css';
 
@@ -19,12 +20,12 @@ function Controls({ state, enabled, playEnabled = enabled, fullscreenEnabled = t
   onPlay: () => void; onSeek: (seconds: number) => void; onMute: () => void; onVolume: (volume: number) => void;
 }) {
   return <div className={styles.controls} data-viewer-controls inert={props.idle} aria-label="Playback controls">
-    <button disabled={!playEnabled} onClick={onPlay} aria-label={state.playing ? 'Pause film' : 'Play film'}>{state.playing ? 'Ⅱ' : '▶'}</button>
+    <button disabled={!playEnabled} onClick={onPlay} aria-label={state.playing ? 'Pause film' : 'Play film'}>{state.playing ? <Pause className="studio-icon" aria-hidden="true" focusable="false" /> : <Play className="studio-icon" aria-hidden="true" focusable="false" />}</button>
     <span className={styles.time}>{time(state.current)} / {time(state.duration)}</span>
     <input aria-label="Seek video" type="range" min={0} max={state.duration || 1} step={.1} value={Math.min(state.current, state.duration || 1)} disabled={!enabled || !state.duration} onChange={event => onSeek(Number(event.target.value))} />
     <button disabled={!enabled} onClick={onMute} aria-label={state.muted ? 'Unmute film' : 'Mute film'}>{state.muted ? 'Unmute' : 'Mute'}</button>
     <input className={styles.volume} aria-label="Volume" type="range" min={0} max={100} value={state.volume} disabled={!enabled} onChange={event => onVolume(Number(event.target.value))} />
-    <button data-viewer-fullscreen disabled={!fullscreenEnabled} onClick={props.onFullscreen} aria-label={props.expanded ? 'Exit fullscreen' : 'Open fullscreen cinema'} aria-pressed={props.expanded}>⛶</button>
+    <button data-viewer-fullscreen disabled={!fullscreenEnabled} onClick={props.onFullscreen} aria-label={props.expanded ? 'Exit fullscreen' : 'Open fullscreen cinema'} aria-pressed={props.expanded}>{props.expanded ? <Minimize className="studio-icon" aria-hidden="true" focusable="false" /> : <Maximize className="studio-icon" aria-hidden="true" focusable="false" />}</button>
   </div>;
 }
 
@@ -139,7 +140,7 @@ export function NativeMedia({ presentation, hidden, ...props }: Props & { presen
     <div className={styles.picture} data-viewer-picture>
       <video ref={video} poster={presentation.poster} playsInline loop preload="metadata" tabIndex={0} aria-label={`${props.title} ${presentation.fullSrc ? 'film' : 'excerpt'}`}
         onClick={play} onKeyDown={event => { if (event.code === 'Space' || event.code === 'Enter') { event.preventDefault(); play(); } }} />
-      {!state.playing && <button className={styles.nativePlay} aria-label={`Play ${props.title}`} onClick={play}>▶</button>}
+      {!state.playing && <button className={styles.nativePlay} aria-label={`Play ${props.title}`} onClick={play}><Play className="studio-icon" aria-hidden="true" focusable="false" /></button>}
     </div>
     <Controls state={state} enabled props={props} onPlay={play} onSeek={seconds => { if (video.current) video.current.currentTime = seconds; }}
       onMute={() => { if (video.current) video.current.muted = !video.current.muted; }} onVolume={volume => { if (video.current) video.current.volume = volume / 100; }} />
@@ -295,6 +296,6 @@ export function YouTubeMedia({ presentation, hidden, ...props }: Props & { prese
       }}
       onSeek={seconds => player.current?.seekTo(seconds, true)} onMute={() => { if (state.muted) player.current?.unMute(); else player.current?.mute(); }}
       onVolume={volume => player.current?.setVolume(volume)} />
-    {failed && <p className={styles.status} role="alert">Video unavailable. <a href={`https://www.youtube.com/watch?v=${presentation.youtubeId}`} target="_blank" rel="noopener noreferrer">Watch on YouTube ↗</a></p>}
+    {failed && <p className={styles.status} role="alert">Video unavailable. <a href={`https://www.youtube.com/watch?v=${presentation.youtubeId}`} target="_blank" rel="noopener noreferrer">Watch on YouTube <ArrowUpRight className="studio-icon" aria-hidden="true" focusable="false" /></a></p>}
   </>;
 }

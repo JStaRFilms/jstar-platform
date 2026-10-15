@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import Image from 'next/image';
-import { Volume2, VolumeX } from 'lucide-react';
+import { ArrowDown, ArrowDownRight, ArrowUpRight, Volume2, VolumeX } from 'lucide-react';
 import styles from './hero.module.css';
 import StudyGame from './StudyGame';
 import PortfolioViewer from './PortfolioViewer';
@@ -1163,7 +1163,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
         <nav aria-label="Main navigation">
           <a href="#selected-work" onClick={event => { event.preventDefault(); viewSelectedWork(event.currentTarget); }}>Work</a>
           <a href="#meet-the-studio" onClick={event => { event.preventDefault(); viewStudio(); }}>Studio</a>
-          <a className={styles.projectLink} href="#project-enquiry" onClick={event => { event.preventDefault(); startProject(); }}>Start a Project <span aria-hidden="true">↗</span></a>
+          <a className={styles.projectLink} href="#project-enquiry" onClick={event => { event.preventDefault(); startProject(); }}>Start a Project <span aria-hidden="true"><ArrowUpRight className="studio-icon" focusable="false" /></span></a>
         </nav>
       </header>
 
@@ -1261,9 +1261,9 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
           </div>
 
           <div className={styles.bottomRow} inert={reduced && gameExpanded}>
-            <button onClick={event => viewSelectedWork(event.currentTarget)} disabled={!projects.length} className={styles.expandControl}>View selected work <span aria-hidden="true">↘</span></button>
+            <button onClick={event => viewSelectedWork(event.currentTarget)} disabled={!projects.length} className={styles.expandControl}>View selected work <span aria-hidden="true"><ArrowDownRight className="studio-icon" focusable="false" /></span></button>
             {reduced && <button onClick={changeComposition} className={styles.expandControl}>
-              {expanded ? 'Return to opening' : 'Expand film'} <span aria-hidden="true">↓</span>
+              {expanded ? 'Return to opening' : 'Expand film'} <span aria-hidden="true"><ArrowDown className="studio-icon" focusable="false" /></span>
             </button>}
           </div>
           <p className={styles.message} role="status">{message}</p>

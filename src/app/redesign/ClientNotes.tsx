@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { testimonials } from '@/content/testimonials';
 import styles from './closing.module.css';
@@ -101,8 +102,8 @@ export default function ClientNotes({ reduced, formFocused }: { reduced: boolean
         <span className={styles.noteService}>{note.tags.join(' / ').toUpperCase()}</span>
       </figure>
     </div>
-    <div className={styles.noteControls}><button type="button" aria-label="Previous client note" onClick={() => advance(-1)}>←</button>
+    <div className={styles.noteControls}><button type="button" aria-label="Previous client note" onClick={() => advance(-1)}><ArrowLeft className="studio-icon" aria-hidden="true" focusable="false" /></button>
       <button type="button" className={styles.pauseNotes} aria-label={`${paused ? 'Resume' : 'Pause'} automatic client notes`} aria-pressed={paused} onClick={() => setPaused(!paused)}>{paused ? 'Play' : 'Pause'}</button>
-      <button type="button" aria-label="Next client note" onClick={() => advance(1)}>→</button></div>
+      <button type="button" aria-label="Next client note" onClick={() => advance(1)}><ArrowRight className="studio-icon" aria-hidden="true" focusable="false" /></button></div>
   </aside>;
 }

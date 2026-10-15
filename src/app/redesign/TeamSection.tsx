@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { ArrowDownRight, ArrowUp } from 'lucide-react';
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { companyData } from '@/content/about-company';
 import styles from './team.module.css';
@@ -289,7 +290,7 @@ const TeamSection = forwardRef<TeamHandle, Props>(function TeamSection({ onGalle
     className={styles.journey} data-team data-team-member="0" data-team-final="false" tabIndex={-1} aria-label="Meet the studio">
     <div ref={stage} className={styles.stage}>
       <header className={styles.header}>
-        <button className={styles.skip} onClick={() => skipTo(groupFinish)}>Meet everyone ↘</button>
+        <button className={styles.skip} onClick={() => skipTo(groupFinish)}>Meet everyone <ArrowDownRight className="studio-icon" aria-hidden="true" focusable="false" /></button>
       </header>
       <div ref={intro} className={styles.intro}><span className={styles.eyebrow}>THE PEOPLE BEHIND THE WORK</span><h2>A studio.<br /><em>With character.</em></h2></div>
       <div className={styles.portraits}>
@@ -317,7 +318,7 @@ const TeamSection = forwardRef<TeamHandle, Props>(function TeamSection({ onGalle
         <nav className={styles.steps} aria-label="Meet a team member">{people.map((person, index) => <button key={person.employeeId}
           aria-label={`Meet ${person.name}, ${person.role}`} aria-current={active === index ? 'step' : undefined}
           onClick={() => { touchSelection.current = null; setRevealed(null); if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { setRevealed(index); return; } go(index + .4); }} />)}</nav>
-        <button className={styles.replay} onClick={() => skipTo(0)}>From the beginning ↑</button>
+        <button className={styles.replay} onClick={() => skipTo(0)}>From the beginning <ArrowUp className="studio-icon" aria-hidden="true" focusable="false" /></button>
       </footer>
     </div>
   </section>;

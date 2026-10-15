@@ -2,6 +2,7 @@
 
 import { forwardRef, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import Image from 'next/image';
+import { ArrowDown, ArrowUpRight } from 'lucide-react';
 import type { GalleryFilter, GalleryMode, GalleryProject } from '@/content/selected-work';
 import styles from './selected-work.module.css';
 
@@ -176,7 +177,7 @@ const SelectedWorkGallery = forwardRef<GalleryHandle, Props>(function SelectedWo
       setFocusedIndex(null);
       element.current?.setAttribute('data-pointer-armed', 'false');
     },
-    focusCatalog() { catalog.current?.focus({ preventScroll: true }); },
+    focusCatalog() { catalog.current?.querySelector('h2')?.focus({ preventScroll: true }); },
   }));
   useLayoutEffect(() => {
     paint(frame.current);
@@ -224,7 +225,7 @@ const SelectedWorkGallery = forwardRef<GalleryHandle, Props>(function SelectedWo
         <a className={styles.brand} href="#studio-navigation" onClick={event => { event.preventDefault(); onReturnToOpening(); }} aria-label="J StaR Films Studios, back to the beginning">J StaR<span>Films Studios</span></a>
       </header>
       <nav ref={catalog} className={styles.catalog} aria-label="Selected work" tabIndex={-1}>
-        <h2>Made to<br /><em>move you.</em></h2>
+        <h2 tabIndex={-1}>Made to<br /><em>move you.</em></h2>
         <div className={styles.filters} role="group" aria-label="Filter projects">
           {(['all', 'software', 'film'] as const).map(value => <button key={value} data-filter-button={value} aria-pressed={filter === value} onClick={() => onFilter(value)}>{value === 'all' ? 'All' : value === 'software' ? 'Software' : 'Film'} <sup>{String(counts[value]).padStart(2, '0')}</sup></button>)}
         </div>
@@ -261,7 +262,7 @@ const SelectedWorkGallery = forwardRef<GalleryHandle, Props>(function SelectedWo
               data-displayed={project.id === displayId} aria-current={project.id === committedId ? 'true' : undefined}
               tabIndex={index >= windowStart && index < windowStart + visibleRows ? 0 : -1}
               onClick={() => { setFocusedIndex(null); onSelect(project.id); }}>
-              <span className={styles.index}>{String(index + 1).padStart(2, '0')}</span><span><strong>{project.title}</strong><small>{project.label}</small></span><span aria-hidden="true">↗</span>
+              <span className={styles.index}>{String(index + 1).padStart(2, '0')}</span><span><strong>{project.title}</strong><small>{project.label}</small></span><span aria-hidden="true"><ArrowUpRight className="studio-icon" focusable="false" /></span>
             </button>)}
           </div>
         </div>
@@ -276,7 +277,7 @@ const SelectedWorkGallery = forwardRef<GalleryHandle, Props>(function SelectedWo
               <FilmPreview project={project} eligible={!reduced && foreground && paintVisible && visible && mode === 'browse' && project.id === displayId} />
               <div className={styles.filmTitle} data-long={project.title.length > 20}><span>{project.label}</span><h3>{project.title}.</h3></div>
             </> : project.presentation.type === 'provisional-cover' ? <div className={styles.school}>
-              <span>SOFTWARE / BUSINESS SYSTEMS</span><div className={styles.symbol}>S<span>↗</span></div><h3>Melo.</h3><p>{project.presentation.note}</p>
+              <span>SOFTWARE / BUSINESS SYSTEMS</span><div className={styles.symbol}>S<span><ArrowUpRight className="studio-icon" aria-hidden="true" focusable="false" /></span></div><h3>Melo.</h3><p>{project.presentation.note}</p>
             </div> : project.presentation.type === 'static-image' ? <Image className={styles.staticImage}
               src={project.presentation.src} alt={project.presentation.alt} fill unoptimized sizes="(max-width: 800px) 90vw, 53vw" /> : null}
             {project.id === displayId && <button className={styles.cardAction} data-project-card data-project-open-id={project.id} aria-label={`Open ${project.title} Studio Notes`}
@@ -290,13 +291,13 @@ const SelectedWorkGallery = forwardRef<GalleryHandle, Props>(function SelectedWo
       <div className={styles.caption}>
         {displayed && <><div><span>{displayed.label}</span><p>{displayed.description}</p></div><div className={styles.actions}>
           <button data-project-action data-project-open-id={displayed.id} onPointerDown={event => { event.preventDefault(); capturedAction.current = displayed.id; }} onClick={event => { onAction(event.detail ? capturedAction.current ?? displayed.id : displayed.id, event.currentTarget); capturedAction.current = null; }}>
-            {displayed.kind === 'software' ? 'View project' : displayed.presentation.type === 'film' && !displayed.presentation.fullSrc ? 'Watch excerpt' : 'Watch film'} ↗
+            {displayed.kind === 'software' ? 'View project' : displayed.presentation.type === 'film' && !displayed.presentation.fullSrc ? 'Watch excerpt' : 'Watch film'} <ArrowUpRight className="studio-icon" aria-hidden="true" focusable="false" />
           </button>
-          {displayed.detailsHref && <a href={displayed.detailsHref} target="_blank" rel="noopener noreferrer">Source ↗</a>}
-          {displayed.websiteHref && <a href={displayed.websiteHref} target="_blank" rel="noopener noreferrer">Visit website ↗</a>}
+          {displayed.detailsHref && <a href={displayed.detailsHref} target="_blank" rel="noopener noreferrer">Source <ArrowUpRight className="studio-icon" aria-hidden="true" focusable="false" /></a>}
+          {displayed.websiteHref && <a href={displayed.websiteHref} target="_blank" rel="noopener noreferrer">Visit website <ArrowUpRight className="studio-icon" aria-hidden="true" focusable="false" /></a>}
         </div></>}
       </div>
-      <footer className={styles.footer}><button data-gallery-continue onClick={onContinue}>Continue ↓</button></footer>
+      <footer className={styles.footer}><button data-gallery-continue onClick={onContinue}>Continue <ArrowDown className="studio-icon" aria-hidden="true" focusable="false" /></button></footer>
     </section>
   );
 });

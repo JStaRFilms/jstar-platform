@@ -1,6 +1,6 @@
 // Read-only section navigation. All mutating HTTP requests are blocked; no screenshots.
 const assert=require('node:assert/strict');
-const {chromium}=require(process.env.PLAYWRIGHT_PATH||'playwright');
+const {chromium,webkit}=require(process.env.PLAYWRIGHT_PATH||'playwright');
 const base=process.env.CONTACT_TEST_BASE||'http://127.0.0.1:5782';
 async function atSection(page,hash,reduced){
  await page.waitForFunction(({hash,reduced})=>{
@@ -20,7 +20,7 @@ async function atSection(page,hash,reduced){
  },{hash,reduced},{timeout:15000});
 }
 (async()=>{
- const browser=await chromium.launch({channel:'chrome'});
+ const browser=await (process.env.TEST_BROWSER==='webkit'?webkit.launch():chromium.launch({channel:'chrome'}));
  try{
   for(const width of [1440,390])for(const reduced of [false,true])for(const hash of ['#selected-work','#meet-the-studio','#project-enquiry']){
    const page=await browser.newPage({viewport:{width,height:844},reducedMotion:reduced?'reduce':'no-preference',serviceWorkers:'block'});
@@ -34,6 +34,16 @@ async function atSection(page,hash,reduced){
    try{
     assert.equal((await page.goto(base+'/'+hash,{waitUntil:'domcontentloaded',timeout:60000})).status(),200);
     await page.waitForSelector('[data-font-ready="true"]');await atSection(page,hash,reduced);
+    if(hash==='#selected-work'){
+     const catalogue=page.getByRole('navigation',{name:'Selected work',exact:true});
+     assert(await catalogue.evaluate(node=>node!==document.activeElement&&!node.matches(':focus-visible')&&getComputedStyle(node).outlineStyle==='none'),'Automatic arrival must not focus/outline the catalogue');
+     assert(await catalogue.locator('h2').evaluate(node=>node===document.activeElement&&getComputedStyle(node).outlineStyle==='none'),'Arrival should announce the heading without adding another outline');
+     for(let i=0;i<8;i++){
+      await page.keyboard.press('Tab');
+      if(await page.evaluate(()=>document.activeElement?.getAttribute('data-filter-button')==='all'))break;
+     }
+     assert(await page.locator('[data-filter-button="all"]').evaluate(node=>node===document.activeElement&&node.matches(':focus-visible')&&parseFloat(getComputedStyle(node).outlineWidth)>0),'Tab navigation must retain a visible focus ring');
+    }
     const video=await page.locator('video').first().elementHandle();
     const draft=page.locator('#project-enquiry textarea');
     // A hash change must use the same landing logic without replacing media or enquiry fields.
@@ -45,7 +55,7 @@ async function atSection(page,hash,reduced){
     assert(await video.evaluate(node=>node.isConnected));
     assert.deepEqual(errors,[]);
     console.log(`PASS ${width}px ${reduced?'reduced':'normal'} ${hash}: initial landing, hash change/back, draft and media identity`);
-   }catch(error){console.error(JSON.stringify({width,reduced,hash,url:page.url(),errors,position:await page.evaluate(()=>({scroll:window.scrollY,work:document.querySelector('[data-gallery]')?.dataset,teamTop:document.querySelector('[data-team]')?.getBoundingClientRect().top}))}));throw error}finally{await page.close()}
+   }catch(error){console.error(JSON.stringify({width,reduced,hash,url:page.url(),errors,position:await page.evaluate(()=>({scroll:window.scrollY,work:document.querySelector('[data-gallery]')?.dataset,teamTop:document.querySelector('[data-team]')?.getBoundingClientRect().top,focus:{tag:document.activeElement?.tagName,label:document.activeElement?.getAttribute('aria-label')},catalogue:(()=>{const n=document.querySelector('nav[aria-label="Selected work"]');return n?{focused:n===document.activeElement,visible:n.matches(':focus-visible'),outline:getComputedStyle(n).outlineStyle,width:getComputedStyle(n).outlineWidth}:null})(),heading:(()=>{const n=document.querySelector('#selected-work h2');return n?{focused:n===document.activeElement,outline:getComputedStyle(n).outlineStyle,width:getComputedStyle(n).outlineWidth}:null})()}))}));throw error}finally{await page.close()}
   }
   const page=await browser.newPage({viewport:{width:1440,height:900},reducedMotion:'reduce',serviceWorkers:'block'});
   await page.route('**/*',r=>['GET','HEAD'].includes(r.request().method())?r.continue():r.abort());
