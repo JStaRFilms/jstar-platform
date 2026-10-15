@@ -1031,6 +1031,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
   }, []);
 
   function returnToOpening() {
+    if (window.location.hash) window.history.pushState(null, '', window.location.pathname + window.location.search);
     wantsOpeningFocus.current = true;
     setExpanded(false);
     setTabletExpanded(false);
@@ -1043,16 +1044,20 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
     }
   }
 
+  const jumpToSelectedWork = useCallback(() => {
+    if (!projects.length) return;
+    flushSync(() => {
+      collection.current = projects;
+      updateGallery({ filter: 'all', committedId: projects[0].id, pointerId: null, focusId: null });
+      motionControls.current?.jumpToGallery();
+    });
+    gallery.current?.focusCatalog();
+  }, [projects, updateGallery]);
+
   function viewSelectedWork(trigger: HTMLElement) {
     if (!projects.length || workHandoffRunning.current) return;
-    const jump = () => {
-      flushSync(() => {
-        collection.current = projects;
-        updateGallery({ filter: 'all', committedId: projects[0].id, pointerId: null, focusId: null });
-        motionControls.current?.jumpToGallery();
-      });
-      gallery.current?.focusCatalog();
-    };
+    if (window.location.hash !== '#selected-work') window.history.pushState(null, '', '#selected-work');
+    const jump = jumpToSelectedWork;
     if (reduced || !document.startViewTransition) { jump(); return; }
     workHandoffRunning.current = true;
     trigger.style.viewTransitionName = 'work-heading';
@@ -1072,6 +1077,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
 
   function viewStudio() {
     if (studioHandoffRunning.current) return;
+    if (window.location.hash !== '#meet-the-studio') window.history.pushState(null, '', '#meet-the-studio');
     const jump = () => end.current?.jumpToIntro();
     if (reduced || !document.startViewTransition) { jump(); return; }
     studioHandoffRunning.current = true;
@@ -1088,6 +1094,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
 
   function startProject() {
     if (projectRiseRunning.current) return;
+    if (window.location.hash !== '#project-enquiry') window.history.pushState(null, '', '#project-enquiry');
     const jump = () => closing.current?.startProject();
     if (reduced || !document.startViewTransition) { jump(); return; }
     projectRiseRunning.current = true;
@@ -1096,6 +1103,31 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
     const finish = () => { delete document.documentElement.dataset.projectRise; projectRiseRunning.current = false; };
     void transition.finished.then(finish, finish);
   }
+
+  useEffect(() => {
+    let disposed = false, request = 0, frame = 0;
+    const followHash = () => {
+      const ticket = ++request;
+      cancelAnimationFrame(frame);
+      const hash = window.location.hash;
+      if (!['#selected-work', '#meet-the-studio', '#project-enquiry'].includes(hash)) return;
+      // These targets live in pinned scenes. Native element offsets are not their resting scroll positions.
+      void document.fonts.ready.then(() => {
+        if (disposed || ticket !== request) return;
+        frame = requestAnimationFrame(() => {
+          frame = requestAnimationFrame(() => {
+            if (disposed || ticket !== request || window.location.hash !== hash || galleryLive.current.mode !== 'browse') return;
+            if (hash === '#selected-work') jumpToSelectedWork();
+            else if (hash === '#meet-the-studio') end.current?.jumpToIntro();
+            else closing.current?.startProject();
+          });
+        });
+      });
+    };
+    followHash();
+    window.addEventListener('hashchange', followHash);
+    return () => { disposed = true; cancelAnimationFrame(frame); window.removeEventListener('hashchange', followHash); };
+  }, [jumpToSelectedWork]);
 
   function changeComposition() {
     if (reduced) {

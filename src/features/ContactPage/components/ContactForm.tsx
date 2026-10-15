@@ -154,7 +154,7 @@ const ContactForm = () => {
   // Handle form submission
   const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (formState.isPartial) return;
+    if (formState.isSubmitting || formState.isPartial || formState.isSuccess) return;
 
     // Validate form before submission
     if (!validateForm()) {
@@ -183,7 +183,7 @@ const ContactForm = () => {
       if (!response.ok) {
         // Handle different error types from documentation
         if (response.status === 429) {
-          throw new Error('Too many requests. Please wait before trying again.');
+          throw new Error(data.message || 'Please wait a minute before sending another enquiry.');
         } else if (response.status === 400) {
           // Handle validation errors from server
           const serverErrors = data.errors || [];
@@ -221,14 +221,6 @@ const ContactForm = () => {
         }
       }));
 
-      // Auto-dismiss success message after 5 seconds
-      setTimeout(() => {
-        setFormState((prev) => ({
-          ...prev,
-          isSuccess: false
-        }));
-      }, 5000);
-
     } catch (error) {
       setFormState((prev) => ({
         ...prev,
@@ -239,7 +231,7 @@ const ContactForm = () => {
         }
       }));
     }
-  }, [formState.data, formState.isPartial, validateForm]);
+  }, [formState.data, formState.isPartial, formState.isSubmitting, formState.isSuccess, validateForm]);
 
   return (
     <div className="bg-card rounded-2xl p-8 shadow-lg form-card">
@@ -406,7 +398,7 @@ const ContactForm = () => {
 
         <button
           type="submit"
-          disabled={formState.isSubmitting || formState.isPartial}
+          disabled={formState.isSubmitting || formState.isPartial || formState.isSuccess}
           className="w-full px-6 py-4 bg-gradient-to-r from-jstar-blue to-faith-purple text-white font-semibold rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           aria-describedby={formState.errors.general ? "general-error" : undefined}>
 
@@ -416,7 +408,7 @@ const ContactForm = () => {
               Sending...
             </> :
 
-          'Send Message'
+          formState.isSuccess ? 'Enquiry received' : 'Send Message'
           }
         </button>
       </form>
@@ -429,7 +421,7 @@ const ContactForm = () => {
               <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
-              Thank you for your message! I will get back to you within 24 hours.
+              Your enquiry has been received. You do not need to send it again.
               {formState.data.newsletter &&
             <span className="block mt-1 text-xs">
                   You&apos;ll also receive a confirmation email about your newsletter subscription.
