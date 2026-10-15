@@ -119,6 +119,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
   const [controlsAvailable, setControlsAvailable] = useState(false);
   const [navFolded, setNavFolded] = useState(false);
   const [soundAwake, setSoundAwake] = useState(false);
+  const [soundHint, setSoundHint] = useState(false);
   const [message, setMessage] = useState('');
   const controlsVisible = filmAvailable && (controlsAvailable || (reduced && expanded));
   const navHidden = navFolded || (reduced && expanded);
@@ -381,11 +382,15 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
     if (!controlsVisible) return;
     setSoundAwake(true);
     if (soundTimer.current) clearTimeout(soundTimer.current);
-    soundTimer.current = setTimeout(() => setSoundAwake(false), delay);
+    soundTimer.current = setTimeout(() => {
+      setSoundAwake(false);
+      setSoundHint(false);
+    }, delay);
   }, [controlsVisible]);
 
   useEffect(() => {
     if (controlsVisible) {
+      setSoundHint(true);
       wakeSound(3000);
       if (wantsScreeningFocus.current) {
         wantsScreeningFocus.current = false;
@@ -393,6 +398,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
       }
     } else {
       setSoundAwake(false);
+      setSoundHint(false);
     }
     return () => { if (soundTimer.current) clearTimeout(soundTimer.current); };
   }, [controlsVisible, wakeSound]);
@@ -1195,7 +1201,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
               aria-label={playing ? 'Nifemi film, playing' : 'Nifemi film, paused'}
               onKeyDown={(event) => { if (event.code === 'Space') { event.preventDefault(); void togglePlayback(); } }}
               onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)}
-              onError={() => setMessage('Film unavailable.')}
+              onError={() => setMessage('Film unavailable. Please reload this local preview.')}
             />
           </div>
           <div className={styles.businessIntro}>
@@ -1243,10 +1249,11 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
             </button>
           )}
           <p id="film-keyboard-help" className={styles.srOnly}>Press Space on the film to pause or play. Escape returns to the studio opening.</p>
-          <div className={styles.soundControl} data-awake={soundAwake} inert={!controlsVisible}>
+          <div className={styles.soundControl} data-awake={soundAwake} data-hint={soundHint} inert={!controlsVisible}>
             <button id="film-sound" ref={soundButton} onPointerEnter={() => wakeSound()} onFocus={() => wakeSound()}
-              onClick={() => { setMuted(!muted); wakeSound(); }}
+              onClick={() => { setMuted(!muted); setSoundHint(false); wakeSound(); }}
               aria-label={muted ? 'Enable sound' : 'Mute sound'} aria-pressed={!muted} title={muted ? 'Enable sound' : 'Mute sound'}>
+              <span className={styles.soundLabel}>{muted ? 'Sound on' : 'Sound off'}</span>
               {muted ? <VolumeX size={16} aria-hidden="true" /> : <Volume2 size={16} aria-hidden="true" />}
             </button>
           </div>
