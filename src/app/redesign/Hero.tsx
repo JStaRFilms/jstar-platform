@@ -119,7 +119,6 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
   const [controlsAvailable, setControlsAvailable] = useState(false);
   const [navFolded, setNavFolded] = useState(false);
   const [soundAwake, setSoundAwake] = useState(false);
-  const [soundHint, setSoundHint] = useState(false);
   const [message, setMessage] = useState('');
   const controlsVisible = filmAvailable && (controlsAvailable || (reduced && expanded));
   const navHidden = navFolded || (reduced && expanded);
@@ -382,15 +381,11 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
     if (!controlsVisible) return;
     setSoundAwake(true);
     if (soundTimer.current) clearTimeout(soundTimer.current);
-    soundTimer.current = setTimeout(() => {
-      setSoundAwake(false);
-      setSoundHint(false);
-    }, delay);
+    soundTimer.current = setTimeout(() => setSoundAwake(false), delay);
   }, [controlsVisible]);
 
   useEffect(() => {
     if (controlsVisible) {
-      setSoundHint(true);
       wakeSound(3000);
       if (wantsScreeningFocus.current) {
         wantsScreeningFocus.current = false;
@@ -398,7 +393,6 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
       }
     } else {
       setSoundAwake(false);
-      setSoundHint(false);
     }
     return () => { if (soundTimer.current) clearTimeout(soundTimer.current); };
   }, [controlsVisible, wakeSound]);
@@ -532,9 +526,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
     const resume = () => {
       if (galleryLive.current.mode !== 'browse') { film.pause(); return; }
       if (wantsPlayback.current && inView.current && !filmConcealed.current && !document.hidden) {
-        void film.play().catch(() => {
-          if (!disposed) setMessage('Focus the film and press Space to play.');
-        });
+        void film.play().catch(() => {});
       } else film.pause();
     };
     const collectionPosition = (value: number) => Math.max(0, Math.min(Math.max(0, collection.current.length - 1), ((value - 4.3) * scrollDistance() - height * .75) / (height * PROJECT_STRIDE)));
@@ -969,7 +961,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
       video.current?.pause();
     }
     else if (wantsPlayback.current && inView.current && !document.hidden) {
-      void video.current?.play().catch(() => setMessage('Focus the film and press Space to play.'));
+      void video.current?.play().catch(() => {});
     }
   }, [reduced, gameExpanded]);
 
@@ -985,7 +977,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
       try { await film.play(); }
       catch {
         wantsPlayback.current = false;
-        setMessage('The film could not play. Press Space to try again.');
+        setMessage('The film could not play.');
       }
     }
   }
@@ -1203,7 +1195,7 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
               aria-label={playing ? 'Nifemi film, playing' : 'Nifemi film, paused'}
               onKeyDown={(event) => { if (event.code === 'Space') { event.preventDefault(); void togglePlayback(); } }}
               onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)}
-              onError={() => setMessage('Film unavailable. Please reload this local preview.')}
+              onError={() => setMessage('Film unavailable.')}
             />
           </div>
           <div className={styles.businessIntro}>
@@ -1251,11 +1243,10 @@ export default function Hero({ projects = selectedWork }: { projects?: readonly 
             </button>
           )}
           <p id="film-keyboard-help" className={styles.srOnly}>Press Space on the film to pause or play. Escape returns to the studio opening.</p>
-          <div className={styles.soundControl} data-awake={soundAwake} data-hint={soundHint} inert={!controlsVisible}>
+          <div className={styles.soundControl} data-awake={soundAwake} inert={!controlsVisible}>
             <button id="film-sound" ref={soundButton} onPointerEnter={() => wakeSound()} onFocus={() => wakeSound()}
-              onClick={() => { setMuted(!muted); setSoundHint(false); wakeSound(); }}
+              onClick={() => { setMuted(!muted); wakeSound(); }}
               aria-label={muted ? 'Enable sound' : 'Mute sound'} aria-pressed={!muted} title={muted ? 'Enable sound' : 'Mute sound'}>
-              <span className={styles.soundLabel}>{muted ? 'Sound on' : 'Sound off'}</span>
               {muted ? <VolumeX size={16} aria-hidden="true" /> : <Volume2 size={16} aria-hidden="true" />}
             </button>
           </div>
