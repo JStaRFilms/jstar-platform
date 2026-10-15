@@ -55,7 +55,7 @@ export const selectedWork: readonly GalleryProject[] = [
       contributors: [
         { id: 'john', name: 'John Oluleke-Oke', role: 'Lead Architect & Full-Stack Developer', image: '/team/john-oluleke-oke.jpg' },
         { id: 'JS004', name: 'Justina Ominisan', role: 'Studio support', context: 'Studio team: front-end design.', image: '/team/justina-ominisan.jpg' },
-        { id: 'JS005', name: 'Ifechukwu Odigwe', role: 'Studio support', context: 'Studio team: AI tools engineering.', image: '/redesign/team-cutouts/ifechukwude-odigwe-v1.webp' },
+        { id: 'JS005', name: 'Ifechukwu Odigwe', role: 'Studio support', context: 'Studio team: AI tools engineering.', image: '/team/ifechukwude-odigwe-studio-600.webp' },
       ],
       pending: 'Current screenshots are still to come. This viewer uses the existing product image.',
     },
@@ -76,7 +76,7 @@ export const selectedWork: readonly GalleryProject[] = [
       contributors: [
         { id: 'john', name: 'John Oluleke-Oke', role: 'Lead Architect & Full-Stack Developer', image: '/team/john-oluleke-oke.jpg' },
         { id: 'JS004', name: 'Justina Ominisan', role: 'Studio support', context: 'Studio team: front-end design.', image: '/team/justina-ominisan.jpg' },
-        { id: 'JS005', name: 'Ifechukwu Odigwe', role: 'Studio support', context: 'Studio team: AI tools engineering.', image: '/redesign/team-cutouts/ifechukwude-odigwe-v1.webp' },
+        { id: 'JS005', name: 'Ifechukwu Odigwe', role: 'Studio support', context: 'Studio team: AI tools engineering.', image: '/team/ifechukwude-odigwe-studio-600.webp' },
       ],
       pending: 'Product screenshots are still to come. Visit website opens the public marketing site, not a verified demo. Studio support is separate from implementation credit.',
     },
